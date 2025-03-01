@@ -1,0 +1,44 @@
+apiVersion: "kubeflow.org/v1"
+kind: PyTorchJob
+metadata:
+  name: pytorch-mnist
+spec:
+  pytorchReplicaSpecs:
+    Master:
+      replicas: 1
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: pytorch
+              image: ghcr.io/converged-computing/pytorch-mnist:fashion-gke
+              imagePullPolicy: IfNotPresent
+              resources:
+                limits:
+                  nvidia.com/gpu: 1
+                requests:
+                  nvidia.com/gpu: 1
+              command:
+                - "/bin/bash"
+                - "-c"
+                - "time python3 /opt/pytorch-mnist/mnist.py --epochs=4 --backend=nccl --batch-size=128"
+    Worker:
+      replicas: 3
+      restartPolicy: OnFailure
+      template:
+        spec:
+          containers:
+            - name: pytorch
+              image: ghcr.io/converged-computing/pytorch-mnist:fashion-gke
+              resources:
+                limits:
+                  nvidia.com/gpu: 1
+                requests:
+                  nvidia.com/gpu: 1
+              imagePullPolicy: IfNotPresent
+              command:
+                - "python3"
+                - "/opt/pytorch-mnist/mnist.py"
+                - "--epochs=4"
+                - "--backend=nccl"
+                - "--batch-size=128"
