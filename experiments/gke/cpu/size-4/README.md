@@ -1,5 +1,7 @@
 # GKE CPU Experiment Size 4
 
+- quicksilver
+
 We are improving upon our initial performance study by using helm charts to deploy and run our containers.
 Note that while not all variables are required for each app (there are defaults) I am defining them below for transparency.
 
@@ -32,7 +34,7 @@ time gcloud container clusters create test-cluster \
 Save nodes:
 
 ```bash
-kubectl get nodes -o json > nodes-4.json 
+kubectl get nodes -o json > nodes-4-2.json 
 ```
 
 Install the Flux Operator
@@ -106,18 +108,19 @@ helm dependency update osu-benchmarks
 for app in osu_latency osu_bw
   do
   helm install \
-  --set experiment.nodes=2 \
+  --set experiment.nodes=4 \
   --set minicluster.size=4 \
   --set minicluster.tasks=2 \
   --set minicluster.save_logs=true \
   --set osu.binary=/opt/osu-benchmark/build.openmpi/mpi/pt2pt/$app \
   --set experiment.iterations=5 \
+  --set experiment.pairs=8 \
   --set experiment.tasks=2 \
   osu osu-benchmarks/
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=osu --timeout=600s
   pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-  kubectl logs ${pod} -f |& tee ./logs/$app.out
+  kubectl logs ${pod} -f |& tee ./logs/$app-pairs.out
   helm uninstall osu
 done
 ```
@@ -308,16 +311,16 @@ helm uninstall quicksilver
 
 ### single node benchmark
 
-TODO, for larger experiments, add ability to requires a unique node.
-
 ```console
 helm dependency update ./single-node
 helm install \
   --set experiment.nodes=4 \
   --set minicluster.size=4 \
-  --set minicluster.tasks=1 \
   --set minicluster.save_logs=true \
-  --set experiment.iterations=5 \
+  --set minicluster.show_logs=true \
+  --set experiment.foreach=true \
+  --set experiment.iterations=1 \
+  --set experiment.tasks=1 \
   single-node ./single-node
 
 time kubectl wait --for=condition=ready pod -l job-name=single-node --timeout=600s
@@ -329,19 +332,22 @@ helm uninstall single-node
 ### stream
 
 ```console
-helm dependency update ./single-node
+helm dependency update ./stream
 helm install \
   --set experiment.nodes=4 \
   --set minicluster.size=4 \
   --set minicluster.tasks=352 \
   --set minicluster.save_logs=true \
+  --set minicluster.show_logs=true \
+  --set experiment.foreach=true \
   --set experiment.iterations=1 \
+  --set experiment.tasks=88 \
   stream ./stream
 
-time kubectl wait --for=condition=ready pod -l job-name=single-node --timeout=600s
+time kubectl wait --for=condition=ready pod -l job-name=stream --timeout=600s
 pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-kubectl logs ${pod} -f |& tee ./logs/single-node.out
-helm uninstall single-node
+kubectl logs ${pod} -f |& tee ./logs/stream.out
+helm uninstall stream
 ```
 
 
