@@ -1,4 +1,4 @@
-# GKE CPU Experiment Size 16
+# GKE CPU Experiment Size 32
 
 - still need to do: quicksilver
 
