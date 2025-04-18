@@ -1,0 +1,35 @@
+Defaulted container "laghos" out of: laghos, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..2}
+do
+  echo "FLUX-RUN START laghos-iter-$i"
+  flux run --setattr=user.study_id=laghos-iter-$i -N16 -n 1408 -o cpu-affinity=per-task -o gpu-affinity=off    /opt/laghos/laghos -p 1 -dim 2 -rs 3 -tf 0.8 -pa   -pt 311  --mesh /opt/laghos/data/cube_311_hex.mesh   --max-steps 400   -cgm 50  -ok 3  -ot 2  -rp 2  --fom |& tee /tmp/laghos.out
+    echo "FLUX-RUN END laghos-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
