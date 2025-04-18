@@ -1,0 +1,282 @@
+Defaulted container "minife" out of: minife, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START minife-iter-$i"
+  flux run --setattr=user.study_id=minife-iter-$i -N64 -n 5632 -o cpu-affinity=per-task -o gpu-affinity=off    miniFE.x nx=230 ny=230 nz=230 use_locking=1 elem_group_size=10 use_elem_mat_fields=300 verify_solution=0 |& tee /tmp/minife.out
+    echo "FLUX-RUN END minife-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+sleep infinity
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     64     5632        0 minife-[0-63]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START minife-iter-1
+MiniFE Mini-App, OpenMP Peer Implementation
+Creating OpenMP Thread Pool...
+Counted: 5632 threads.
+Running MiniFE Mini-App...
+      creating/filling mesh...0.0450509s, total time: 0.0450509
+generating matrix structure...0.212771s, total time: 0.257822
+         assembling FE data...0.00511098s, total time: 0.262933
+      imposing Dirichlet BC...0.000746012s, total time: 0.263679
+      imposing Dirichlet BC...3.98159e-05s, total time: 0.263719
+making matrix indices local...0.0661371s, total time: 0.329856
+Starting CG solver ... 
+Initial Residual = 231.002
+Iteration = 20   Residual = 0.184678
+Iteration = 40   Residual = 0.17669
+Iteration = 60   Residual = 0.0298789
+Iteration = 80   Residual = 0.0105254
+Iteration = 100   Residual = 0.00716334
+Iteration = 120   Residual = 0.00520349
+Iteration = 140   Residual = 0.00379855
+Iteration = 160   Residual = 0.00271983
+Iteration = 180   Residual = 0.00192086
+Iteration = 200   Residual = 0.0013501
+Final Resid Norm: 0.0013501
+FLUX-RUN END minife-iter-1
+FLUX-RUN START minife-iter-2
+MiniFE Mini-App, OpenMP Peer Implementation
+Creating OpenMP Thread Pool...
+Counted: 5632 threads.
+Running MiniFE Mini-App...
+      creating/filling mesh...0.0413609s, total time: 0.0413609
+generating matrix structure...0.004915s, total time: 0.0462759
+         assembling FE data...0.00509715s, total time: 0.051373
+      imposing Dirichlet BC...0.000755072s, total time: 0.0521281
+      imposing Dirichlet BC...3.79086e-05s, total time: 0.052166
+making matrix indices local...0.0652092s, total time: 0.117375
+Starting CG solver ... 
+Initial Residual = 231.002
+Iteration = 20   Residual = 0.184678
+Iteration = 40   Residual = 0.17669
+Iteration = 60   Residual = 0.0298789
+Iteration = 80   Residual = 0.0105254
+Iteration = 100   Residual = 0.00716334
+Iteration = 120   Residual = 0.00520349
+Iteration = 140   Residual = 0.00379855
+Iteration = 160   Residual = 0.00271983
+Iteration = 180   Residual = 0.00192086
+Iteration = 200   Residual = 0.0013501
+Final Resid Norm: 0.0013501
+FLUX-RUN END minife-iter-2
+FLUX-RUN START minife-iter-3
+MiniFE Mini-App, OpenMP Peer Implementation
+Creating OpenMP Thread Pool...
+Counted: 5632 threads.
+Running MiniFE Mini-App...
+      creating/filling mesh...0.0519109s, total time: 0.0519109
+generating matrix structure...0.00755906s, total time: 0.0594699
+         assembling FE data...0.00503993s, total time: 0.0645099
+      imposing Dirichlet BC...0.000731945s, total time: 0.0652418
+      imposing Dirichlet BC...6.10352e-05s, total time: 0.0653028
+making matrix indices local...0.218697s, total time: 0.284
+Starting CG solver ... 
+Initial Residual = 231.002
+Iteration = 20   Residual = 0.184678
+Iteration = 40   Residual = 0.17669
+Iteration = 60   Residual = 0.0298789
+Iteration = 80   Residual = 0.0105254
+Iteration = 100   Residual = 0.00716334
+Iteration = 120   Residual = 0.00520349
+Iteration = 140   Residual = 0.00379855
+Iteration = 160   Residual = 0.00271983
+Iteration = 180   Residual = 0.00192086
+Iteration = 200   Residual = 0.0013501
+Final Resid Norm: 0.0013501
+FLUX-RUN END minife-iter-3
+FLUX-RUN START minife-iter-4
+MiniFE Mini-App, OpenMP Peer Implementation
+Creating OpenMP Thread Pool...
+Counted: 5632 threads.
+Running MiniFE Mini-App...
+      creating/filling mesh...0.0510919s, total time: 0.0510919
+generating matrix structure...0.00474s, total time: 0.0558319
+         assembling FE data...0.00508595s, total time: 0.0609179
+      imposing Dirichlet BC...0.000746012s, total time: 0.0616639
+      imposing Dirichlet BC...5.57899e-05s, total time: 0.0617197
+making matrix indices local...0.0633969s, total time: 0.125117
+Starting CG solver ... 
+Initial Residual = 231.002
+Iteration = 20   Residual = 0.184678
+Iteration = 40   Residual = 0.17669
+Iteration = 60   Residual = 0.0298789
+Iteration = 80   Residual = 0.0105254
+Iteration = 100   Residual = 0.00716334
+Iteration = 120   Residual = 0.00520349
+Iteration = 140   Residual = 0.00379855
+Iteration = 160   Residual = 0.00271983
+Iteration = 180   Residual = 0.00192086
+Iteration = 200   Residual = 0.0013501
+Final Resid Norm: 0.0013501
+FLUX-RUN END minife-iter-4
+FLUX-RUN START minife-iter-5
+MiniFE Mini-App, OpenMP Peer Implementation
+Creating OpenMP Thread Pool...
+Counted: 5632 threads.
+Running MiniFE Mini-App...
+      creating/filling mesh...0.052882s, total time: 0.052882
+generating matrix structure...0.00669408s, total time: 0.059576
+         assembling FE data...0.00511909s, total time: 0.0646951
+      imposing Dirichlet BC...0.000758886s, total time: 0.065454
+      imposing Dirichlet BC...4.00543e-05s, total time: 0.0654941
+making matrix indices local...0.061161s, total time: 0.126655
+Starting CG solver ... 
+Initial Residual = 231.002
+Iteration = 20   Residual = 0.184678
+Iteration = 40   Residual = 0.17669
+Iteration = 60   Residual = 0.0298789
+Iteration = 80   Residual = 0.0105254
+Iteration = 100   Residual = 0.00716334
+Iteration = 120   Residual = 0.00520349
+Iteration = 140   Residual = 0.00379855
+Iteration = 160   Residual = 0.00271983
+Iteration = 180   Residual = 0.00192086
+Iteration = 200   Residual = 0.0013501
+Final Resid Norm: 0.0013501
+FLUX-RUN END minife-iter-5
+0% [Working]            Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+0% [Connecting to security.ubuntu.com (185.125.190.82)]                                                       Get:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [2 InRelease 12.7 kB/128 kB 10%] [Waiting for headers]0% [2 InRelease 56.2 kB/128 kB 44%] [Waiting for headers]                                                         Get:3 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [2 InRelease 102 kB/128 kB 80%] [3 InRelease 9828 B/129 kB 8%]                                                                 0% [3 InRelease 14.2 kB/129 kB 11%]                                   Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 2588 B/127 kB 2%] [3 InRelease 14.2 kB/129 kB 11%]0% [4 InRelease 127 kB/127 kB 100%] [3 InRelease 14.2 kB/129 kB 11%]                                                                    0% [3 InRelease 14.2 kB/129 kB 11%]                                   Get:5 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4246 kB]
+0% [5 Packages 5551 B/4246 kB 0%] [3 InRelease 17.1 kB/129 kB 13%]0% [5 Packages 187 kB/4246 kB 4%] [3 InRelease 28.7 kB/129 kB 22%]                                                                  0% [Waiting for headers] [3 InRelease 72.1 kB/129 kB 56%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1542 kB]
+0% [6 Packages 692 kB/1542 kB 45%] [3 InRelease 72.1 kB/129 kB 56%]0% [5 Packages store 0 B] [6 Packages 709 kB/1542 kB 46%] [3 InRelease 72.1 kB/0% [5 Packages store 0 B] [Waiting for headers] [3 InRelease 75.0 kB/129 kB 58%                                                                               Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+0% [5 Packages store 0 B] [7 Packages 20.5 kB/55.7 kB 37%] [3 InRelease 75.0 kB0% [5 Packages store 0 B] [Waiting for headers] [3 InRelease 75.0 kB/129 kB 58%                                                                               Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3140 kB]
+0% [5 Packages store 0 B] [8 Packages 16.4 kB/3140 kB 1%] [3 InRelease 75.0 kB/0% [5 Packages store 0 B] [Waiting for headers] [3 InRelease 77.9 kB/129 kB 60%                                                                               Get:9 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+0% [5 Packages store 0 B] [9 Packages 1211 B/35.2 kB 3%] [3 InRelease 77.9 kB/10% [5 Packages store 0 B] [Waiting for headers] [3 InRelease 77.9 kB/129 kB 60%                                                                               Get:10 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+0% [5 Packages store 0 B] [10 Packages 22.9 kB/82.7 kB 28%] [3 InRelease 77.9 k                                                                               0% [5 Packages store 0 B] [3 InRelease 77.9 kB/129 kB 60%]                                                          0% [3 InRelease 118 kB/129 kB 92%]0% [6 Packages store 0 B] [3 InRelease 118 kB/129 kB 92%]                                                         0% [6 Packages store 0 B]                         0% [Working]0% [7 Packages store 0 B]                         0% [Working]0% [8 Packages store 0 B]59% [8 Packages store 0 B]                          60% [Waiting for headers]60% [9 Packages store 0 B] [Waiting for headers]                                                Get:11 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4000 kB]
+60% [9 Packages store 0 B] [11 Packages 2655 B/4000 kB 0%]                                                          60% [11 Packages 2655 B/4000 kB 0%]60% [10 Packages store 0 B] [11 Packages 2655 B/4000 kB 0%]                                                           61% [11 Packages 6999 B/4000 kB 0%]69% [11 Packages 1810 kB/4000 kB 45%]                                     79% [Working]79% [11 Packages store 0 B]                           Get:12 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1243 kB]
+79% [11 Packages store 0 B] [12 Packages 6999 B/1243 kB 1%]                                                           85% [11 Packages store 0 B] [Waiting for headers]                                                 Get:13 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2788 kB]
+85% [11 Packages store 0 B] [13 Packages 4096 B/2788 kB 0%]                                                           91% [13 Packages 1333 kB/2788 kB 48%]91% [12 Packages store 0 B] [13 Packages 1333 kB/2788 kB 48%]                                                             99% [13 Packages 2780 kB/2788 kB 100%]                                      99% [Waiting for headers]                         Get:14 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+99% [14 Packages 30.2 kB/47.7 kB 63%]99% [13 Packages store 0 B] [14 Packages 30.2 kB/47.7 kB 63%]                                                             99% [13 Packages store 0 B]                           99% [Working]99% [14 Packages store 0 B]                           100% [Working]              Fetched 17.6 MB in 2s (9663 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 57%Reading package lists... 57%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 57%Reading package lists... 57%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 10%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 95 not upgraded.
+
+FLUX-JOB START 962525659136 minife-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 64, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["miniFE.x", "nx=230", "ny=230", "nz=230", "use_locking=1", "elem_group_size=10", "use_elem_mat_fields=300", "verify_solution=0"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/minife", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "minife-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-63", "children": {"core": "0-87"}}], "nodelist": ["minife-[0-63]"], "starttime": 1744951821, "expiration": 4898551764}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1744951821.7574601,"name":"init"}
+{"timestamp":1744951821.7584081,"name":"starting"}
+{"timestamp":1744951821.787446,"name":"shell.init","context":{"service":"0-shell-fSHU6ba7","leader-rank":0,"size":64}}
+{"timestamp":1744951821.9528642,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,64,88,1]]}}}
+{"timestamp":1744951834.2911227,"name":"shell.task-exit","context":{"localid":78,"rank":78,"state":"Exited","pid":979,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1744951834.5562093,"name":"complete","context":{"status":0}}
+{"timestamp":1744951834.5562427,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 962525659136 minife-iter-5
+
+FLUX-JOB START 738851815424 minife-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 64, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["miniFE.x", "nx=230", "ny=230", "nz=230", "use_locking=1", "elem_group_size=10", "use_elem_mat_fields=300", "verify_solution=0"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/minife", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "minife-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-63", "children": {"core": "0-87"}}], "nodelist": ["minife-[0-63]"], "starttime": 1744951808, "expiration": 4898551764}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1744951808.425065,"name":"init"}
+{"timestamp":1744951808.4259501,"name":"starting"}
+{"timestamp":1744951808.4609036,"name":"shell.init","context":{"service":"0-shell-fLQgogWs","leader-rank":0,"size":64}}
+{"timestamp":1744951808.6234732,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,64,88,1]]}}}
+{"timestamp":1744951820.9657204,"name":"shell.task-exit","context":{"localid":61,"rank":149,"state":"Exited","pid":715,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1744951821.3224161,"name":"complete","context":{"status":0}}
+{"timestamp":1744951821.3224452,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 738851815424 minife-iter-4
+
+FLUX-JOB START 502511173632 minife-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 64, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["miniFE.x", "nx=230", "ny=230", "nz=230", "use_locking=1", "elem_group_size=10", "use_elem_mat_fields=300", "verify_solution=0"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/minife", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "minife-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-63", "children": {"core": "0-87"}}], "nodelist": ["minife-[0-63]"], "starttime": 1744951794, "expiration": 4898551764}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1744951794.337944,"name":"init"}
+{"timestamp":1744951794.3386722,"name":"starting"}
+{"timestamp":1744951794.3670855,"name":"shell.init","context":{"service":"0-shell-fECcC7hH","leader-rank":0,"size":64}}
+{"timestamp":1744951794.5303431,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,64,88,1]]}}}
+{"timestamp":1744951807.7181635,"name":"shell.task-exit","context":{"localid":81,"rank":81,"state":"Exited","pid":622,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1744951807.9924724,"name":"complete","context":{"status":0}}
+{"timestamp":1744951807.9924989,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 502511173632 minife-iter-3
+
+FLUX-JOB START 272780754944 minife-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 64, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["miniFE.x", "nx=230", "ny=230", "nz=230", "use_locking=1", "elem_group_size=10", "use_elem_mat_fields=300", "verify_solution=0"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/minife", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "minife-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-63", "children": {"core": "0-87"}}], "nodelist": ["minife-[0-63]"], "starttime": 1744951780, "expiration": 4898551764}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1744951780.6450253,"name":"init"}
+{"timestamp":1744951780.6457639,"name":"starting"}
+{"timestamp":1744951780.6711385,"name":"shell.init","context":{"service":"0-shell-f8AbhfuZ","leader-rank":0,"size":64}}
+{"timestamp":1744951780.8344252,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,64,88,1]]}}}
+{"timestamp":1744951793.6621816,"name":"shell.task-exit","context":{"localid":86,"rank":86,"state":"Exited","pid":451,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1744951793.9305477,"name":"complete","context":{"status":0}}
+{"timestamp":1744951793.9305863,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 272780754944 minife-iter-2
+
+FLUX-JOB START 48066723840 minife-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 64, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["miniFE.x", "nx=230", "ny=230", "nz=230", "use_locking=1", "elem_group_size=10", "use_elem_mat_fields=300", "verify_solution=0"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/minife", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "minife-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-63", "children": {"core": "0-87"}}], "nodelist": ["minife-[0-63]"], "starttime": 1744951767, "expiration": 4898551764}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1744951767.2524362,"name":"init"}
+{"timestamp":1744951767.2532494,"name":"starting"}
+{"timestamp":1744951767.2903221,"name":"shell.init","context":{"service":"0-shell-f2GEVXNw","leader-rank":0,"size":64}}
+{"timestamp":1744951767.4552169,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,64,88,1]]}}}
+{"timestamp":1744951779.9525077,"name":"shell.task-exit","context":{"localid":85,"rank":173,"state":"Exited","pid":233,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1744951780.2305286,"name":"complete","context":{"status":0}}
+{"timestamp":1744951780.230576,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 48066723840 minife-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}
