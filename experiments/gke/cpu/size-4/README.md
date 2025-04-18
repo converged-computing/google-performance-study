@@ -1,8 +1,12 @@
 # GKE CPU Experiment Size 4
 
+- quicksilver
+
 We are improving upon our initial performance study by using helm charts to deploy and run our containers.
+Note that while not all variables are required for each app (there are defaults) I am defining them below for transparency.
 
 ## Setup
+
 
 ```bash
 GOOGLE_PROJECT=llnl-flux
@@ -30,12 +34,12 @@ time gcloud container clusters create test-cluster \
 Save nodes:
 
 ```bash
-kubectl get nodes -o json > nodes-4.json 
+kubectl get nodes -o json > nodes-4-2.json 
 ```
 
 Install the Flux Operator
 
-```
+```bash
 kubectl apply -f https://raw.githubusercontent.com/flux-framework/flux-operator/refs/heads/main/examples/dist/flux-operator.yaml
 ```
 
@@ -57,6 +61,7 @@ helm install \
   --set experiment.nodes=4 \
   --set minicluster.size=4 \
   --set minicluster.tasks=352 \
+  --set minicluster.save_logs=true \
   --set amg.problem_size="256 256 128" \
   --set amg.processor_topology="4 8 11" \
   --set experiment.iterations=5 \
@@ -69,26 +74,7 @@ kubectl logs ${pod} -f |& tee ./logs/amg.out
 helm uninstall amg
 ```
 
-Note that in our performance study we did OMP_NUM_THREADS=2 and I didn't do that here. Let me try that.
-
-```bash
-helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set env.OMP_NUM_THREADS=2 \
-  --set minicluster.tasks=176 \
-  --set amg.problem_size="256 256 128" \
-  --set amg.processor_topology="4 4 11" \
-  --set experiment.iterations=3 \
-  --set experiment.tasks=176 \
-  amg amg2023/
-
-time kubectl wait --for=condition=ready pod -l job-name=amg --timeout=600s
-sleep 5
-pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-kubectl logs ${pod} -f |& tee ./logs/amg-with-threads.out
-helm uninstall amg
-```
+Note that in our performance study we did OMP_NUM_THREADS=2 and I didn't do that here (in testing performance was worse) but to do it, you would add: `--set env.OMP_NUM_THREADS=2`
 
 ### LAMMPS
 
@@ -98,6 +84,7 @@ helm install \
   --set experiment.nodes=4 \
   --set minicluster.size=4 \
   --set minicluster.tasks=352 \
+  --set minicluster.save_logs=true \
   --set lammps.x=32 \
   --set lammps.y=16 \
   --set lammps.z=16 \
@@ -113,7 +100,7 @@ helm uninstall lammps
 
 ### OSU
 
-First let's do the two that require exact two processes.
+First let's do the two that require exact two processes. Note that we are asking for a cluster of 4 nodes but running the benchmark on 2, so we are sampling from the entire cluster.
 
 ```bash
 helm dependency update osu-benchmarks
@@ -121,20 +108,23 @@ helm dependency update osu-benchmarks
 for app in osu_latency osu_bw
   do
   helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
+  --set experiment.nodes=4 \
+  --set minicluster.size=4 \
   --set minicluster.tasks=2 \
+  --set minicluster.save_logs=true \
   --set osu.binary=/opt/osu-benchmark/build.openmpi/mpi/pt2pt/$app \
   --set experiment.iterations=5 \
+  --set experiment.pairs=8 \
   --set experiment.tasks=2 \
   osu osu-benchmarks/
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=osu --timeout=600s
   pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-  kubectl logs ${pod} -f |& tee ./logs/$app.out
+  kubectl logs ${pod} -f |& tee ./logs/$app-pairs.out
   helm uninstall osu
 done
 ```
+
 And reduce
 
 ```bash
@@ -142,6 +132,7 @@ helm install \
   --set experiment.nodes=4 \
   --set minicluster.size=4 \
   --set minicluster.tasks=352 \
+  --set minicluster.save_logs=true \
   --set osu.binary=/opt/osu-benchmark/build.openmpi/mpi/collective/osu_allreduce \
   --set experiment.iterations=5 \
   --set experiment.tasks=352 \
@@ -153,7 +144,214 @@ kubectl logs ${pod} -f |& tee ./logs/osu_allreduce.out
 helm uninstall osu
 ```
 
-## First Impressions
+### Kripke
+
+Note that each run takes 10 minutes - should be done only 2-3 iterations.
+
+```
+helm dependency update ./kripke/
+helm install \
+  --set experiment.nodes=4 \
+  --set experiment.tasks=352 \
+  --set experiment.iterations=5 \
+  --set minicluster.save_logs=true \
+  --set minicluster.size=4 \
+  --set kripke.layout="DGZ" \
+  --set kripke.dset=16 \
+  --set kripke.gset=16 \
+  --set kripke.groups=16 \
+  --set kripke.niter=500 \
+  --set kripke.procs="8\,4\,11" \
+  --set kripke.quad=16 \
+  --set kripke.legendre=2 \
+  --set kripke.zones="448\,168\,264" \
+  kripke kripke/
+
+time kubectl wait --for=condition=ready pod -l job-name=kripke --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/kripke.out
+helm uninstall kripke
+```
+
+Notes from discussion.
+
+> We need to find the processes for each dimension (kripke.procs) each has to be a divisor of the corresponding zones.
+> 6x14x16 has to divide the number of ranks. We need to find zones and processor decomposition such that the process decomp multiplied together is divisible by the number of procs per node. AND each one of the zones is divisible by procs decomps.
+
+```
+# 4 nodes
+8x4x11
+448,168,264
+
+# 8 nodes
+8x8x11
+448,168,264
+
+# 16 nodes
+16x8x11
+448,168,264
+
+# 32 nodes
+16x8x11
+448,168,264
+
+# 64 nodes
+32x8x11
+448,168,264
+
+# 128 nodes
+64x8x11
+448,168,264
+
+64x8x11
+448,168,264
+```
+
+- kripke.zones has to be divisible by kripke.procs
+- as we double size, one of the procs will need to double
+
+### Laghos
+
+```
+helm dependency update laghos
+helm install \
+  --set experiment.nodes=4 \
+  --set minicluster.size=4 \
+  --set minicluster.tasks=352 \
+  --set minicluster.save_logs=true \
+  --set laghos.p=1 \
+  --set laghos.pt=311 \
+  --set laghos.dim=2 \
+  --set laghos.rs=3 \
+  --set laghos.tf=0.8 \
+  --set laghos.pa=true \
+  --set laghos.fom=true \
+  --set laghos.ode_solve=7 \
+  --set laghos.max_steps=400 \
+  --set laghos.cg_tol=0 \
+  --set laghos.cgm=50 \
+  --set laghos.ok=3 \
+  --set laghos.rp=2 \
+  --set laghos.ot=2 \
+  --set laghos.mesh=/opt/laghos/data/cube_311_hex.mesh \
+  --set experiment.iterations=5 \
+  --set experiment.tasks=352 \
+  laghos ./laghos
+
+time kubectl wait --for=condition=ready pod -l job-name=laghos --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/laghos.out
+helm uninstall laghos
+```
+
+Sometimes mesh tangling at different task numbers.
+
+### Minife
+
+```
+helm dependency update ./minife
+helm install \
+  --set experiment.nodes=4 \
+  --set minicluster.size=4 \
+  --set minicluster.tasks=352 \
+  --set minicluster.sleep=true \
+  --set minicluster.save_logs=true \
+  --set minife.nx=230 \
+  --set minife.ny=230 \
+  --set minife.nz=230 \
+  --set minife.use_locking=1 \
+  --set minife.elem_group_size=10 \
+  --set minife.use_elem_mat_fields=300 \
+  --set minife.verify_solution=0 \
+  --set experiment.iterations=5 \
+  --set experiment.tasks=352 \
+  minife ./minife
+
+time kubectl wait --for=condition=ready pod -l job-name=minife --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/minife.out
+# Note that we need to copy over the output here! Minife generates yaml output
+kubectl exec minife-0-xxx -- mkdir -p /opt/minife/logs
+kubectl exec minife-0-xxx -- cp /opt/minife/*.yaml /opt/minife/logs
+kubectl cp minife-0-vbk74:/opt/minife/logs logs/minife/
+helm uninstall minife
+```
+
+### quicksilver
+
+**Not run yet, need params from Abhik**
+
+```console
+helm dependency update ./quicksilver
+helm install \
+  --set experiment.nodes=4 \
+  --set minicluster.size=4 \
+  --set minicluster.tasks=352 \
+  --set minicluster.save_logs=true \
+  --set quicksilver.inputfile="/opt/quicksilver/Examples/CORAL2_Benchmark/Problem1/Coral2_P1.inp" \
+  --set quicksilver.X=128 \
+  --set quicksilver.Y=64 \
+  --set quicksilver.Z=64 \
+  --set quicksilver.x=128 \
+  --set quicksilver.y=64 \
+  --set quicksilver.z=64 \
+  --set quicksilver.I=8 \
+  --set quicksilver.J=8 \
+  --set quicksilver.K=8 \
+  --set quicksilver.n=167772160 \
+  --set experiment.iterations=5 \
+  --set experiment.tasks=352 \
+  qs ./quicksilver
+
+time kubectl wait --for=condition=ready pod -l job-name=mixbench --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/quicksilver.out
+helm uninstall quicksilver
+```
+
+### single node benchmark
+
+```console
+helm dependency update ./single-node
+helm install \
+  --set experiment.nodes=4 \
+  --set minicluster.size=4 \
+  --set minicluster.save_logs=true \
+  --set minicluster.show_logs=true \
+  --set experiment.foreach=true \
+  --set experiment.iterations=1 \
+  --set experiment.tasks=1 \
+  single-node ./single-node
+
+time kubectl wait --for=condition=ready pod -l job-name=single-node --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/single-node.out
+helm uninstall single-node
+```
+
+### stream
+
+```console
+helm dependency update ./stream
+helm install \
+  --set experiment.nodes=4 \
+  --set minicluster.size=4 \
+  --set minicluster.tasks=352 \
+  --set minicluster.save_logs=true \
+  --set minicluster.show_logs=true \
+  --set experiment.foreach=true \
+  --set experiment.iterations=1 \
+  --set experiment.tasks=88 \
+  stream ./stream
+
+time kubectl wait --for=condition=ready pod -l job-name=stream --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/stream.out
+helm uninstall stream
+```
+
+
+## First Impressions (Testing)
 
 Firstly, we only have 4 nodes (they are about $5/hour so I am being conservative) so we don't have a direct comparison. But the FOM should (I think) be comparable for AMG, and the OSU latency. Some quick impressions:
 

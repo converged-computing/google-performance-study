@@ -1,145 +1,243 @@
 Defaulted container "osu" out of: osu, flux-view (init)
-#!/bin/bash
-set -euo pipefail
-mkdir -p /tmp/output
-flux resource list
-for i in {1..5}
-do
-  flux run --setattr=user.study_id=osu-iter-$i -N4 -n 352 -o cpu-affinity=per-task -o gpu-affinity=off    /opt/osu-benchmark/build.openmpi/mpi/collective/osu_allreduce |& tee /tmp/osu.out
-done
      STATE NNODES   NCORES    NGPUS NODELIST
       free      4      352        0 osu-[0-3]
  allocated      0        0        0 
       down      0        0        0 
+FLUX-RUN START osu-iter-1
 
 # OSU MPI Allreduce Latency Test v5.8
 # Size       Avg Latency(us)
-4                     130.32
-8                     114.32
-16                     91.22
-32                     96.01
-64                     99.98
-128                   102.69
-256                   101.59
-512                   101.60
-1024                  111.79
-2048                  119.37
-4096                  462.29
-8192                  456.98
-16384                 499.63
-32768                 598.01
-65536                 695.17
-131072                813.77
-262144                829.93
-524288               1238.26
-1048576              1929.88
+4                     118.08
+8                     126.45
+16                    131.27
+32                    108.04
+64                    155.39
+128                   124.77
+256                   109.10
+512                   112.99
+1024                  114.33
+2048                  140.67
+4096                  422.50
+8192                  448.60
+16384                 480.43
+32768                 511.91
+65536                 538.45
+131072                606.03
+262144                731.96
+524288               1154.86
+1048576              1937.90
+FLUX-RUN END osu-iter-1
+FLUX-RUN START osu-iter-2
 
 # OSU MPI Allreduce Latency Test v5.8
 # Size       Avg Latency(us)
-4                     104.41
-8                     101.30
-16                    100.86
-32                    104.20
-64                    109.26
-128                   117.46
-256                   109.68
-512                   108.56
-1024                  127.11
-2048                  128.01
-4096                 9789.15
-8192                 9751.44
-16384                9800.02
-32768                9787.99
-65536                9820.83
-131072               9794.27
-262144               9577.81
-524288               9616.80
-1048576              9547.41
+4                      95.88
+8                      97.46
+16                    101.66
+32                    118.04
+64                     99.75
+128                   125.20
+256                   130.56
+512                   120.31
+1024                  111.28
+2048                  119.63
+4096                 9723.30
+8192                 9790.92
+16384                9787.13
+32768                9859.39
+65536                9855.11
+131072               9783.83
+262144               9859.80
+524288               9852.86
+1048576              9680.47
+FLUX-RUN END osu-iter-2
+FLUX-RUN START osu-iter-3
 
 # OSU MPI Allreduce Latency Test v5.8
 # Size       Avg Latency(us)
-4                     109.07
-8                      90.12
-16                     97.45
-32                     88.51
-64                     94.31
-128                    91.49
-256                    94.65
-512                   122.61
-1024                  113.60
-2048                  127.83
-4096                 9811.42
-8192                 9748.48
-16384                9742.20
-32768                9737.21
-65536                9846.15
-131072               9850.39
-262144               9775.86
-524288              10725.01
-1048576              9566.40
+4                     117.07
+8                     116.45
+16                     90.40
+32                    147.56
+64                    107.49
+128                   112.08
+256                   116.73
+512                   110.12
+1024                  128.64
+2048                  130.17
+4096                 9767.29
+8192                 9757.14
+16384                9708.95
+32768                9620.05
+65536                9767.42
+131072               9774.17
+262144               9772.79
+524288               9492.62
+1048576              9677.24
+FLUX-RUN END osu-iter-3
+FLUX-RUN START osu-iter-4
 
 # OSU MPI Allreduce Latency Test v5.8
 # Size       Avg Latency(us)
-4                      97.98
-8                     104.80
-16                     91.20
-32                    106.44
-64                     96.27
-128                    88.04
-256                    99.62
-512                   103.24
-1024                  103.11
-2048                  116.46
-4096                 9701.88
-8192                 9750.38
-16384                9767.93
-32768                9771.47
-65536                9778.38
-131072               9699.97
-262144               9794.78
-524288               9710.00
-1048576              9614.69
+4                      87.75
+8                     133.81
+16                     85.94
+32                     86.17
+64                     94.83
+128                    89.22
+256                    93.74
+512                    94.93
+1024                   96.55
+2048                  123.00
+4096                  490.33
+8192                  516.38
+16384                 538.43
+32768                 593.96
+65536                 569.65
+131072                646.58
+262144               1290.62
+524288               1115.22
+1048576              1836.46
+FLUX-RUN END osu-iter-4
+FLUX-RUN START osu-iter-5
 
 # OSU MPI Allreduce Latency Test v5.8
 # Size       Avg Latency(us)
-4                     132.67
-8                     108.39
-16                     98.49
-32                    117.36
-64                    128.36
-128                   100.11
-256                   139.09
-512                   108.73
-1024                  119.81
-2048                  136.81
-4096                 9729.17
-8192                 9765.40
-16384                9719.44
-32768                9698.61
-65536                9775.00
-131072               9852.38
-262144               9801.20
-524288               9361.19
-1048576              9358.58
+4                      92.94
+8                      98.87
+16                     90.54
+32                     88.95
+64                     91.76
+128                    94.32
+256                    96.50
+512                   105.41
+1024                  104.18
+2048                  120.03
+4096                 9755.88
+8192                 9760.16
+16384                9840.08
+32768                9810.13
+65536                9880.00
+131072               9898.58
+262144               9836.38
+524288               9764.12
+1048576              9668.65
+FLUX-RUN END osu-iter-5
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [1 InRelease 4036 B/129 kB 3%]                                 0% [Waiting for headers]0% [Waiting for headers]                        Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+0% [Waiting for headers] [Waiting for headers]                                              Get:3 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+0% [Waiting for headers] [3 Packages 2659 B/47.7 kB 6%]                                                       0% [Waiting for headers]0% [3 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                     0% [Waiting for headers] [Waiting for headers]0% [Waiting for headers] [Waiting for headers]                                              Get:4 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4000 kB]
+0% [Waiting for headers] [4 Packages 2655 B/4000 kB 0%]                                                       Get:5 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [5 InRelease 5484 B/128 kB 4%] [4 Packages 12.8 kB/4000 kB 0%]                                                                 0% [5 InRelease 62.0 kB/128 kB 48%] [Waiting for headers]                                                         Get:6 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2788 kB]
+0% [5 InRelease 62.0 kB/128 kB 48%] [6 Packages 52.1 kB/2788 kB 2%]0% [4 Packages store 0 B] [5 InRelease 62.0 kB/128 kB 48%] [6 Packages 81.9 kB/0% [4 Packages store 0 B] [5 InRelease 76.4 kB/128 kB 60%] [Waiting for headers                                                                               Get:7 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1243 kB]
+0% [4 Packages store 0 B] [5 InRelease 76.4 kB/128 kB 60%] [7 Packages 16.2 kB/                                                                               0% [4 Packages store 0 B] [5 InRelease 79.3 kB/128 kB 62%]                                                          0% [5 InRelease 114 kB/128 kB 89%]0% [6 Packages store 0 B] [5 InRelease 114 kB/128 kB 89%]                                                         0% [6 Packages store 0 B]                         0% [Waiting for headers]0% [7 Packages store 0 B] [Waiting for headers]0% [7 Packages store 0 B] [Waiting for headers]                                               0% [Waiting for headers]                        Get:8 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [8 InRelease 2588 B/127 kB 2%]                                 0% [Working]55% [Waiting for headers]                         Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3140 kB]
+55% [9 Packages 2655 B/3140 kB 0%]69% [9 Packages 3062 kB/3140 kB 98%]                                    70% [Waiting for headers]                         Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+70% [10 Packages 4896 B/55.7 kB 9%]70% [9 Packages store 0 B] [10 Packages 4896 B/55.7 kB 9%]                                                          70% [9 Packages store 0 B] [Waiting for headers]                                                Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1542 kB]
+70% [9 Packages store 0 B] [11 Packages 5442 B/1542 kB 0%]                                                          77% [9 Packages store 0 B] [Waiting for headers]                                                Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4246 kB]
+77% [9 Packages store 0 B] [12 Packages 7963 B/4246 kB 0%]                                                          86% [12 Packages 1945 kB/4246 kB 46%]86% [10 Packages store 0 B] [12 Packages 1945 kB/4246 kB 46%]                                                             87% [12 Packages 2051 kB/4246 kB 48%]87% [11 Packages store 0 B] [12 Packages 2051 kB/4246 kB 48%]                                                             97% [11 Packages store 0 B] [Waiting for headers]                                                 Get:13 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+97% [11 Packages store 0 B] [13 Packages 35.2 kB/35.2 kB 100%]                                                              97% [11 Packages store 0 B] [Waiting for headers]                                                 Get:14 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+98% [11 Packages store 0 B] [14 Packages 29.7 kB/82.7 kB 36%]                                                             98% [11 Packages store 0 B]                           98% [Working]98% [12 Packages store 0 B]                           99% [Working]99% [13 Packages store 0 B]                           99% [Working]99% [14 Packages store 0 B]                           100% [Working]              Fetched 17.6 MB in 2s (8045 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 7%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 115 not upgraded.
 
-# OSU MPI Allreduce Latency Test v5.8
-# Size       Avg Latency(us)
-4                     132.67
-8                     108.39
-16                     98.49
-32                    117.36
-64                    128.36
-128                   100.11
-256                   139.09
-512                   108.73
-1024                  119.81
-2048                  136.81
-4096                 9729.17
-8192                 9765.40
-16384                9719.44
-32768                9698.61
-65536                9775.00
-131072               9852.38
-262144               9801.20
-524288               9361.19
-1048576              9358.58
+FLUX-JOB START 2234205077504 osu-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/collective/osu_allreduce"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "osu-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["osu-[0-3]"], "starttime": 1744852538, "expiration": 4898452404}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1744852538.0911763,"name":"init"}
+{"timestamp":1744852538.101615,"name":"shell.init","context":{"service":"0-shell-f21gx421M","leader-rank":0,"size":4}}
+{"timestamp":1744852538.0916381,"name":"starting"}
+{"timestamp":1744852538.259912,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1744852593.8255773,"name":"shell.task-exit","context":{"localid":79,"rank":79,"state":"Exited","pid":980,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1744852593.8846104,"name":"complete","context":{"status":0}}
+{"timestamp":1744852593.8846416,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2234205077504 osu-iter-5
+
+FLUX-JOB START 2064268656640 osu-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/collective/osu_allreduce"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "osu-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["osu-[0-3]"], "starttime": 1744852527, "expiration": 4898452404}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1744852527.9615171,"name":"init"}
+{"timestamp":1744852527.9718482,"name":"shell.init","context":{"service":"0-shell-fwE3MSab","leader-rank":0,"size":4}}
+{"timestamp":1744852527.9620423,"name":"starting"}
+{"timestamp":1744852528.130213,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1744852537.8611679,"name":"shell.task-exit","context":{"localid":65,"rank":65,"state":"Exited","pid":771,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1744852537.8936861,"name":"complete","context":{"status":0}}
+{"timestamp":1744852537.8937159,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2064268656640 osu-iter-4
+
+FLUX-JOB START 1122865512448 osu-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/collective/osu_allreduce"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "osu-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["osu-[0-3]"], "starttime": 1744852471, "expiration": 4898452404}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1744852471.8497946,"name":"init"}
+{"timestamp":1744852471.8598852,"name":"shell.init","context":{"service":"0-shell-fWVknFod","leader-rank":0,"size":4}}
+{"timestamp":1744852471.8502948,"name":"starting"}
+{"timestamp":1744852472.0187902,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1744852527.7077246,"name":"shell.task-exit","context":{"localid":78,"rank":78,"state":"Exited","pid":616,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1744852527.7657955,"name":"complete","context":{"status":0}}
+{"timestamp":1744852527.7658243,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1122865512448 osu-iter-3
+
+FLUX-JOB START 177637163008 osu-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/collective/osu_allreduce"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "osu-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["osu-[0-3]"], "starttime": 1744852415, "expiration": 4898452404}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1744852415.509584,"name":"init"}
+{"timestamp":1744852415.5193896,"name":"shell.init","context":{"service":"0-shell-f5feBtn3","leader-rank":0,"size":4}}
+{"timestamp":1744852415.5100241,"name":"starting"}
+{"timestamp":1744852415.6767383,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1744852471.594841,"name":"shell.task-exit","context":{"localid":71,"rank":71,"state":"Exited","pid":421,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1744852471.6521604,"name":"complete","context":{"status":0}}
+{"timestamp":1744852471.6521883,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 177637163008 osu-iter-2
+
+FLUX-JOB START 10955522048 osu-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/collective/osu_allreduce"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "osu-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["osu-[0-3]"], "starttime": 1744852405, "expiration": 4898452404}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1744852405.5754664,"name":"init"}
+{"timestamp":1744852405.5849481,"name":"shell.init","context":{"service":"0-shell-fHh6v2B","leader-rank":0,"size":4}}
+{"timestamp":1744852405.5758874,"name":"starting"}
+{"timestamp":1744852405.7437601,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1744852415.252414,"name":"shell.task-exit","context":{"localid":75,"rank":75,"state":"Exited","pid":248,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1744852415.3120508,"name":"complete","context":{"status":0}}
+{"timestamp":1744852415.3120787,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 10955522048 osu-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}
