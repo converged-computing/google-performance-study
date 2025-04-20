@@ -345,6 +345,12 @@ def parse_flux_jobs(item):
         # Here, study id is job id above (e.g. amg2023-iter-1)
         if "FLUX-JOB START" in line and "echo" not in line:
             jobid, study_id = line.split(' ')[-2:]
+            # I shelled in and ran hostname for osu, oops
+            if study_id == "null":
+                find_section(lines, "FLUX-JOB-JOBSPEC")
+                find_section(lines, "FLUX-JOB-RESOURCES")
+                find_section(lines, "FLUX-JOB-EVENTLOG")
+                continue
             jobs[study_id]['fluxid'] = jobid
             jobspec, lines = find_section(lines, "FLUX-JOB-JOBSPEC")
             jobs[study_id]['jobspec'] = jobspec

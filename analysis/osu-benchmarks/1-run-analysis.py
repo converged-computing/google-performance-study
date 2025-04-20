@@ -219,55 +219,55 @@ def parse_flux_jobs(item):
     jobs = {}
     current_job = None
     jobid = None
-    lines = item.split('\n')
+    lines = item.split("\n")
     while lines:
         line = lines.pop(0)
 
         # This is the start of a job
         if "FLUX-RUN START" in line and "echo" not in line:
-            jobid = line.split(' ')[-2]
+            jobid = line.split(" ")[-2]
             current_job = []
             if jobid not in jobs:
-                jobs[jobid] = {'log': []}
+                jobs[jobid] = {"log": []}
         # This is the end of a job
         elif "FLUX-RUN END" in line and "echo" not in line:
-            jobs[jobid]['log'].append("\n".join(current_job))
+            jobs[jobid]["log"].append("\n".join(current_job))
             jobid = None
         elif jobid is not None:
             current_job.append(line)
             continue
 
-    lines = item.split('\n')
+    lines = item.split("\n")
     while lines:
         line = lines.pop(0)
 
         # Here, study id is job id above (e.g. amg2023-iter-1)
         if "FLUX-JOB START" in line and "echo" not in line:
-            jobid, study_id = line.split(' ')[-2:]
+            jobid, study_id = line.split(" ")[-2:]
             # There was a "null" run, not sure why, skip
             if study_id == "null":
                 continue
             # OSU is different - we have iterations within each
             if "runs" not in jobs[study_id]:
                 jobs[study_id]["runs"] = {}
-            jobs[study_id]['runs'][jobid] = {}
+            jobs[study_id]["runs"][jobid] = {}
             jobspec, lines = ps.find_section(lines, "FLUX-JOB-JOBSPEC")
-            jobs[study_id]['runs'][jobid]['jobspec'] = jobspec
+            jobs[study_id]["runs"][jobid]["jobspec"] = jobspec
             resources, lines = ps.find_section(lines, "FLUX-JOB-RESOURCES")
-            jobs[study_id]['runs'][jobid]['resources'] = resources
+            jobs[study_id]["runs"][jobid]["resources"] = resources
             events, lines = ps.find_section(lines, "FLUX-JOB-EVENTLOG")
-            jobs[study_id]['runs'][jobid]['events'] = events
+            jobs[study_id]["runs"][jobid]["events"] = events
 
             # Calculate duration
             start = [x for x in events if x["name"] == "shell.start"][0]["timestamp"]
             done = [x for x in events if x["name"] == "done"][0]["timestamp"]
-            jobs[study_id]['runs'][jobid]['duration'] = done - start
+            jobs[study_id]["runs"][jobid]["duration"] = done - start
 
             assert "FLUX-JOB END" in lines[0]
             lines.pop(0)
 
         # Note that flux job stats are at the end, we don't parse
- 
+
     return jobs
 
 
@@ -297,11 +297,11 @@ def parse_data(indir, outdir, files):
         try:
             jobs = parse_flux_jobs(item)
             for job, metadata in jobs.items():
-                for i, run in enumerate(metadata['runs']):            
-                    outlines = metadata['log'][i].strip().split('\n')
+                for i, run in enumerate(metadata["runs"]):
+                    outlines = metadata["log"][i].strip().split("\n")
 
                     # osu_latency, osu_bw, osu_allreduce
-                    command = find_osu_command(metadata['runs'][run])
+                    command = find_osu_command(metadata["runs"][run])
                     matrix = parse_multi_section([command] + outlines)
                     matrix["context"] = [exp.cloud, exp.env, exp.env_type, exp.size]
                     parsed.append(matrix)
@@ -309,13 +309,13 @@ def parse_data(indir, outdir, files):
             # All reduce run in normal mode
             jobs = ps.parse_flux_jobs(item)
             for job, metadata in jobs.items():
-                outlines = metadata['log'].strip().split('\n')
+                outlines = metadata["log"].strip().split("\n")
                 command = find_osu_command(metadata)
                 matrix = parse_multi_section([command] + outlines)
                 matrix["context"] = [exp.cloud, exp.env, exp.env_type, exp.size]
                 parsed.append(matrix)
 
-    print(f"Done parsing OSU {len(result_count)} results!")
+    print(f"Done parsing OSU results!")
     ps.write_json(parsed, os.path.join(outdir, "osu-parsed.json"))
     ps.write_json(jobs, os.path.join(outdir, "flux-jobspec-events.json"))
     return parsed
@@ -359,7 +359,7 @@ def plot_results(results, outdir, non_anon=False):
     # Create a data frame for each result type, also lookup by size
     # For osu latency we will combine into one size (2 nodes)
     dfs_cpu = {}
-    idxs_cpu = {}
+    idxs_cpu = {"all": 0}
 
     # lookup for x and y values for each
     lookup_cpu = {}
@@ -381,6 +381,11 @@ def plot_results(results, outdir, non_anon=False):
             "env_type",
             "nodes",
         ]
+        # Prepare a data frame with all data across sizes
+        if "all" not in lookup_cpu[title]:
+            lookup_cpu[title]["all"] = {"x": columns[0], "y": columns[1]}
+            dfs_cpu[title]["all"] = pandas.DataFrame(columns=columns)
+            idxs_cpu[title]["all"] = 0
 
         experiment = os.sep.join(entry["context"][:-1] + [command])
         # E.g., azure/aks. We don't want to include cpu/gpu or the command
@@ -396,6 +401,10 @@ def plot_results(results, outdir, non_anon=False):
                 datum + [experiment] + entry["context"]
             )
             idxs_cpu[title][size] += 1
+            dfs_cpu[title]["all"].loc[idxs_cpu[title]["all"], :] = (
+                datum + [experiment] + entry["context"]
+            )
+            idxs_cpu[title]["all"] += 1
 
     # We are going to put the plots together, and the colors need to match!
     cloud_colors = {}
@@ -423,7 +432,7 @@ def plot_results(results, outdir, non_anon=False):
         for size, subset in sizes.items():
 
             # We are doing size 256 for the paper
-            if size != 64:
+            if size != 128:
                 continue
             print(f"Preparing plot for {slug} size {size}")
 
@@ -489,6 +498,83 @@ def plot_results(results, outdir, non_anon=False):
     plt.clf()
     plt.close()
 
+    # Now do all sizes
+    fig = plt.figure(figsize=(18, 3))
+    gs = plt.GridSpec(1, 4, width_ratios=[2, 2, 2, 0.8])
+    axes = []
+    axes.append(fig.add_subplot(gs[0, 0]))
+    axes.append(fig.add_subplot(gs[0, 1]))
+    axes.append(fig.add_subplot(gs[0, 2]))
+    axes.append(fig.add_subplot(gs[0, 3]))
+    i = 0
+
+    # Save each completed data frame to file and plot!
+    slugs = ["osu_latency", "osu_allreduce", "osu_bw"]
+    for slug in slugs:
+        size = "all"
+        subset = dfs_cpu[slug]["all"]
+
+        # Save entire (unsplit) data frame to file
+        # subset.to_csv(os.path.join(outdir, f"{slug}-{size}-cpu-dataframe.csv"))
+
+        # Separate x and y - latency (y) is a function of size (x)
+        xlabel = "Message size in bytes"
+        x = lookup_cpu[slug][size]["x"]
+        y = lookup_cpu[slug][size]["y"]
+
+        # for sty in plt.style.available:
+        sns.lineplot(
+            data=subset,
+            ax=axes[i],
+            hue="nodes",
+            x=x,
+            y=y,
+            markers=True,
+            dashes=True,
+            errorbar=("ci", 95),
+        )
+
+        axes[i].set_title(get_osu_title(slug), fontsize=12)
+        axes[i].set_xticklabels(axes[i].get_xmajorticklabels(), fontsize=10)
+        axes[i].set_yticklabels(axes[i].get_yticks(), fontsize=12)
+        y_label = y.replace("_", " ")
+        axes[i].set_xlabel("", fontsize=12)
+        axes[i].set_ylabel(y_label + " (logscale)", fontsize=12)
+        axes[i].set_xscale("log")
+        axes[i].set_yscale("log")
+        i += 1
+
+    font_prop = FontProperties(size=14)
+    fig.text(
+        0.50,
+        0.01,
+        xlabel + " (logscale)",
+        horizontalalignment="center",
+        wrap=True,
+        fontproperties=font_prop,
+    )
+    handles, labels = axes[0].get_legend_handles_labels()
+
+    # Tweak the label to anonymize
+    if not non_anon:
+        labels = ["/".join(x.split("/")[0:3]) for x in labels]
+        labels = [x.replace("/dane/", "/a/") for x in labels]
+
+    axes[3].legend(
+        handles, labels, loc="center left", bbox_to_anchor=(-0.25, 0.5), frameon=False
+    )
+    for ax in axes[0:3]:
+        ax.get_legend().remove()
+    axes[3].axis("off")
+    plt.xscale("log")
+    plt.yscale("log")
+    plt.subplots_adjust(bottom=0.15)
+    plt.title("OSU Benchmarks on Google Cloud H3")
+    plt.tight_layout()
+    plt.savefig(os.path.join(plots_by_size, "osu-latency-bw-reduce-cpu-all-sizes.svg"))
+    plt.savefig(os.path.join(plots_by_size, "osu-latency-bw-reduce-cpu-all-sizes.png"))
+    plt.clf()
+    plt.close()
 
 if __name__ == "__main__":
     main()

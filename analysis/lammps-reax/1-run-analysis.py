@@ -184,7 +184,7 @@ def plot_results(df, outdir, non_anon=False):
     #            "google/compute-engine/cpu",
             ],
             palette=cloud_colors,
-            order=[4, 8, 16, 32, 64],
+            order=[4, 8, 16, 32, 64, 128],
         )
         if metric in ["duration", "wall-time", "hookup-time"]:        
             axes[0].set_title(f"LAMMPS {metric.capitalize()} (CPU)", fontsize=14)
