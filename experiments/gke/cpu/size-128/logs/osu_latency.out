@@ -1,0 +1,1409 @@
+Defaulted container "osu" out of: osu, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+# At most 28 combinations, 8 nodes 2 at a time
+hosts=$(flux run -N128 hostname | shuf -n 8 | tr '\n' ' ')
+list=${hosts}
+dequeue_from_list() {
+  shift;
+  list=$@
+}
+iter=0
+for i in $hosts; do
+  dequeue_from_list $list
+  for j in $list; do
+    echo "FLUX-RUN START osu-iter-${i}-${j}"
+    flux run -N 2 -n 2        --setattr=user.study_id=osu-iter-$i-${j}       --requires="hosts:${i},${j}"       -o cpu-affinity=per-task -o gpu-affinity=off          /opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency
+    iter=$((iter+1))
+    echo "FLUX-RUN END osu-iter-${i}-${j}"
+done
+done
+
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free    128    11264        0 osu-[0-127]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START osu-iter-osu-77-osu-32
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      25.07
+1                      25.06
+2                      25.01
+4                      24.97
+8                      25.00
+16                     24.98
+32                     25.01
+64                     24.99
+128                    25.21
+256                    26.37
+512                    26.62
+1024                   26.84
+2048                   28.53
+4096                   29.53
+8192                   32.50
+16384                  43.42
+32768                  51.85
+65536                 116.83
+131072                146.63
+262144                191.39
+524288                268.35
+1048576               421.46
+2097152               721.74
+4194304              1280.00
+FLUX-RUN END osu-iter-osu-77-osu-32
+FLUX-RUN START osu-iter-osu-77-osu-68
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.33
+1                      23.33
+2                      23.47
+4                      23.45
+8                      23.46
+16                     23.42
+32                     23.44
+64                     23.47
+128                    23.46
+256                    24.52
+512                    24.77
+1024                   25.09
+2048                   26.39
+4096                   27.83
+8192                   30.84
+16384                  44.10
+32768                  46.58
+65536                 111.08
+131072                140.45
+262144                186.19
+524288                264.05
+1048576               410.10
+2097152               700.43
+4194304              1281.65
+FLUX-RUN END osu-iter-osu-77-osu-68
+FLUX-RUN START osu-iter-osu-77-osu-35
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.26
+1                      23.06
+2                      23.08
+4                      23.17
+8                      23.07
+16                     23.02
+32                     23.09
+64                     23.37
+128                    23.48
+256                    24.54
+512                    24.95
+1024                   25.11
+2048                   26.56
+4096                   27.80
+8192                   30.83
+16384                  42.56
+32768                  50.45
+65536                 111.12
+131072                141.31
+262144                188.10
+524288                267.04
+1048576               414.66
+2097152               719.55
+4194304              1325.56
+FLUX-RUN END osu-iter-osu-77-osu-35
+FLUX-RUN START osu-iter-osu-77-osu-49
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.04
+1                      23.20
+2                      23.24
+4                      23.27
+8                      23.27
+16                     23.24
+32                     23.29
+64                     23.38
+128                    23.37
+256                    24.60
+512                    24.77
+1024                   25.03
+2048                   26.64
+4096                   28.02
+8192                   31.22
+16384                  42.44
+32768                  48.11
+65536                 111.99
+131072                144.43
+262144                193.25
+524288                278.10
+1048576               443.52
+2097152               766.11
+4194304              1348.11
+FLUX-RUN END osu-iter-osu-77-osu-49
+FLUX-RUN START osu-iter-osu-77-osu-74
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.39
+1                      23.44
+2                      23.47
+4                      23.56
+8                      23.63
+16                     23.60
+32                     23.65
+64                     23.66
+128                    23.64
+256                    25.00
+512                    25.20
+1024                   25.59
+2048                   26.68
+4096                   28.37
+8192                   31.59
+16384                  41.36
+32768                  48.47
+65536                 112.38
+131072                144.54
+262144                191.21
+524288                274.44
+1048576               430.93
+2097152               751.48
+4194304              1318.95
+FLUX-RUN END osu-iter-osu-77-osu-74
+FLUX-RUN START osu-iter-osu-77-osu-45
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.28
+1                      23.34
+2                      23.47
+4                      23.42
+8                      23.56
+16                     23.45
+32                     23.51
+64                     23.68
+128                    23.75
+256                    25.00
+512                    25.27
+1024                   25.44
+2048                   26.84
+4096                   28.08
+8192                   31.14
+16384                  41.75
+32768                  48.45
+65536                 113.05
+131072                143.69
+262144                190.87
+524288                277.17
+1048576               431.23
+2097152               740.61
+4194304              1299.29
+FLUX-RUN END osu-iter-osu-77-osu-45
+FLUX-RUN START osu-iter-osu-77-osu-50
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.04
+1                      23.05
+2                      23.02
+4                      23.20
+8                      23.21
+16                     23.24
+32                     23.32
+64                     23.18
+128                    23.39
+256                    24.59
+512                    24.83
+1024                   25.01
+2048                   26.31
+4096                   27.82
+8192                   30.99
+16384                  41.04
+32768                  50.42
+65536                 111.23
+131072                142.70
+262144                189.62
+524288                269.75
+1048576               421.64
+2097152               732.70
+4194304              1326.91
+FLUX-RUN END osu-iter-osu-77-osu-50
+FLUX-RUN START osu-iter-osu-32-osu-68
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.57
+1                      23.54
+2                      23.56
+4                      23.64
+8                      23.61
+16                     23.55
+32                     23.68
+64                     23.72
+128                    23.76
+256                    24.98
+512                    25.00
+1024                   25.23
+2048                   26.94
+4096                   28.17
+8192                   30.77
+16384                  40.89
+32768                  50.59
+65536                 111.10
+131072                140.05
+262144                186.16
+524288                266.59
+1048576               407.23
+2097152               698.52
+4194304              1242.01
+FLUX-RUN END osu-iter-osu-32-osu-68
+FLUX-RUN START osu-iter-osu-32-osu-35
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      18.89
+1                      19.02
+2                      19.02
+4                      19.02
+8                      18.90
+16                     19.13
+32                     18.81
+64                     18.94
+128                    19.27
+256                    20.39
+512                    20.70
+1024                   20.93
+2048                   22.31
+4096                   23.48
+8192                   26.12
+16384                  39.59
+32768                  36.50
+65536                  98.78
+131072                130.12
+262144                177.62
+524288                262.51
+1048576               417.14
+2097152               736.45
+4194304              1286.68
+FLUX-RUN END osu-iter-osu-32-osu-35
+FLUX-RUN START osu-iter-osu-32-osu-49
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.32
+1                      23.34
+2                      23.44
+4                      23.41
+8                      23.36
+16                     23.39
+32                     23.37
+64                     23.43
+128                    23.62
+256                    24.59
+512                    24.76
+1024                   25.03
+2048                   26.35
+4096                   27.82
+8192                   30.91
+16384                  41.48
+32768                  50.06
+65536                 111.34
+131072                140.62
+262144                186.50
+524288                267.71
+1048576               412.37
+2097152               712.40
+4194304              1279.90
+FLUX-RUN END osu-iter-osu-32-osu-49
+FLUX-RUN START osu-iter-osu-32-osu-74
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.38
+1                      23.45
+2                      23.86
+4                      24.14
+8                      23.91
+16                     23.98
+32                     23.43
+64                     23.62
+128                    23.65
+256                    24.97
+512                    25.05
+1024                   25.44
+2048                   26.76
+4096                   28.19
+8192                   30.97
+16384                  41.44
+32768                  50.37
+65536                 111.05
+131072                138.64
+262144                182.30
+524288                263.51
+1048576               399.88
+2097152               686.79
+4194304              1221.85
+FLUX-RUN END osu-iter-osu-32-osu-74
+FLUX-RUN START osu-iter-osu-32-osu-45
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.64
+1                      23.73
+2                      23.73
+4                      23.80
+8                      23.76
+16                     23.83
+32                     23.80
+64                     23.86
+128                    23.94
+256                    25.21
+512                    25.44
+1024                   25.75
+2048                   27.23
+4096                   28.63
+8192                   31.58
+16384                  42.79
+32768                  48.30
+65536                 113.08
+131072                143.36
+262144                192.02
+524288                275.09
+1048576               425.73
+2097152               732.88
+4194304              1275.27
+FLUX-RUN END osu-iter-osu-32-osu-45
+FLUX-RUN START osu-iter-osu-32-osu-50
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.16
+1                      23.18
+2                      23.19
+4                      23.10
+8                      23.17
+16                     23.13
+32                     23.20
+64                     23.30
+128                    23.40
+256                    24.62
+512                    24.95
+1024                   25.24
+2048                   26.70
+4096                   28.01
+8192                   31.16
+16384                  41.46
+32768                  50.39
+65536                 112.24
+131072                141.19
+262144                187.01
+524288                267.93
+1048576               416.95
+2097152               718.39
+4194304              1269.99
+FLUX-RUN END osu-iter-osu-32-osu-50
+FLUX-RUN START osu-iter-osu-68-osu-35
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.14
+1                      23.18
+2                      23.16
+4                      23.13
+8                      23.22
+16                     23.07
+32                     23.16
+64                     23.18
+128                    23.45
+256                    24.83
+512                    24.97
+1024                   25.14
+2048                   26.87
+4096                   28.15
+8192                   31.23
+16384                  43.53
+32768                  50.69
+65536                 112.14
+131072                144.38
+262144                193.83
+524288                278.32
+1048576               440.99
+2097152               756.48
+4194304              1332.88
+FLUX-RUN END osu-iter-osu-68-osu-35
+FLUX-RUN START osu-iter-osu-68-osu-49
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.16
+1                      23.32
+2                      23.34
+4                      23.35
+8                      23.35
+16                     23.33
+32                     23.31
+64                     23.34
+128                    23.77
+256                    24.63
+512                    24.85
+1024                   25.09
+2048                   26.77
+4096                   28.09
+8192                   31.25
+16384                  40.78
+32768                  51.15
+65536                 112.55
+131072                145.94
+262144                195.07
+524288                282.32
+1048576               449.58
+2097152               779.02
+4194304              1351.61
+FLUX-RUN END osu-iter-osu-68-osu-49
+FLUX-RUN START osu-iter-osu-68-osu-74
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.19
+1                      23.28
+2                      23.26
+4                      23.31
+8                      23.32
+16                     23.34
+32                     23.33
+64                     23.39
+128                    23.50
+256                    24.81
+512                    24.99
+1024                   25.23
+2048                   26.61
+4096                   28.10
+8192                   31.00
+16384                  41.63
+32768                  44.87
+65536                 111.90
+131072                141.02
+262144                187.12
+524288                267.74
+1048576               415.69
+2097152               717.54
+4194304              1272.58
+FLUX-RUN END osu-iter-osu-68-osu-74
+FLUX-RUN START osu-iter-osu-68-osu-45
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.45
+1                      23.59
+2                      23.74
+4                      23.70
+8                      23.70
+16                     23.55
+32                     23.71
+64                     23.76
+128                    23.82
+256                    25.02
+512                    25.30
+1024                   25.65
+2048                   26.99
+4096                   28.51
+8192                   31.36
+16384                  41.92
+32768                  51.45
+65536                 112.69
+131072                141.53
+262144                187.38
+524288                266.47
+1048576               408.66
+2097152               697.81
+4194304              1250.99
+FLUX-RUN END osu-iter-osu-68-osu-45
+FLUX-RUN START osu-iter-osu-68-osu-50
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      18.82
+1                      18.79
+2                      18.77
+4                      18.90
+8                      18.86
+16                     18.81
+32                     18.87
+64                     18.88
+128                    19.02
+256                    20.08
+512                    20.26
+1024                   20.51
+2048                   21.62
+4096                   22.71
+8192                   25.26
+16384                  39.63
+32768                  35.86
+65536                  97.30
+131072                126.46
+262144                172.89
+524288                250.34
+1048576               394.28
+2097152               692.65
+4194304              1266.30
+FLUX-RUN END osu-iter-osu-68-osu-50
+FLUX-RUN START osu-iter-osu-35-osu-49
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.11
+1                      23.24
+2                      23.29
+4                      23.30
+8                      23.33
+16                     23.36
+32                     23.37
+64                     23.43
+128                    23.59
+256                    24.60
+512                    24.82
+1024                   25.02
+2048                   26.68
+4096                   27.96
+8192                   31.14
+16384                  42.50
+32768                  49.72
+65536                 111.44
+131072                141.33
+262144                187.59
+524288                269.00
+1048576               418.94
+2097152               723.03
+4194304              1335.02
+FLUX-RUN END osu-iter-osu-35-osu-49
+FLUX-RUN START osu-iter-osu-35-osu-74
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.67
+1                      23.84
+2                      23.74
+4                      23.64
+8                      23.82
+16                     23.86
+32                     23.61
+64                     23.67
+128                    23.84
+256                    25.19
+512                    25.67
+1024                   26.03
+2048                   27.38
+4096                   28.73
+8192                   31.22
+16384                  41.74
+32768                  50.54
+65536                 112.05
+131072                140.73
+262144                185.56
+524288                264.05
+1048576               405.24
+2097152               699.00
+4194304              1260.41
+FLUX-RUN END osu-iter-osu-35-osu-74
+FLUX-RUN START osu-iter-osu-35-osu-45
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.04
+1                      23.04
+2                      23.01
+4                      23.10
+8                      23.23
+16                     23.18
+32                     23.29
+64                     23.29
+128                    23.43
+256                    24.58
+512                    24.80
+1024                   25.02
+2048                   26.50
+4096                   27.89
+8192                   30.85
+16384                  42.53
+32768                  50.66
+65536                 111.29
+131072                140.63
+262144                186.69
+524288                265.07
+1048576               408.53
+2097152               692.59
+4194304              1263.80
+FLUX-RUN END osu-iter-osu-35-osu-45
+FLUX-RUN START osu-iter-osu-35-osu-50
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      22.93
+1                      23.01
+2                      22.94
+4                      22.93
+8                      22.87
+16                     22.89
+32                     22.91
+64                     23.04
+128                    23.08
+256                    24.28
+512                    24.52
+1024                   24.89
+2048                   26.35
+4096                   27.80
+8192                   30.80
+16384                  41.51
+32768                  50.79
+65536                 111.12
+131072                142.63
+262144                189.55
+524288                275.20
+1048576               435.75
+2097152               751.75
+4194304              1316.94
+FLUX-RUN END osu-iter-osu-35-osu-50
+FLUX-RUN START osu-iter-osu-49-osu-74
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.20
+1                      23.38
+2                      23.43
+4                      23.40
+8                      23.37
+16                     23.28
+32                     23.28
+64                     23.47
+128                    23.67
+256                    24.77
+512                    24.95
+1024                   25.14
+2048                   26.59
+4096                   28.06
+8192                   31.06
+16384                  41.61
+32768                  41.04
+65536                 112.06
+131072                141.05
+262144                188.51
+524288                273.58
+1048576               435.06
+2097152               733.15
+4194304              1306.10
+FLUX-RUN END osu-iter-osu-49-osu-74
+FLUX-RUN START osu-iter-osu-49-osu-45
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.12
+1                      23.17
+2                      23.17
+4                      23.25
+8                      23.29
+16                     23.29
+32                     23.31
+64                     23.32
+128                    23.30
+256                    24.38
+512                    24.65
+1024                   25.01
+2048                   26.34
+4096                   28.07
+8192                   31.19
+16384                  41.44
+32768                  51.24
+65536                 113.11
+131072                143.72
+262144                192.30
+524288                280.17
+1048576               443.50
+2097152               761.50
+4194304              1331.36
+FLUX-RUN END osu-iter-osu-49-osu-45
+FLUX-RUN START osu-iter-osu-49-osu-50
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      22.92
+1                      23.01
+2                      22.99
+4                      23.06
+8                      23.05
+16                     23.02
+32                     23.07
+64                     23.14
+128                    23.16
+256                    24.48
+512                    24.73
+1024                   25.00
+2048                   26.38
+4096                   27.89
+8192                   30.82
+16384                  42.00
+32768                  40.68
+65536                 110.72
+131072                140.33
+262144                186.83
+524288                265.71
+1048576               412.59
+2097152               708.97
+4194304              1309.20
+FLUX-RUN END osu-iter-osu-49-osu-50
+FLUX-RUN START osu-iter-osu-74-osu-45
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      25.16
+1                      25.22
+2                      25.19
+4                      25.19
+8                      25.02
+16                     25.26
+32                     25.37
+64                     25.50
+128                    25.69
+256                    26.53
+512                    26.67
+1024                   27.17
+2048                   28.72
+4096                   29.88
+8192                   32.99
+16384                  43.29
+32768                  53.17
+65536                 118.08
+131072                147.86
+262144                194.55
+524288                273.68
+1048576               423.09
+2097152               728.87
+4194304              1268.68
+FLUX-RUN END osu-iter-osu-74-osu-45
+FLUX-RUN START osu-iter-osu-74-osu-50
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.53
+1                      23.71
+2                      23.25
+4                      23.31
+8                      23.39
+16                     23.44
+32                     23.72
+64                     23.86
+128                    23.99
+256                    24.99
+512                    25.01
+1024                   25.19
+2048                   26.71
+4096                   28.50
+8192                   31.32
+16384                  42.17
+32768                  51.65
+65536                 112.39
+131072                142.15
+262144                189.79
+524288                271.84
+1048576               421.53
+2097152               724.43
+4194304              1280.19
+FLUX-RUN END osu-iter-osu-74-osu-50
+FLUX-RUN START osu-iter-osu-45-osu-50
+# OSU MPI Latency Test v5.8
+# Size          Latency (us)
+0                      23.09
+1                      23.20
+2                      23.12
+4                      23.15
+8                      23.20
+16                     23.15
+32                     23.16
+64                     23.17
+128                    23.32
+256                    24.74
+512                    24.99
+1024                   25.21
+2048                   26.63
+4096                   28.11
+8192                   31.13
+16384                  41.63
+32768                  50.56
+65536                 111.77
+131072                143.15
+262144                191.02
+524288                277.44
+1048576               434.24
+2097152               749.44
+4194304              1291.89
+FLUX-RUN END osu-iter-osu-45-osu-50
+0% [Working]            Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+0% [Waiting for headers]                        Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Waiting for headers] [2 InRelease 14.2 kB/129 kB 11%]                                                         Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [3 InRelease 12.7 kB/128 kB 10%] [2 InRelease 14.2 kB/129 kB 11%]0% [3 InRelease 56.2 kB/128 kB 44%] [2 InRelease 92.4 kB/129 kB 72%]                                                                    0% [3 InRelease 82.2 kB/128 kB 64%]                                   0% [Working]0% [Waiting for headers]                        Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 2588 B/127 kB 2%] [Waiting for headers]                                                       Get:5 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+0% [4 InRelease 77.9 kB/127 kB 61%] [5 Packages 2659 B/47.7 kB 6%]                                                                  0% [4 InRelease 127 kB/127 kB 100%]                                   0% [Working]0% [5 Packages store 0 B]                         0% [Waiting for headers]0% [Waiting for headers]                        Get:6 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2788 kB]
+0% [Waiting for headers] [6 Packages 2655 B/2788 kB 0%]                                                       Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1542 kB]
+0% [7 Packages 6999 B/1542 kB 0%] [6 Packages 60.6 kB/2788 kB 2%]19% [7 Packages 188 kB/1542 kB 12%] [6 Packages 176 kB/2788 kB 6%]                                                                  30% [6 Packages 1236 kB/2788 kB 44%]30% [7 Packages store 0 B] [6 Packages 1239 kB/2788 kB 44%]                                                           Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+35% [7 Packages store 0 B] [8 Packages 4107 B/55.7 kB 7%] [6 Packages 2473 kB/236% [7 Packages store 0 B] [Waiting for headers] [6 Packages 2540 kB/2788 kB 91                                                                               Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3140 kB]
+36% [7 Packages store 0 B] [9 Packages 30.2 kB/3140 kB 1%] [6 Packages 2540 kB/                                                                               38% [7 Packages store 0 B] [9 Packages 334 kB/3140 kB 11%]                                                          Get:10 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1243 kB]
+39% [7 Packages store 0 B] [9 Packages 334 kB/3140 kB 11%] [10 Packages 16.4 kB49% [7 Packages store 0 B] [9 Packages 1403 kB/3140 kB 45%] [Waiting for header                                                                               Get:11 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4000 kB]
+49% [7 Packages store 0 B] [9 Packages 1422 kB/3140 kB 45%] [11 Packages 8192 B                                                                               54% [9 Packages 1637 kB/3140 kB 52%] [11 Packages 790 kB/4000 kB 20%]54% [8 Packages store 0 B] [9 Packages 1637 kB/3140 kB 52%] [11 Packages 790 kB                                                                               56% [9 Packages 1637 kB/3140 kB 52%] [11 Packages 1051 kB/4000 kB 26%]56% [6 Packages store 0 B] [9 Packages 1637 kB/3140 kB 52%] [11 Packages 1052 k                                                                               75% [6 Packages store 0 B] [9 Packages 2810 kB/3140 kB 90%]                                                           76% [6 Packages store 0 B]                          Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4246 kB]
+76% [6 Packages store 0 B] [12 Packages 3451 B/4246 kB 0%]                                                          96% [6 Packages store 0 B] [Waiting for headers]                                                Get:13 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+96% [6 Packages store 0 B] [13 Packages 7452 B/82.7 kB 9%]                                                          96% [6 Packages store 0 B] [Waiting for headers]                                                Get:14 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+96% [6 Packages store 0 B] [14 Packages 33.3 kB/35.2 kB 94%]                                                            96% [6 Packages store 0 B]                          97% [Working]97% [10 Packages store 0 B]                           97% [Working]97% [11 Packages store 0 B]                           98% [Working]98% [9 Packages store 0 B]                          98% [Working]98% [12 Packages store 0 B]                           99% [Working]99% [13 Packages store 0 B]                           99% [Working]99% [14 Packages store 0 B]                           100% [Working]              Fetched 17.6 MB in 1s (15.5 MB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 17%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 115 not upgraded.
+
+FLUX-JOB START 7030593028096 osu-iter-osu-45-osu-50
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-45,osu-50"]}}, "user": {"study_id": "osu-iter-osu-45-osu-50"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "45,50", "children": {"core": "87"}}], "nodelist": ["osu-[45,50]"], "starttime": 1745183935, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183935.0392697,"name":"init"}
+{"timestamp":1745183935.0403242,"name":"starting"}
+{"timestamp":1745183935.0537713,"name":"shell.init","context":{"service":"0-shell-f4BgYRz55","leader-rank":45,"size":2}}
+{"timestamp":1745183935.0587692,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183950.4331512,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":85,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183950.4371274,"name":"complete","context":{"status":0}}
+{"timestamp":1745183950.437156,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 7030593028096 osu-iter-osu-45-osu-50
+
+FLUX-JOB START 6769237557248 osu-iter-osu-74-osu-50
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-74,osu-50"]}}, "user": {"study_id": "osu-iter-osu-74-osu-50"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "50,74", "children": {"core": "87"}}], "nodelist": ["osu-[50,74]"], "starttime": 1745183919, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183919.4607732,"name":"init"}
+{"timestamp":1745183919.4618263,"name":"starting"}
+{"timestamp":1745183919.476476,"name":"shell.init","context":{"service":"0-shell-f44pMLt5M","leader-rank":50,"size":2}}
+{"timestamp":1745183919.4820561,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183934.8358095,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":82,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183934.8392675,"name":"complete","context":{"status":0}}
+{"timestamp":1745183934.8392961,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 6769237557248 osu-iter-osu-74-osu-50
+
+FLUX-JOB START 6498654617600 osu-iter-osu-74-osu-45
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-74,osu-45"]}}, "user": {"study_id": "osu-iter-osu-74-osu-45"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "45,74", "children": {"core": "87"}}], "nodelist": ["osu-[45,74]"], "starttime": 1745183903, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183903.3325636,"name":"init"}
+{"timestamp":1745183903.3335979,"name":"starting"}
+{"timestamp":1745183903.3480823,"name":"shell.init","context":{"service":"0-shell-f3wi6rb5y","leader-rank":45,"size":2}}
+{"timestamp":1745183903.3538001,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183919.2564669,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":82,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183919.2599895,"name":"complete","context":{"status":0}}
+{"timestamp":1745183919.2600183,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 6498654617600 osu-iter-osu-74-osu-45
+
+FLUX-JOB START 6240402931712 osu-iter-osu-49-osu-50
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-49,osu-50"]}}, "user": {"study_id": "osu-iter-osu-49-osu-50"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "49-50", "children": {"core": "87"}}], "nodelist": ["osu-[49-50]"], "starttime": 1745183887, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183887.9399526,"name":"init"}
+{"timestamp":1745183887.9409354,"name":"starting"}
+{"timestamp":1745183887.9540527,"name":"shell.init","context":{"service":"0-shell-f3pve3CE3","leader-rank":49,"size":2}}
+{"timestamp":1745183887.9595435,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183903.1279459,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":85,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183903.1320748,"name":"complete","context":{"status":0}}
+{"timestamp":1745183903.1321037,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 6240402931712 osu-iter-osu-49-osu-50
+
+FLUX-JOB START 5976597987328 osu-iter-osu-49-osu-45
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-49,osu-45"]}}, "user": {"study_id": "osu-iter-osu-49-osu-45"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "45,49", "children": {"core": "87"}}], "nodelist": ["osu-[45,49]"], "starttime": 1745183872, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183872.2153976,"name":"init"}
+{"timestamp":1745183872.2164121,"name":"starting"}
+{"timestamp":1745183872.2298157,"name":"shell.init","context":{"service":"0-shell-f3hziVu5y","leader-rank":45,"size":2}}
+{"timestamp":1745183872.2347746,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183887.734472,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":79,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183887.7380178,"name":"complete","context":{"status":0}}
+{"timestamp":1745183887.7380598,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 5976597987328 osu-iter-osu-49-osu-45
+
+FLUX-JOB START 5715024412672 osu-iter-osu-49-osu-74
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-49,osu-74"]}}, "user": {"study_id": "osu-iter-osu-49-osu-74"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "49,74", "children": {"core": "87"}}], "nodelist": ["osu-[49,74]"], "starttime": 1745183856, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183856.625073,"name":"init"}
+{"timestamp":1745183856.6261213,"name":"starting"}
+{"timestamp":1745183856.6382067,"name":"shell.init","context":{"service":"0-shell-f3b8C8xRm","leader-rank":49,"size":2}}
+{"timestamp":1745183856.6435409,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183872.0122137,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":79,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183872.0161371,"name":"complete","context":{"status":0}}
+{"timestamp":1745183872.0161645,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 5715024412672 osu-iter-osu-49-osu-74
+
+FLUX-JOB START 5453954154496 osu-iter-osu-35-osu-50
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-35,osu-50"]}}, "user": {"study_id": "osu-iter-osu-35-osu-50"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "35,50", "children": {"core": "87"}}], "nodelist": ["osu-[35,50]"], "starttime": 1745183841, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183841.0635698,"name":"init"}
+{"timestamp":1745183841.0645957,"name":"starting"}
+{"timestamp":1745183841.0764358,"name":"shell.init","context":{"service":"0-shell-f3UGSFeDu","leader-rank":35,"size":2}}
+{"timestamp":1745183841.0815494,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183856.4210165,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":85,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183856.4244435,"name":"complete","context":{"status":0}}
+{"timestamp":1745183856.4244711,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 5453954154496 osu-iter-osu-35-osu-50
+
+FLUX-JOB START 5197094977536 osu-iter-osu-35-osu-45
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-35,osu-45"]}}, "user": {"study_id": "osu-iter-osu-35-osu-45"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "35,45", "children": {"core": "87"}}], "nodelist": ["osu-[35,45]"], "starttime": 1745183825, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183825.7538235,"name":"init"}
+{"timestamp":1745183825.7548018,"name":"starting"}
+{"timestamp":1745183825.7667074,"name":"shell.init","context":{"service":"0-shell-f3MX6VDkb","leader-rank":35,"size":2}}
+{"timestamp":1745183825.7714958,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183840.8605652,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":82,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183840.8640578,"name":"complete","context":{"status":0}}
+{"timestamp":1745183840.8640854,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 5197094977536 osu-iter-osu-35-osu-45
+
+FLUX-JOB START 4937031352320 osu-iter-osu-35-osu-74
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-35,osu-74"]}}, "user": {"study_id": "osu-iter-osu-35-osu-74"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "35,74", "children": {"core": "87"}}], "nodelist": ["osu-[35,74]"], "starttime": 1745183810, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183810.2525277,"name":"init"}
+{"timestamp":1745183810.2534809,"name":"starting"}
+{"timestamp":1745183810.2666647,"name":"shell.init","context":{"service":"0-shell-f3EgsZATR","leader-rank":35,"size":2}}
+{"timestamp":1745183810.2715065,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183825.5503204,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":79,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183825.55373,"name":"complete","context":{"status":0}}
+{"timestamp":1745183825.553756,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 4937031352320 osu-iter-osu-35-osu-74
+
+FLUX-JOB START 4675491332096 osu-iter-osu-35-osu-49
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-35,osu-49"]}}, "user": {"study_id": "osu-iter-osu-35-osu-49"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "35,49", "children": {"core": "87"}}], "nodelist": ["osu-[35,49]"], "starttime": 1745183794, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183794.6634328,"name":"init"}
+{"timestamp":1745183794.6643949,"name":"starting"}
+{"timestamp":1745183794.6792357,"name":"shell.init","context":{"service":"0-shell-f37pQACMu","leader-rank":35,"size":2}}
+{"timestamp":1745183794.6845219,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183810.0484333,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":76,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183810.0522795,"name":"complete","context":{"status":0}}
+{"timestamp":1745183810.0523086,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 4675491332096 osu-iter-osu-35-osu-49
+
+FLUX-JOB START 4444569731072 osu-iter-osu-68-osu-50
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-68,osu-50"]}}, "user": {"study_id": "osu-iter-osu-68-osu-50"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "50,68", "children": {"core": "87"}}], "nodelist": ["osu-[50,68]"], "starttime": 1745183780, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183780.8997922,"name":"init"}
+{"timestamp":1745183780.9008336,"name":"starting"}
+{"timestamp":1745183780.9143853,"name":"shell.init","context":{"service":"0-shell-f31kaQdZh","leader-rank":50,"size":2}}
+{"timestamp":1745183780.9200363,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183794.4598687,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":73,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183794.4634902,"name":"complete","context":{"status":0}}
+{"timestamp":1745183794.4635179,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 4444569731072 osu-iter-osu-68-osu-50
+
+FLUX-JOB START 4185160417280 osu-iter-osu-68-osu-45
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-68,osu-45"]}}, "user": {"study_id": "osu-iter-osu-68-osu-45"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "45,68", "children": {"core": "87"}}], "nodelist": ["osu-[45,68]"], "starttime": 1745183765, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183765.437716,"name":"init"}
+{"timestamp":1745183765.4387028,"name":"starting"}
+{"timestamp":1745183765.4505908,"name":"shell.init","context":{"service":"0-shell-f2twMJ6Fy","leader-rank":45,"size":2}}
+{"timestamp":1745183765.4558063,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183780.6942155,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":73,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183780.6980186,"name":"complete","context":{"status":0}}
+{"timestamp":1745183780.6980584,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 4185160417280 osu-iter-osu-68-osu-45
+
+FLUX-JOB START 3926103425024 osu-iter-osu-68-osu-74
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-68,osu-74"]}}, "user": {"study_id": "osu-iter-osu-68-osu-74"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "68,74", "children": {"core": "87"}}], "nodelist": ["osu-[68,74]"], "starttime": 1745183749, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183749.99681,"name":"init"}
+{"timestamp":1745183749.9977715,"name":"starting"}
+{"timestamp":1745183750.0101144,"name":"shell.init","context":{"service":"0-shell-f2n8fKHsV","leader-rank":68,"size":2}}
+{"timestamp":1745183750.0156984,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183765.230583,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":79,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183765.2349904,"name":"complete","context":{"status":0}}
+{"timestamp":1745183765.2350175,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 3926103425024 osu-iter-osu-68-osu-74
+
+FLUX-JOB START 3659949670400 osu-iter-osu-68-osu-49
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-68,osu-49"]}}, "user": {"study_id": "osu-iter-osu-68-osu-49"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "49,68", "children": {"core": "87"}}], "nodelist": ["osu-[49,68]"], "starttime": 1745183734, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183734.1326602,"name":"init"}
+{"timestamp":1745183734.1335957,"name":"starting"}
+{"timestamp":1745183734.146023,"name":"shell.init","context":{"service":"0-shell-f2f9ADjH9","leader-rank":49,"size":2}}
+{"timestamp":1745183734.1515391,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183749.7926843,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":73,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183749.7966855,"name":"complete","context":{"status":0}}
+{"timestamp":1745183749.7967136,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 3659949670400 osu-iter-osu-68-osu-49
+
+FLUX-JOB START 3396027285504 osu-iter-osu-68-osu-35
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-68,osu-35"]}}, "user": {"study_id": "osu-iter-osu-68-osu-35"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "35,68", "children": {"core": "87"}}], "nodelist": ["osu-[35,68]"], "starttime": 1745183718, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183718.4019585,"name":"init"}
+{"timestamp":1745183718.4028621,"name":"starting"}
+{"timestamp":1745183718.4153388,"name":"shell.init","context":{"service":"0-shell-f2YD4JXAf","leader-rank":35,"size":2}}
+{"timestamp":1745183718.4204938,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183733.9288168,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":73,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183733.9322841,"name":"complete","context":{"status":0}}
+{"timestamp":1745183733.9323125,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 3396027285504 osu-iter-osu-68-osu-35
+
+FLUX-JOB START 3137238728704 osu-iter-osu-32-osu-50
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-32,osu-50"]}}, "user": {"study_id": "osu-iter-osu-32-osu-50"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "32,50", "children": {"core": "87"}}], "nodelist": ["osu-[32,50]"], "starttime": 1745183702, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183702.976455,"name":"init"}
+{"timestamp":1745183702.9773254,"name":"starting"}
+{"timestamp":1745183702.9896519,"name":"shell.init","context":{"service":"0-shell-f2RQn3XHh","leader-rank":32,"size":2}}
+{"timestamp":1745183702.9947226,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183718.1974578,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":85,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183718.2013366,"name":"complete","context":{"status":0}}
+{"timestamp":1745183718.201364,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 3137238728704 osu-iter-osu-32-osu-50
+
+FLUX-JOB START 2874121650176 osu-iter-osu-32-osu-45
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-32,osu-45"]}}, "user": {"study_id": "osu-iter-osu-32-osu-45"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "32,45", "children": {"core": "87"}}], "nodelist": ["osu-[32,45]"], "starttime": 1745183687, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183687.2935317,"name":"init"}
+{"timestamp":1745183687.2944617,"name":"starting"}
+{"timestamp":1745183687.30619,"name":"shell.init","context":{"service":"0-shell-f2JVuHihm","leader-rank":32,"size":2}}
+{"timestamp":1745183687.3117418,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183702.771096,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":82,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183702.775131,"name":"complete","context":{"status":0}}
+{"timestamp":1745183702.7751591,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2874121650176 osu-iter-osu-32-osu-45
+
+FLUX-JOB START 2617279250432 osu-iter-osu-32-osu-74
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-32,osu-74"]}}, "user": {"study_id": "osu-iter-osu-32-osu-74"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "32,74", "children": {"core": "87"}}], "nodelist": ["osu-[32,74]"], "starttime": 1745183671, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183671.9842796,"name":"init"}
+{"timestamp":1745183671.9852576,"name":"starting"}
+{"timestamp":1745183671.9970319,"name":"shell.init","context":{"service":"0-shell-f2Bkb1HWo","leader-rank":32,"size":2}}
+{"timestamp":1745183672.0017505,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183687.0906727,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":79,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183687.094599,"name":"complete","context":{"status":0}}
+{"timestamp":1745183687.0946257,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2617279250432 osu-iter-osu-32-osu-74
+
+FLUX-JOB START 2358373253120 osu-iter-osu-32-osu-49
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-32,osu-49"]}}, "user": {"study_id": "osu-iter-osu-32-osu-49"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "32,49", "children": {"core": "87"}}], "nodelist": ["osu-[32,49]"], "starttime": 1745183656, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183656.5524552,"name":"init"}
+{"timestamp":1745183656.5533638,"name":"starting"}
+{"timestamp":1745183656.5662193,"name":"shell.init","context":{"service":"0-shell-f24x8NNfR","leader-rank":32,"size":2}}
+{"timestamp":1745183656.5717258,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183671.7802243,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":76,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183671.783608,"name":"complete","context":{"status":0}}
+{"timestamp":1745183671.7836359,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2358373253120 osu-iter-osu-32-osu-49
+
+FLUX-JOB START 2122150051840 osu-iter-osu-32-osu-35
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-32,osu-35"]}}, "user": {"study_id": "osu-iter-osu-32-osu-35"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "32,35", "children": {"core": "87"}}], "nodelist": ["osu-[32,35]"], "starttime": 1745183642, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183642.4720271,"name":"init"}
+{"timestamp":1745183642.4730043,"name":"starting"}
+{"timestamp":1745183642.4848883,"name":"shell.init","context":{"service":"0-shell-fxkE8ipF","leader-rank":32,"size":2}}
+{"timestamp":1745183642.4897733,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183656.3479729,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":73,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183656.3521631,"name":"complete","context":{"status":0}}
+{"timestamp":1745183656.352191,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2122150051840 osu-iter-osu-32-osu-35
+
+FLUX-JOB START 1863999029248 osu-iter-osu-32-osu-68
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-32,osu-68"]}}, "user": {"study_id": "osu-iter-osu-32-osu-68"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "32,68", "children": {"core": "87"}}], "nodelist": ["osu-[32,68]"], "starttime": 1745183627, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183627.0851614,"name":"init"}
+{"timestamp":1745183627.0860484,"name":"starting"}
+{"timestamp":1745183627.098321,"name":"shell.init","context":{"service":"0-shell-fqxvDFeP","leader-rank":32,"size":2}}
+{"timestamp":1745183627.1037557,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183642.266573,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":70,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183642.2705963,"name":"complete","context":{"status":0}}
+{"timestamp":1745183642.2706239,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1863999029248 osu-iter-osu-32-osu-68
+
+FLUX-JOB START 1602878439424 osu-iter-osu-77-osu-50
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-77,osu-50"]}}, "user": {"study_id": "osu-iter-osu-77-osu-50"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "50,77", "children": {"core": "87"}}], "nodelist": ["osu-[50,77]"], "starttime": 1745183611, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183611.5219607,"name":"init"}
+{"timestamp":1745183611.5228577,"name":"starting"}
+{"timestamp":1745183611.535414,"name":"shell.init","context":{"service":"0-shell-fj75sybV","leader-rank":50,"size":2}}
+{"timestamp":1745183611.5410879,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183626.8812158,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":67,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183626.8852313,"name":"complete","context":{"status":0}}
+{"timestamp":1745183626.8852592,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1602878439424 osu-iter-osu-77-osu-50
+
+FLUX-JOB START 1339996241920 osu-iter-osu-77-osu-45
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-77,osu-45"]}}, "user": {"study_id": "osu-iter-osu-77-osu-45"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "45,77", "children": {"core": "87"}}], "nodelist": ["osu-[45,77]"], "starttime": 1745183595, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183595.8530629,"name":"init"}
+{"timestamp":1745183595.8540137,"name":"starting"}
+{"timestamp":1745183595.867775,"name":"shell.init","context":{"service":"0-shell-fcCZszxP","leader-rank":45,"size":2}}
+{"timestamp":1745183595.8728256,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183611.3180051,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":67,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183611.3219483,"name":"complete","context":{"status":0}}
+{"timestamp":1745183611.3219767,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1339996241920 osu-iter-osu-77-osu-45
+
+FLUX-JOB START 1075738312704 osu-iter-osu-77-osu-74
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-77,osu-74"]}}, "user": {"study_id": "osu-iter-osu-77-osu-74"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "74,77", "children": {"core": "87"}}], "nodelist": ["osu-[74,77]"], "starttime": 1745183580, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183580.1015756,"name":"init"}
+{"timestamp":1745183580.1025214,"name":"starting"}
+{"timestamp":1745183580.1167676,"name":"shell.init","context":{"service":"0-shell-fVFxK3D1","leader-rank":74,"size":2}}
+{"timestamp":1745183580.1221716,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183595.6468735,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":67,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183595.6508167,"name":"complete","context":{"status":0}}
+{"timestamp":1745183595.6508448,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1075738312704 osu-iter-osu-77-osu-74
+
+FLUX-JOB START 811060953088 osu-iter-osu-77-osu-49
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-77,osu-49"]}}, "user": {"study_id": "osu-iter-osu-77-osu-49"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "49,77", "children": {"core": "87"}}], "nodelist": ["osu-[49,77]"], "starttime": 1745183564, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183564.3257093,"name":"init"}
+{"timestamp":1745183564.3265624,"name":"starting"}
+{"timestamp":1745183564.3398585,"name":"shell.init","context":{"service":"0-shell-fNJhgPR1","leader-rank":49,"size":2}}
+{"timestamp":1745183564.3455508,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183579.8969667,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":67,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183579.9011624,"name":"complete","context":{"status":0}}
+{"timestamp":1745183579.9011884,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 811060953088 osu-iter-osu-77-osu-49
+
+FLUX-JOB START 550678560768 osu-iter-osu-77-osu-35
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-77,osu-35"]}}, "user": {"study_id": "osu-iter-osu-77-osu-35"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "35,77", "children": {"core": "87"}}], "nodelist": ["osu-[35,77]"], "starttime": 1745183548, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183548.8072362,"name":"init"}
+{"timestamp":1745183548.8079612,"name":"starting"}
+{"timestamp":1745183548.8218207,"name":"shell.init","context":{"service":"0-shell-fFTzaZmH","leader-rank":35,"size":2}}
+{"timestamp":1745183548.8275614,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183564.1210146,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":67,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183564.1246195,"name":"complete","context":{"status":0}}
+{"timestamp":1745183564.1246455,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 550678560768 osu-iter-osu-77-osu-35
+
+FLUX-JOB START 292275879936 osu-iter-osu-77-osu-68
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-77,osu-68"]}}, "user": {"study_id": "osu-iter-osu-77-osu-68"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "68,77", "children": {"core": "87"}}], "nodelist": ["osu-[68,77]"], "starttime": 1745183533, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183533.4039342,"name":"init"}
+{"timestamp":1745183533.4047506,"name":"starting"}
+{"timestamp":1745183533.4167902,"name":"shell.init","context":{"service":"0-shell-f8gJRHNF","leader-rank":68,"size":2}}
+{"timestamp":1745183533.4227166,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183548.5999348,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":67,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183548.604542,"name":"complete","context":{"status":0}}
+{"timestamp":1745183548.6045711,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 292275879936 osu-iter-osu-77-osu-68
+
+FLUX-JOB START 23253221376 osu-iter-osu-77-osu-32
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/osu-benchmark/build.openmpi/mpi/pt2pt/osu_latency"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["osu-77,osu-32"]}}, "user": {"study_id": "osu-iter-osu-77-osu-32"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "32,77", "children": {"core": "87"}}], "nodelist": ["osu-[32,77]"], "starttime": 1745183517, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183517.3718066,"name":"init"}
+{"timestamp":1745183517.3725283,"name":"starting"}
+{"timestamp":1745183517.3858232,"name":"shell.init","context":{"service":"0-shell-fcRoqaw","leader-rank":32,"size":2}}
+{"timestamp":1745183517.3907387,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745183533.1972716,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":67,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183533.2009871,"name":"complete","context":{"status":0}}
+{"timestamp":1745183533.2010157,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 23253221376 osu-iter-osu-77-osu-32
+
+FLUX-JOB START 18941476864 null
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 128, "exclusive": true, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["hostname"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}}}}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-127", "children": {"core": "0-87"}}], "nodelist": ["osu-[0-127]"], "starttime": 1745183517, "expiration": 4898783516}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745183517.1577878,"name":"init"}
+{"timestamp":1745183517.1586494,"name":"starting"}
+{"timestamp":1745183517.214226,"name":"shell.init","context":{"service":"0-shell-fVro2AK","leader-rank":0,"size":128}}
+{"timestamp":1745183517.222882,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,128,1,1]]}}}
+{"timestamp":1745183517.2236667,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":103,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745183517.2461112,"name":"complete","context":{"status":0}}
+{"timestamp":1745183517.2461333,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 18941476864 null
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":29,"total":29},"successful":29,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}
