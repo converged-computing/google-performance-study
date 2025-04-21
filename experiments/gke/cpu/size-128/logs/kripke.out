@@ -1,0 +1,3342 @@
+Defaulted container "kripke" out of: kripke, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START kripke-iter-$i"
+  flux run --setattr=user.study_id=kripke-iter-$i -N128 -n 11264 -o cpu-affinity=per-task -o gpu-affinity=off    kripke  --layout DGZ  --dset 16  --zones 448,168,264  --gset 16  --groups 16  --niter 500  --legendre 2  --quad 16  --procs 64,8,22 |& tee /tmp/kripke.out
+    echo "FLUX-RUN END kripke-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free    128    11264        0 kripke-[0-127]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START kripke-iter-1
+
+   _  __       _         _
+  | |/ /      (_)       | |
+  | ' /  _ __  _  _ __  | | __ ___
+  |  <  | '__|| || '_ \ | |/ // _ \ 
+  | . \ | |   | || |_) ||   <|  __/
+  |_|\_\|_|   |_|| .__/ |_|\_\\___|
+                 | |
+                 |_|        Version 1.2.5-dev
+
+LLNL-CODE-775068
+
+Copyright (c) 2014-23, Lawrence Livermore National Security, LLC
+
+Kripke is released under the BSD 3-Clause License, please see the
+LICENSE file for the full license
+
+This work was produced under the auspices of the U.S. Department of
+Energy by Lawrence Livermore National Laboratory under Contract
+DE-AC52-07NA27344.
+
+Author: Adam J. Kunen <kunen1@llnl.gov>
+
+Compilation Options:
+  Architecture:           Sequential
+  Compiler:               /usr/bin/g++
+  Compiler Flags:         "    "
+  Linker Flags:           "-lstdc++ -pthread "
+  CHAI Enabled:           Yes
+  CUDA Enabled:           No
+  MPI Enabled:            Yes
+  OpenMP Enabled:         No
+  Caliper Enabled:        No
+
+Input Parameters
+================
+
+  Problem Size:
+    Zones:                 448 x 168 x 264  (19869696 total)
+    Groups:                16
+    Legendre Order:        2
+    Quadrature Set:        Dummy S2 with 16 points
+
+  Physical Properties:
+    Total X-Sec:           sigt=[0.100000, 0.000100, 0.100000]
+    Scattering X-Sec:      sigs=[0.050000, 0.000050, 0.050000]
+
+  Solver Options:
+    Number iterations:     500
+
+  MPI Decomposition Options:
+    Total MPI tasks:       11264
+    Spatial decomp:        64 x 8 x 22 MPI tasks
+    Block solve method:    Sweep
+
+  Per-Task Options:
+    DirSets/Directions:    16 sets, 1 directions/set
+    GroupSet/Groups:       16 sets, 1 groups/set
+    Zone Sets:             1 x 1 x 1
+    Architecture:          Sequential
+    Data Layout:           DGZ
+
+Generating Problem
+==================
+
+  Decomposition Space:   Procs:      Subdomains (local/global):
+  ---------------------  ----------  --------------------------
+  (P) Energy:            1           16 / 16
+  (Q) Direction:         1           16 / 16
+  (R) Space:             11264       1 / 11264
+  (Rx,Ry,Rz) R in XYZ:   64x8x22       1x1x1 / 64x8x22
+  (PQR) TOTAL:           11264       256 / 2883584
+
+  Material Volumes=[7.958386e+03, 1.203803e+05, 2.751661e+06]
+
+  Memory breakdown of Field variables:
+  Field Variable            Num Elements    Megabytes
+  --------------            ------------    ---------
+  data/sigs                         2304        0.018
+  dx                                 448        0.003
+  dy                                 168        0.001
+  dz                                 264        0.002
+  ell                                144        0.001
+  ell_plus                           144        0.001
+  i_plane                       11354112       86.625
+  j_plane                       30277632      231.000
+  k_plane                       19267584      147.000
+  mixelem_to_fraction           19935168      152.093
+  phi                         2861236224    21829.500
+  phi_out                     2861236224    21829.500
+  psi                         5086642176    38808.000
+  quadrature/w                        16        0.000
+  quadrature/xcos                     16        0.000
+  quadrature/ycos                     16        0.000
+  quadrature/zcos                     16        0.000
+  rhs                         5086642176    38808.000
+  sigt_zonal                   317915136     2425.500
+  volume                        19869696      151.594
+  --------                  ------------    ---------
+  TOTAL                      16314379664   124468.839
+
+  Generation Complete!
+
+Steady State Solve
+==================
+
+  iter 0: particle count=1.808564e+07, change=1.000000e+00
+  iter 1: particle count=2.703162e+07, change=3.309449e-01
+  iter 2: particle count=3.144811e+07, change=1.404375e-01
+  iter 3: particle count=3.362457e+07, change=6.472815e-02
+  iter 4: particle count=3.469508e+07, change=3.085486e-02
+  iter 5: particle count=3.522050e+07, change=1.491797e-02
+  iter 6: particle count=3.547780e+07, change=7.252299e-03
+  iter 7: particle count=3.560350e+07, change=3.530789e-03
+  iter 8: particle count=3.566479e+07, change=1.718278e-03
+  iter 9: particle count=3.569460e+07, change=8.352023e-04
+  iter 10: particle count=3.570907e+07, change=4.053579e-04
+  iter 11: particle count=3.571609e+07, change=1.964317e-04
+  iter 12: particle count=3.571948e+07, change=9.504653e-05
+  iter 13: particle count=3.572112e+07, change=4.592595e-05
+  iter 14: particle count=3.572192e+07, change=2.216304e-05
+  iter 15: particle count=3.572230e+07, change=1.068319e-05
+  iter 16: particle count=3.572248e+07, change=5.144252e-06
+  iter 17: particle count=3.572257e+07, change=2.474781e-06
+  iter 18: particle count=3.572261e+07, change=1.189554e-06
+  iter 19: particle count=3.572263e+07, change=5.713471e-07
+  iter 20: particle count=3.572264e+07, change=2.742304e-07
+  iter 21: particle count=3.572265e+07, change=1.315402e-07
+  iter 22: particle count=3.572265e+07, change=6.305995e-08
+  iter 23: particle count=3.572265e+07, change=3.021501e-08
+  iter 24: particle count=3.572265e+07, change=1.447056e-08
+  iter 25: particle count=3.572265e+07, change=6.927217e-09
+  iter 26: particle count=3.572265e+07, change=3.314810e-09
+  iter 27: particle count=3.572265e+07, change=1.585618e-09
+  iter 28: particle count=3.572265e+07, change=7.582134e-10
+  iter 29: particle count=3.572265e+07, change=3.624491e-10
+  iter 30: particle count=3.572265e+07, change=1.732123e-10
+  iter 31: particle count=3.572265e+07, change=8.275475e-11
+  iter 32: particle count=3.572265e+07, change=3.952728e-11
+  iter 33: particle count=3.572265e+07, change=1.887556e-11
+  iter 34: particle count=3.572265e+07, change=9.012197e-12
+  iter 35: particle count=3.572265e+07, change=4.301286e-12
+  iter 36: particle count=3.572265e+07, change=2.052720e-12
+  iter 37: particle count=3.572265e+07, change=9.798497e-13
+  iter 38: particle count=3.572265e+07, change=4.673995e-13
+  iter 39: particle count=3.572265e+07, change=2.227500e-13
+  iter 40: particle count=3.572265e+07, change=1.065779e-13
+  iter 41: particle count=3.572265e+07, change=5.068188e-14
+  iter 42: particle count=3.572265e+07, change=2.398525e-14
+  iter 43: particle count=3.572265e+07, change=1.147121e-14
+  iter 44: particle count=3.572265e+07, change=5.422752e-15
+  iter 45: particle count=3.572265e+07, change=2.919944e-15
+  iter 46: particle count=3.572265e+07, change=1.042837e-15
+  iter 47: particle count=3.572265e+07, change=8.342696e-16
+  iter 48: particle count=3.572265e+07, change=0.000000e+00
+  iter 49: particle count=3.572265e+07, change=2.085674e-16
+  iter 50: particle count=3.572265e+07, change=0.000000e+00
+  iter 51: particle count=3.572265e+07, change=0.000000e+00
+  iter 52: particle count=3.572265e+07, change=0.000000e+00
+  iter 53: particle count=3.572265e+07, change=0.000000e+00
+  iter 54: particle count=3.572265e+07, change=2.085674e-16
+  iter 55: particle count=3.572265e+07, change=-2.085674e-16
+  iter 56: particle count=3.572265e+07, change=2.085674e-16
+  iter 57: particle count=3.572265e+07, change=-2.085674e-16
+  iter 58: particle count=3.572265e+07, change=2.085674e-16
+  iter 59: particle count=3.572265e+07, change=-2.085674e-16
+  iter 60: particle count=3.572265e+07, change=2.085674e-16
+  iter 61: particle count=3.572265e+07, change=-2.085674e-16
+  iter 62: particle count=3.572265e+07, change=2.085674e-16
+  iter 63: particle count=3.572265e+07, change=-2.085674e-16
+  iter 64: particle count=3.572265e+07, change=2.085674e-16
+  iter 65: particle count=3.572265e+07, change=-2.085674e-16
+  iter 66: particle count=3.572265e+07, change=2.085674e-16
+  iter 67: particle count=3.572265e+07, change=-2.085674e-16
+  iter 68: particle count=3.572265e+07, change=0.000000e+00
+  iter 69: particle count=3.572265e+07, change=0.000000e+00
+  iter 70: particle count=3.572265e+07, change=0.000000e+00
+  iter 71: particle count=3.572265e+07, change=2.085674e-16
+  iter 72: particle count=3.572265e+07, change=-2.085674e-16
+  iter 73: particle count=3.572265e+07, change=2.085674e-16
+  iter 74: particle count=3.572265e+07, change=-2.085674e-16
+  iter 75: particle count=3.572265e+07, change=0.000000e+00
+  iter 76: particle count=3.572265e+07, change=0.000000e+00
+  iter 77: particle count=3.572265e+07, change=2.085674e-16
+  iter 78: particle count=3.572265e+07, change=0.000000e+00
+  iter 79: particle count=3.572265e+07, change=-2.085674e-16
+  iter 80: particle count=3.572265e+07, change=0.000000e+00
+  iter 81: particle count=3.572265e+07, change=0.000000e+00
+  iter 82: particle count=3.572265e+07, change=2.085674e-16
+  iter 83: particle count=3.572265e+07, change=-2.085674e-16
+  iter 84: particle count=3.572265e+07, change=2.085674e-16
+  iter 85: particle count=3.572265e+07, change=-2.085674e-16
+  iter 86: particle count=3.572265e+07, change=0.000000e+00
+  iter 87: particle count=3.572265e+07, change=2.085674e-16
+  iter 88: particle count=3.572265e+07, change=-2.085674e-16
+  iter 89: particle count=3.572265e+07, change=0.000000e+00
+  iter 90: particle count=3.572265e+07, change=0.000000e+00
+  iter 91: particle count=3.572265e+07, change=0.000000e+00
+  iter 92: particle count=3.572265e+07, change=0.000000e+00
+  iter 93: particle count=3.572265e+07, change=0.000000e+00
+  iter 94: particle count=3.572265e+07, change=0.000000e+00
+  iter 95: particle count=3.572265e+07, change=0.000000e+00
+  iter 96: particle count=3.572265e+07, change=0.000000e+00
+  iter 97: particle count=3.572265e+07, change=0.000000e+00
+  iter 98: particle count=3.572265e+07, change=0.000000e+00
+  iter 99: particle count=3.572265e+07, change=2.085674e-16
+  iter 100: particle count=3.572265e+07, change=-2.085674e-16
+  iter 101: particle count=3.572265e+07, change=2.085674e-16
+  iter 102: particle count=3.572265e+07, change=-2.085674e-16
+  iter 103: particle count=3.572265e+07, change=0.000000e+00
+  iter 104: particle count=3.572265e+07, change=0.000000e+00
+  iter 105: particle count=3.572265e+07, change=0.000000e+00
+  iter 106: particle count=3.572265e+07, change=0.000000e+00
+  iter 107: particle count=3.572265e+07, change=0.000000e+00
+  iter 108: particle count=3.572265e+07, change=2.085674e-16
+  iter 109: particle count=3.572265e+07, change=-2.085674e-16
+  iter 110: particle count=3.572265e+07, change=2.085674e-16
+  iter 111: particle count=3.572265e+07, change=-2.085674e-16
+  iter 112: particle count=3.572265e+07, change=0.000000e+00
+  iter 113: particle count=3.572265e+07, change=2.085674e-16
+  iter 114: particle count=3.572265e+07, change=-2.085674e-16
+  iter 115: particle count=3.572265e+07, change=2.085674e-16
+  iter 116: particle count=3.572265e+07, change=-2.085674e-16
+  iter 117: particle count=3.572265e+07, change=0.000000e+00
+  iter 118: particle count=3.572265e+07, change=0.000000e+00
+  iter 119: particle count=3.572265e+07, change=2.085674e-16
+  iter 120: particle count=3.572265e+07, change=0.000000e+00
+  iter 121: particle count=3.572265e+07, change=0.000000e+00
+  iter 122: particle count=3.572265e+07, change=-2.085674e-16
+  iter 123: particle count=3.572265e+07, change=0.000000e+00
+  iter 124: particle count=3.572265e+07, change=0.000000e+00
+  iter 125: particle count=3.572265e+07, change=2.085674e-16
+  iter 126: particle count=3.572265e+07, change=-2.085674e-16
+  iter 127: particle count=3.572265e+07, change=0.000000e+00
+  iter 128: particle count=3.572265e+07, change=0.000000e+00
+  iter 129: particle count=3.572265e+07, change=2.085674e-16
+  iter 130: particle count=3.572265e+07, change=-2.085674e-16
+  iter 131: particle count=3.572265e+07, change=0.000000e+00
+  iter 132: particle count=3.572265e+07, change=2.085674e-16
+  iter 133: particle count=3.572265e+07, change=-2.085674e-16
+  iter 134: particle count=3.572265e+07, change=0.000000e+00
+  iter 135: particle count=3.572265e+07, change=0.000000e+00
+  iter 136: particle count=3.572265e+07, change=0.000000e+00
+  iter 137: particle count=3.572265e+07, change=0.000000e+00
+  iter 138: particle count=3.572265e+07, change=2.085674e-16
+  iter 139: particle count=3.572265e+07, change=-2.085674e-16
+  iter 140: particle count=3.572265e+07, change=2.085674e-16
+  iter 141: particle count=3.572265e+07, change=-2.085674e-16
+  iter 142: particle count=3.572265e+07, change=0.000000e+00
+  iter 143: particle count=3.572265e+07, change=2.085674e-16
+  iter 144: particle count=3.572265e+07, change=-2.085674e-16
+  iter 145: particle count=3.572265e+07, change=2.085674e-16
+  iter 146: particle count=3.572265e+07, change=-2.085674e-16
+  iter 147: particle count=3.572265e+07, change=2.085674e-16
+  iter 148: particle count=3.572265e+07, change=-2.085674e-16
+  iter 149: particle count=3.572265e+07, change=0.000000e+00
+  iter 150: particle count=3.572265e+07, change=2.085674e-16
+  iter 151: particle count=3.572265e+07, change=-2.085674e-16
+  iter 152: particle count=3.572265e+07, change=0.000000e+00
+  iter 153: particle count=3.572265e+07, change=0.000000e+00
+  iter 154: particle count=3.572265e+07, change=0.000000e+00
+  iter 155: particle count=3.572265e+07, change=2.085674e-16
+  iter 156: particle count=3.572265e+07, change=-2.085674e-16
+  iter 157: particle count=3.572265e+07, change=0.000000e+00
+  iter 158: particle count=3.572265e+07, change=0.000000e+00
+  iter 159: particle count=3.572265e+07, change=0.000000e+00
+  iter 160: particle count=3.572265e+07, change=0.000000e+00
+  iter 161: particle count=3.572265e+07, change=0.000000e+00
+  iter 162: particle count=3.572265e+07, change=0.000000e+00
+  iter 163: particle count=3.572265e+07, change=0.000000e+00
+  iter 164: particle count=3.572265e+07, change=0.000000e+00
+  iter 165: particle count=3.572265e+07, change=0.000000e+00
+  iter 166: particle count=3.572265e+07, change=2.085674e-16
+  iter 167: particle count=3.572265e+07, change=0.000000e+00
+  iter 168: particle count=3.572265e+07, change=-2.085674e-16
+  iter 169: particle count=3.572265e+07, change=0.000000e+00
+  iter 170: particle count=3.572265e+07, change=0.000000e+00
+  iter 171: particle count=3.572265e+07, change=0.000000e+00
+  iter 172: particle count=3.572265e+07, change=0.000000e+00
+  iter 173: particle count=3.572265e+07, change=2.085674e-16
+  iter 174: particle count=3.572265e+07, change=-2.085674e-16
+  iter 175: particle count=3.572265e+07, change=2.085674e-16
+  iter 176: particle count=3.572265e+07, change=0.000000e+00
+  iter 177: particle count=3.572265e+07, change=-2.085674e-16
+  iter 178: particle count=3.572265e+07, change=0.000000e+00
+  iter 179: particle count=3.572265e+07, change=2.085674e-16
+  iter 180: particle count=3.572265e+07, change=-2.085674e-16
+  iter 181: particle count=3.572265e+07, change=2.085674e-16
+  iter 182: particle count=3.572265e+07, change=-2.085674e-16
+  iter 183: particle count=3.572265e+07, change=0.000000e+00
+  iter 184: particle count=3.572265e+07, change=2.085674e-16
+  iter 185: particle count=3.572265e+07, change=0.000000e+00
+  iter 186: particle count=3.572265e+07, change=-2.085674e-16
+  iter 187: particle count=3.572265e+07, change=2.085674e-16
+  iter 188: particle count=3.572265e+07, change=-2.085674e-16
+  iter 189: particle count=3.572265e+07, change=0.000000e+00
+  iter 190: particle count=3.572265e+07, change=0.000000e+00
+  iter 191: particle count=3.572265e+07, change=0.000000e+00
+  iter 192: particle count=3.572265e+07, change=0.000000e+00
+  iter 193: particle count=3.572265e+07, change=0.000000e+00
+  iter 194: particle count=3.572265e+07, change=0.000000e+00
+  iter 195: particle count=3.572265e+07, change=0.000000e+00
+  iter 196: particle count=3.572265e+07, change=2.085674e-16
+  iter 197: particle count=3.572265e+07, change=-2.085674e-16
+  iter 198: particle count=3.572265e+07, change=0.000000e+00
+  iter 199: particle count=3.572265e+07, change=0.000000e+00
+  iter 200: particle count=3.572265e+07, change=0.000000e+00
+  iter 201: particle count=3.572265e+07, change=2.085674e-16
+  iter 202: particle count=3.572265e+07, change=-2.085674e-16
+  iter 203: particle count=3.572265e+07, change=0.000000e+00
+  iter 204: particle count=3.572265e+07, change=0.000000e+00
+  iter 205: particle count=3.572265e+07, change=0.000000e+00
+  iter 206: particle count=3.572265e+07, change=0.000000e+00
+  iter 207: particle count=3.572265e+07, change=0.000000e+00
+  iter 208: particle count=3.572265e+07, change=0.000000e+00
+  iter 209: particle count=3.572265e+07, change=0.000000e+00
+  iter 210: particle count=3.572265e+07, change=0.000000e+00
+  iter 211: particle count=3.572265e+07, change=0.000000e+00
+  iter 212: particle count=3.572265e+07, change=0.000000e+00
+  iter 213: particle count=3.572265e+07, change=0.000000e+00
+  iter 214: particle count=3.572265e+07, change=0.000000e+00
+  iter 215: particle count=3.572265e+07, change=0.000000e+00
+  iter 216: particle count=3.572265e+07, change=0.000000e+00
+  iter 217: particle count=3.572265e+07, change=0.000000e+00
+  iter 218: particle count=3.572265e+07, change=2.085674e-16
+  iter 219: particle count=3.572265e+07, change=-2.085674e-16
+  iter 220: particle count=3.572265e+07, change=0.000000e+00
+  iter 221: particle count=3.572265e+07, change=0.000000e+00
+  iter 222: particle count=3.572265e+07, change=0.000000e+00
+  iter 223: particle count=3.572265e+07, change=2.085674e-16
+  iter 224: particle count=3.572265e+07, change=-2.085674e-16
+  iter 225: particle count=3.572265e+07, change=0.000000e+00
+  iter 226: particle count=3.572265e+07, change=2.085674e-16
+  iter 227: particle count=3.572265e+07, change=-2.085674e-16
+  iter 228: particle count=3.572265e+07, change=0.000000e+00
+  iter 229: particle count=3.572265e+07, change=0.000000e+00
+  iter 230: particle count=3.572265e+07, change=0.000000e+00
+  iter 231: particle count=3.572265e+07, change=0.000000e+00
+  iter 232: particle count=3.572265e+07, change=0.000000e+00
+  iter 233: particle count=3.572265e+07, change=0.000000e+00
+  iter 234: particle count=3.572265e+07, change=0.000000e+00
+  iter 235: particle count=3.572265e+07, change=0.000000e+00
+  iter 236: particle count=3.572265e+07, change=2.085674e-16
+  iter 237: particle count=3.572265e+07, change=-2.085674e-16
+  iter 238: particle count=3.572265e+07, change=0.000000e+00
+  iter 239: particle count=3.572265e+07, change=0.000000e+00
+  iter 240: particle count=3.572265e+07, change=0.000000e+00
+  iter 241: particle count=3.572265e+07, change=0.000000e+00
+  iter 242: particle count=3.572265e+07, change=0.000000e+00
+  iter 243: particle count=3.572265e+07, change=0.000000e+00
+  iter 244: particle count=3.572265e+07, change=2.085674e-16
+  iter 245: particle count=3.572265e+07, change=0.000000e+00
+  iter 246: particle count=3.572265e+07, change=-2.085674e-16
+  iter 247: particle count=3.572265e+07, change=0.000000e+00
+  iter 248: particle count=3.572265e+07, change=0.000000e+00
+  iter 249: particle count=3.572265e+07, change=0.000000e+00
+  iter 250: particle count=3.572265e+07, change=0.000000e+00
+  iter 251: particle count=3.572265e+07, change=0.000000e+00
+  iter 252: particle count=3.572265e+07, change=0.000000e+00
+  iter 253: particle count=3.572265e+07, change=0.000000e+00
+  iter 254: particle count=3.572265e+07, change=0.000000e+00
+  iter 255: particle count=3.572265e+07, change=0.000000e+00
+  iter 256: particle count=3.572265e+07, change=0.000000e+00
+  iter 257: particle count=3.572265e+07, change=0.000000e+00
+  iter 258: particle count=3.572265e+07, change=0.000000e+00
+  iter 259: particle count=3.572265e+07, change=0.000000e+00
+  iter 260: particle count=3.572265e+07, change=0.000000e+00
+  iter 261: particle count=3.572265e+07, change=2.085674e-16
+  iter 262: particle count=3.572265e+07, change=-2.085674e-16
+  iter 263: particle count=3.572265e+07, change=0.000000e+00
+  iter 264: particle count=3.572265e+07, change=0.000000e+00
+  iter 265: particle count=3.572265e+07, change=0.000000e+00
+  iter 266: particle count=3.572265e+07, change=0.000000e+00
+  iter 267: particle count=3.572265e+07, change=0.000000e+00
+  iter 268: particle count=3.572265e+07, change=0.000000e+00
+  iter 269: particle count=3.572265e+07, change=0.000000e+00
+  iter 270: particle count=3.572265e+07, change=2.085674e-16
+  iter 271: particle count=3.572265e+07, change=0.000000e+00
+  iter 272: particle count=3.572265e+07, change=-2.085674e-16
+  iter 273: particle count=3.572265e+07, change=0.000000e+00
+  iter 274: particle count=3.572265e+07, change=2.085674e-16
+  iter 275: particle count=3.572265e+07, change=-2.085674e-16
+  iter 276: particle count=3.572265e+07, change=0.000000e+00
+  iter 277: particle count=3.572265e+07, change=0.000000e+00
+  iter 278: particle count=3.572265e+07, change=0.000000e+00
+  iter 279: particle count=3.572265e+07, change=2.085674e-16
+  iter 280: particle count=3.572265e+07, change=-2.085674e-16
+  iter 281: particle count=3.572265e+07, change=0.000000e+00
+  iter 282: particle count=3.572265e+07, change=0.000000e+00
+  iter 283: particle count=3.572265e+07, change=0.000000e+00
+  iter 284: particle count=3.572265e+07, change=2.085674e-16
+  iter 285: particle count=3.572265e+07, change=0.000000e+00
+  iter 286: particle count=3.572265e+07, change=-2.085674e-16
+  iter 287: particle count=3.572265e+07, change=2.085674e-16
+  iter 288: particle count=3.572265e+07, change=-2.085674e-16
+  iter 289: particle count=3.572265e+07, change=2.085674e-16
+  iter 290: particle count=3.572265e+07, change=-2.085674e-16
+  iter 291: particle count=3.572265e+07, change=0.000000e+00
+  iter 292: particle count=3.572265e+07, change=2.085674e-16
+  iter 293: particle count=3.572265e+07, change=0.000000e+00
+  iter 294: particle count=3.572265e+07, change=-2.085674e-16
+  iter 295: particle count=3.572265e+07, change=2.085674e-16
+  iter 296: particle count=3.572265e+07, change=-2.085674e-16
+  iter 297: particle count=3.572265e+07, change=2.085674e-16
+  iter 298: particle count=3.572265e+07, change=-2.085674e-16
+  iter 299: particle count=3.572265e+07, change=0.000000e+00
+  iter 300: particle count=3.572265e+07, change=0.000000e+00
+  iter 301: particle count=3.572265e+07, change=2.085674e-16
+  iter 302: particle count=3.572265e+07, change=0.000000e+00
+  iter 303: particle count=3.572265e+07, change=-2.085674e-16
+  iter 304: particle count=3.572265e+07, change=0.000000e+00
+  iter 305: particle count=3.572265e+07, change=0.000000e+00
+  iter 306: particle count=3.572265e+07, change=0.000000e+00
+  iter 307: particle count=3.572265e+07, change=0.000000e+00
+  iter 308: particle count=3.572265e+07, change=0.000000e+00
+  iter 309: particle count=3.572265e+07, change=0.000000e+00
+  iter 310: particle count=3.572265e+07, change=2.085674e-16
+  iter 311: particle count=3.572265e+07, change=0.000000e+00
+  iter 312: particle count=3.572265e+07, change=-2.085674e-16
+  iter 313: particle count=3.572265e+07, change=2.085674e-16
+  iter 314: particle count=3.572265e+07, change=-2.085674e-16
+  iter 315: particle count=3.572265e+07, change=2.085674e-16
+  iter 316: particle count=3.572265e+07, change=0.000000e+00
+  iter 317: particle count=3.572265e+07, change=0.000000e+00
+  iter 318: particle count=3.572265e+07, change=-2.085674e-16
+  iter 319: particle count=3.572265e+07, change=0.000000e+00
+  iter 320: particle count=3.572265e+07, change=2.085674e-16
+  iter 321: particle count=3.572265e+07, change=-2.085674e-16
+  iter 322: particle count=3.572265e+07, change=2.085674e-16
+  iter 323: particle count=3.572265e+07, change=-2.085674e-16
+  iter 324: particle count=3.572265e+07, change=0.000000e+00
+  iter 325: particle count=3.572265e+07, change=2.085674e-16
+  iter 326: particle count=3.572265e+07, change=-2.085674e-16
+  iter 327: particle count=3.572265e+07, change=0.000000e+00
+  iter 328: particle count=3.572265e+07, change=0.000000e+00
+  iter 329: particle count=3.572265e+07, change=2.085674e-16
+  iter 330: particle count=3.572265e+07, change=-2.085674e-16
+  iter 331: particle count=3.572265e+07, change=0.000000e+00
+  iter 332: particle count=3.572265e+07, change=0.000000e+00
+  iter 333: particle count=3.572265e+07, change=0.000000e+00
+  iter 334: particle count=3.572265e+07, change=0.000000e+00
+  iter 335: particle count=3.572265e+07, change=2.085674e-16
+  iter 336: particle count=3.572265e+07, change=-2.085674e-16
+  iter 337: particle count=3.572265e+07, change=2.085674e-16
+  iter 338: particle count=3.572265e+07, change=-2.085674e-16
+  iter 339: particle count=3.572265e+07, change=0.000000e+00
+  iter 340: particle count=3.572265e+07, change=0.000000e+00
+  iter 341: particle count=3.572265e+07, change=0.000000e+00
+  iter 342: particle count=3.572265e+07, change=2.085674e-16
+  iter 343: particle count=3.572265e+07, change=-2.085674e-16
+  iter 344: particle count=3.572265e+07, change=2.085674e-16
+  iter 345: particle count=3.572265e+07, change=-2.085674e-16
+  iter 346: particle count=3.572265e+07, change=0.000000e+00
+  iter 347: particle count=3.572265e+07, change=0.000000e+00
+  iter 348: particle count=3.572265e+07, change=2.085674e-16
+  iter 349: particle count=3.572265e+07, change=-2.085674e-16
+  iter 350: particle count=3.572265e+07, change=0.000000e+00
+  iter 351: particle count=3.572265e+07, change=0.000000e+00
+  iter 352: particle count=3.572265e+07, change=0.000000e+00
+  iter 353: particle count=3.572265e+07, change=0.000000e+00
+  iter 354: particle count=3.572265e+07, change=2.085674e-16
+  iter 355: particle count=3.572265e+07, change=-2.085674e-16
+  iter 356: particle count=3.572265e+07, change=2.085674e-16
+  iter 357: particle count=3.572265e+07, change=-2.085674e-16
+  iter 358: particle count=3.572265e+07, change=2.085674e-16
+  iter 359: particle count=3.572265e+07, change=-2.085674e-16
+  iter 360: particle count=3.572265e+07, change=0.000000e+00
+  iter 361: particle count=3.572265e+07, change=2.085674e-16
+  iter 362: particle count=3.572265e+07, change=0.000000e+00
+  iter 363: particle count=3.572265e+07, change=0.000000e+00
+  iter 364: particle count=3.572265e+07, change=-2.085674e-16
+  iter 365: particle count=3.572265e+07, change=0.000000e+00
+  iter 366: particle count=3.572265e+07, change=0.000000e+00
+  iter 367: particle count=3.572265e+07, change=0.000000e+00
+  iter 368: particle count=3.572265e+07, change=2.085674e-16
+  iter 369: particle count=3.572265e+07, change=-2.085674e-16
+  iter 370: particle count=3.572265e+07, change=2.085674e-16
+  iter 371: particle count=3.572265e+07, change=-2.085674e-16
+  iter 372: particle count=3.572265e+07, change=2.085674e-16
+  iter 373: particle count=3.572265e+07, change=-2.085674e-16
+  iter 374: particle count=3.572265e+07, change=0.000000e+00
+  iter 375: particle count=3.572265e+07, change=0.000000e+00
+  iter 376: particle count=3.572265e+07, change=0.000000e+00
+  iter 377: particle count=3.572265e+07, change=0.000000e+00
+  iter 378: particle count=3.572265e+07, change=2.085674e-16
+  iter 379: particle count=3.572265e+07, change=-2.085674e-16
+  iter 380: particle count=3.572265e+07, change=0.000000e+00
+  iter 381: particle count=3.572265e+07, change=0.000000e+00
+  iter 382: particle count=3.572265e+07, change=0.000000e+00
+  iter 383: particle count=3.572265e+07, change=0.000000e+00
+  iter 384: particle count=3.572265e+07, change=2.085674e-16
+  iter 385: particle count=3.572265e+07, change=0.000000e+00
+  iter 386: particle count=3.572265e+07, change=0.000000e+00
+  iter 387: particle count=3.572265e+07, change=-2.085674e-16
+  iter 388: particle count=3.572265e+07, change=2.085674e-16
+  iter 389: particle count=3.572265e+07, change=-2.085674e-16
+  iter 390: particle count=3.572265e+07, change=0.000000e+00
+  iter 391: particle count=3.572265e+07, change=0.000000e+00
+  iter 392: particle count=3.572265e+07, change=2.085674e-16
+  iter 393: particle count=3.572265e+07, change=0.000000e+00
+  iter 394: particle count=3.572265e+07, change=-2.085674e-16
+  iter 395: particle count=3.572265e+07, change=2.085674e-16
+  iter 396: particle count=3.572265e+07, change=-2.085674e-16
+  iter 397: particle count=3.572265e+07, change=2.085674e-16
+  iter 398: particle count=3.572265e+07, change=-2.085674e-16
+  iter 399: particle count=3.572265e+07, change=0.000000e+00
+  iter 400: particle count=3.572265e+07, change=0.000000e+00
+  iter 401: particle count=3.572265e+07, change=0.000000e+00
+  iter 402: particle count=3.572265e+07, change=2.085674e-16
+  iter 403: particle count=3.572265e+07, change=0.000000e+00
+  iter 404: particle count=3.572265e+07, change=-2.085674e-16
+  iter 405: particle count=3.572265e+07, change=2.085674e-16
+  iter 406: particle count=3.572265e+07, change=-2.085674e-16
+  iter 407: particle count=3.572265e+07, change=0.000000e+00
+  iter 408: particle count=3.572265e+07, change=0.000000e+00
+  iter 409: particle count=3.572265e+07, change=2.085674e-16
+  iter 410: particle count=3.572265e+07, change=-2.085674e-16
+  iter 411: particle count=3.572265e+07, change=0.000000e+00
+  iter 412: particle count=3.572265e+07, change=0.000000e+00
+  iter 413: particle count=3.572265e+07, change=2.085674e-16
+  iter 414: particle count=3.572265e+07, change=0.000000e+00
+  iter 415: particle count=3.572265e+07, change=0.000000e+00
+  iter 416: particle count=3.572265e+07, change=0.000000e+00
+  iter 417: particle count=3.572265e+07, change=-2.085674e-16
+  iter 418: particle count=3.572265e+07, change=2.085674e-16
+  iter 419: particle count=3.572265e+07, change=0.000000e+00
+  iter 420: particle count=3.572265e+07, change=-2.085674e-16
+  iter 421: particle count=3.572265e+07, change=2.085674e-16
+  iter 422: particle count=3.572265e+07, change=0.000000e+00
+  iter 423: particle count=3.572265e+07, change=-2.085674e-16
+  iter 424: particle count=3.572265e+07, change=2.085674e-16
+  iter 425: particle count=3.572265e+07, change=-2.085674e-16
+  iter 426: particle count=3.572265e+07, change=0.000000e+00
+  iter 427: particle count=3.572265e+07, change=0.000000e+00
+  iter 428: particle count=3.572265e+07, change=0.000000e+00
+  iter 429: particle count=3.572265e+07, change=0.000000e+00
+  iter 430: particle count=3.572265e+07, change=0.000000e+00
+  iter 431: particle count=3.572265e+07, change=0.000000e+00
+  iter 432: particle count=3.572265e+07, change=0.000000e+00
+  iter 433: particle count=3.572265e+07, change=2.085674e-16
+  iter 434: particle count=3.572265e+07, change=-2.085674e-16
+  iter 435: particle count=3.572265e+07, change=2.085674e-16
+  iter 436: particle count=3.572265e+07, change=0.000000e+00
+  iter 437: particle count=3.572265e+07, change=-2.085674e-16
+  iter 438: particle count=3.572265e+07, change=0.000000e+00
+  iter 439: particle count=3.572265e+07, change=0.000000e+00
+  iter 440: particle count=3.572265e+07, change=0.000000e+00
+  iter 441: particle count=3.572265e+07, change=0.000000e+00
+  iter 442: particle count=3.572265e+07, change=2.085674e-16
+  iter 443: particle count=3.572265e+07, change=-2.085674e-16
+  iter 444: particle count=3.572265e+07, change=0.000000e+00
+  iter 445: particle count=3.572265e+07, change=2.085674e-16
+  iter 446: particle count=3.572265e+07, change=0.000000e+00
+  iter 447: particle count=3.572265e+07, change=0.000000e+00
+  iter 448: particle count=3.572265e+07, change=-2.085674e-16
+  iter 449: particle count=3.572265e+07, change=2.085674e-16
+  iter 450: particle count=3.572265e+07, change=0.000000e+00
+  iter 451: particle count=3.572265e+07, change=-2.085674e-16
+  iter 452: particle count=3.572265e+07, change=0.000000e+00
+  iter 453: particle count=3.572265e+07, change=0.000000e+00
+  iter 454: particle count=3.572265e+07, change=0.000000e+00
+  iter 455: particle count=3.572265e+07, change=2.085674e-16
+  iter 456: particle count=3.572265e+07, change=0.000000e+00
+  iter 457: particle count=3.572265e+07, change=0.000000e+00
+  iter 458: particle count=3.572265e+07, change=0.000000e+00
+  iter 459: particle count=3.572265e+07, change=0.000000e+00
+  iter 460: particle count=3.572265e+07, change=-2.085674e-16
+  iter 461: particle count=3.572265e+07, change=0.000000e+00
+  iter 462: particle count=3.572265e+07, change=2.085674e-16
+  iter 463: particle count=3.572265e+07, change=-2.085674e-16
+  iter 464: particle count=3.572265e+07, change=0.000000e+00
+  iter 465: particle count=3.572265e+07, change=0.000000e+00
+  iter 466: particle count=3.572265e+07, change=2.085674e-16
+  iter 467: particle count=3.572265e+07, change=-2.085674e-16
+  iter 468: particle count=3.572265e+07, change=0.000000e+00
+  iter 469: particle count=3.572265e+07, change=0.000000e+00
+  iter 470: particle count=3.572265e+07, change=0.000000e+00
+  iter 471: particle count=3.572265e+07, change=0.000000e+00
+  iter 472: particle count=3.572265e+07, change=0.000000e+00
+  iter 473: particle count=3.572265e+07, change=2.085674e-16
+  iter 474: particle count=3.572265e+07, change=-2.085674e-16
+  iter 475: particle count=3.572265e+07, change=0.000000e+00
+  iter 476: particle count=3.572265e+07, change=0.000000e+00
+  iter 477: particle count=3.572265e+07, change=0.000000e+00
+  iter 478: particle count=3.572265e+07, change=2.085674e-16
+  iter 479: particle count=3.572265e+07, change=-2.085674e-16
+  iter 480: particle count=3.572265e+07, change=0.000000e+00
+  iter 481: particle count=3.572265e+07, change=0.000000e+00
+  iter 482: particle count=3.572265e+07, change=0.000000e+00
+  iter 483: particle count=3.572265e+07, change=2.085674e-16
+  iter 484: particle count=3.572265e+07, change=0.000000e+00
+  iter 485: particle count=3.572265e+07, change=0.000000e+00
+  iter 486: particle count=3.572265e+07, change=-2.085674e-16
+  iter 487: particle count=3.572265e+07, change=0.000000e+00
+  iter 488: particle count=3.572265e+07, change=0.000000e+00
+  iter 489: particle count=3.572265e+07, change=2.085674e-16
+  iter 490: particle count=3.572265e+07, change=-2.085674e-16
+  iter 491: particle count=3.572265e+07, change=0.000000e+00
+  iter 492: particle count=3.572265e+07, change=0.000000e+00
+  iter 493: particle count=3.572265e+07, change=2.085674e-16
+  iter 494: particle count=3.572265e+07, change=-2.085674e-16
+  iter 495: particle count=3.572265e+07, change=0.000000e+00
+  iter 496: particle count=3.572265e+07, change=0.000000e+00
+  iter 497: particle count=3.572265e+07, change=2.085674e-16
+  iter 498: particle count=3.572265e+07, change=-2.085674e-16
+  iter 499: particle count=3.572265e+07, change=0.000000e+00
+  Solver terminated
+
+Timers
+======
+
+  Timer                    Count       Seconds
+  ----------------  ------------  ------------
+  Generate                     1       1.04557
+  LPlusTimes                 500       2.22704
+  LTimes                     500       1.86002
+  Population                 500       3.61208
+  Scattering                 500       4.71941
+  Solve                        1      42.64725
+  Source                     500       0.03307
+  SweepSolver                500      28.90543
+  SweepSubdomain          128000       4.11611
+
+TIMER_NAMES:Generate,LPlusTimes,LTimes,Population,Scattering,Solve,Source,SweepSolver,SweepSubdomain
+TIMER_DATA:1.045573,2.227038,1.860018,3.612077,4.719412,42.647252,0.033067,28.905428,4.116111
+
+Figures of Merit
+================
+
+  Throughput:         5.963622e+10 [unknowns/(second/iteration)]
+  Grind time :        1.676833e-11 [(seconds/iteration)/unknowns]
+  Sweep efficiency :  14.23992 [100.0 * SweepSubdomain time / SweepSolver time]
+  Number of unknowns: 5086642176
+
+END
+FLUX-RUN END kripke-iter-1
+FLUX-RUN START kripke-iter-2
+
+   _  __       _         _
+  | |/ /      (_)       | |
+  | ' /  _ __  _  _ __  | | __ ___
+  |  <  | '__|| || '_ \ | |/ // _ \ 
+  | . \ | |   | || |_) ||   <|  __/
+  |_|\_\|_|   |_|| .__/ |_|\_\\___|
+                 | |
+                 |_|        Version 1.2.5-dev
+
+LLNL-CODE-775068
+
+Copyright (c) 2014-23, Lawrence Livermore National Security, LLC
+
+Kripke is released under the BSD 3-Clause License, please see the
+LICENSE file for the full license
+
+This work was produced under the auspices of the U.S. Department of
+Energy by Lawrence Livermore National Laboratory under Contract
+DE-AC52-07NA27344.
+
+Author: Adam J. Kunen <kunen1@llnl.gov>
+
+Compilation Options:
+  Architecture:           Sequential
+  Compiler:               /usr/bin/g++
+  Compiler Flags:         "    "
+  Linker Flags:           "-lstdc++ -pthread "
+  CHAI Enabled:           Yes
+  CUDA Enabled:           No
+  MPI Enabled:            Yes
+  OpenMP Enabled:         No
+  Caliper Enabled:        No
+
+Input Parameters
+================
+
+  Problem Size:
+    Zones:                 448 x 168 x 264  (19869696 total)
+    Groups:                16
+    Legendre Order:        2
+    Quadrature Set:        Dummy S2 with 16 points
+
+  Physical Properties:
+    Total X-Sec:           sigt=[0.100000, 0.000100, 0.100000]
+    Scattering X-Sec:      sigs=[0.050000, 0.000050, 0.050000]
+
+  Solver Options:
+    Number iterations:     500
+
+  MPI Decomposition Options:
+    Total MPI tasks:       11264
+    Spatial decomp:        64 x 8 x 22 MPI tasks
+    Block solve method:    Sweep
+
+  Per-Task Options:
+    DirSets/Directions:    16 sets, 1 directions/set
+    GroupSet/Groups:       16 sets, 1 groups/set
+    Zone Sets:             1 x 1 x 1
+    Architecture:          Sequential
+    Data Layout:           DGZ
+
+Generating Problem
+==================
+
+  Decomposition Space:   Procs:      Subdomains (local/global):
+  ---------------------  ----------  --------------------------
+  (P) Energy:            1           16 / 16
+  (Q) Direction:         1           16 / 16
+  (R) Space:             11264       1 / 11264
+  (Rx,Ry,Rz) R in XYZ:   64x8x22       1x1x1 / 64x8x22
+  (PQR) TOTAL:           11264       256 / 2883584
+
+  Material Volumes=[7.958386e+03, 1.203803e+05, 2.751661e+06]
+
+  Memory breakdown of Field variables:
+  Field Variable            Num Elements    Megabytes
+  --------------            ------------    ---------
+  data/sigs                         2304        0.018
+  dx                                 448        0.003
+  dy                                 168        0.001
+  dz                                 264        0.002
+  ell                                144        0.001
+  ell_plus                           144        0.001
+  i_plane                       11354112       86.625
+  j_plane                       30277632      231.000
+  k_plane                       19267584      147.000
+  mixelem_to_fraction           19935168      152.093
+  phi                         2861236224    21829.500
+  phi_out                     2861236224    21829.500
+  psi                         5086642176    38808.000
+  quadrature/w                        16        0.000
+  quadrature/xcos                     16        0.000
+  quadrature/ycos                     16        0.000
+  quadrature/zcos                     16        0.000
+  rhs                         5086642176    38808.000
+  sigt_zonal                   317915136     2425.500
+  volume                        19869696      151.594
+  --------                  ------------    ---------
+  TOTAL                      16314379664   124468.839
+
+  Generation Complete!
+
+Steady State Solve
+==================
+
+  iter 0: particle count=1.808564e+07, change=1.000000e+00
+  iter 1: particle count=2.703162e+07, change=3.309449e-01
+  iter 2: particle count=3.144811e+07, change=1.404375e-01
+  iter 3: particle count=3.362457e+07, change=6.472815e-02
+  iter 4: particle count=3.469508e+07, change=3.085486e-02
+  iter 5: particle count=3.522050e+07, change=1.491797e-02
+  iter 6: particle count=3.547780e+07, change=7.252299e-03
+  iter 7: particle count=3.560350e+07, change=3.530789e-03
+  iter 8: particle count=3.566479e+07, change=1.718278e-03
+  iter 9: particle count=3.569460e+07, change=8.352023e-04
+  iter 10: particle count=3.570907e+07, change=4.053579e-04
+  iter 11: particle count=3.571609e+07, change=1.964317e-04
+  iter 12: particle count=3.571948e+07, change=9.504653e-05
+  iter 13: particle count=3.572112e+07, change=4.592595e-05
+  iter 14: particle count=3.572192e+07, change=2.216304e-05
+  iter 15: particle count=3.572230e+07, change=1.068319e-05
+  iter 16: particle count=3.572248e+07, change=5.144252e-06
+  iter 17: particle count=3.572257e+07, change=2.474781e-06
+  iter 18: particle count=3.572261e+07, change=1.189554e-06
+  iter 19: particle count=3.572263e+07, change=5.713471e-07
+  iter 20: particle count=3.572264e+07, change=2.742304e-07
+  iter 21: particle count=3.572265e+07, change=1.315402e-07
+  iter 22: particle count=3.572265e+07, change=6.305995e-08
+  iter 23: particle count=3.572265e+07, change=3.021501e-08
+  iter 24: particle count=3.572265e+07, change=1.447056e-08
+  iter 25: particle count=3.572265e+07, change=6.927217e-09
+  iter 26: particle count=3.572265e+07, change=3.314810e-09
+  iter 27: particle count=3.572265e+07, change=1.585618e-09
+  iter 28: particle count=3.572265e+07, change=7.582134e-10
+  iter 29: particle count=3.572265e+07, change=3.624491e-10
+  iter 30: particle count=3.572265e+07, change=1.732123e-10
+  iter 31: particle count=3.572265e+07, change=8.275475e-11
+  iter 32: particle count=3.572265e+07, change=3.952728e-11
+  iter 33: particle count=3.572265e+07, change=1.887556e-11
+  iter 34: particle count=3.572265e+07, change=9.012197e-12
+  iter 35: particle count=3.572265e+07, change=4.301286e-12
+  iter 36: particle count=3.572265e+07, change=2.052720e-12
+  iter 37: particle count=3.572265e+07, change=9.798497e-13
+  iter 38: particle count=3.572265e+07, change=4.673995e-13
+  iter 39: particle count=3.572265e+07, change=2.227500e-13
+  iter 40: particle count=3.572265e+07, change=1.065779e-13
+  iter 41: particle count=3.572265e+07, change=5.068188e-14
+  iter 42: particle count=3.572265e+07, change=2.398525e-14
+  iter 43: particle count=3.572265e+07, change=1.147121e-14
+  iter 44: particle count=3.572265e+07, change=5.422752e-15
+  iter 45: particle count=3.572265e+07, change=2.919944e-15
+  iter 46: particle count=3.572265e+07, change=1.042837e-15
+  iter 47: particle count=3.572265e+07, change=8.342696e-16
+  iter 48: particle count=3.572265e+07, change=0.000000e+00
+  iter 49: particle count=3.572265e+07, change=2.085674e-16
+  iter 50: particle count=3.572265e+07, change=0.000000e+00
+  iter 51: particle count=3.572265e+07, change=0.000000e+00
+  iter 52: particle count=3.572265e+07, change=0.000000e+00
+  iter 53: particle count=3.572265e+07, change=0.000000e+00
+  iter 54: particle count=3.572265e+07, change=2.085674e-16
+  iter 55: particle count=3.572265e+07, change=-2.085674e-16
+  iter 56: particle count=3.572265e+07, change=2.085674e-16
+  iter 57: particle count=3.572265e+07, change=-2.085674e-16
+  iter 58: particle count=3.572265e+07, change=2.085674e-16
+  iter 59: particle count=3.572265e+07, change=-2.085674e-16
+  iter 60: particle count=3.572265e+07, change=2.085674e-16
+  iter 61: particle count=3.572265e+07, change=-2.085674e-16
+  iter 62: particle count=3.572265e+07, change=2.085674e-16
+  iter 63: particle count=3.572265e+07, change=-2.085674e-16
+  iter 64: particle count=3.572265e+07, change=2.085674e-16
+  iter 65: particle count=3.572265e+07, change=-2.085674e-16
+  iter 66: particle count=3.572265e+07, change=2.085674e-16
+  iter 67: particle count=3.572265e+07, change=-2.085674e-16
+  iter 68: particle count=3.572265e+07, change=0.000000e+00
+  iter 69: particle count=3.572265e+07, change=0.000000e+00
+  iter 70: particle count=3.572265e+07, change=0.000000e+00
+  iter 71: particle count=3.572265e+07, change=2.085674e-16
+  iter 72: particle count=3.572265e+07, change=-2.085674e-16
+  iter 73: particle count=3.572265e+07, change=2.085674e-16
+  iter 74: particle count=3.572265e+07, change=-2.085674e-16
+  iter 75: particle count=3.572265e+07, change=0.000000e+00
+  iter 76: particle count=3.572265e+07, change=0.000000e+00
+  iter 77: particle count=3.572265e+07, change=2.085674e-16
+  iter 78: particle count=3.572265e+07, change=0.000000e+00
+  iter 79: particle count=3.572265e+07, change=-2.085674e-16
+  iter 80: particle count=3.572265e+07, change=0.000000e+00
+  iter 81: particle count=3.572265e+07, change=0.000000e+00
+  iter 82: particle count=3.572265e+07, change=2.085674e-16
+  iter 83: particle count=3.572265e+07, change=-2.085674e-16
+  iter 84: particle count=3.572265e+07, change=2.085674e-16
+  iter 85: particle count=3.572265e+07, change=-2.085674e-16
+  iter 86: particle count=3.572265e+07, change=0.000000e+00
+  iter 87: particle count=3.572265e+07, change=2.085674e-16
+  iter 88: particle count=3.572265e+07, change=-2.085674e-16
+  iter 89: particle count=3.572265e+07, change=0.000000e+00
+  iter 90: particle count=3.572265e+07, change=0.000000e+00
+  iter 91: particle count=3.572265e+07, change=0.000000e+00
+  iter 92: particle count=3.572265e+07, change=0.000000e+00
+  iter 93: particle count=3.572265e+07, change=0.000000e+00
+  iter 94: particle count=3.572265e+07, change=0.000000e+00
+  iter 95: particle count=3.572265e+07, change=0.000000e+00
+  iter 96: particle count=3.572265e+07, change=0.000000e+00
+  iter 97: particle count=3.572265e+07, change=0.000000e+00
+  iter 98: particle count=3.572265e+07, change=0.000000e+00
+  iter 99: particle count=3.572265e+07, change=2.085674e-16
+  iter 100: particle count=3.572265e+07, change=-2.085674e-16
+  iter 101: particle count=3.572265e+07, change=2.085674e-16
+  iter 102: particle count=3.572265e+07, change=-2.085674e-16
+  iter 103: particle count=3.572265e+07, change=0.000000e+00
+  iter 104: particle count=3.572265e+07, change=0.000000e+00
+  iter 105: particle count=3.572265e+07, change=0.000000e+00
+  iter 106: particle count=3.572265e+07, change=0.000000e+00
+  iter 107: particle count=3.572265e+07, change=0.000000e+00
+  iter 108: particle count=3.572265e+07, change=2.085674e-16
+  iter 109: particle count=3.572265e+07, change=-2.085674e-16
+  iter 110: particle count=3.572265e+07, change=2.085674e-16
+  iter 111: particle count=3.572265e+07, change=-2.085674e-16
+  iter 112: particle count=3.572265e+07, change=0.000000e+00
+  iter 113: particle count=3.572265e+07, change=2.085674e-16
+  iter 114: particle count=3.572265e+07, change=-2.085674e-16
+  iter 115: particle count=3.572265e+07, change=2.085674e-16
+  iter 116: particle count=3.572265e+07, change=-2.085674e-16
+  iter 117: particle count=3.572265e+07, change=0.000000e+00
+  iter 118: particle count=3.572265e+07, change=0.000000e+00
+  iter 119: particle count=3.572265e+07, change=2.085674e-16
+  iter 120: particle count=3.572265e+07, change=0.000000e+00
+  iter 121: particle count=3.572265e+07, change=0.000000e+00
+  iter 122: particle count=3.572265e+07, change=-2.085674e-16
+  iter 123: particle count=3.572265e+07, change=0.000000e+00
+  iter 124: particle count=3.572265e+07, change=0.000000e+00
+  iter 125: particle count=3.572265e+07, change=2.085674e-16
+  iter 126: particle count=3.572265e+07, change=-2.085674e-16
+  iter 127: particle count=3.572265e+07, change=0.000000e+00
+  iter 128: particle count=3.572265e+07, change=0.000000e+00
+  iter 129: particle count=3.572265e+07, change=2.085674e-16
+  iter 130: particle count=3.572265e+07, change=-2.085674e-16
+  iter 131: particle count=3.572265e+07, change=0.000000e+00
+  iter 132: particle count=3.572265e+07, change=2.085674e-16
+  iter 133: particle count=3.572265e+07, change=-2.085674e-16
+  iter 134: particle count=3.572265e+07, change=0.000000e+00
+  iter 135: particle count=3.572265e+07, change=0.000000e+00
+  iter 136: particle count=3.572265e+07, change=0.000000e+00
+  iter 137: particle count=3.572265e+07, change=0.000000e+00
+  iter 138: particle count=3.572265e+07, change=2.085674e-16
+  iter 139: particle count=3.572265e+07, change=-2.085674e-16
+  iter 140: particle count=3.572265e+07, change=2.085674e-16
+  iter 141: particle count=3.572265e+07, change=-2.085674e-16
+  iter 142: particle count=3.572265e+07, change=0.000000e+00
+  iter 143: particle count=3.572265e+07, change=2.085674e-16
+  iter 144: particle count=3.572265e+07, change=-2.085674e-16
+  iter 145: particle count=3.572265e+07, change=2.085674e-16
+  iter 146: particle count=3.572265e+07, change=-2.085674e-16
+  iter 147: particle count=3.572265e+07, change=2.085674e-16
+  iter 148: particle count=3.572265e+07, change=-2.085674e-16
+  iter 149: particle count=3.572265e+07, change=0.000000e+00
+  iter 150: particle count=3.572265e+07, change=2.085674e-16
+  iter 151: particle count=3.572265e+07, change=-2.085674e-16
+  iter 152: particle count=3.572265e+07, change=0.000000e+00
+  iter 153: particle count=3.572265e+07, change=0.000000e+00
+  iter 154: particle count=3.572265e+07, change=0.000000e+00
+  iter 155: particle count=3.572265e+07, change=2.085674e-16
+  iter 156: particle count=3.572265e+07, change=-2.085674e-16
+  iter 157: particle count=3.572265e+07, change=0.000000e+00
+  iter 158: particle count=3.572265e+07, change=0.000000e+00
+  iter 159: particle count=3.572265e+07, change=0.000000e+00
+  iter 160: particle count=3.572265e+07, change=0.000000e+00
+  iter 161: particle count=3.572265e+07, change=0.000000e+00
+  iter 162: particle count=3.572265e+07, change=0.000000e+00
+  iter 163: particle count=3.572265e+07, change=0.000000e+00
+  iter 164: particle count=3.572265e+07, change=0.000000e+00
+  iter 165: particle count=3.572265e+07, change=0.000000e+00
+  iter 166: particle count=3.572265e+07, change=2.085674e-16
+  iter 167: particle count=3.572265e+07, change=0.000000e+00
+  iter 168: particle count=3.572265e+07, change=-2.085674e-16
+  iter 169: particle count=3.572265e+07, change=0.000000e+00
+  iter 170: particle count=3.572265e+07, change=0.000000e+00
+  iter 171: particle count=3.572265e+07, change=0.000000e+00
+  iter 172: particle count=3.572265e+07, change=0.000000e+00
+  iter 173: particle count=3.572265e+07, change=2.085674e-16
+  iter 174: particle count=3.572265e+07, change=-2.085674e-16
+  iter 175: particle count=3.572265e+07, change=2.085674e-16
+  iter 176: particle count=3.572265e+07, change=0.000000e+00
+  iter 177: particle count=3.572265e+07, change=-2.085674e-16
+  iter 178: particle count=3.572265e+07, change=0.000000e+00
+  iter 179: particle count=3.572265e+07, change=2.085674e-16
+  iter 180: particle count=3.572265e+07, change=-2.085674e-16
+  iter 181: particle count=3.572265e+07, change=2.085674e-16
+  iter 182: particle count=3.572265e+07, change=-2.085674e-16
+  iter 183: particle count=3.572265e+07, change=0.000000e+00
+  iter 184: particle count=3.572265e+07, change=2.085674e-16
+  iter 185: particle count=3.572265e+07, change=0.000000e+00
+  iter 186: particle count=3.572265e+07, change=-2.085674e-16
+  iter 187: particle count=3.572265e+07, change=2.085674e-16
+  iter 188: particle count=3.572265e+07, change=-2.085674e-16
+  iter 189: particle count=3.572265e+07, change=0.000000e+00
+  iter 190: particle count=3.572265e+07, change=0.000000e+00
+  iter 191: particle count=3.572265e+07, change=0.000000e+00
+  iter 192: particle count=3.572265e+07, change=0.000000e+00
+  iter 193: particle count=3.572265e+07, change=0.000000e+00
+  iter 194: particle count=3.572265e+07, change=0.000000e+00
+  iter 195: particle count=3.572265e+07, change=0.000000e+00
+  iter 196: particle count=3.572265e+07, change=2.085674e-16
+  iter 197: particle count=3.572265e+07, change=-2.085674e-16
+  iter 198: particle count=3.572265e+07, change=0.000000e+00
+  iter 199: particle count=3.572265e+07, change=0.000000e+00
+  iter 200: particle count=3.572265e+07, change=0.000000e+00
+  iter 201: particle count=3.572265e+07, change=2.085674e-16
+  iter 202: particle count=3.572265e+07, change=-2.085674e-16
+  iter 203: particle count=3.572265e+07, change=0.000000e+00
+  iter 204: particle count=3.572265e+07, change=0.000000e+00
+  iter 205: particle count=3.572265e+07, change=0.000000e+00
+  iter 206: particle count=3.572265e+07, change=0.000000e+00
+  iter 207: particle count=3.572265e+07, change=0.000000e+00
+  iter 208: particle count=3.572265e+07, change=0.000000e+00
+  iter 209: particle count=3.572265e+07, change=0.000000e+00
+  iter 210: particle count=3.572265e+07, change=0.000000e+00
+  iter 211: particle count=3.572265e+07, change=0.000000e+00
+  iter 212: particle count=3.572265e+07, change=0.000000e+00
+  iter 213: particle count=3.572265e+07, change=0.000000e+00
+  iter 214: particle count=3.572265e+07, change=0.000000e+00
+  iter 215: particle count=3.572265e+07, change=0.000000e+00
+  iter 216: particle count=3.572265e+07, change=0.000000e+00
+  iter 217: particle count=3.572265e+07, change=0.000000e+00
+  iter 218: particle count=3.572265e+07, change=2.085674e-16
+  iter 219: particle count=3.572265e+07, change=-2.085674e-16
+  iter 220: particle count=3.572265e+07, change=0.000000e+00
+  iter 221: particle count=3.572265e+07, change=0.000000e+00
+  iter 222: particle count=3.572265e+07, change=0.000000e+00
+  iter 223: particle count=3.572265e+07, change=2.085674e-16
+  iter 224: particle count=3.572265e+07, change=-2.085674e-16
+  iter 225: particle count=3.572265e+07, change=0.000000e+00
+  iter 226: particle count=3.572265e+07, change=2.085674e-16
+  iter 227: particle count=3.572265e+07, change=-2.085674e-16
+  iter 228: particle count=3.572265e+07, change=0.000000e+00
+  iter 229: particle count=3.572265e+07, change=0.000000e+00
+  iter 230: particle count=3.572265e+07, change=0.000000e+00
+  iter 231: particle count=3.572265e+07, change=0.000000e+00
+  iter 232: particle count=3.572265e+07, change=0.000000e+00
+  iter 233: particle count=3.572265e+07, change=0.000000e+00
+  iter 234: particle count=3.572265e+07, change=0.000000e+00
+  iter 235: particle count=3.572265e+07, change=0.000000e+00
+  iter 236: particle count=3.572265e+07, change=2.085674e-16
+  iter 237: particle count=3.572265e+07, change=-2.085674e-16
+  iter 238: particle count=3.572265e+07, change=0.000000e+00
+  iter 239: particle count=3.572265e+07, change=0.000000e+00
+  iter 240: particle count=3.572265e+07, change=0.000000e+00
+  iter 241: particle count=3.572265e+07, change=0.000000e+00
+  iter 242: particle count=3.572265e+07, change=0.000000e+00
+  iter 243: particle count=3.572265e+07, change=0.000000e+00
+  iter 244: particle count=3.572265e+07, change=2.085674e-16
+  iter 245: particle count=3.572265e+07, change=0.000000e+00
+  iter 246: particle count=3.572265e+07, change=-2.085674e-16
+  iter 247: particle count=3.572265e+07, change=0.000000e+00
+  iter 248: particle count=3.572265e+07, change=0.000000e+00
+  iter 249: particle count=3.572265e+07, change=0.000000e+00
+  iter 250: particle count=3.572265e+07, change=0.000000e+00
+  iter 251: particle count=3.572265e+07, change=0.000000e+00
+  iter 252: particle count=3.572265e+07, change=0.000000e+00
+  iter 253: particle count=3.572265e+07, change=0.000000e+00
+  iter 254: particle count=3.572265e+07, change=0.000000e+00
+  iter 255: particle count=3.572265e+07, change=0.000000e+00
+  iter 256: particle count=3.572265e+07, change=0.000000e+00
+  iter 257: particle count=3.572265e+07, change=0.000000e+00
+  iter 258: particle count=3.572265e+07, change=0.000000e+00
+  iter 259: particle count=3.572265e+07, change=0.000000e+00
+  iter 260: particle count=3.572265e+07, change=0.000000e+00
+  iter 261: particle count=3.572265e+07, change=2.085674e-16
+  iter 262: particle count=3.572265e+07, change=-2.085674e-16
+  iter 263: particle count=3.572265e+07, change=0.000000e+00
+  iter 264: particle count=3.572265e+07, change=0.000000e+00
+  iter 265: particle count=3.572265e+07, change=0.000000e+00
+  iter 266: particle count=3.572265e+07, change=0.000000e+00
+  iter 267: particle count=3.572265e+07, change=0.000000e+00
+  iter 268: particle count=3.572265e+07, change=0.000000e+00
+  iter 269: particle count=3.572265e+07, change=0.000000e+00
+  iter 270: particle count=3.572265e+07, change=2.085674e-16
+  iter 271: particle count=3.572265e+07, change=0.000000e+00
+  iter 272: particle count=3.572265e+07, change=-2.085674e-16
+  iter 273: particle count=3.572265e+07, change=0.000000e+00
+  iter 274: particle count=3.572265e+07, change=2.085674e-16
+  iter 275: particle count=3.572265e+07, change=-2.085674e-16
+  iter 276: particle count=3.572265e+07, change=0.000000e+00
+  iter 277: particle count=3.572265e+07, change=0.000000e+00
+  iter 278: particle count=3.572265e+07, change=0.000000e+00
+  iter 279: particle count=3.572265e+07, change=2.085674e-16
+  iter 280: particle count=3.572265e+07, change=-2.085674e-16
+  iter 281: particle count=3.572265e+07, change=0.000000e+00
+  iter 282: particle count=3.572265e+07, change=0.000000e+00
+  iter 283: particle count=3.572265e+07, change=0.000000e+00
+  iter 284: particle count=3.572265e+07, change=2.085674e-16
+  iter 285: particle count=3.572265e+07, change=0.000000e+00
+  iter 286: particle count=3.572265e+07, change=-2.085674e-16
+  iter 287: particle count=3.572265e+07, change=2.085674e-16
+  iter 288: particle count=3.572265e+07, change=-2.085674e-16
+  iter 289: particle count=3.572265e+07, change=2.085674e-16
+  iter 290: particle count=3.572265e+07, change=-2.085674e-16
+  iter 291: particle count=3.572265e+07, change=0.000000e+00
+  iter 292: particle count=3.572265e+07, change=2.085674e-16
+  iter 293: particle count=3.572265e+07, change=0.000000e+00
+  iter 294: particle count=3.572265e+07, change=-2.085674e-16
+  iter 295: particle count=3.572265e+07, change=2.085674e-16
+  iter 296: particle count=3.572265e+07, change=-2.085674e-16
+  iter 297: particle count=3.572265e+07, change=2.085674e-16
+  iter 298: particle count=3.572265e+07, change=-2.085674e-16
+  iter 299: particle count=3.572265e+07, change=0.000000e+00
+  iter 300: particle count=3.572265e+07, change=0.000000e+00
+  iter 301: particle count=3.572265e+07, change=2.085674e-16
+  iter 302: particle count=3.572265e+07, change=0.000000e+00
+  iter 303: particle count=3.572265e+07, change=-2.085674e-16
+  iter 304: particle count=3.572265e+07, change=0.000000e+00
+  iter 305: particle count=3.572265e+07, change=0.000000e+00
+  iter 306: particle count=3.572265e+07, change=0.000000e+00
+  iter 307: particle count=3.572265e+07, change=0.000000e+00
+  iter 308: particle count=3.572265e+07, change=0.000000e+00
+  iter 309: particle count=3.572265e+07, change=0.000000e+00
+  iter 310: particle count=3.572265e+07, change=2.085674e-16
+  iter 311: particle count=3.572265e+07, change=0.000000e+00
+  iter 312: particle count=3.572265e+07, change=-2.085674e-16
+  iter 313: particle count=3.572265e+07, change=2.085674e-16
+  iter 314: particle count=3.572265e+07, change=-2.085674e-16
+  iter 315: particle count=3.572265e+07, change=2.085674e-16
+  iter 316: particle count=3.572265e+07, change=0.000000e+00
+  iter 317: particle count=3.572265e+07, change=0.000000e+00
+  iter 318: particle count=3.572265e+07, change=-2.085674e-16
+  iter 319: particle count=3.572265e+07, change=0.000000e+00
+  iter 320: particle count=3.572265e+07, change=2.085674e-16
+  iter 321: particle count=3.572265e+07, change=-2.085674e-16
+  iter 322: particle count=3.572265e+07, change=2.085674e-16
+  iter 323: particle count=3.572265e+07, change=-2.085674e-16
+  iter 324: particle count=3.572265e+07, change=0.000000e+00
+  iter 325: particle count=3.572265e+07, change=2.085674e-16
+  iter 326: particle count=3.572265e+07, change=-2.085674e-16
+  iter 327: particle count=3.572265e+07, change=0.000000e+00
+  iter 328: particle count=3.572265e+07, change=0.000000e+00
+  iter 329: particle count=3.572265e+07, change=2.085674e-16
+  iter 330: particle count=3.572265e+07, change=-2.085674e-16
+  iter 331: particle count=3.572265e+07, change=0.000000e+00
+  iter 332: particle count=3.572265e+07, change=0.000000e+00
+  iter 333: particle count=3.572265e+07, change=0.000000e+00
+  iter 334: particle count=3.572265e+07, change=0.000000e+00
+  iter 335: particle count=3.572265e+07, change=2.085674e-16
+  iter 336: particle count=3.572265e+07, change=-2.085674e-16
+  iter 337: particle count=3.572265e+07, change=2.085674e-16
+  iter 338: particle count=3.572265e+07, change=-2.085674e-16
+  iter 339: particle count=3.572265e+07, change=0.000000e+00
+  iter 340: particle count=3.572265e+07, change=0.000000e+00
+  iter 341: particle count=3.572265e+07, change=0.000000e+00
+  iter 342: particle count=3.572265e+07, change=2.085674e-16
+  iter 343: particle count=3.572265e+07, change=-2.085674e-16
+  iter 344: particle count=3.572265e+07, change=2.085674e-16
+  iter 345: particle count=3.572265e+07, change=-2.085674e-16
+  iter 346: particle count=3.572265e+07, change=0.000000e+00
+  iter 347: particle count=3.572265e+07, change=0.000000e+00
+  iter 348: particle count=3.572265e+07, change=2.085674e-16
+  iter 349: particle count=3.572265e+07, change=-2.085674e-16
+  iter 350: particle count=3.572265e+07, change=0.000000e+00
+  iter 351: particle count=3.572265e+07, change=0.000000e+00
+  iter 352: particle count=3.572265e+07, change=0.000000e+00
+  iter 353: particle count=3.572265e+07, change=0.000000e+00
+  iter 354: particle count=3.572265e+07, change=2.085674e-16
+  iter 355: particle count=3.572265e+07, change=-2.085674e-16
+  iter 356: particle count=3.572265e+07, change=2.085674e-16
+  iter 357: particle count=3.572265e+07, change=-2.085674e-16
+  iter 358: particle count=3.572265e+07, change=2.085674e-16
+  iter 359: particle count=3.572265e+07, change=-2.085674e-16
+  iter 360: particle count=3.572265e+07, change=0.000000e+00
+  iter 361: particle count=3.572265e+07, change=2.085674e-16
+  iter 362: particle count=3.572265e+07, change=0.000000e+00
+  iter 363: particle count=3.572265e+07, change=0.000000e+00
+  iter 364: particle count=3.572265e+07, change=-2.085674e-16
+  iter 365: particle count=3.572265e+07, change=0.000000e+00
+  iter 366: particle count=3.572265e+07, change=0.000000e+00
+  iter 367: particle count=3.572265e+07, change=0.000000e+00
+  iter 368: particle count=3.572265e+07, change=2.085674e-16
+  iter 369: particle count=3.572265e+07, change=-2.085674e-16
+  iter 370: particle count=3.572265e+07, change=2.085674e-16
+  iter 371: particle count=3.572265e+07, change=-2.085674e-16
+  iter 372: particle count=3.572265e+07, change=2.085674e-16
+  iter 373: particle count=3.572265e+07, change=-2.085674e-16
+  iter 374: particle count=3.572265e+07, change=0.000000e+00
+  iter 375: particle count=3.572265e+07, change=0.000000e+00
+  iter 376: particle count=3.572265e+07, change=0.000000e+00
+  iter 377: particle count=3.572265e+07, change=0.000000e+00
+  iter 378: particle count=3.572265e+07, change=2.085674e-16
+  iter 379: particle count=3.572265e+07, change=-2.085674e-16
+  iter 380: particle count=3.572265e+07, change=0.000000e+00
+  iter 381: particle count=3.572265e+07, change=0.000000e+00
+  iter 382: particle count=3.572265e+07, change=0.000000e+00
+  iter 383: particle count=3.572265e+07, change=0.000000e+00
+  iter 384: particle count=3.572265e+07, change=2.085674e-16
+  iter 385: particle count=3.572265e+07, change=0.000000e+00
+  iter 386: particle count=3.572265e+07, change=0.000000e+00
+  iter 387: particle count=3.572265e+07, change=-2.085674e-16
+  iter 388: particle count=3.572265e+07, change=2.085674e-16
+  iter 389: particle count=3.572265e+07, change=-2.085674e-16
+  iter 390: particle count=3.572265e+07, change=0.000000e+00
+  iter 391: particle count=3.572265e+07, change=0.000000e+00
+  iter 392: particle count=3.572265e+07, change=2.085674e-16
+  iter 393: particle count=3.572265e+07, change=0.000000e+00
+  iter 394: particle count=3.572265e+07, change=-2.085674e-16
+  iter 395: particle count=3.572265e+07, change=2.085674e-16
+  iter 396: particle count=3.572265e+07, change=-2.085674e-16
+  iter 397: particle count=3.572265e+07, change=2.085674e-16
+  iter 398: particle count=3.572265e+07, change=-2.085674e-16
+  iter 399: particle count=3.572265e+07, change=0.000000e+00
+  iter 400: particle count=3.572265e+07, change=0.000000e+00
+  iter 401: particle count=3.572265e+07, change=0.000000e+00
+  iter 402: particle count=3.572265e+07, change=2.085674e-16
+  iter 403: particle count=3.572265e+07, change=0.000000e+00
+  iter 404: particle count=3.572265e+07, change=-2.085674e-16
+  iter 405: particle count=3.572265e+07, change=2.085674e-16
+  iter 406: particle count=3.572265e+07, change=-2.085674e-16
+  iter 407: particle count=3.572265e+07, change=0.000000e+00
+  iter 408: particle count=3.572265e+07, change=0.000000e+00
+  iter 409: particle count=3.572265e+07, change=2.085674e-16
+  iter 410: particle count=3.572265e+07, change=-2.085674e-16
+  iter 411: particle count=3.572265e+07, change=0.000000e+00
+  iter 412: particle count=3.572265e+07, change=0.000000e+00
+  iter 413: particle count=3.572265e+07, change=2.085674e-16
+  iter 414: particle count=3.572265e+07, change=0.000000e+00
+  iter 415: particle count=3.572265e+07, change=0.000000e+00
+  iter 416: particle count=3.572265e+07, change=0.000000e+00
+  iter 417: particle count=3.572265e+07, change=-2.085674e-16
+  iter 418: particle count=3.572265e+07, change=2.085674e-16
+  iter 419: particle count=3.572265e+07, change=0.000000e+00
+  iter 420: particle count=3.572265e+07, change=-2.085674e-16
+  iter 421: particle count=3.572265e+07, change=2.085674e-16
+  iter 422: particle count=3.572265e+07, change=0.000000e+00
+  iter 423: particle count=3.572265e+07, change=-2.085674e-16
+  iter 424: particle count=3.572265e+07, change=2.085674e-16
+  iter 425: particle count=3.572265e+07, change=-2.085674e-16
+  iter 426: particle count=3.572265e+07, change=0.000000e+00
+  iter 427: particle count=3.572265e+07, change=0.000000e+00
+  iter 428: particle count=3.572265e+07, change=0.000000e+00
+  iter 429: particle count=3.572265e+07, change=0.000000e+00
+  iter 430: particle count=3.572265e+07, change=0.000000e+00
+  iter 431: particle count=3.572265e+07, change=0.000000e+00
+  iter 432: particle count=3.572265e+07, change=0.000000e+00
+  iter 433: particle count=3.572265e+07, change=2.085674e-16
+  iter 434: particle count=3.572265e+07, change=-2.085674e-16
+  iter 435: particle count=3.572265e+07, change=2.085674e-16
+  iter 436: particle count=3.572265e+07, change=0.000000e+00
+  iter 437: particle count=3.572265e+07, change=-2.085674e-16
+  iter 438: particle count=3.572265e+07, change=0.000000e+00
+  iter 439: particle count=3.572265e+07, change=0.000000e+00
+  iter 440: particle count=3.572265e+07, change=0.000000e+00
+  iter 441: particle count=3.572265e+07, change=0.000000e+00
+  iter 442: particle count=3.572265e+07, change=2.085674e-16
+  iter 443: particle count=3.572265e+07, change=-2.085674e-16
+  iter 444: particle count=3.572265e+07, change=0.000000e+00
+  iter 445: particle count=3.572265e+07, change=2.085674e-16
+  iter 446: particle count=3.572265e+07, change=0.000000e+00
+  iter 447: particle count=3.572265e+07, change=0.000000e+00
+  iter 448: particle count=3.572265e+07, change=-2.085674e-16
+  iter 449: particle count=3.572265e+07, change=2.085674e-16
+  iter 450: particle count=3.572265e+07, change=0.000000e+00
+  iter 451: particle count=3.572265e+07, change=-2.085674e-16
+  iter 452: particle count=3.572265e+07, change=0.000000e+00
+  iter 453: particle count=3.572265e+07, change=0.000000e+00
+  iter 454: particle count=3.572265e+07, change=0.000000e+00
+  iter 455: particle count=3.572265e+07, change=2.085674e-16
+  iter 456: particle count=3.572265e+07, change=0.000000e+00
+  iter 457: particle count=3.572265e+07, change=0.000000e+00
+  iter 458: particle count=3.572265e+07, change=0.000000e+00
+  iter 459: particle count=3.572265e+07, change=0.000000e+00
+  iter 460: particle count=3.572265e+07, change=-2.085674e-16
+  iter 461: particle count=3.572265e+07, change=0.000000e+00
+  iter 462: particle count=3.572265e+07, change=2.085674e-16
+  iter 463: particle count=3.572265e+07, change=-2.085674e-16
+  iter 464: particle count=3.572265e+07, change=0.000000e+00
+  iter 465: particle count=3.572265e+07, change=0.000000e+00
+  iter 466: particle count=3.572265e+07, change=2.085674e-16
+  iter 467: particle count=3.572265e+07, change=-2.085674e-16
+  iter 468: particle count=3.572265e+07, change=0.000000e+00
+  iter 469: particle count=3.572265e+07, change=0.000000e+00
+  iter 470: particle count=3.572265e+07, change=0.000000e+00
+  iter 471: particle count=3.572265e+07, change=0.000000e+00
+  iter 472: particle count=3.572265e+07, change=0.000000e+00
+  iter 473: particle count=3.572265e+07, change=2.085674e-16
+  iter 474: particle count=3.572265e+07, change=-2.085674e-16
+  iter 475: particle count=3.572265e+07, change=0.000000e+00
+  iter 476: particle count=3.572265e+07, change=0.000000e+00
+  iter 477: particle count=3.572265e+07, change=0.000000e+00
+  iter 478: particle count=3.572265e+07, change=2.085674e-16
+  iter 479: particle count=3.572265e+07, change=-2.085674e-16
+  iter 480: particle count=3.572265e+07, change=0.000000e+00
+  iter 481: particle count=3.572265e+07, change=0.000000e+00
+  iter 482: particle count=3.572265e+07, change=0.000000e+00
+  iter 483: particle count=3.572265e+07, change=2.085674e-16
+  iter 484: particle count=3.572265e+07, change=0.000000e+00
+  iter 485: particle count=3.572265e+07, change=0.000000e+00
+  iter 486: particle count=3.572265e+07, change=-2.085674e-16
+  iter 487: particle count=3.572265e+07, change=0.000000e+00
+  iter 488: particle count=3.572265e+07, change=0.000000e+00
+  iter 489: particle count=3.572265e+07, change=2.085674e-16
+  iter 490: particle count=3.572265e+07, change=-2.085674e-16
+  iter 491: particle count=3.572265e+07, change=0.000000e+00
+  iter 492: particle count=3.572265e+07, change=0.000000e+00
+  iter 493: particle count=3.572265e+07, change=2.085674e-16
+  iter 494: particle count=3.572265e+07, change=-2.085674e-16
+  iter 495: particle count=3.572265e+07, change=0.000000e+00
+  iter 496: particle count=3.572265e+07, change=0.000000e+00
+  iter 497: particle count=3.572265e+07, change=2.085674e-16
+  iter 498: particle count=3.572265e+07, change=-2.085674e-16
+  iter 499: particle count=3.572265e+07, change=0.000000e+00
+  Solver terminated
+
+Timers
+======
+
+  Timer                    Count       Seconds
+  ----------------  ------------  ------------
+  Generate                     1       0.89751
+  LPlusTimes                 500       2.20076
+  LTimes                     500       1.81095
+  Population                 500       3.93083
+  Scattering                 500       4.71194
+  Solve                        1      42.49136
+  Source                     500       0.03287
+  SweepSolver                500      28.53450
+  SweepSubdomain          128000       3.20504
+
+TIMER_NAMES:Generate,LPlusTimes,LTimes,Population,Scattering,Solve,Source,SweepSolver,SweepSubdomain
+TIMER_DATA:0.897510,2.200756,1.810946,3.930828,4.711943,42.491358,0.032873,28.534496,3.205037
+
+Figures of Merit
+================
+
+  Throughput:         5.985502e+10 [unknowns/(second/iteration)]
+  Grind time :        1.670704e-11 [(seconds/iteration)/unknowns]
+  Sweep efficiency :  11.23215 [100.0 * SweepSubdomain time / SweepSolver time]
+  Number of unknowns: 5086642176
+
+END
+FLUX-RUN END kripke-iter-2
+FLUX-RUN START kripke-iter-3
+
+   _  __       _         _
+  | |/ /      (_)       | |
+  | ' /  _ __  _  _ __  | | __ ___
+  |  <  | '__|| || '_ \ | |/ // _ \ 
+  | . \ | |   | || |_) ||   <|  __/
+  |_|\_\|_|   |_|| .__/ |_|\_\\___|
+                 | |
+                 |_|        Version 1.2.5-dev
+
+LLNL-CODE-775068
+
+Copyright (c) 2014-23, Lawrence Livermore National Security, LLC
+
+Kripke is released under the BSD 3-Clause License, please see the
+LICENSE file for the full license
+
+This work was produced under the auspices of the U.S. Department of
+Energy by Lawrence Livermore National Laboratory under Contract
+DE-AC52-07NA27344.
+
+Author: Adam J. Kunen <kunen1@llnl.gov>
+
+Compilation Options:
+  Architecture:           Sequential
+  Compiler:               /usr/bin/g++
+  Compiler Flags:         "    "
+  Linker Flags:           "-lstdc++ -pthread "
+  CHAI Enabled:           Yes
+  CUDA Enabled:           No
+  MPI Enabled:            Yes
+  OpenMP Enabled:         No
+  Caliper Enabled:        No
+
+Input Parameters
+================
+
+  Problem Size:
+    Zones:                 448 x 168 x 264  (19869696 total)
+    Groups:                16
+    Legendre Order:        2
+    Quadrature Set:        Dummy S2 with 16 points
+
+  Physical Properties:
+    Total X-Sec:           sigt=[0.100000, 0.000100, 0.100000]
+    Scattering X-Sec:      sigs=[0.050000, 0.000050, 0.050000]
+
+  Solver Options:
+    Number iterations:     500
+
+  MPI Decomposition Options:
+    Total MPI tasks:       11264
+    Spatial decomp:        64 x 8 x 22 MPI tasks
+    Block solve method:    Sweep
+
+  Per-Task Options:
+    DirSets/Directions:    16 sets, 1 directions/set
+    GroupSet/Groups:       16 sets, 1 groups/set
+    Zone Sets:             1 x 1 x 1
+    Architecture:          Sequential
+    Data Layout:           DGZ
+
+Generating Problem
+==================
+
+  Decomposition Space:   Procs:      Subdomains (local/global):
+  ---------------------  ----------  --------------------------
+  (P) Energy:            1           16 / 16
+  (Q) Direction:         1           16 / 16
+  (R) Space:             11264       1 / 11264
+  (Rx,Ry,Rz) R in XYZ:   64x8x22       1x1x1 / 64x8x22
+  (PQR) TOTAL:           11264       256 / 2883584
+
+  Material Volumes=[7.958386e+03, 1.203803e+05, 2.751661e+06]
+
+  Memory breakdown of Field variables:
+  Field Variable            Num Elements    Megabytes
+  --------------            ------------    ---------
+  data/sigs                         2304        0.018
+  dx                                 448        0.003
+  dy                                 168        0.001
+  dz                                 264        0.002
+  ell                                144        0.001
+  ell_plus                           144        0.001
+  i_plane                       11354112       86.625
+  j_plane                       30277632      231.000
+  k_plane                       19267584      147.000
+  mixelem_to_fraction           19935168      152.093
+  phi                         2861236224    21829.500
+  phi_out                     2861236224    21829.500
+  psi                         5086642176    38808.000
+  quadrature/w                        16        0.000
+  quadrature/xcos                     16        0.000
+  quadrature/ycos                     16        0.000
+  quadrature/zcos                     16        0.000
+  rhs                         5086642176    38808.000
+  sigt_zonal                   317915136     2425.500
+  volume                        19869696      151.594
+  --------                  ------------    ---------
+  TOTAL                      16314379664   124468.839
+
+  Generation Complete!
+
+Steady State Solve
+==================
+
+  iter 0: particle count=1.808564e+07, change=1.000000e+00
+  iter 1: particle count=2.703162e+07, change=3.309449e-01
+  iter 2: particle count=3.144811e+07, change=1.404375e-01
+  iter 3: particle count=3.362457e+07, change=6.472815e-02
+  iter 4: particle count=3.469508e+07, change=3.085486e-02
+  iter 5: particle count=3.522050e+07, change=1.491797e-02
+  iter 6: particle count=3.547780e+07, change=7.252299e-03
+  iter 7: particle count=3.560350e+07, change=3.530789e-03
+  iter 8: particle count=3.566479e+07, change=1.718278e-03
+  iter 9: particle count=3.569460e+07, change=8.352023e-04
+  iter 10: particle count=3.570907e+07, change=4.053579e-04
+  iter 11: particle count=3.571609e+07, change=1.964317e-04
+  iter 12: particle count=3.571948e+07, change=9.504653e-05
+  iter 13: particle count=3.572112e+07, change=4.592595e-05
+  iter 14: particle count=3.572192e+07, change=2.216304e-05
+  iter 15: particle count=3.572230e+07, change=1.068319e-05
+  iter 16: particle count=3.572248e+07, change=5.144252e-06
+  iter 17: particle count=3.572257e+07, change=2.474781e-06
+  iter 18: particle count=3.572261e+07, change=1.189554e-06
+  iter 19: particle count=3.572263e+07, change=5.713471e-07
+  iter 20: particle count=3.572264e+07, change=2.742304e-07
+  iter 21: particle count=3.572265e+07, change=1.315402e-07
+  iter 22: particle count=3.572265e+07, change=6.305995e-08
+  iter 23: particle count=3.572265e+07, change=3.021501e-08
+  iter 24: particle count=3.572265e+07, change=1.447056e-08
+  iter 25: particle count=3.572265e+07, change=6.927217e-09
+  iter 26: particle count=3.572265e+07, change=3.314810e-09
+  iter 27: particle count=3.572265e+07, change=1.585618e-09
+  iter 28: particle count=3.572265e+07, change=7.582134e-10
+  iter 29: particle count=3.572265e+07, change=3.624491e-10
+  iter 30: particle count=3.572265e+07, change=1.732123e-10
+  iter 31: particle count=3.572265e+07, change=8.275475e-11
+  iter 32: particle count=3.572265e+07, change=3.952728e-11
+  iter 33: particle count=3.572265e+07, change=1.887556e-11
+  iter 34: particle count=3.572265e+07, change=9.012197e-12
+  iter 35: particle count=3.572265e+07, change=4.301286e-12
+  iter 36: particle count=3.572265e+07, change=2.052720e-12
+  iter 37: particle count=3.572265e+07, change=9.798497e-13
+  iter 38: particle count=3.572265e+07, change=4.673995e-13
+  iter 39: particle count=3.572265e+07, change=2.227500e-13
+  iter 40: particle count=3.572265e+07, change=1.065779e-13
+  iter 41: particle count=3.572265e+07, change=5.068188e-14
+  iter 42: particle count=3.572265e+07, change=2.398525e-14
+  iter 43: particle count=3.572265e+07, change=1.147121e-14
+  iter 44: particle count=3.572265e+07, change=5.422752e-15
+  iter 45: particle count=3.572265e+07, change=2.919944e-15
+  iter 46: particle count=3.572265e+07, change=1.042837e-15
+  iter 47: particle count=3.572265e+07, change=8.342696e-16
+  iter 48: particle count=3.572265e+07, change=0.000000e+00
+  iter 49: particle count=3.572265e+07, change=2.085674e-16
+  iter 50: particle count=3.572265e+07, change=0.000000e+00
+  iter 51: particle count=3.572265e+07, change=0.000000e+00
+  iter 52: particle count=3.572265e+07, change=0.000000e+00
+  iter 53: particle count=3.572265e+07, change=0.000000e+00
+  iter 54: particle count=3.572265e+07, change=2.085674e-16
+  iter 55: particle count=3.572265e+07, change=-2.085674e-16
+  iter 56: particle count=3.572265e+07, change=2.085674e-16
+  iter 57: particle count=3.572265e+07, change=-2.085674e-16
+  iter 58: particle count=3.572265e+07, change=2.085674e-16
+  iter 59: particle count=3.572265e+07, change=-2.085674e-16
+  iter 60: particle count=3.572265e+07, change=2.085674e-16
+  iter 61: particle count=3.572265e+07, change=-2.085674e-16
+  iter 62: particle count=3.572265e+07, change=2.085674e-16
+  iter 63: particle count=3.572265e+07, change=-2.085674e-16
+  iter 64: particle count=3.572265e+07, change=2.085674e-16
+  iter 65: particle count=3.572265e+07, change=-2.085674e-16
+  iter 66: particle count=3.572265e+07, change=2.085674e-16
+  iter 67: particle count=3.572265e+07, change=-2.085674e-16
+  iter 68: particle count=3.572265e+07, change=0.000000e+00
+  iter 69: particle count=3.572265e+07, change=0.000000e+00
+  iter 70: particle count=3.572265e+07, change=0.000000e+00
+  iter 71: particle count=3.572265e+07, change=2.085674e-16
+  iter 72: particle count=3.572265e+07, change=-2.085674e-16
+  iter 73: particle count=3.572265e+07, change=2.085674e-16
+  iter 74: particle count=3.572265e+07, change=-2.085674e-16
+  iter 75: particle count=3.572265e+07, change=0.000000e+00
+  iter 76: particle count=3.572265e+07, change=0.000000e+00
+  iter 77: particle count=3.572265e+07, change=2.085674e-16
+  iter 78: particle count=3.572265e+07, change=0.000000e+00
+  iter 79: particle count=3.572265e+07, change=-2.085674e-16
+  iter 80: particle count=3.572265e+07, change=0.000000e+00
+  iter 81: particle count=3.572265e+07, change=0.000000e+00
+  iter 82: particle count=3.572265e+07, change=2.085674e-16
+  iter 83: particle count=3.572265e+07, change=-2.085674e-16
+  iter 84: particle count=3.572265e+07, change=2.085674e-16
+  iter 85: particle count=3.572265e+07, change=-2.085674e-16
+  iter 86: particle count=3.572265e+07, change=0.000000e+00
+  iter 87: particle count=3.572265e+07, change=2.085674e-16
+  iter 88: particle count=3.572265e+07, change=-2.085674e-16
+  iter 89: particle count=3.572265e+07, change=0.000000e+00
+  iter 90: particle count=3.572265e+07, change=0.000000e+00
+  iter 91: particle count=3.572265e+07, change=0.000000e+00
+  iter 92: particle count=3.572265e+07, change=0.000000e+00
+  iter 93: particle count=3.572265e+07, change=0.000000e+00
+  iter 94: particle count=3.572265e+07, change=0.000000e+00
+  iter 95: particle count=3.572265e+07, change=0.000000e+00
+  iter 96: particle count=3.572265e+07, change=0.000000e+00
+  iter 97: particle count=3.572265e+07, change=0.000000e+00
+  iter 98: particle count=3.572265e+07, change=0.000000e+00
+  iter 99: particle count=3.572265e+07, change=2.085674e-16
+  iter 100: particle count=3.572265e+07, change=-2.085674e-16
+  iter 101: particle count=3.572265e+07, change=2.085674e-16
+  iter 102: particle count=3.572265e+07, change=-2.085674e-16
+  iter 103: particle count=3.572265e+07, change=0.000000e+00
+  iter 104: particle count=3.572265e+07, change=0.000000e+00
+  iter 105: particle count=3.572265e+07, change=0.000000e+00
+  iter 106: particle count=3.572265e+07, change=0.000000e+00
+  iter 107: particle count=3.572265e+07, change=0.000000e+00
+  iter 108: particle count=3.572265e+07, change=2.085674e-16
+  iter 109: particle count=3.572265e+07, change=-2.085674e-16
+  iter 110: particle count=3.572265e+07, change=2.085674e-16
+  iter 111: particle count=3.572265e+07, change=-2.085674e-16
+  iter 112: particle count=3.572265e+07, change=0.000000e+00
+  iter 113: particle count=3.572265e+07, change=2.085674e-16
+  iter 114: particle count=3.572265e+07, change=-2.085674e-16
+  iter 115: particle count=3.572265e+07, change=2.085674e-16
+  iter 116: particle count=3.572265e+07, change=-2.085674e-16
+  iter 117: particle count=3.572265e+07, change=0.000000e+00
+  iter 118: particle count=3.572265e+07, change=0.000000e+00
+  iter 119: particle count=3.572265e+07, change=2.085674e-16
+  iter 120: particle count=3.572265e+07, change=0.000000e+00
+  iter 121: particle count=3.572265e+07, change=0.000000e+00
+  iter 122: particle count=3.572265e+07, change=-2.085674e-16
+  iter 123: particle count=3.572265e+07, change=0.000000e+00
+  iter 124: particle count=3.572265e+07, change=0.000000e+00
+  iter 125: particle count=3.572265e+07, change=2.085674e-16
+  iter 126: particle count=3.572265e+07, change=-2.085674e-16
+  iter 127: particle count=3.572265e+07, change=0.000000e+00
+  iter 128: particle count=3.572265e+07, change=0.000000e+00
+  iter 129: particle count=3.572265e+07, change=2.085674e-16
+  iter 130: particle count=3.572265e+07, change=-2.085674e-16
+  iter 131: particle count=3.572265e+07, change=0.000000e+00
+  iter 132: particle count=3.572265e+07, change=2.085674e-16
+  iter 133: particle count=3.572265e+07, change=-2.085674e-16
+  iter 134: particle count=3.572265e+07, change=0.000000e+00
+  iter 135: particle count=3.572265e+07, change=0.000000e+00
+  iter 136: particle count=3.572265e+07, change=0.000000e+00
+  iter 137: particle count=3.572265e+07, change=0.000000e+00
+  iter 138: particle count=3.572265e+07, change=2.085674e-16
+  iter 139: particle count=3.572265e+07, change=-2.085674e-16
+  iter 140: particle count=3.572265e+07, change=2.085674e-16
+  iter 141: particle count=3.572265e+07, change=-2.085674e-16
+  iter 142: particle count=3.572265e+07, change=0.000000e+00
+  iter 143: particle count=3.572265e+07, change=2.085674e-16
+  iter 144: particle count=3.572265e+07, change=-2.085674e-16
+  iter 145: particle count=3.572265e+07, change=2.085674e-16
+  iter 146: particle count=3.572265e+07, change=-2.085674e-16
+  iter 147: particle count=3.572265e+07, change=2.085674e-16
+  iter 148: particle count=3.572265e+07, change=-2.085674e-16
+  iter 149: particle count=3.572265e+07, change=0.000000e+00
+  iter 150: particle count=3.572265e+07, change=2.085674e-16
+  iter 151: particle count=3.572265e+07, change=-2.085674e-16
+  iter 152: particle count=3.572265e+07, change=0.000000e+00
+  iter 153: particle count=3.572265e+07, change=0.000000e+00
+  iter 154: particle count=3.572265e+07, change=0.000000e+00
+  iter 155: particle count=3.572265e+07, change=2.085674e-16
+  iter 156: particle count=3.572265e+07, change=-2.085674e-16
+  iter 157: particle count=3.572265e+07, change=0.000000e+00
+  iter 158: particle count=3.572265e+07, change=0.000000e+00
+  iter 159: particle count=3.572265e+07, change=0.000000e+00
+  iter 160: particle count=3.572265e+07, change=0.000000e+00
+  iter 161: particle count=3.572265e+07, change=0.000000e+00
+  iter 162: particle count=3.572265e+07, change=0.000000e+00
+  iter 163: particle count=3.572265e+07, change=0.000000e+00
+  iter 164: particle count=3.572265e+07, change=0.000000e+00
+  iter 165: particle count=3.572265e+07, change=0.000000e+00
+  iter 166: particle count=3.572265e+07, change=2.085674e-16
+  iter 167: particle count=3.572265e+07, change=0.000000e+00
+  iter 168: particle count=3.572265e+07, change=-2.085674e-16
+  iter 169: particle count=3.572265e+07, change=0.000000e+00
+  iter 170: particle count=3.572265e+07, change=0.000000e+00
+  iter 171: particle count=3.572265e+07, change=0.000000e+00
+  iter 172: particle count=3.572265e+07, change=0.000000e+00
+  iter 173: particle count=3.572265e+07, change=2.085674e-16
+  iter 174: particle count=3.572265e+07, change=-2.085674e-16
+  iter 175: particle count=3.572265e+07, change=2.085674e-16
+  iter 176: particle count=3.572265e+07, change=0.000000e+00
+  iter 177: particle count=3.572265e+07, change=-2.085674e-16
+  iter 178: particle count=3.572265e+07, change=0.000000e+00
+  iter 179: particle count=3.572265e+07, change=2.085674e-16
+  iter 180: particle count=3.572265e+07, change=-2.085674e-16
+  iter 181: particle count=3.572265e+07, change=2.085674e-16
+  iter 182: particle count=3.572265e+07, change=-2.085674e-16
+  iter 183: particle count=3.572265e+07, change=0.000000e+00
+  iter 184: particle count=3.572265e+07, change=2.085674e-16
+  iter 185: particle count=3.572265e+07, change=0.000000e+00
+  iter 186: particle count=3.572265e+07, change=-2.085674e-16
+  iter 187: particle count=3.572265e+07, change=2.085674e-16
+  iter 188: particle count=3.572265e+07, change=-2.085674e-16
+  iter 189: particle count=3.572265e+07, change=0.000000e+00
+  iter 190: particle count=3.572265e+07, change=0.000000e+00
+  iter 191: particle count=3.572265e+07, change=0.000000e+00
+  iter 192: particle count=3.572265e+07, change=0.000000e+00
+  iter 193: particle count=3.572265e+07, change=0.000000e+00
+  iter 194: particle count=3.572265e+07, change=0.000000e+00
+  iter 195: particle count=3.572265e+07, change=0.000000e+00
+  iter 196: particle count=3.572265e+07, change=2.085674e-16
+  iter 197: particle count=3.572265e+07, change=-2.085674e-16
+  iter 198: particle count=3.572265e+07, change=0.000000e+00
+  iter 199: particle count=3.572265e+07, change=0.000000e+00
+  iter 200: particle count=3.572265e+07, change=0.000000e+00
+  iter 201: particle count=3.572265e+07, change=2.085674e-16
+  iter 202: particle count=3.572265e+07, change=-2.085674e-16
+  iter 203: particle count=3.572265e+07, change=0.000000e+00
+  iter 204: particle count=3.572265e+07, change=0.000000e+00
+  iter 205: particle count=3.572265e+07, change=0.000000e+00
+  iter 206: particle count=3.572265e+07, change=0.000000e+00
+  iter 207: particle count=3.572265e+07, change=0.000000e+00
+  iter 208: particle count=3.572265e+07, change=0.000000e+00
+  iter 209: particle count=3.572265e+07, change=0.000000e+00
+  iter 210: particle count=3.572265e+07, change=0.000000e+00
+  iter 211: particle count=3.572265e+07, change=0.000000e+00
+  iter 212: particle count=3.572265e+07, change=0.000000e+00
+  iter 213: particle count=3.572265e+07, change=0.000000e+00
+  iter 214: particle count=3.572265e+07, change=0.000000e+00
+  iter 215: particle count=3.572265e+07, change=0.000000e+00
+  iter 216: particle count=3.572265e+07, change=0.000000e+00
+  iter 217: particle count=3.572265e+07, change=0.000000e+00
+  iter 218: particle count=3.572265e+07, change=2.085674e-16
+  iter 219: particle count=3.572265e+07, change=-2.085674e-16
+  iter 220: particle count=3.572265e+07, change=0.000000e+00
+  iter 221: particle count=3.572265e+07, change=0.000000e+00
+  iter 222: particle count=3.572265e+07, change=0.000000e+00
+  iter 223: particle count=3.572265e+07, change=2.085674e-16
+  iter 224: particle count=3.572265e+07, change=-2.085674e-16
+  iter 225: particle count=3.572265e+07, change=0.000000e+00
+  iter 226: particle count=3.572265e+07, change=2.085674e-16
+  iter 227: particle count=3.572265e+07, change=-2.085674e-16
+  iter 228: particle count=3.572265e+07, change=0.000000e+00
+  iter 229: particle count=3.572265e+07, change=0.000000e+00
+  iter 230: particle count=3.572265e+07, change=0.000000e+00
+  iter 231: particle count=3.572265e+07, change=0.000000e+00
+  iter 232: particle count=3.572265e+07, change=0.000000e+00
+  iter 233: particle count=3.572265e+07, change=0.000000e+00
+  iter 234: particle count=3.572265e+07, change=0.000000e+00
+  iter 235: particle count=3.572265e+07, change=0.000000e+00
+  iter 236: particle count=3.572265e+07, change=2.085674e-16
+  iter 237: particle count=3.572265e+07, change=-2.085674e-16
+  iter 238: particle count=3.572265e+07, change=0.000000e+00
+  iter 239: particle count=3.572265e+07, change=0.000000e+00
+  iter 240: particle count=3.572265e+07, change=0.000000e+00
+  iter 241: particle count=3.572265e+07, change=0.000000e+00
+  iter 242: particle count=3.572265e+07, change=0.000000e+00
+  iter 243: particle count=3.572265e+07, change=0.000000e+00
+  iter 244: particle count=3.572265e+07, change=2.085674e-16
+  iter 245: particle count=3.572265e+07, change=0.000000e+00
+  iter 246: particle count=3.572265e+07, change=-2.085674e-16
+  iter 247: particle count=3.572265e+07, change=0.000000e+00
+  iter 248: particle count=3.572265e+07, change=0.000000e+00
+  iter 249: particle count=3.572265e+07, change=0.000000e+00
+  iter 250: particle count=3.572265e+07, change=0.000000e+00
+  iter 251: particle count=3.572265e+07, change=0.000000e+00
+  iter 252: particle count=3.572265e+07, change=0.000000e+00
+  iter 253: particle count=3.572265e+07, change=0.000000e+00
+  iter 254: particle count=3.572265e+07, change=0.000000e+00
+  iter 255: particle count=3.572265e+07, change=0.000000e+00
+  iter 256: particle count=3.572265e+07, change=0.000000e+00
+  iter 257: particle count=3.572265e+07, change=0.000000e+00
+  iter 258: particle count=3.572265e+07, change=0.000000e+00
+  iter 259: particle count=3.572265e+07, change=0.000000e+00
+  iter 260: particle count=3.572265e+07, change=0.000000e+00
+  iter 261: particle count=3.572265e+07, change=2.085674e-16
+  iter 262: particle count=3.572265e+07, change=-2.085674e-16
+  iter 263: particle count=3.572265e+07, change=0.000000e+00
+  iter 264: particle count=3.572265e+07, change=0.000000e+00
+  iter 265: particle count=3.572265e+07, change=0.000000e+00
+  iter 266: particle count=3.572265e+07, change=0.000000e+00
+  iter 267: particle count=3.572265e+07, change=0.000000e+00
+  iter 268: particle count=3.572265e+07, change=0.000000e+00
+  iter 269: particle count=3.572265e+07, change=0.000000e+00
+  iter 270: particle count=3.572265e+07, change=2.085674e-16
+  iter 271: particle count=3.572265e+07, change=0.000000e+00
+  iter 272: particle count=3.572265e+07, change=-2.085674e-16
+  iter 273: particle count=3.572265e+07, change=0.000000e+00
+  iter 274: particle count=3.572265e+07, change=2.085674e-16
+  iter 275: particle count=3.572265e+07, change=-2.085674e-16
+  iter 276: particle count=3.572265e+07, change=0.000000e+00
+  iter 277: particle count=3.572265e+07, change=0.000000e+00
+  iter 278: particle count=3.572265e+07, change=0.000000e+00
+  iter 279: particle count=3.572265e+07, change=2.085674e-16
+  iter 280: particle count=3.572265e+07, change=-2.085674e-16
+  iter 281: particle count=3.572265e+07, change=0.000000e+00
+  iter 282: particle count=3.572265e+07, change=0.000000e+00
+  iter 283: particle count=3.572265e+07, change=0.000000e+00
+  iter 284: particle count=3.572265e+07, change=2.085674e-16
+  iter 285: particle count=3.572265e+07, change=0.000000e+00
+  iter 286: particle count=3.572265e+07, change=-2.085674e-16
+  iter 287: particle count=3.572265e+07, change=2.085674e-16
+  iter 288: particle count=3.572265e+07, change=-2.085674e-16
+  iter 289: particle count=3.572265e+07, change=2.085674e-16
+  iter 290: particle count=3.572265e+07, change=-2.085674e-16
+  iter 291: particle count=3.572265e+07, change=0.000000e+00
+  iter 292: particle count=3.572265e+07, change=2.085674e-16
+  iter 293: particle count=3.572265e+07, change=0.000000e+00
+  iter 294: particle count=3.572265e+07, change=-2.085674e-16
+  iter 295: particle count=3.572265e+07, change=2.085674e-16
+  iter 296: particle count=3.572265e+07, change=-2.085674e-16
+  iter 297: particle count=3.572265e+07, change=2.085674e-16
+  iter 298: particle count=3.572265e+07, change=-2.085674e-16
+  iter 299: particle count=3.572265e+07, change=0.000000e+00
+  iter 300: particle count=3.572265e+07, change=0.000000e+00
+  iter 301: particle count=3.572265e+07, change=2.085674e-16
+  iter 302: particle count=3.572265e+07, change=0.000000e+00
+  iter 303: particle count=3.572265e+07, change=-2.085674e-16
+  iter 304: particle count=3.572265e+07, change=0.000000e+00
+  iter 305: particle count=3.572265e+07, change=0.000000e+00
+  iter 306: particle count=3.572265e+07, change=0.000000e+00
+  iter 307: particle count=3.572265e+07, change=0.000000e+00
+  iter 308: particle count=3.572265e+07, change=0.000000e+00
+  iter 309: particle count=3.572265e+07, change=0.000000e+00
+  iter 310: particle count=3.572265e+07, change=2.085674e-16
+  iter 311: particle count=3.572265e+07, change=0.000000e+00
+  iter 312: particle count=3.572265e+07, change=-2.085674e-16
+  iter 313: particle count=3.572265e+07, change=2.085674e-16
+  iter 314: particle count=3.572265e+07, change=-2.085674e-16
+  iter 315: particle count=3.572265e+07, change=2.085674e-16
+  iter 316: particle count=3.572265e+07, change=0.000000e+00
+  iter 317: particle count=3.572265e+07, change=0.000000e+00
+  iter 318: particle count=3.572265e+07, change=-2.085674e-16
+  iter 319: particle count=3.572265e+07, change=0.000000e+00
+  iter 320: particle count=3.572265e+07, change=2.085674e-16
+  iter 321: particle count=3.572265e+07, change=-2.085674e-16
+  iter 322: particle count=3.572265e+07, change=2.085674e-16
+  iter 323: particle count=3.572265e+07, change=-2.085674e-16
+  iter 324: particle count=3.572265e+07, change=0.000000e+00
+  iter 325: particle count=3.572265e+07, change=2.085674e-16
+  iter 326: particle count=3.572265e+07, change=-2.085674e-16
+  iter 327: particle count=3.572265e+07, change=0.000000e+00
+  iter 328: particle count=3.572265e+07, change=0.000000e+00
+  iter 329: particle count=3.572265e+07, change=2.085674e-16
+  iter 330: particle count=3.572265e+07, change=-2.085674e-16
+  iter 331: particle count=3.572265e+07, change=0.000000e+00
+  iter 332: particle count=3.572265e+07, change=0.000000e+00
+  iter 333: particle count=3.572265e+07, change=0.000000e+00
+  iter 334: particle count=3.572265e+07, change=0.000000e+00
+  iter 335: particle count=3.572265e+07, change=2.085674e-16
+  iter 336: particle count=3.572265e+07, change=-2.085674e-16
+  iter 337: particle count=3.572265e+07, change=2.085674e-16
+  iter 338: particle count=3.572265e+07, change=-2.085674e-16
+  iter 339: particle count=3.572265e+07, change=0.000000e+00
+  iter 340: particle count=3.572265e+07, change=0.000000e+00
+  iter 341: particle count=3.572265e+07, change=0.000000e+00
+  iter 342: particle count=3.572265e+07, change=2.085674e-16
+  iter 343: particle count=3.572265e+07, change=-2.085674e-16
+  iter 344: particle count=3.572265e+07, change=2.085674e-16
+  iter 345: particle count=3.572265e+07, change=-2.085674e-16
+  iter 346: particle count=3.572265e+07, change=0.000000e+00
+  iter 347: particle count=3.572265e+07, change=0.000000e+00
+  iter 348: particle count=3.572265e+07, change=2.085674e-16
+  iter 349: particle count=3.572265e+07, change=-2.085674e-16
+  iter 350: particle count=3.572265e+07, change=0.000000e+00
+  iter 351: particle count=3.572265e+07, change=0.000000e+00
+  iter 352: particle count=3.572265e+07, change=0.000000e+00
+  iter 353: particle count=3.572265e+07, change=0.000000e+00
+  iter 354: particle count=3.572265e+07, change=2.085674e-16
+  iter 355: particle count=3.572265e+07, change=-2.085674e-16
+  iter 356: particle count=3.572265e+07, change=2.085674e-16
+  iter 357: particle count=3.572265e+07, change=-2.085674e-16
+  iter 358: particle count=3.572265e+07, change=2.085674e-16
+  iter 359: particle count=3.572265e+07, change=-2.085674e-16
+  iter 360: particle count=3.572265e+07, change=0.000000e+00
+  iter 361: particle count=3.572265e+07, change=2.085674e-16
+  iter 362: particle count=3.572265e+07, change=0.000000e+00
+  iter 363: particle count=3.572265e+07, change=0.000000e+00
+  iter 364: particle count=3.572265e+07, change=-2.085674e-16
+  iter 365: particle count=3.572265e+07, change=0.000000e+00
+  iter 366: particle count=3.572265e+07, change=0.000000e+00
+  iter 367: particle count=3.572265e+07, change=0.000000e+00
+  iter 368: particle count=3.572265e+07, change=2.085674e-16
+  iter 369: particle count=3.572265e+07, change=-2.085674e-16
+  iter 370: particle count=3.572265e+07, change=2.085674e-16
+  iter 371: particle count=3.572265e+07, change=-2.085674e-16
+  iter 372: particle count=3.572265e+07, change=2.085674e-16
+  iter 373: particle count=3.572265e+07, change=-2.085674e-16
+  iter 374: particle count=3.572265e+07, change=0.000000e+00
+  iter 375: particle count=3.572265e+07, change=0.000000e+00
+  iter 376: particle count=3.572265e+07, change=0.000000e+00
+  iter 377: particle count=3.572265e+07, change=0.000000e+00
+  iter 378: particle count=3.572265e+07, change=2.085674e-16
+  iter 379: particle count=3.572265e+07, change=-2.085674e-16
+  iter 380: particle count=3.572265e+07, change=0.000000e+00
+  iter 381: particle count=3.572265e+07, change=0.000000e+00
+  iter 382: particle count=3.572265e+07, change=0.000000e+00
+  iter 383: particle count=3.572265e+07, change=0.000000e+00
+  iter 384: particle count=3.572265e+07, change=2.085674e-16
+  iter 385: particle count=3.572265e+07, change=0.000000e+00
+  iter 386: particle count=3.572265e+07, change=0.000000e+00
+  iter 387: particle count=3.572265e+07, change=-2.085674e-16
+  iter 388: particle count=3.572265e+07, change=2.085674e-16
+  iter 389: particle count=3.572265e+07, change=-2.085674e-16
+  iter 390: particle count=3.572265e+07, change=0.000000e+00
+  iter 391: particle count=3.572265e+07, change=0.000000e+00
+  iter 392: particle count=3.572265e+07, change=2.085674e-16
+  iter 393: particle count=3.572265e+07, change=0.000000e+00
+  iter 394: particle count=3.572265e+07, change=-2.085674e-16
+  iter 395: particle count=3.572265e+07, change=2.085674e-16
+  iter 396: particle count=3.572265e+07, change=-2.085674e-16
+  iter 397: particle count=3.572265e+07, change=2.085674e-16
+  iter 398: particle count=3.572265e+07, change=-2.085674e-16
+  iter 399: particle count=3.572265e+07, change=0.000000e+00
+  iter 400: particle count=3.572265e+07, change=0.000000e+00
+  iter 401: particle count=3.572265e+07, change=0.000000e+00
+  iter 402: particle count=3.572265e+07, change=2.085674e-16
+  iter 403: particle count=3.572265e+07, change=0.000000e+00
+  iter 404: particle count=3.572265e+07, change=-2.085674e-16
+  iter 405: particle count=3.572265e+07, change=2.085674e-16
+  iter 406: particle count=3.572265e+07, change=-2.085674e-16
+  iter 407: particle count=3.572265e+07, change=0.000000e+00
+  iter 408: particle count=3.572265e+07, change=0.000000e+00
+  iter 409: particle count=3.572265e+07, change=2.085674e-16
+  iter 410: particle count=3.572265e+07, change=-2.085674e-16
+  iter 411: particle count=3.572265e+07, change=0.000000e+00
+  iter 412: particle count=3.572265e+07, change=0.000000e+00
+  iter 413: particle count=3.572265e+07, change=2.085674e-16
+  iter 414: particle count=3.572265e+07, change=0.000000e+00
+  iter 415: particle count=3.572265e+07, change=0.000000e+00
+  iter 416: particle count=3.572265e+07, change=0.000000e+00
+  iter 417: particle count=3.572265e+07, change=-2.085674e-16
+  iter 418: particle count=3.572265e+07, change=2.085674e-16
+  iter 419: particle count=3.572265e+07, change=0.000000e+00
+  iter 420: particle count=3.572265e+07, change=-2.085674e-16
+  iter 421: particle count=3.572265e+07, change=2.085674e-16
+  iter 422: particle count=3.572265e+07, change=0.000000e+00
+  iter 423: particle count=3.572265e+07, change=-2.085674e-16
+  iter 424: particle count=3.572265e+07, change=2.085674e-16
+  iter 425: particle count=3.572265e+07, change=-2.085674e-16
+  iter 426: particle count=3.572265e+07, change=0.000000e+00
+  iter 427: particle count=3.572265e+07, change=0.000000e+00
+  iter 428: particle count=3.572265e+07, change=0.000000e+00
+  iter 429: particle count=3.572265e+07, change=0.000000e+00
+  iter 430: particle count=3.572265e+07, change=0.000000e+00
+  iter 431: particle count=3.572265e+07, change=0.000000e+00
+  iter 432: particle count=3.572265e+07, change=0.000000e+00
+  iter 433: particle count=3.572265e+07, change=2.085674e-16
+  iter 434: particle count=3.572265e+07, change=-2.085674e-16
+  iter 435: particle count=3.572265e+07, change=2.085674e-16
+  iter 436: particle count=3.572265e+07, change=0.000000e+00
+  iter 437: particle count=3.572265e+07, change=-2.085674e-16
+  iter 438: particle count=3.572265e+07, change=0.000000e+00
+  iter 439: particle count=3.572265e+07, change=0.000000e+00
+  iter 440: particle count=3.572265e+07, change=0.000000e+00
+  iter 441: particle count=3.572265e+07, change=0.000000e+00
+  iter 442: particle count=3.572265e+07, change=2.085674e-16
+  iter 443: particle count=3.572265e+07, change=-2.085674e-16
+  iter 444: particle count=3.572265e+07, change=0.000000e+00
+  iter 445: particle count=3.572265e+07, change=2.085674e-16
+  iter 446: particle count=3.572265e+07, change=0.000000e+00
+  iter 447: particle count=3.572265e+07, change=0.000000e+00
+  iter 448: particle count=3.572265e+07, change=-2.085674e-16
+  iter 449: particle count=3.572265e+07, change=2.085674e-16
+  iter 450: particle count=3.572265e+07, change=0.000000e+00
+  iter 451: particle count=3.572265e+07, change=-2.085674e-16
+  iter 452: particle count=3.572265e+07, change=0.000000e+00
+  iter 453: particle count=3.572265e+07, change=0.000000e+00
+  iter 454: particle count=3.572265e+07, change=0.000000e+00
+  iter 455: particle count=3.572265e+07, change=2.085674e-16
+  iter 456: particle count=3.572265e+07, change=0.000000e+00
+  iter 457: particle count=3.572265e+07, change=0.000000e+00
+  iter 458: particle count=3.572265e+07, change=0.000000e+00
+  iter 459: particle count=3.572265e+07, change=0.000000e+00
+  iter 460: particle count=3.572265e+07, change=-2.085674e-16
+  iter 461: particle count=3.572265e+07, change=0.000000e+00
+  iter 462: particle count=3.572265e+07, change=2.085674e-16
+  iter 463: particle count=3.572265e+07, change=-2.085674e-16
+  iter 464: particle count=3.572265e+07, change=0.000000e+00
+  iter 465: particle count=3.572265e+07, change=0.000000e+00
+  iter 466: particle count=3.572265e+07, change=2.085674e-16
+  iter 467: particle count=3.572265e+07, change=-2.085674e-16
+  iter 468: particle count=3.572265e+07, change=0.000000e+00
+  iter 469: particle count=3.572265e+07, change=0.000000e+00
+  iter 470: particle count=3.572265e+07, change=0.000000e+00
+  iter 471: particle count=3.572265e+07, change=0.000000e+00
+  iter 472: particle count=3.572265e+07, change=0.000000e+00
+  iter 473: particle count=3.572265e+07, change=2.085674e-16
+  iter 474: particle count=3.572265e+07, change=-2.085674e-16
+  iter 475: particle count=3.572265e+07, change=0.000000e+00
+  iter 476: particle count=3.572265e+07, change=0.000000e+00
+  iter 477: particle count=3.572265e+07, change=0.000000e+00
+  iter 478: particle count=3.572265e+07, change=2.085674e-16
+  iter 479: particle count=3.572265e+07, change=-2.085674e-16
+  iter 480: particle count=3.572265e+07, change=0.000000e+00
+  iter 481: particle count=3.572265e+07, change=0.000000e+00
+  iter 482: particle count=3.572265e+07, change=0.000000e+00
+  iter 483: particle count=3.572265e+07, change=2.085674e-16
+  iter 484: particle count=3.572265e+07, change=0.000000e+00
+  iter 485: particle count=3.572265e+07, change=0.000000e+00
+  iter 486: particle count=3.572265e+07, change=-2.085674e-16
+  iter 487: particle count=3.572265e+07, change=0.000000e+00
+  iter 488: particle count=3.572265e+07, change=0.000000e+00
+  iter 489: particle count=3.572265e+07, change=2.085674e-16
+  iter 490: particle count=3.572265e+07, change=-2.085674e-16
+  iter 491: particle count=3.572265e+07, change=0.000000e+00
+  iter 492: particle count=3.572265e+07, change=0.000000e+00
+  iter 493: particle count=3.572265e+07, change=2.085674e-16
+  iter 494: particle count=3.572265e+07, change=-2.085674e-16
+  iter 495: particle count=3.572265e+07, change=0.000000e+00
+  iter 496: particle count=3.572265e+07, change=0.000000e+00
+  iter 497: particle count=3.572265e+07, change=2.085674e-16
+  iter 498: particle count=3.572265e+07, change=-2.085674e-16
+  iter 499: particle count=3.572265e+07, change=0.000000e+00
+  Solver terminated
+
+Timers
+======
+
+  Timer                    Count       Seconds
+  ----------------  ------------  ------------
+  Generate                     1       1.29701
+  LPlusTimes                 500       2.22633
+  LTimes                     500       1.81832
+  Population                 500       3.99836
+  Scattering                 500       4.82033
+  Solve                        1      43.27595
+  Source                     500       0.03434
+  SweepSolver                500      29.16414
+  SweepSubdomain          128000       3.32865
+
+TIMER_NAMES:Generate,LPlusTimes,LTimes,Population,Scattering,Solve,Source,SweepSolver,SweepSubdomain
+TIMER_DATA:1.297010,2.226335,1.818317,3.998362,4.820334,43.275948,0.034337,29.164137,3.328650
+
+Figures of Merit
+================
+
+  Throughput:         5.876985e+10 [unknowns/(second/iteration)]
+  Grind time :        1.701553e-11 [(seconds/iteration)/unknowns]
+  Sweep efficiency :  11.41350 [100.0 * SweepSubdomain time / SweepSolver time]
+  Number of unknowns: 5086642176
+
+END
+FLUX-RUN END kripke-iter-3
+FLUX-RUN START kripke-iter-4
+
+   _  __       _         _
+  | |/ /      (_)       | |
+  | ' /  _ __  _  _ __  | | __ ___
+  |  <  | '__|| || '_ \ | |/ // _ \ 
+  | . \ | |   | || |_) ||   <|  __/
+  |_|\_\|_|   |_|| .__/ |_|\_\\___|
+                 | |
+                 |_|        Version 1.2.5-dev
+
+LLNL-CODE-775068
+
+Copyright (c) 2014-23, Lawrence Livermore National Security, LLC
+
+Kripke is released under the BSD 3-Clause License, please see the
+LICENSE file for the full license
+
+This work was produced under the auspices of the U.S. Department of
+Energy by Lawrence Livermore National Laboratory under Contract
+DE-AC52-07NA27344.
+
+Author: Adam J. Kunen <kunen1@llnl.gov>
+
+Compilation Options:
+  Architecture:           Sequential
+  Compiler:               /usr/bin/g++
+  Compiler Flags:         "    "
+  Linker Flags:           "-lstdc++ -pthread "
+  CHAI Enabled:           Yes
+  CUDA Enabled:           No
+  MPI Enabled:            Yes
+  OpenMP Enabled:         No
+  Caliper Enabled:        No
+
+Input Parameters
+================
+
+  Problem Size:
+    Zones:                 448 x 168 x 264  (19869696 total)
+    Groups:                16
+    Legendre Order:        2
+    Quadrature Set:        Dummy S2 with 16 points
+
+  Physical Properties:
+    Total X-Sec:           sigt=[0.100000, 0.000100, 0.100000]
+    Scattering X-Sec:      sigs=[0.050000, 0.000050, 0.050000]
+
+  Solver Options:
+    Number iterations:     500
+
+  MPI Decomposition Options:
+    Total MPI tasks:       11264
+    Spatial decomp:        64 x 8 x 22 MPI tasks
+    Block solve method:    Sweep
+
+  Per-Task Options:
+    DirSets/Directions:    16 sets, 1 directions/set
+    GroupSet/Groups:       16 sets, 1 groups/set
+    Zone Sets:             1 x 1 x 1
+    Architecture:          Sequential
+    Data Layout:           DGZ
+
+Generating Problem
+==================
+
+  Decomposition Space:   Procs:      Subdomains (local/global):
+  ---------------------  ----------  --------------------------
+  (P) Energy:            1           16 / 16
+  (Q) Direction:         1           16 / 16
+  (R) Space:             11264       1 / 11264
+  (Rx,Ry,Rz) R in XYZ:   64x8x22       1x1x1 / 64x8x22
+  (PQR) TOTAL:           11264       256 / 2883584
+
+  Material Volumes=[7.958386e+03, 1.203803e+05, 2.751661e+06]
+
+  Memory breakdown of Field variables:
+  Field Variable            Num Elements    Megabytes
+  --------------            ------------    ---------
+  data/sigs                         2304        0.018
+  dx                                 448        0.003
+  dy                                 168        0.001
+  dz                                 264        0.002
+  ell                                144        0.001
+  ell_plus                           144        0.001
+  i_plane                       11354112       86.625
+  j_plane                       30277632      231.000
+  k_plane                       19267584      147.000
+  mixelem_to_fraction           19935168      152.093
+  phi                         2861236224    21829.500
+  phi_out                     2861236224    21829.500
+  psi                         5086642176    38808.000
+  quadrature/w                        16        0.000
+  quadrature/xcos                     16        0.000
+  quadrature/ycos                     16        0.000
+  quadrature/zcos                     16        0.000
+  rhs                         5086642176    38808.000
+  sigt_zonal                   317915136     2425.500
+  volume                        19869696      151.594
+  --------                  ------------    ---------
+  TOTAL                      16314379664   124468.839
+
+  Generation Complete!
+
+Steady State Solve
+==================
+
+  iter 0: particle count=1.808564e+07, change=1.000000e+00
+  iter 1: particle count=2.703162e+07, change=3.309449e-01
+  iter 2: particle count=3.144811e+07, change=1.404375e-01
+  iter 3: particle count=3.362457e+07, change=6.472815e-02
+  iter 4: particle count=3.469508e+07, change=3.085486e-02
+  iter 5: particle count=3.522050e+07, change=1.491797e-02
+  iter 6: particle count=3.547780e+07, change=7.252299e-03
+  iter 7: particle count=3.560350e+07, change=3.530789e-03
+  iter 8: particle count=3.566479e+07, change=1.718278e-03
+  iter 9: particle count=3.569460e+07, change=8.352023e-04
+  iter 10: particle count=3.570907e+07, change=4.053579e-04
+  iter 11: particle count=3.571609e+07, change=1.964317e-04
+  iter 12: particle count=3.571948e+07, change=9.504653e-05
+  iter 13: particle count=3.572112e+07, change=4.592595e-05
+  iter 14: particle count=3.572192e+07, change=2.216304e-05
+  iter 15: particle count=3.572230e+07, change=1.068319e-05
+  iter 16: particle count=3.572248e+07, change=5.144252e-06
+  iter 17: particle count=3.572257e+07, change=2.474781e-06
+  iter 18: particle count=3.572261e+07, change=1.189554e-06
+  iter 19: particle count=3.572263e+07, change=5.713471e-07
+  iter 20: particle count=3.572264e+07, change=2.742304e-07
+  iter 21: particle count=3.572265e+07, change=1.315402e-07
+  iter 22: particle count=3.572265e+07, change=6.305995e-08
+  iter 23: particle count=3.572265e+07, change=3.021501e-08
+  iter 24: particle count=3.572265e+07, change=1.447056e-08
+  iter 25: particle count=3.572265e+07, change=6.927217e-09
+  iter 26: particle count=3.572265e+07, change=3.314810e-09
+  iter 27: particle count=3.572265e+07, change=1.585618e-09
+  iter 28: particle count=3.572265e+07, change=7.582134e-10
+  iter 29: particle count=3.572265e+07, change=3.624491e-10
+  iter 30: particle count=3.572265e+07, change=1.732123e-10
+  iter 31: particle count=3.572265e+07, change=8.275475e-11
+  iter 32: particle count=3.572265e+07, change=3.952728e-11
+  iter 33: particle count=3.572265e+07, change=1.887556e-11
+  iter 34: particle count=3.572265e+07, change=9.012197e-12
+  iter 35: particle count=3.572265e+07, change=4.301286e-12
+  iter 36: particle count=3.572265e+07, change=2.052720e-12
+  iter 37: particle count=3.572265e+07, change=9.798497e-13
+  iter 38: particle count=3.572265e+07, change=4.673995e-13
+  iter 39: particle count=3.572265e+07, change=2.227500e-13
+  iter 40: particle count=3.572265e+07, change=1.065779e-13
+  iter 41: particle count=3.572265e+07, change=5.068188e-14
+  iter 42: particle count=3.572265e+07, change=2.398525e-14
+  iter 43: particle count=3.572265e+07, change=1.147121e-14
+  iter 44: particle count=3.572265e+07, change=5.422752e-15
+  iter 45: particle count=3.572265e+07, change=2.919944e-15
+  iter 46: particle count=3.572265e+07, change=1.042837e-15
+  iter 47: particle count=3.572265e+07, change=8.342696e-16
+  iter 48: particle count=3.572265e+07, change=0.000000e+00
+  iter 49: particle count=3.572265e+07, change=2.085674e-16
+  iter 50: particle count=3.572265e+07, change=0.000000e+00
+  iter 51: particle count=3.572265e+07, change=0.000000e+00
+  iter 52: particle count=3.572265e+07, change=0.000000e+00
+  iter 53: particle count=3.572265e+07, change=0.000000e+00
+  iter 54: particle count=3.572265e+07, change=2.085674e-16
+  iter 55: particle count=3.572265e+07, change=-2.085674e-16
+  iter 56: particle count=3.572265e+07, change=2.085674e-16
+  iter 57: particle count=3.572265e+07, change=-2.085674e-16
+  iter 58: particle count=3.572265e+07, change=2.085674e-16
+  iter 59: particle count=3.572265e+07, change=-2.085674e-16
+  iter 60: particle count=3.572265e+07, change=2.085674e-16
+  iter 61: particle count=3.572265e+07, change=-2.085674e-16
+  iter 62: particle count=3.572265e+07, change=2.085674e-16
+  iter 63: particle count=3.572265e+07, change=-2.085674e-16
+  iter 64: particle count=3.572265e+07, change=2.085674e-16
+  iter 65: particle count=3.572265e+07, change=-2.085674e-16
+  iter 66: particle count=3.572265e+07, change=2.085674e-16
+  iter 67: particle count=3.572265e+07, change=-2.085674e-16
+  iter 68: particle count=3.572265e+07, change=0.000000e+00
+  iter 69: particle count=3.572265e+07, change=0.000000e+00
+  iter 70: particle count=3.572265e+07, change=0.000000e+00
+  iter 71: particle count=3.572265e+07, change=2.085674e-16
+  iter 72: particle count=3.572265e+07, change=-2.085674e-16
+  iter 73: particle count=3.572265e+07, change=2.085674e-16
+  iter 74: particle count=3.572265e+07, change=-2.085674e-16
+  iter 75: particle count=3.572265e+07, change=0.000000e+00
+  iter 76: particle count=3.572265e+07, change=0.000000e+00
+  iter 77: particle count=3.572265e+07, change=2.085674e-16
+  iter 78: particle count=3.572265e+07, change=0.000000e+00
+  iter 79: particle count=3.572265e+07, change=-2.085674e-16
+  iter 80: particle count=3.572265e+07, change=0.000000e+00
+  iter 81: particle count=3.572265e+07, change=0.000000e+00
+  iter 82: particle count=3.572265e+07, change=2.085674e-16
+  iter 83: particle count=3.572265e+07, change=-2.085674e-16
+  iter 84: particle count=3.572265e+07, change=2.085674e-16
+  iter 85: particle count=3.572265e+07, change=-2.085674e-16
+  iter 86: particle count=3.572265e+07, change=0.000000e+00
+  iter 87: particle count=3.572265e+07, change=2.085674e-16
+  iter 88: particle count=3.572265e+07, change=-2.085674e-16
+  iter 89: particle count=3.572265e+07, change=0.000000e+00
+  iter 90: particle count=3.572265e+07, change=0.000000e+00
+  iter 91: particle count=3.572265e+07, change=0.000000e+00
+  iter 92: particle count=3.572265e+07, change=0.000000e+00
+  iter 93: particle count=3.572265e+07, change=0.000000e+00
+  iter 94: particle count=3.572265e+07, change=0.000000e+00
+  iter 95: particle count=3.572265e+07, change=0.000000e+00
+  iter 96: particle count=3.572265e+07, change=0.000000e+00
+  iter 97: particle count=3.572265e+07, change=0.000000e+00
+  iter 98: particle count=3.572265e+07, change=0.000000e+00
+  iter 99: particle count=3.572265e+07, change=2.085674e-16
+  iter 100: particle count=3.572265e+07, change=-2.085674e-16
+  iter 101: particle count=3.572265e+07, change=2.085674e-16
+  iter 102: particle count=3.572265e+07, change=-2.085674e-16
+  iter 103: particle count=3.572265e+07, change=0.000000e+00
+  iter 104: particle count=3.572265e+07, change=0.000000e+00
+  iter 105: particle count=3.572265e+07, change=0.000000e+00
+  iter 106: particle count=3.572265e+07, change=0.000000e+00
+  iter 107: particle count=3.572265e+07, change=0.000000e+00
+  iter 108: particle count=3.572265e+07, change=2.085674e-16
+  iter 109: particle count=3.572265e+07, change=-2.085674e-16
+  iter 110: particle count=3.572265e+07, change=2.085674e-16
+  iter 111: particle count=3.572265e+07, change=-2.085674e-16
+  iter 112: particle count=3.572265e+07, change=0.000000e+00
+  iter 113: particle count=3.572265e+07, change=2.085674e-16
+  iter 114: particle count=3.572265e+07, change=-2.085674e-16
+  iter 115: particle count=3.572265e+07, change=2.085674e-16
+  iter 116: particle count=3.572265e+07, change=-2.085674e-16
+  iter 117: particle count=3.572265e+07, change=0.000000e+00
+  iter 118: particle count=3.572265e+07, change=0.000000e+00
+  iter 119: particle count=3.572265e+07, change=2.085674e-16
+  iter 120: particle count=3.572265e+07, change=0.000000e+00
+  iter 121: particle count=3.572265e+07, change=0.000000e+00
+  iter 122: particle count=3.572265e+07, change=-2.085674e-16
+  iter 123: particle count=3.572265e+07, change=0.000000e+00
+  iter 124: particle count=3.572265e+07, change=0.000000e+00
+  iter 125: particle count=3.572265e+07, change=2.085674e-16
+  iter 126: particle count=3.572265e+07, change=-2.085674e-16
+  iter 127: particle count=3.572265e+07, change=0.000000e+00
+  iter 128: particle count=3.572265e+07, change=0.000000e+00
+  iter 129: particle count=3.572265e+07, change=2.085674e-16
+  iter 130: particle count=3.572265e+07, change=-2.085674e-16
+  iter 131: particle count=3.572265e+07, change=0.000000e+00
+  iter 132: particle count=3.572265e+07, change=2.085674e-16
+  iter 133: particle count=3.572265e+07, change=-2.085674e-16
+  iter 134: particle count=3.572265e+07, change=0.000000e+00
+  iter 135: particle count=3.572265e+07, change=0.000000e+00
+  iter 136: particle count=3.572265e+07, change=0.000000e+00
+  iter 137: particle count=3.572265e+07, change=0.000000e+00
+  iter 138: particle count=3.572265e+07, change=2.085674e-16
+  iter 139: particle count=3.572265e+07, change=-2.085674e-16
+  iter 140: particle count=3.572265e+07, change=2.085674e-16
+  iter 141: particle count=3.572265e+07, change=-2.085674e-16
+  iter 142: particle count=3.572265e+07, change=0.000000e+00
+  iter 143: particle count=3.572265e+07, change=2.085674e-16
+  iter 144: particle count=3.572265e+07, change=-2.085674e-16
+  iter 145: particle count=3.572265e+07, change=2.085674e-16
+  iter 146: particle count=3.572265e+07, change=-2.085674e-16
+  iter 147: particle count=3.572265e+07, change=2.085674e-16
+  iter 148: particle count=3.572265e+07, change=-2.085674e-16
+  iter 149: particle count=3.572265e+07, change=0.000000e+00
+  iter 150: particle count=3.572265e+07, change=2.085674e-16
+  iter 151: particle count=3.572265e+07, change=-2.085674e-16
+  iter 152: particle count=3.572265e+07, change=0.000000e+00
+  iter 153: particle count=3.572265e+07, change=0.000000e+00
+  iter 154: particle count=3.572265e+07, change=0.000000e+00
+  iter 155: particle count=3.572265e+07, change=2.085674e-16
+  iter 156: particle count=3.572265e+07, change=-2.085674e-16
+  iter 157: particle count=3.572265e+07, change=0.000000e+00
+  iter 158: particle count=3.572265e+07, change=0.000000e+00
+  iter 159: particle count=3.572265e+07, change=0.000000e+00
+  iter 160: particle count=3.572265e+07, change=0.000000e+00
+  iter 161: particle count=3.572265e+07, change=0.000000e+00
+  iter 162: particle count=3.572265e+07, change=0.000000e+00
+  iter 163: particle count=3.572265e+07, change=0.000000e+00
+  iter 164: particle count=3.572265e+07, change=0.000000e+00
+  iter 165: particle count=3.572265e+07, change=0.000000e+00
+  iter 166: particle count=3.572265e+07, change=2.085674e-16
+  iter 167: particle count=3.572265e+07, change=0.000000e+00
+  iter 168: particle count=3.572265e+07, change=-2.085674e-16
+  iter 169: particle count=3.572265e+07, change=0.000000e+00
+  iter 170: particle count=3.572265e+07, change=0.000000e+00
+  iter 171: particle count=3.572265e+07, change=0.000000e+00
+  iter 172: particle count=3.572265e+07, change=0.000000e+00
+  iter 173: particle count=3.572265e+07, change=2.085674e-16
+  iter 174: particle count=3.572265e+07, change=-2.085674e-16
+  iter 175: particle count=3.572265e+07, change=2.085674e-16
+  iter 176: particle count=3.572265e+07, change=0.000000e+00
+  iter 177: particle count=3.572265e+07, change=-2.085674e-16
+  iter 178: particle count=3.572265e+07, change=0.000000e+00
+  iter 179: particle count=3.572265e+07, change=2.085674e-16
+  iter 180: particle count=3.572265e+07, change=-2.085674e-16
+  iter 181: particle count=3.572265e+07, change=2.085674e-16
+  iter 182: particle count=3.572265e+07, change=-2.085674e-16
+  iter 183: particle count=3.572265e+07, change=0.000000e+00
+  iter 184: particle count=3.572265e+07, change=2.085674e-16
+  iter 185: particle count=3.572265e+07, change=0.000000e+00
+  iter 186: particle count=3.572265e+07, change=-2.085674e-16
+  iter 187: particle count=3.572265e+07, change=2.085674e-16
+  iter 188: particle count=3.572265e+07, change=-2.085674e-16
+  iter 189: particle count=3.572265e+07, change=0.000000e+00
+  iter 190: particle count=3.572265e+07, change=0.000000e+00
+  iter 191: particle count=3.572265e+07, change=0.000000e+00
+  iter 192: particle count=3.572265e+07, change=0.000000e+00
+  iter 193: particle count=3.572265e+07, change=0.000000e+00
+  iter 194: particle count=3.572265e+07, change=0.000000e+00
+  iter 195: particle count=3.572265e+07, change=0.000000e+00
+  iter 196: particle count=3.572265e+07, change=2.085674e-16
+  iter 197: particle count=3.572265e+07, change=-2.085674e-16
+  iter 198: particle count=3.572265e+07, change=0.000000e+00
+  iter 199: particle count=3.572265e+07, change=0.000000e+00
+  iter 200: particle count=3.572265e+07, change=0.000000e+00
+  iter 201: particle count=3.572265e+07, change=2.085674e-16
+  iter 202: particle count=3.572265e+07, change=-2.085674e-16
+  iter 203: particle count=3.572265e+07, change=0.000000e+00
+  iter 204: particle count=3.572265e+07, change=0.000000e+00
+  iter 205: particle count=3.572265e+07, change=0.000000e+00
+  iter 206: particle count=3.572265e+07, change=0.000000e+00
+  iter 207: particle count=3.572265e+07, change=0.000000e+00
+  iter 208: particle count=3.572265e+07, change=0.000000e+00
+  iter 209: particle count=3.572265e+07, change=0.000000e+00
+  iter 210: particle count=3.572265e+07, change=0.000000e+00
+  iter 211: particle count=3.572265e+07, change=0.000000e+00
+  iter 212: particle count=3.572265e+07, change=0.000000e+00
+  iter 213: particle count=3.572265e+07, change=0.000000e+00
+  iter 214: particle count=3.572265e+07, change=0.000000e+00
+  iter 215: particle count=3.572265e+07, change=0.000000e+00
+  iter 216: particle count=3.572265e+07, change=0.000000e+00
+  iter 217: particle count=3.572265e+07, change=0.000000e+00
+  iter 218: particle count=3.572265e+07, change=2.085674e-16
+  iter 219: particle count=3.572265e+07, change=-2.085674e-16
+  iter 220: particle count=3.572265e+07, change=0.000000e+00
+  iter 221: particle count=3.572265e+07, change=0.000000e+00
+  iter 222: particle count=3.572265e+07, change=0.000000e+00
+  iter 223: particle count=3.572265e+07, change=2.085674e-16
+  iter 224: particle count=3.572265e+07, change=-2.085674e-16
+  iter 225: particle count=3.572265e+07, change=0.000000e+00
+  iter 226: particle count=3.572265e+07, change=2.085674e-16
+  iter 227: particle count=3.572265e+07, change=-2.085674e-16
+  iter 228: particle count=3.572265e+07, change=0.000000e+00
+  iter 229: particle count=3.572265e+07, change=0.000000e+00
+  iter 230: particle count=3.572265e+07, change=0.000000e+00
+  iter 231: particle count=3.572265e+07, change=0.000000e+00
+  iter 232: particle count=3.572265e+07, change=0.000000e+00
+  iter 233: particle count=3.572265e+07, change=0.000000e+00
+  iter 234: particle count=3.572265e+07, change=0.000000e+00
+  iter 235: particle count=3.572265e+07, change=0.000000e+00
+  iter 236: particle count=3.572265e+07, change=2.085674e-16
+  iter 237: particle count=3.572265e+07, change=-2.085674e-16
+  iter 238: particle count=3.572265e+07, change=0.000000e+00
+  iter 239: particle count=3.572265e+07, change=0.000000e+00
+  iter 240: particle count=3.572265e+07, change=0.000000e+00
+  iter 241: particle count=3.572265e+07, change=0.000000e+00
+  iter 242: particle count=3.572265e+07, change=0.000000e+00
+  iter 243: particle count=3.572265e+07, change=0.000000e+00
+  iter 244: particle count=3.572265e+07, change=2.085674e-16
+  iter 245: particle count=3.572265e+07, change=0.000000e+00
+  iter 246: particle count=3.572265e+07, change=-2.085674e-16
+  iter 247: particle count=3.572265e+07, change=0.000000e+00
+  iter 248: particle count=3.572265e+07, change=0.000000e+00
+  iter 249: particle count=3.572265e+07, change=0.000000e+00
+  iter 250: particle count=3.572265e+07, change=0.000000e+00
+  iter 251: particle count=3.572265e+07, change=0.000000e+00
+  iter 252: particle count=3.572265e+07, change=0.000000e+00
+  iter 253: particle count=3.572265e+07, change=0.000000e+00
+  iter 254: particle count=3.572265e+07, change=0.000000e+00
+  iter 255: particle count=3.572265e+07, change=0.000000e+00
+  iter 256: particle count=3.572265e+07, change=0.000000e+00
+  iter 257: particle count=3.572265e+07, change=0.000000e+00
+  iter 258: particle count=3.572265e+07, change=0.000000e+00
+  iter 259: particle count=3.572265e+07, change=0.000000e+00
+  iter 260: particle count=3.572265e+07, change=0.000000e+00
+  iter 261: particle count=3.572265e+07, change=2.085674e-16
+  iter 262: particle count=3.572265e+07, change=-2.085674e-16
+  iter 263: particle count=3.572265e+07, change=0.000000e+00
+  iter 264: particle count=3.572265e+07, change=0.000000e+00
+  iter 265: particle count=3.572265e+07, change=0.000000e+00
+  iter 266: particle count=3.572265e+07, change=0.000000e+00
+  iter 267: particle count=3.572265e+07, change=0.000000e+00
+  iter 268: particle count=3.572265e+07, change=0.000000e+00
+  iter 269: particle count=3.572265e+07, change=0.000000e+00
+  iter 270: particle count=3.572265e+07, change=2.085674e-16
+  iter 271: particle count=3.572265e+07, change=0.000000e+00
+  iter 272: particle count=3.572265e+07, change=-2.085674e-16
+  iter 273: particle count=3.572265e+07, change=0.000000e+00
+  iter 274: particle count=3.572265e+07, change=2.085674e-16
+  iter 275: particle count=3.572265e+07, change=-2.085674e-16
+  iter 276: particle count=3.572265e+07, change=0.000000e+00
+  iter 277: particle count=3.572265e+07, change=0.000000e+00
+  iter 278: particle count=3.572265e+07, change=0.000000e+00
+  iter 279: particle count=3.572265e+07, change=2.085674e-16
+  iter 280: particle count=3.572265e+07, change=-2.085674e-16
+  iter 281: particle count=3.572265e+07, change=0.000000e+00
+  iter 282: particle count=3.572265e+07, change=0.000000e+00
+  iter 283: particle count=3.572265e+07, change=0.000000e+00
+  iter 284: particle count=3.572265e+07, change=2.085674e-16
+  iter 285: particle count=3.572265e+07, change=0.000000e+00
+  iter 286: particle count=3.572265e+07, change=-2.085674e-16
+  iter 287: particle count=3.572265e+07, change=2.085674e-16
+  iter 288: particle count=3.572265e+07, change=-2.085674e-16
+  iter 289: particle count=3.572265e+07, change=2.085674e-16
+  iter 290: particle count=3.572265e+07, change=-2.085674e-16
+  iter 291: particle count=3.572265e+07, change=0.000000e+00
+  iter 292: particle count=3.572265e+07, change=2.085674e-16
+  iter 293: particle count=3.572265e+07, change=0.000000e+00
+  iter 294: particle count=3.572265e+07, change=-2.085674e-16
+  iter 295: particle count=3.572265e+07, change=2.085674e-16
+  iter 296: particle count=3.572265e+07, change=-2.085674e-16
+  iter 297: particle count=3.572265e+07, change=2.085674e-16
+  iter 298: particle count=3.572265e+07, change=-2.085674e-16
+  iter 299: particle count=3.572265e+07, change=0.000000e+00
+  iter 300: particle count=3.572265e+07, change=0.000000e+00
+  iter 301: particle count=3.572265e+07, change=2.085674e-16
+  iter 302: particle count=3.572265e+07, change=0.000000e+00
+  iter 303: particle count=3.572265e+07, change=-2.085674e-16
+  iter 304: particle count=3.572265e+07, change=0.000000e+00
+  iter 305: particle count=3.572265e+07, change=0.000000e+00
+  iter 306: particle count=3.572265e+07, change=0.000000e+00
+  iter 307: particle count=3.572265e+07, change=0.000000e+00
+  iter 308: particle count=3.572265e+07, change=0.000000e+00
+  iter 309: particle count=3.572265e+07, change=0.000000e+00
+  iter 310: particle count=3.572265e+07, change=2.085674e-16
+  iter 311: particle count=3.572265e+07, change=0.000000e+00
+  iter 312: particle count=3.572265e+07, change=-2.085674e-16
+  iter 313: particle count=3.572265e+07, change=2.085674e-16
+  iter 314: particle count=3.572265e+07, change=-2.085674e-16
+  iter 315: particle count=3.572265e+07, change=2.085674e-16
+  iter 316: particle count=3.572265e+07, change=0.000000e+00
+  iter 317: particle count=3.572265e+07, change=0.000000e+00
+  iter 318: particle count=3.572265e+07, change=-2.085674e-16
+  iter 319: particle count=3.572265e+07, change=0.000000e+00
+  iter 320: particle count=3.572265e+07, change=2.085674e-16
+  iter 321: particle count=3.572265e+07, change=-2.085674e-16
+  iter 322: particle count=3.572265e+07, change=2.085674e-16
+  iter 323: particle count=3.572265e+07, change=-2.085674e-16
+  iter 324: particle count=3.572265e+07, change=0.000000e+00
+  iter 325: particle count=3.572265e+07, change=2.085674e-16
+  iter 326: particle count=3.572265e+07, change=-2.085674e-16
+  iter 327: particle count=3.572265e+07, change=0.000000e+00
+  iter 328: particle count=3.572265e+07, change=0.000000e+00
+  iter 329: particle count=3.572265e+07, change=2.085674e-16
+  iter 330: particle count=3.572265e+07, change=-2.085674e-16
+  iter 331: particle count=3.572265e+07, change=0.000000e+00
+  iter 332: particle count=3.572265e+07, change=0.000000e+00
+  iter 333: particle count=3.572265e+07, change=0.000000e+00
+  iter 334: particle count=3.572265e+07, change=0.000000e+00
+  iter 335: particle count=3.572265e+07, change=2.085674e-16
+  iter 336: particle count=3.572265e+07, change=-2.085674e-16
+  iter 337: particle count=3.572265e+07, change=2.085674e-16
+  iter 338: particle count=3.572265e+07, change=-2.085674e-16
+  iter 339: particle count=3.572265e+07, change=0.000000e+00
+  iter 340: particle count=3.572265e+07, change=0.000000e+00
+  iter 341: particle count=3.572265e+07, change=0.000000e+00
+  iter 342: particle count=3.572265e+07, change=2.085674e-16
+  iter 343: particle count=3.572265e+07, change=-2.085674e-16
+  iter 344: particle count=3.572265e+07, change=2.085674e-16
+  iter 345: particle count=3.572265e+07, change=-2.085674e-16
+  iter 346: particle count=3.572265e+07, change=0.000000e+00
+  iter 347: particle count=3.572265e+07, change=0.000000e+00
+  iter 348: particle count=3.572265e+07, change=2.085674e-16
+  iter 349: particle count=3.572265e+07, change=-2.085674e-16
+  iter 350: particle count=3.572265e+07, change=0.000000e+00
+  iter 351: particle count=3.572265e+07, change=0.000000e+00
+  iter 352: particle count=3.572265e+07, change=0.000000e+00
+  iter 353: particle count=3.572265e+07, change=0.000000e+00
+  iter 354: particle count=3.572265e+07, change=2.085674e-16
+  iter 355: particle count=3.572265e+07, change=-2.085674e-16
+  iter 356: particle count=3.572265e+07, change=2.085674e-16
+  iter 357: particle count=3.572265e+07, change=-2.085674e-16
+  iter 358: particle count=3.572265e+07, change=2.085674e-16
+  iter 359: particle count=3.572265e+07, change=-2.085674e-16
+  iter 360: particle count=3.572265e+07, change=0.000000e+00
+  iter 361: particle count=3.572265e+07, change=2.085674e-16
+  iter 362: particle count=3.572265e+07, change=0.000000e+00
+  iter 363: particle count=3.572265e+07, change=0.000000e+00
+  iter 364: particle count=3.572265e+07, change=-2.085674e-16
+  iter 365: particle count=3.572265e+07, change=0.000000e+00
+  iter 366: particle count=3.572265e+07, change=0.000000e+00
+  iter 367: particle count=3.572265e+07, change=0.000000e+00
+  iter 368: particle count=3.572265e+07, change=2.085674e-16
+  iter 369: particle count=3.572265e+07, change=-2.085674e-16
+  iter 370: particle count=3.572265e+07, change=2.085674e-16
+  iter 371: particle count=3.572265e+07, change=-2.085674e-16
+  iter 372: particle count=3.572265e+07, change=2.085674e-16
+  iter 373: particle count=3.572265e+07, change=-2.085674e-16
+  iter 374: particle count=3.572265e+07, change=0.000000e+00
+  iter 375: particle count=3.572265e+07, change=0.000000e+00
+  iter 376: particle count=3.572265e+07, change=0.000000e+00
+  iter 377: particle count=3.572265e+07, change=0.000000e+00
+  iter 378: particle count=3.572265e+07, change=2.085674e-16
+  iter 379: particle count=3.572265e+07, change=-2.085674e-16
+  iter 380: particle count=3.572265e+07, change=0.000000e+00
+  iter 381: particle count=3.572265e+07, change=0.000000e+00
+  iter 382: particle count=3.572265e+07, change=0.000000e+00
+  iter 383: particle count=3.572265e+07, change=0.000000e+00
+  iter 384: particle count=3.572265e+07, change=2.085674e-16
+  iter 385: particle count=3.572265e+07, change=0.000000e+00
+  iter 386: particle count=3.572265e+07, change=0.000000e+00
+  iter 387: particle count=3.572265e+07, change=-2.085674e-16
+  iter 388: particle count=3.572265e+07, change=2.085674e-16
+  iter 389: particle count=3.572265e+07, change=-2.085674e-16
+  iter 390: particle count=3.572265e+07, change=0.000000e+00
+  iter 391: particle count=3.572265e+07, change=0.000000e+00
+  iter 392: particle count=3.572265e+07, change=2.085674e-16
+  iter 393: particle count=3.572265e+07, change=0.000000e+00
+  iter 394: particle count=3.572265e+07, change=-2.085674e-16
+  iter 395: particle count=3.572265e+07, change=2.085674e-16
+  iter 396: particle count=3.572265e+07, change=-2.085674e-16
+  iter 397: particle count=3.572265e+07, change=2.085674e-16
+  iter 398: particle count=3.572265e+07, change=-2.085674e-16
+  iter 399: particle count=3.572265e+07, change=0.000000e+00
+  iter 400: particle count=3.572265e+07, change=0.000000e+00
+  iter 401: particle count=3.572265e+07, change=0.000000e+00
+  iter 402: particle count=3.572265e+07, change=2.085674e-16
+  iter 403: particle count=3.572265e+07, change=0.000000e+00
+  iter 404: particle count=3.572265e+07, change=-2.085674e-16
+  iter 405: particle count=3.572265e+07, change=2.085674e-16
+  iter 406: particle count=3.572265e+07, change=-2.085674e-16
+  iter 407: particle count=3.572265e+07, change=0.000000e+00
+  iter 408: particle count=3.572265e+07, change=0.000000e+00
+  iter 409: particle count=3.572265e+07, change=2.085674e-16
+  iter 410: particle count=3.572265e+07, change=-2.085674e-16
+  iter 411: particle count=3.572265e+07, change=0.000000e+00
+  iter 412: particle count=3.572265e+07, change=0.000000e+00
+  iter 413: particle count=3.572265e+07, change=2.085674e-16
+  iter 414: particle count=3.572265e+07, change=0.000000e+00
+  iter 415: particle count=3.572265e+07, change=0.000000e+00
+  iter 416: particle count=3.572265e+07, change=0.000000e+00
+  iter 417: particle count=3.572265e+07, change=-2.085674e-16
+  iter 418: particle count=3.572265e+07, change=2.085674e-16
+  iter 419: particle count=3.572265e+07, change=0.000000e+00
+  iter 420: particle count=3.572265e+07, change=-2.085674e-16
+  iter 421: particle count=3.572265e+07, change=2.085674e-16
+  iter 422: particle count=3.572265e+07, change=0.000000e+00
+  iter 423: particle count=3.572265e+07, change=-2.085674e-16
+  iter 424: particle count=3.572265e+07, change=2.085674e-16
+  iter 425: particle count=3.572265e+07, change=-2.085674e-16
+  iter 426: particle count=3.572265e+07, change=0.000000e+00
+  iter 427: particle count=3.572265e+07, change=0.000000e+00
+  iter 428: particle count=3.572265e+07, change=0.000000e+00
+  iter 429: particle count=3.572265e+07, change=0.000000e+00
+  iter 430: particle count=3.572265e+07, change=0.000000e+00
+  iter 431: particle count=3.572265e+07, change=0.000000e+00
+  iter 432: particle count=3.572265e+07, change=0.000000e+00
+  iter 433: particle count=3.572265e+07, change=2.085674e-16
+  iter 434: particle count=3.572265e+07, change=-2.085674e-16
+  iter 435: particle count=3.572265e+07, change=2.085674e-16
+  iter 436: particle count=3.572265e+07, change=0.000000e+00
+  iter 437: particle count=3.572265e+07, change=-2.085674e-16
+  iter 438: particle count=3.572265e+07, change=0.000000e+00
+  iter 439: particle count=3.572265e+07, change=0.000000e+00
+  iter 440: particle count=3.572265e+07, change=0.000000e+00
+  iter 441: particle count=3.572265e+07, change=0.000000e+00
+  iter 442: particle count=3.572265e+07, change=2.085674e-16
+  iter 443: particle count=3.572265e+07, change=-2.085674e-16
+  iter 444: particle count=3.572265e+07, change=0.000000e+00
+  iter 445: particle count=3.572265e+07, change=2.085674e-16
+  iter 446: particle count=3.572265e+07, change=0.000000e+00
+  iter 447: particle count=3.572265e+07, change=0.000000e+00
+  iter 448: particle count=3.572265e+07, change=-2.085674e-16
+  iter 449: particle count=3.572265e+07, change=2.085674e-16
+  iter 450: particle count=3.572265e+07, change=0.000000e+00
+  iter 451: particle count=3.572265e+07, change=-2.085674e-16
+  iter 452: particle count=3.572265e+07, change=0.000000e+00
+  iter 453: particle count=3.572265e+07, change=0.000000e+00
+  iter 454: particle count=3.572265e+07, change=0.000000e+00
+  iter 455: particle count=3.572265e+07, change=2.085674e-16
+  iter 456: particle count=3.572265e+07, change=0.000000e+00
+  iter 457: particle count=3.572265e+07, change=0.000000e+00
+  iter 458: particle count=3.572265e+07, change=0.000000e+00
+  iter 459: particle count=3.572265e+07, change=0.000000e+00
+  iter 460: particle count=3.572265e+07, change=-2.085674e-16
+  iter 461: particle count=3.572265e+07, change=0.000000e+00
+  iter 462: particle count=3.572265e+07, change=2.085674e-16
+  iter 463: particle count=3.572265e+07, change=-2.085674e-16
+  iter 464: particle count=3.572265e+07, change=0.000000e+00
+  iter 465: particle count=3.572265e+07, change=0.000000e+00
+  iter 466: particle count=3.572265e+07, change=2.085674e-16
+  iter 467: particle count=3.572265e+07, change=-2.085674e-16
+  iter 468: particle count=3.572265e+07, change=0.000000e+00
+  iter 469: particle count=3.572265e+07, change=0.000000e+00
+  iter 470: particle count=3.572265e+07, change=0.000000e+00
+  iter 471: particle count=3.572265e+07, change=0.000000e+00
+  iter 472: particle count=3.572265e+07, change=0.000000e+00
+  iter 473: particle count=3.572265e+07, change=2.085674e-16
+  iter 474: particle count=3.572265e+07, change=-2.085674e-16
+  iter 475: particle count=3.572265e+07, change=0.000000e+00
+  iter 476: particle count=3.572265e+07, change=0.000000e+00
+  iter 477: particle count=3.572265e+07, change=0.000000e+00
+  iter 478: particle count=3.572265e+07, change=2.085674e-16
+  iter 479: particle count=3.572265e+07, change=-2.085674e-16
+  iter 480: particle count=3.572265e+07, change=0.000000e+00
+  iter 481: particle count=3.572265e+07, change=0.000000e+00
+  iter 482: particle count=3.572265e+07, change=0.000000e+00
+  iter 483: particle count=3.572265e+07, change=2.085674e-16
+  iter 484: particle count=3.572265e+07, change=0.000000e+00
+  iter 485: particle count=3.572265e+07, change=0.000000e+00
+  iter 486: particle count=3.572265e+07, change=-2.085674e-16
+  iter 487: particle count=3.572265e+07, change=0.000000e+00
+  iter 488: particle count=3.572265e+07, change=0.000000e+00
+  iter 489: particle count=3.572265e+07, change=2.085674e-16
+  iter 490: particle count=3.572265e+07, change=-2.085674e-16
+  iter 491: particle count=3.572265e+07, change=0.000000e+00
+  iter 492: particle count=3.572265e+07, change=0.000000e+00
+  iter 493: particle count=3.572265e+07, change=2.085674e-16
+  iter 494: particle count=3.572265e+07, change=-2.085674e-16
+  iter 495: particle count=3.572265e+07, change=0.000000e+00
+  iter 496: particle count=3.572265e+07, change=0.000000e+00
+  iter 497: particle count=3.572265e+07, change=2.085674e-16
+  iter 498: particle count=3.572265e+07, change=-2.085674e-16
+  iter 499: particle count=3.572265e+07, change=0.000000e+00
+  Solver terminated
+
+Timers
+======
+
+  Timer                    Count       Seconds
+  ----------------  ------------  ------------
+  Generate                     1       1.21987
+  LPlusTimes                 500       2.19025
+  LTimes                     500       1.85786
+  Population                 500       3.80348
+  Scattering                 500       4.74198
+  Solve                        1      43.04353
+  Source                     500       0.03375
+  SweepSolver                500      29.14801
+  SweepSubdomain          128000       3.57358
+
+TIMER_NAMES:Generate,LPlusTimes,LTimes,Population,Scattering,Solve,Source,SweepSolver,SweepSubdomain
+TIMER_DATA:1.219866,2.190249,1.857863,3.803485,4.741977,43.043526,0.033755,29.148010,3.573580
+
+Figures of Merit
+================
+
+  Throughput:         5.908719e+10 [unknowns/(second/iteration)]
+  Grind time :        1.692414e-11 [(seconds/iteration)/unknowns]
+  Sweep efficiency :  12.26012 [100.0 * SweepSubdomain time / SweepSolver time]
+  Number of unknowns: 5086642176
+
+END
+FLUX-RUN END kripke-iter-4
+FLUX-RUN START kripke-iter-5
+
+   _  __       _         _
+  | |/ /      (_)       | |
+  | ' /  _ __  _  _ __  | | __ ___
+  |  <  | '__|| || '_ \ | |/ // _ \ 
+  | . \ | |   | || |_) ||   <|  __/
+  |_|\_\|_|   |_|| .__/ |_|\_\\___|
+                 | |
+                 |_|        Version 1.2.5-dev
+
+LLNL-CODE-775068
+
+Copyright (c) 2014-23, Lawrence Livermore National Security, LLC
+
+Kripke is released under the BSD 3-Clause License, please see the
+LICENSE file for the full license
+
+This work was produced under the auspices of the U.S. Department of
+Energy by Lawrence Livermore National Laboratory under Contract
+DE-AC52-07NA27344.
+
+Author: Adam J. Kunen <kunen1@llnl.gov>
+
+Compilation Options:
+  Architecture:           Sequential
+  Compiler:               /usr/bin/g++
+  Compiler Flags:         "    "
+  Linker Flags:           "-lstdc++ -pthread "
+  CHAI Enabled:           Yes
+  CUDA Enabled:           No
+  MPI Enabled:            Yes
+  OpenMP Enabled:         No
+  Caliper Enabled:        No
+
+Input Parameters
+================
+
+  Problem Size:
+    Zones:                 448 x 168 x 264  (19869696 total)
+    Groups:                16
+    Legendre Order:        2
+    Quadrature Set:        Dummy S2 with 16 points
+
+  Physical Properties:
+    Total X-Sec:           sigt=[0.100000, 0.000100, 0.100000]
+    Scattering X-Sec:      sigs=[0.050000, 0.000050, 0.050000]
+
+  Solver Options:
+    Number iterations:     500
+
+  MPI Decomposition Options:
+    Total MPI tasks:       11264
+    Spatial decomp:        64 x 8 x 22 MPI tasks
+    Block solve method:    Sweep
+
+  Per-Task Options:
+    DirSets/Directions:    16 sets, 1 directions/set
+    GroupSet/Groups:       16 sets, 1 groups/set
+    Zone Sets:             1 x 1 x 1
+    Architecture:          Sequential
+    Data Layout:           DGZ
+
+Generating Problem
+==================
+
+  Decomposition Space:   Procs:      Subdomains (local/global):
+  ---------------------  ----------  --------------------------
+  (P) Energy:            1           16 / 16
+  (Q) Direction:         1           16 / 16
+  (R) Space:             11264       1 / 11264
+  (Rx,Ry,Rz) R in XYZ:   64x8x22       1x1x1 / 64x8x22
+  (PQR) TOTAL:           11264       256 / 2883584
+
+  Material Volumes=[7.958386e+03, 1.203803e+05, 2.751661e+06]
+
+  Memory breakdown of Field variables:
+  Field Variable            Num Elements    Megabytes
+  --------------            ------------    ---------
+  data/sigs                         2304        0.018
+  dx                                 448        0.003
+  dy                                 168        0.001
+  dz                                 264        0.002
+  ell                                144        0.001
+  ell_plus                           144        0.001
+  i_plane                       11354112       86.625
+  j_plane                       30277632      231.000
+  k_plane                       19267584      147.000
+  mixelem_to_fraction           19935168      152.093
+  phi                         2861236224    21829.500
+  phi_out                     2861236224    21829.500
+  psi                         5086642176    38808.000
+  quadrature/w                        16        0.000
+  quadrature/xcos                     16        0.000
+  quadrature/ycos                     16        0.000
+  quadrature/zcos                     16        0.000
+  rhs                         5086642176    38808.000
+  sigt_zonal                   317915136     2425.500
+  volume                        19869696      151.594
+  --------                  ------------    ---------
+  TOTAL                      16314379664   124468.839
+
+  Generation Complete!
+
+Steady State Solve
+==================
+
+  iter 0: particle count=1.808564e+07, change=1.000000e+00
+  iter 1: particle count=2.703162e+07, change=3.309449e-01
+  iter 2: particle count=3.144811e+07, change=1.404375e-01
+  iter 3: particle count=3.362457e+07, change=6.472815e-02
+  iter 4: particle count=3.469508e+07, change=3.085486e-02
+  iter 5: particle count=3.522050e+07, change=1.491797e-02
+  iter 6: particle count=3.547780e+07, change=7.252299e-03
+  iter 7: particle count=3.560350e+07, change=3.530789e-03
+  iter 8: particle count=3.566479e+07, change=1.718278e-03
+  iter 9: particle count=3.569460e+07, change=8.352023e-04
+  iter 10: particle count=3.570907e+07, change=4.053579e-04
+  iter 11: particle count=3.571609e+07, change=1.964317e-04
+  iter 12: particle count=3.571948e+07, change=9.504653e-05
+  iter 13: particle count=3.572112e+07, change=4.592595e-05
+  iter 14: particle count=3.572192e+07, change=2.216304e-05
+  iter 15: particle count=3.572230e+07, change=1.068319e-05
+  iter 16: particle count=3.572248e+07, change=5.144252e-06
+  iter 17: particle count=3.572257e+07, change=2.474781e-06
+  iter 18: particle count=3.572261e+07, change=1.189554e-06
+  iter 19: particle count=3.572263e+07, change=5.713471e-07
+  iter 20: particle count=3.572264e+07, change=2.742304e-07
+  iter 21: particle count=3.572265e+07, change=1.315402e-07
+  iter 22: particle count=3.572265e+07, change=6.305995e-08
+  iter 23: particle count=3.572265e+07, change=3.021501e-08
+  iter 24: particle count=3.572265e+07, change=1.447056e-08
+  iter 25: particle count=3.572265e+07, change=6.927217e-09
+  iter 26: particle count=3.572265e+07, change=3.314810e-09
+  iter 27: particle count=3.572265e+07, change=1.585618e-09
+  iter 28: particle count=3.572265e+07, change=7.582134e-10
+  iter 29: particle count=3.572265e+07, change=3.624491e-10
+  iter 30: particle count=3.572265e+07, change=1.732123e-10
+  iter 31: particle count=3.572265e+07, change=8.275475e-11
+  iter 32: particle count=3.572265e+07, change=3.952728e-11
+  iter 33: particle count=3.572265e+07, change=1.887556e-11
+  iter 34: particle count=3.572265e+07, change=9.012197e-12
+  iter 35: particle count=3.572265e+07, change=4.301286e-12
+  iter 36: particle count=3.572265e+07, change=2.052720e-12
+  iter 37: particle count=3.572265e+07, change=9.798497e-13
+  iter 38: particle count=3.572265e+07, change=4.673995e-13
+  iter 39: particle count=3.572265e+07, change=2.227500e-13
+  iter 40: particle count=3.572265e+07, change=1.065779e-13
+  iter 41: particle count=3.572265e+07, change=5.068188e-14
+  iter 42: particle count=3.572265e+07, change=2.398525e-14
+  iter 43: particle count=3.572265e+07, change=1.147121e-14
+  iter 44: particle count=3.572265e+07, change=5.422752e-15
+  iter 45: particle count=3.572265e+07, change=2.919944e-15
+  iter 46: particle count=3.572265e+07, change=1.042837e-15
+  iter 47: particle count=3.572265e+07, change=8.342696e-16
+  iter 48: particle count=3.572265e+07, change=0.000000e+00
+  iter 49: particle count=3.572265e+07, change=2.085674e-16
+  iter 50: particle count=3.572265e+07, change=0.000000e+00
+  iter 51: particle count=3.572265e+07, change=0.000000e+00
+  iter 52: particle count=3.572265e+07, change=0.000000e+00
+  iter 53: particle count=3.572265e+07, change=0.000000e+00
+  iter 54: particle count=3.572265e+07, change=2.085674e-16
+  iter 55: particle count=3.572265e+07, change=-2.085674e-16
+  iter 56: particle count=3.572265e+07, change=2.085674e-16
+  iter 57: particle count=3.572265e+07, change=-2.085674e-16
+  iter 58: particle count=3.572265e+07, change=2.085674e-16
+  iter 59: particle count=3.572265e+07, change=-2.085674e-16
+  iter 60: particle count=3.572265e+07, change=2.085674e-16
+  iter 61: particle count=3.572265e+07, change=-2.085674e-16
+  iter 62: particle count=3.572265e+07, change=2.085674e-16
+  iter 63: particle count=3.572265e+07, change=-2.085674e-16
+  iter 64: particle count=3.572265e+07, change=2.085674e-16
+  iter 65: particle count=3.572265e+07, change=-2.085674e-16
+  iter 66: particle count=3.572265e+07, change=2.085674e-16
+  iter 67: particle count=3.572265e+07, change=-2.085674e-16
+  iter 68: particle count=3.572265e+07, change=0.000000e+00
+  iter 69: particle count=3.572265e+07, change=0.000000e+00
+  iter 70: particle count=3.572265e+07, change=0.000000e+00
+  iter 71: particle count=3.572265e+07, change=2.085674e-16
+  iter 72: particle count=3.572265e+07, change=-2.085674e-16
+  iter 73: particle count=3.572265e+07, change=2.085674e-16
+  iter 74: particle count=3.572265e+07, change=-2.085674e-16
+  iter 75: particle count=3.572265e+07, change=0.000000e+00
+  iter 76: particle count=3.572265e+07, change=0.000000e+00
+  iter 77: particle count=3.572265e+07, change=2.085674e-16
+  iter 78: particle count=3.572265e+07, change=0.000000e+00
+  iter 79: particle count=3.572265e+07, change=-2.085674e-16
+  iter 80: particle count=3.572265e+07, change=0.000000e+00
+  iter 81: particle count=3.572265e+07, change=0.000000e+00
+  iter 82: particle count=3.572265e+07, change=2.085674e-16
+  iter 83: particle count=3.572265e+07, change=-2.085674e-16
+  iter 84: particle count=3.572265e+07, change=2.085674e-16
+  iter 85: particle count=3.572265e+07, change=-2.085674e-16
+  iter 86: particle count=3.572265e+07, change=0.000000e+00
+  iter 87: particle count=3.572265e+07, change=2.085674e-16
+  iter 88: particle count=3.572265e+07, change=-2.085674e-16
+  iter 89: particle count=3.572265e+07, change=0.000000e+00
+  iter 90: particle count=3.572265e+07, change=0.000000e+00
+  iter 91: particle count=3.572265e+07, change=0.000000e+00
+  iter 92: particle count=3.572265e+07, change=0.000000e+00
+  iter 93: particle count=3.572265e+07, change=0.000000e+00
+  iter 94: particle count=3.572265e+07, change=0.000000e+00
+  iter 95: particle count=3.572265e+07, change=0.000000e+00
+  iter 96: particle count=3.572265e+07, change=0.000000e+00
+  iter 97: particle count=3.572265e+07, change=0.000000e+00
+  iter 98: particle count=3.572265e+07, change=0.000000e+00
+  iter 99: particle count=3.572265e+07, change=2.085674e-16
+  iter 100: particle count=3.572265e+07, change=-2.085674e-16
+  iter 101: particle count=3.572265e+07, change=2.085674e-16
+  iter 102: particle count=3.572265e+07, change=-2.085674e-16
+  iter 103: particle count=3.572265e+07, change=0.000000e+00
+  iter 104: particle count=3.572265e+07, change=0.000000e+00
+  iter 105: particle count=3.572265e+07, change=0.000000e+00
+  iter 106: particle count=3.572265e+07, change=0.000000e+00
+  iter 107: particle count=3.572265e+07, change=0.000000e+00
+  iter 108: particle count=3.572265e+07, change=2.085674e-16
+  iter 109: particle count=3.572265e+07, change=-2.085674e-16
+  iter 110: particle count=3.572265e+07, change=2.085674e-16
+  iter 111: particle count=3.572265e+07, change=-2.085674e-16
+  iter 112: particle count=3.572265e+07, change=0.000000e+00
+  iter 113: particle count=3.572265e+07, change=2.085674e-16
+  iter 114: particle count=3.572265e+07, change=-2.085674e-16
+  iter 115: particle count=3.572265e+07, change=2.085674e-16
+  iter 116: particle count=3.572265e+07, change=-2.085674e-16
+  iter 117: particle count=3.572265e+07, change=0.000000e+00
+  iter 118: particle count=3.572265e+07, change=0.000000e+00
+  iter 119: particle count=3.572265e+07, change=2.085674e-16
+  iter 120: particle count=3.572265e+07, change=0.000000e+00
+  iter 121: particle count=3.572265e+07, change=0.000000e+00
+  iter 122: particle count=3.572265e+07, change=-2.085674e-16
+  iter 123: particle count=3.572265e+07, change=0.000000e+00
+  iter 124: particle count=3.572265e+07, change=0.000000e+00
+  iter 125: particle count=3.572265e+07, change=2.085674e-16
+  iter 126: particle count=3.572265e+07, change=-2.085674e-16
+  iter 127: particle count=3.572265e+07, change=0.000000e+00
+  iter 128: particle count=3.572265e+07, change=0.000000e+00
+  iter 129: particle count=3.572265e+07, change=2.085674e-16
+  iter 130: particle count=3.572265e+07, change=-2.085674e-16
+  iter 131: particle count=3.572265e+07, change=0.000000e+00
+  iter 132: particle count=3.572265e+07, change=2.085674e-16
+  iter 133: particle count=3.572265e+07, change=-2.085674e-16
+  iter 134: particle count=3.572265e+07, change=0.000000e+00
+  iter 135: particle count=3.572265e+07, change=0.000000e+00
+  iter 136: particle count=3.572265e+07, change=0.000000e+00
+  iter 137: particle count=3.572265e+07, change=0.000000e+00
+  iter 138: particle count=3.572265e+07, change=2.085674e-16
+  iter 139: particle count=3.572265e+07, change=-2.085674e-16
+  iter 140: particle count=3.572265e+07, change=2.085674e-16
+  iter 141: particle count=3.572265e+07, change=-2.085674e-16
+  iter 142: particle count=3.572265e+07, change=0.000000e+00
+  iter 143: particle count=3.572265e+07, change=2.085674e-16
+  iter 144: particle count=3.572265e+07, change=-2.085674e-16
+  iter 145: particle count=3.572265e+07, change=2.085674e-16
+  iter 146: particle count=3.572265e+07, change=-2.085674e-16
+  iter 147: particle count=3.572265e+07, change=2.085674e-16
+  iter 148: particle count=3.572265e+07, change=-2.085674e-16
+  iter 149: particle count=3.572265e+07, change=0.000000e+00
+  iter 150: particle count=3.572265e+07, change=2.085674e-16
+  iter 151: particle count=3.572265e+07, change=-2.085674e-16
+  iter 152: particle count=3.572265e+07, change=0.000000e+00
+  iter 153: particle count=3.572265e+07, change=0.000000e+00
+  iter 154: particle count=3.572265e+07, change=0.000000e+00
+  iter 155: particle count=3.572265e+07, change=2.085674e-16
+  iter 156: particle count=3.572265e+07, change=-2.085674e-16
+  iter 157: particle count=3.572265e+07, change=0.000000e+00
+  iter 158: particle count=3.572265e+07, change=0.000000e+00
+  iter 159: particle count=3.572265e+07, change=0.000000e+00
+  iter 160: particle count=3.572265e+07, change=0.000000e+00
+  iter 161: particle count=3.572265e+07, change=0.000000e+00
+  iter 162: particle count=3.572265e+07, change=0.000000e+00
+  iter 163: particle count=3.572265e+07, change=0.000000e+00
+  iter 164: particle count=3.572265e+07, change=0.000000e+00
+  iter 165: particle count=3.572265e+07, change=0.000000e+00
+  iter 166: particle count=3.572265e+07, change=2.085674e-16
+  iter 167: particle count=3.572265e+07, change=0.000000e+00
+  iter 168: particle count=3.572265e+07, change=-2.085674e-16
+  iter 169: particle count=3.572265e+07, change=0.000000e+00
+  iter 170: particle count=3.572265e+07, change=0.000000e+00
+  iter 171: particle count=3.572265e+07, change=0.000000e+00
+  iter 172: particle count=3.572265e+07, change=0.000000e+00
+  iter 173: particle count=3.572265e+07, change=2.085674e-16
+  iter 174: particle count=3.572265e+07, change=-2.085674e-16
+  iter 175: particle count=3.572265e+07, change=2.085674e-16
+  iter 176: particle count=3.572265e+07, change=0.000000e+00
+  iter 177: particle count=3.572265e+07, change=-2.085674e-16
+  iter 178: particle count=3.572265e+07, change=0.000000e+00
+  iter 179: particle count=3.572265e+07, change=2.085674e-16
+  iter 180: particle count=3.572265e+07, change=-2.085674e-16
+  iter 181: particle count=3.572265e+07, change=2.085674e-16
+  iter 182: particle count=3.572265e+07, change=-2.085674e-16
+  iter 183: particle count=3.572265e+07, change=0.000000e+00
+  iter 184: particle count=3.572265e+07, change=2.085674e-16
+  iter 185: particle count=3.572265e+07, change=0.000000e+00
+  iter 186: particle count=3.572265e+07, change=-2.085674e-16
+  iter 187: particle count=3.572265e+07, change=2.085674e-16
+  iter 188: particle count=3.572265e+07, change=-2.085674e-16
+  iter 189: particle count=3.572265e+07, change=0.000000e+00
+  iter 190: particle count=3.572265e+07, change=0.000000e+00
+  iter 191: particle count=3.572265e+07, change=0.000000e+00
+  iter 192: particle count=3.572265e+07, change=0.000000e+00
+  iter 193: particle count=3.572265e+07, change=0.000000e+00
+  iter 194: particle count=3.572265e+07, change=0.000000e+00
+  iter 195: particle count=3.572265e+07, change=0.000000e+00
+  iter 196: particle count=3.572265e+07, change=2.085674e-16
+  iter 197: particle count=3.572265e+07, change=-2.085674e-16
+  iter 198: particle count=3.572265e+07, change=0.000000e+00
+  iter 199: particle count=3.572265e+07, change=0.000000e+00
+  iter 200: particle count=3.572265e+07, change=0.000000e+00
+  iter 201: particle count=3.572265e+07, change=2.085674e-16
+  iter 202: particle count=3.572265e+07, change=-2.085674e-16
+  iter 203: particle count=3.572265e+07, change=0.000000e+00
+  iter 204: particle count=3.572265e+07, change=0.000000e+00
+  iter 205: particle count=3.572265e+07, change=0.000000e+00
+  iter 206: particle count=3.572265e+07, change=0.000000e+00
+  iter 207: particle count=3.572265e+07, change=0.000000e+00
+  iter 208: particle count=3.572265e+07, change=0.000000e+00
+  iter 209: particle count=3.572265e+07, change=0.000000e+00
+  iter 210: particle count=3.572265e+07, change=0.000000e+00
+  iter 211: particle count=3.572265e+07, change=0.000000e+00
+  iter 212: particle count=3.572265e+07, change=0.000000e+00
+  iter 213: particle count=3.572265e+07, change=0.000000e+00
+  iter 214: particle count=3.572265e+07, change=0.000000e+00
+  iter 215: particle count=3.572265e+07, change=0.000000e+00
+  iter 216: particle count=3.572265e+07, change=0.000000e+00
+  iter 217: particle count=3.572265e+07, change=0.000000e+00
+  iter 218: particle count=3.572265e+07, change=2.085674e-16
+  iter 219: particle count=3.572265e+07, change=-2.085674e-16
+  iter 220: particle count=3.572265e+07, change=0.000000e+00
+  iter 221: particle count=3.572265e+07, change=0.000000e+00
+  iter 222: particle count=3.572265e+07, change=0.000000e+00
+  iter 223: particle count=3.572265e+07, change=2.085674e-16
+  iter 224: particle count=3.572265e+07, change=-2.085674e-16
+  iter 225: particle count=3.572265e+07, change=0.000000e+00
+  iter 226: particle count=3.572265e+07, change=2.085674e-16
+  iter 227: particle count=3.572265e+07, change=-2.085674e-16
+  iter 228: particle count=3.572265e+07, change=0.000000e+00
+  iter 229: particle count=3.572265e+07, change=0.000000e+00
+  iter 230: particle count=3.572265e+07, change=0.000000e+00
+  iter 231: particle count=3.572265e+07, change=0.000000e+00
+  iter 232: particle count=3.572265e+07, change=0.000000e+00
+  iter 233: particle count=3.572265e+07, change=0.000000e+00
+  iter 234: particle count=3.572265e+07, change=0.000000e+00
+  iter 235: particle count=3.572265e+07, change=0.000000e+00
+  iter 236: particle count=3.572265e+07, change=2.085674e-16
+  iter 237: particle count=3.572265e+07, change=-2.085674e-16
+  iter 238: particle count=3.572265e+07, change=0.000000e+00
+  iter 239: particle count=3.572265e+07, change=0.000000e+00
+  iter 240: particle count=3.572265e+07, change=0.000000e+00
+  iter 241: particle count=3.572265e+07, change=0.000000e+00
+  iter 242: particle count=3.572265e+07, change=0.000000e+00
+  iter 243: particle count=3.572265e+07, change=0.000000e+00
+  iter 244: particle count=3.572265e+07, change=2.085674e-16
+  iter 245: particle count=3.572265e+07, change=0.000000e+00
+  iter 246: particle count=3.572265e+07, change=-2.085674e-16
+  iter 247: particle count=3.572265e+07, change=0.000000e+00
+  iter 248: particle count=3.572265e+07, change=0.000000e+00
+  iter 249: particle count=3.572265e+07, change=0.000000e+00
+  iter 250: particle count=3.572265e+07, change=0.000000e+00
+  iter 251: particle count=3.572265e+07, change=0.000000e+00
+  iter 252: particle count=3.572265e+07, change=0.000000e+00
+  iter 253: particle count=3.572265e+07, change=0.000000e+00
+  iter 254: particle count=3.572265e+07, change=0.000000e+00
+  iter 255: particle count=3.572265e+07, change=0.000000e+00
+  iter 256: particle count=3.572265e+07, change=0.000000e+00
+  iter 257: particle count=3.572265e+07, change=0.000000e+00
+  iter 258: particle count=3.572265e+07, change=0.000000e+00
+  iter 259: particle count=3.572265e+07, change=0.000000e+00
+  iter 260: particle count=3.572265e+07, change=0.000000e+00
+  iter 261: particle count=3.572265e+07, change=2.085674e-16
+  iter 262: particle count=3.572265e+07, change=-2.085674e-16
+  iter 263: particle count=3.572265e+07, change=0.000000e+00
+  iter 264: particle count=3.572265e+07, change=0.000000e+00
+  iter 265: particle count=3.572265e+07, change=0.000000e+00
+  iter 266: particle count=3.572265e+07, change=0.000000e+00
+  iter 267: particle count=3.572265e+07, change=0.000000e+00
+  iter 268: particle count=3.572265e+07, change=0.000000e+00
+  iter 269: particle count=3.572265e+07, change=0.000000e+00
+  iter 270: particle count=3.572265e+07, change=2.085674e-16
+  iter 271: particle count=3.572265e+07, change=0.000000e+00
+  iter 272: particle count=3.572265e+07, change=-2.085674e-16
+  iter 273: particle count=3.572265e+07, change=0.000000e+00
+  iter 274: particle count=3.572265e+07, change=2.085674e-16
+  iter 275: particle count=3.572265e+07, change=-2.085674e-16
+  iter 276: particle count=3.572265e+07, change=0.000000e+00
+  iter 277: particle count=3.572265e+07, change=0.000000e+00
+  iter 278: particle count=3.572265e+07, change=0.000000e+00
+  iter 279: particle count=3.572265e+07, change=2.085674e-16
+  iter 280: particle count=3.572265e+07, change=-2.085674e-16
+  iter 281: particle count=3.572265e+07, change=0.000000e+00
+  iter 282: particle count=3.572265e+07, change=0.000000e+00
+  iter 283: particle count=3.572265e+07, change=0.000000e+00
+  iter 284: particle count=3.572265e+07, change=2.085674e-16
+  iter 285: particle count=3.572265e+07, change=0.000000e+00
+  iter 286: particle count=3.572265e+07, change=-2.085674e-16
+  iter 287: particle count=3.572265e+07, change=2.085674e-16
+  iter 288: particle count=3.572265e+07, change=-2.085674e-16
+  iter 289: particle count=3.572265e+07, change=2.085674e-16
+  iter 290: particle count=3.572265e+07, change=-2.085674e-16
+  iter 291: particle count=3.572265e+07, change=0.000000e+00
+  iter 292: particle count=3.572265e+07, change=2.085674e-16
+  iter 293: particle count=3.572265e+07, change=0.000000e+00
+  iter 294: particle count=3.572265e+07, change=-2.085674e-16
+  iter 295: particle count=3.572265e+07, change=2.085674e-16
+  iter 296: particle count=3.572265e+07, change=-2.085674e-16
+  iter 297: particle count=3.572265e+07, change=2.085674e-16
+  iter 298: particle count=3.572265e+07, change=-2.085674e-16
+  iter 299: particle count=3.572265e+07, change=0.000000e+00
+  iter 300: particle count=3.572265e+07, change=0.000000e+00
+  iter 301: particle count=3.572265e+07, change=2.085674e-16
+  iter 302: particle count=3.572265e+07, change=0.000000e+00
+  iter 303: particle count=3.572265e+07, change=-2.085674e-16
+  iter 304: particle count=3.572265e+07, change=0.000000e+00
+  iter 305: particle count=3.572265e+07, change=0.000000e+00
+  iter 306: particle count=3.572265e+07, change=0.000000e+00
+  iter 307: particle count=3.572265e+07, change=0.000000e+00
+  iter 308: particle count=3.572265e+07, change=0.000000e+00
+  iter 309: particle count=3.572265e+07, change=0.000000e+00
+  iter 310: particle count=3.572265e+07, change=2.085674e-16
+  iter 311: particle count=3.572265e+07, change=0.000000e+00
+  iter 312: particle count=3.572265e+07, change=-2.085674e-16
+  iter 313: particle count=3.572265e+07, change=2.085674e-16
+  iter 314: particle count=3.572265e+07, change=-2.085674e-16
+  iter 315: particle count=3.572265e+07, change=2.085674e-16
+  iter 316: particle count=3.572265e+07, change=0.000000e+00
+  iter 317: particle count=3.572265e+07, change=0.000000e+00
+  iter 318: particle count=3.572265e+07, change=-2.085674e-16
+  iter 319: particle count=3.572265e+07, change=0.000000e+00
+  iter 320: particle count=3.572265e+07, change=2.085674e-16
+  iter 321: particle count=3.572265e+07, change=-2.085674e-16
+  iter 322: particle count=3.572265e+07, change=2.085674e-16
+  iter 323: particle count=3.572265e+07, change=-2.085674e-16
+  iter 324: particle count=3.572265e+07, change=0.000000e+00
+  iter 325: particle count=3.572265e+07, change=2.085674e-16
+  iter 326: particle count=3.572265e+07, change=-2.085674e-16
+  iter 327: particle count=3.572265e+07, change=0.000000e+00
+  iter 328: particle count=3.572265e+07, change=0.000000e+00
+  iter 329: particle count=3.572265e+07, change=2.085674e-16
+  iter 330: particle count=3.572265e+07, change=-2.085674e-16
+  iter 331: particle count=3.572265e+07, change=0.000000e+00
+  iter 332: particle count=3.572265e+07, change=0.000000e+00
+  iter 333: particle count=3.572265e+07, change=0.000000e+00
+  iter 334: particle count=3.572265e+07, change=0.000000e+00
+  iter 335: particle count=3.572265e+07, change=2.085674e-16
+  iter 336: particle count=3.572265e+07, change=-2.085674e-16
+  iter 337: particle count=3.572265e+07, change=2.085674e-16
+  iter 338: particle count=3.572265e+07, change=-2.085674e-16
+  iter 339: particle count=3.572265e+07, change=0.000000e+00
+  iter 340: particle count=3.572265e+07, change=0.000000e+00
+  iter 341: particle count=3.572265e+07, change=0.000000e+00
+  iter 342: particle count=3.572265e+07, change=2.085674e-16
+  iter 343: particle count=3.572265e+07, change=-2.085674e-16
+  iter 344: particle count=3.572265e+07, change=2.085674e-16
+  iter 345: particle count=3.572265e+07, change=-2.085674e-16
+  iter 346: particle count=3.572265e+07, change=0.000000e+00
+  iter 347: particle count=3.572265e+07, change=0.000000e+00
+  iter 348: particle count=3.572265e+07, change=2.085674e-16
+  iter 349: particle count=3.572265e+07, change=-2.085674e-16
+  iter 350: particle count=3.572265e+07, change=0.000000e+00
+  iter 351: particle count=3.572265e+07, change=0.000000e+00
+  iter 352: particle count=3.572265e+07, change=0.000000e+00
+  iter 353: particle count=3.572265e+07, change=0.000000e+00
+  iter 354: particle count=3.572265e+07, change=2.085674e-16
+  iter 355: particle count=3.572265e+07, change=-2.085674e-16
+  iter 356: particle count=3.572265e+07, change=2.085674e-16
+  iter 357: particle count=3.572265e+07, change=-2.085674e-16
+  iter 358: particle count=3.572265e+07, change=2.085674e-16
+  iter 359: particle count=3.572265e+07, change=-2.085674e-16
+  iter 360: particle count=3.572265e+07, change=0.000000e+00
+  iter 361: particle count=3.572265e+07, change=2.085674e-16
+  iter 362: particle count=3.572265e+07, change=0.000000e+00
+  iter 363: particle count=3.572265e+07, change=0.000000e+00
+  iter 364: particle count=3.572265e+07, change=-2.085674e-16
+  iter 365: particle count=3.572265e+07, change=0.000000e+00
+  iter 366: particle count=3.572265e+07, change=0.000000e+00
+  iter 367: particle count=3.572265e+07, change=0.000000e+00
+  iter 368: particle count=3.572265e+07, change=2.085674e-16
+  iter 369: particle count=3.572265e+07, change=-2.085674e-16
+  iter 370: particle count=3.572265e+07, change=2.085674e-16
+  iter 371: particle count=3.572265e+07, change=-2.085674e-16
+  iter 372: particle count=3.572265e+07, change=2.085674e-16
+  iter 373: particle count=3.572265e+07, change=-2.085674e-16
+  iter 374: particle count=3.572265e+07, change=0.000000e+00
+  iter 375: particle count=3.572265e+07, change=0.000000e+00
+  iter 376: particle count=3.572265e+07, change=0.000000e+00
+  iter 377: particle count=3.572265e+07, change=0.000000e+00
+  iter 378: particle count=3.572265e+07, change=2.085674e-16
+  iter 379: particle count=3.572265e+07, change=-2.085674e-16
+  iter 380: particle count=3.572265e+07, change=0.000000e+00
+  iter 381: particle count=3.572265e+07, change=0.000000e+00
+  iter 382: particle count=3.572265e+07, change=0.000000e+00
+  iter 383: particle count=3.572265e+07, change=0.000000e+00
+  iter 384: particle count=3.572265e+07, change=2.085674e-16
+  iter 385: particle count=3.572265e+07, change=0.000000e+00
+  iter 386: particle count=3.572265e+07, change=0.000000e+00
+  iter 387: particle count=3.572265e+07, change=-2.085674e-16
+  iter 388: particle count=3.572265e+07, change=2.085674e-16
+  iter 389: particle count=3.572265e+07, change=-2.085674e-16
+  iter 390: particle count=3.572265e+07, change=0.000000e+00
+  iter 391: particle count=3.572265e+07, change=0.000000e+00
+  iter 392: particle count=3.572265e+07, change=2.085674e-16
+  iter 393: particle count=3.572265e+07, change=0.000000e+00
+  iter 394: particle count=3.572265e+07, change=-2.085674e-16
+  iter 395: particle count=3.572265e+07, change=2.085674e-16
+  iter 396: particle count=3.572265e+07, change=-2.085674e-16
+  iter 397: particle count=3.572265e+07, change=2.085674e-16
+  iter 398: particle count=3.572265e+07, change=-2.085674e-16
+  iter 399: particle count=3.572265e+07, change=0.000000e+00
+  iter 400: particle count=3.572265e+07, change=0.000000e+00
+  iter 401: particle count=3.572265e+07, change=0.000000e+00
+  iter 402: particle count=3.572265e+07, change=2.085674e-16
+  iter 403: particle count=3.572265e+07, change=0.000000e+00
+  iter 404: particle count=3.572265e+07, change=-2.085674e-16
+  iter 405: particle count=3.572265e+07, change=2.085674e-16
+  iter 406: particle count=3.572265e+07, change=-2.085674e-16
+  iter 407: particle count=3.572265e+07, change=0.000000e+00
+  iter 408: particle count=3.572265e+07, change=0.000000e+00
+  iter 409: particle count=3.572265e+07, change=2.085674e-16
+  iter 410: particle count=3.572265e+07, change=-2.085674e-16
+  iter 411: particle count=3.572265e+07, change=0.000000e+00
+  iter 412: particle count=3.572265e+07, change=0.000000e+00
+  iter 413: particle count=3.572265e+07, change=2.085674e-16
+  iter 414: particle count=3.572265e+07, change=0.000000e+00
+  iter 415: particle count=3.572265e+07, change=0.000000e+00
+  iter 416: particle count=3.572265e+07, change=0.000000e+00
+  iter 417: particle count=3.572265e+07, change=-2.085674e-16
+  iter 418: particle count=3.572265e+07, change=2.085674e-16
+  iter 419: particle count=3.572265e+07, change=0.000000e+00
+  iter 420: particle count=3.572265e+07, change=-2.085674e-16
+  iter 421: particle count=3.572265e+07, change=2.085674e-16
+  iter 422: particle count=3.572265e+07, change=0.000000e+00
+  iter 423: particle count=3.572265e+07, change=-2.085674e-16
+  iter 424: particle count=3.572265e+07, change=2.085674e-16
+  iter 425: particle count=3.572265e+07, change=-2.085674e-16
+  iter 426: particle count=3.572265e+07, change=0.000000e+00
+  iter 427: particle count=3.572265e+07, change=0.000000e+00
+  iter 428: particle count=3.572265e+07, change=0.000000e+00
+  iter 429: particle count=3.572265e+07, change=0.000000e+00
+  iter 430: particle count=3.572265e+07, change=0.000000e+00
+  iter 431: particle count=3.572265e+07, change=0.000000e+00
+  iter 432: particle count=3.572265e+07, change=0.000000e+00
+  iter 433: particle count=3.572265e+07, change=2.085674e-16
+  iter 434: particle count=3.572265e+07, change=-2.085674e-16
+  iter 435: particle count=3.572265e+07, change=2.085674e-16
+  iter 436: particle count=3.572265e+07, change=0.000000e+00
+  iter 437: particle count=3.572265e+07, change=-2.085674e-16
+  iter 438: particle count=3.572265e+07, change=0.000000e+00
+  iter 439: particle count=3.572265e+07, change=0.000000e+00
+  iter 440: particle count=3.572265e+07, change=0.000000e+00
+  iter 441: particle count=3.572265e+07, change=0.000000e+00
+  iter 442: particle count=3.572265e+07, change=2.085674e-16
+  iter 443: particle count=3.572265e+07, change=-2.085674e-16
+  iter 444: particle count=3.572265e+07, change=0.000000e+00
+  iter 445: particle count=3.572265e+07, change=2.085674e-16
+  iter 446: particle count=3.572265e+07, change=0.000000e+00
+  iter 447: particle count=3.572265e+07, change=0.000000e+00
+  iter 448: particle count=3.572265e+07, change=-2.085674e-16
+  iter 449: particle count=3.572265e+07, change=2.085674e-16
+  iter 450: particle count=3.572265e+07, change=0.000000e+00
+  iter 451: particle count=3.572265e+07, change=-2.085674e-16
+  iter 452: particle count=3.572265e+07, change=0.000000e+00
+  iter 453: particle count=3.572265e+07, change=0.000000e+00
+  iter 454: particle count=3.572265e+07, change=0.000000e+00
+  iter 455: particle count=3.572265e+07, change=2.085674e-16
+  iter 456: particle count=3.572265e+07, change=0.000000e+00
+  iter 457: particle count=3.572265e+07, change=0.000000e+00
+  iter 458: particle count=3.572265e+07, change=0.000000e+00
+  iter 459: particle count=3.572265e+07, change=0.000000e+00
+  iter 460: particle count=3.572265e+07, change=-2.085674e-16
+  iter 461: particle count=3.572265e+07, change=0.000000e+00
+  iter 462: particle count=3.572265e+07, change=2.085674e-16
+  iter 463: particle count=3.572265e+07, change=-2.085674e-16
+  iter 464: particle count=3.572265e+07, change=0.000000e+00
+  iter 465: particle count=3.572265e+07, change=0.000000e+00
+  iter 466: particle count=3.572265e+07, change=2.085674e-16
+  iter 467: particle count=3.572265e+07, change=-2.085674e-16
+  iter 468: particle count=3.572265e+07, change=0.000000e+00
+  iter 469: particle count=3.572265e+07, change=0.000000e+00
+  iter 470: particle count=3.572265e+07, change=0.000000e+00
+  iter 471: particle count=3.572265e+07, change=0.000000e+00
+  iter 472: particle count=3.572265e+07, change=0.000000e+00
+  iter 473: particle count=3.572265e+07, change=2.085674e-16
+  iter 474: particle count=3.572265e+07, change=-2.085674e-16
+  iter 475: particle count=3.572265e+07, change=0.000000e+00
+  iter 476: particle count=3.572265e+07, change=0.000000e+00
+  iter 477: particle count=3.572265e+07, change=0.000000e+00
+  iter 478: particle count=3.572265e+07, change=2.085674e-16
+  iter 479: particle count=3.572265e+07, change=-2.085674e-16
+  iter 480: particle count=3.572265e+07, change=0.000000e+00
+  iter 481: particle count=3.572265e+07, change=0.000000e+00
+  iter 482: particle count=3.572265e+07, change=0.000000e+00
+  iter 483: particle count=3.572265e+07, change=2.085674e-16
+  iter 484: particle count=3.572265e+07, change=0.000000e+00
+  iter 485: particle count=3.572265e+07, change=0.000000e+00
+  iter 486: particle count=3.572265e+07, change=-2.085674e-16
+  iter 487: particle count=3.572265e+07, change=0.000000e+00
+  iter 488: particle count=3.572265e+07, change=0.000000e+00
+  iter 489: particle count=3.572265e+07, change=2.085674e-16
+  iter 490: particle count=3.572265e+07, change=-2.085674e-16
+  iter 491: particle count=3.572265e+07, change=0.000000e+00
+  iter 492: particle count=3.572265e+07, change=0.000000e+00
+  iter 493: particle count=3.572265e+07, change=2.085674e-16
+  iter 494: particle count=3.572265e+07, change=-2.085674e-16
+  iter 495: particle count=3.572265e+07, change=0.000000e+00
+  iter 496: particle count=3.572265e+07, change=0.000000e+00
+  iter 497: particle count=3.572265e+07, change=2.085674e-16
+  iter 498: particle count=3.572265e+07, change=-2.085674e-16
+  iter 499: particle count=3.572265e+07, change=0.000000e+00
+  Solver terminated
+
+Timers
+======
+
+  Timer                    Count       Seconds
+  ----------------  ------------  ------------
+  Generate                     1       0.86698
+  LPlusTimes                 500       2.22796
+  LTimes                     500       1.83685
+  Population                 500       3.86648
+  Scattering                 500       4.70182
+  Solve                        1      43.48737
+  Source                     500       0.03316
+  SweepSolver                500      29.55905
+  SweepSubdomain          128000       3.92465
+
+TIMER_NAMES:Generate,LPlusTimes,LTimes,Population,Scattering,Solve,Source,SweepSolver,SweepSubdomain
+TIMER_DATA:0.866976,2.227959,1.836849,3.866478,4.701817,43.487365,0.033157,29.559054,3.924647
+
+Figures of Merit
+================
+
+  Throughput:         5.848414e+10 [unknowns/(second/iteration)]
+  Grind time :        1.709865e-11 [(seconds/iteration)/unknowns]
+  Sweep efficiency :  13.27731 [100.0 * SweepSubdomain time / SweepSolver time]
+  Number of unknowns: 5086642176
+
+END
+FLUX-RUN END kripke-iter-5
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Connecting to archive.ubuntu.com] [1 InRelease 5484 B/129 kB 4%]                                                                    Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+                                                                    0% [1 InRelease 60.5 kB/129 kB 47%]0% [Waiting for headers] [1 InRelease 77.9 kB/129 kB 60%]                                                         Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [3 InRelease 12.7 kB/128 kB 10%] [1 InRelease 83.7 kB/129 kB 65%]                                                                    0% [3 InRelease 24.3 kB/128 kB 19%]0% [3 InRelease 47.5 kB/128 kB 37%]                                   Get:4 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2788 kB]
+0% [3 InRelease 85.1 kB/128 kB 66%] [4 Packages 2655 B/2788 kB 0%]                                                                  0% [4 Packages 85.2 kB/2788 kB 3%]0% [Waiting for headers] [4 Packages 150 kB/2788 kB 5%]                                                       Get:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [5 InRelease 2588 B/127 kB 2%] [4 Packages 202 kB/2788 kB 7%]                                                                0% [4 Packages 407 kB/2788 kB 15%]19% [Waiting for headers] [4 Packages 582 kB/2788 kB 21%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4246 kB]
+20% [6 Packages 2655 B/4246 kB 0%] [4 Packages 808 kB/2788 kB 29%]                                                                  31% [6 Packages 373 kB/4246 kB 9%]31% [4 Packages store 0 B] [6 Packages 376 kB/4246 kB 9%] [Waiting for headers]                                                                               33% [6 Packages 851 kB/4246 kB 20%] [Waiting for headers]                                                         Get:7 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4000 kB]
+33% [6 Packages 851 kB/4246 kB 20%] [7 Packages 20.0 kB/4000 kB 1%]                                                                   57% [6 Packages 2104 kB/4246 kB 50%] [Waiting for headers]                                                          Get:8 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+57% [6 Packages 2104 kB/4246 kB 50%] [8 Packages 10.2 kB/47.7 kB 21%]57% [7 Packages store 0 B] [6 Packages 2104 kB/4246 kB 50%] [8 Packages 10.2 kB58% [7 Packages store 0 B] [6 Packages 2130 kB/4246 kB 50%] [Waiting for header                                                                               Get:9 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1243 kB]
+58% [7 Packages store 0 B] [6 Packages 2130 kB/4246 kB 50%] [9 Packages 25.1 kB                                                                               65% [7 Packages store 0 B] [6 Packages 2609 kB/4246 kB 61%]                                                           73% [7 Packages store 0 B] [Waiting for headers]                                                Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1542 kB]
+73% [7 Packages store 0 B] [10 Packages 7784 B/1542 kB 1%]                                                          80% [7 Packages store 0 B] [Waiting for headers]                                                Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3140 kB]
+80% [7 Packages store 0 B] [11 Packages 7440 B/3140 kB 0%]                                                          81% [11 Packages 115 kB/3140 kB 4%]81% [8 Packages store 0 B] [11 Packages 136 kB/3140 kB 4%]                                                          82% [11 Packages 202 kB/3140 kB 6%]82% [9 Packages store 0 B] [11 Packages 202 kB/3140 kB 6%]                                                          93% [11 Packages 2452 kB/3140 kB 78%]93% [6 Packages store 0 B] [11 Packages 2475 kB/3140 kB 79%]                                                            96% [6 Packages store 0 B] [Waiting for headers]                                                Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+96% [6 Packages store 0 B] [12 Packages 8952 B/55.7 kB 16%]                                                           96% [6 Packages store 0 B]                          Get:13 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+96% [6 Packages store 0 B] [13 Packages 14.3 kB/82.7 kB 17%]                                                            97% [6 Packages store 0 B] [Waiting for headers]                                                Get:14 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+97% [6 Packages store 0 B] [14 Packages 4344 B/35.2 kB 12%]                                                           97% [6 Packages store 0 B]                          97% [Working]97% [10 Packages store 0 B]                           98% [Working]98% [11 Packages store 0 B]                           98% [Working]98% [12 Packages store 0 B]                           99% [Working]99% [13 Packages store 0 B]                           99% [Working]99% [14 Packages store 0 B]                           100% [Working]              Fetched 17.6 MB in 2s (7934 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 57%Reading package lists... 57%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 57%Reading package lists... 57%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 29%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 95 not upgraded.
+
+FLUX-JOB START 5779331481600 kripke-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 128, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["kripke", "--layout", "DGZ", "--dset", "16", "--zones", "448,168,264", "--gset", "16", "--groups", "16", "--niter", "500", "--legendre", "2", "--quad", "16", "--procs", "64,8,22"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "kripke-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-127", "children": {"core": "0-87"}}], "nodelist": ["kripke-[0-127]"], "starttime": 1745185508, "expiration": 4898785163}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745185508.1909261,"name":"init"}
+{"timestamp":1745185508.1918192,"name":"starting"}
+{"timestamp":1745185508.2378304,"name":"shell.init","context":{"service":"0-shell-f3cpAjVbV","leader-rank":0,"size":128}}
+{"timestamp":1745185508.405308,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,128,88,1]]}}}
+{"timestamp":1745185590.6640368,"name":"shell.task-exit","context":{"localid":80,"rank":80,"state":"Exited","pid":992,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745185591.1900721,"name":"complete","context":{"status":0}}
+{"timestamp":1745185591.1901033,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 5779331481600 kripke-iter-5
+
+FLUX-JOB START 4369357471744 kripke-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 128, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["kripke", "--layout", "DGZ", "--dset", "16", "--zones", "448,168,264", "--gset", "16", "--groups", "16", "--niter", "500", "--legendre", "2", "--quad", "16", "--procs", "64,8,22"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "kripke-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-127", "children": {"core": "0-87"}}], "nodelist": ["kripke-[0-127]"], "starttime": 1745185424, "expiration": 4898785163}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745185424.1504977,"name":"init"}
+{"timestamp":1745185424.1513853,"name":"starting"}
+{"timestamp":1745185424.2025383,"name":"shell.init","context":{"service":"0-shell-f2ymzA9Dq","leader-rank":0,"size":128}}
+{"timestamp":1745185424.3686008,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,128,88,1]]}}}
+{"timestamp":1745185507.0290327,"name":"shell.task-exit","context":{"localid":83,"rank":1139,"state":"Exited","pid":759,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745185507.5616922,"name":"complete","context":{"status":0}}
+{"timestamp":1745185507.561717,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 4369357471744 kripke-iter-4
+
+FLUX-JOB START 2964534067200 kripke-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 128, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["kripke", "--layout", "DGZ", "--dset", "16", "--zones", "448,168,264", "--gset", "16", "--groups", "16", "--niter", "500", "--legendre", "2", "--quad", "16", "--procs", "64,8,22"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "kripke-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-127", "children": {"core": "0-87"}}], "nodelist": ["kripke-[0-127]"], "starttime": 1745185340, "expiration": 4898785163}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745185340.417098,"name":"init"}
+{"timestamp":1745185340.4180763,"name":"starting"}
+{"timestamp":1745185340.4692016,"name":"shell.init","context":{"service":"0-shell-f2LseizN3","leader-rank":0,"size":128}}
+{"timestamp":1745185340.634419,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,128,88,1]]}}}
+{"timestamp":1745185422.9829192,"name":"shell.task-exit","context":{"localid":70,"rank":70,"state":"Exited","pid":600,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745185423.5134416,"name":"complete","context":{"status":0}}
+{"timestamp":1745185423.5134728,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2964534067200 kripke-iter-3
+
+FLUX-JOB START 1577226076160 kripke-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 128, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["kripke", "--layout", "DGZ", "--dset", "16", "--zones", "448,168,264", "--gset", "16", "--groups", "16", "--niter", "500", "--legendre", "2", "--quad", "16", "--procs", "64,8,22"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "kripke-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-127", "children": {"core": "0-87"}}], "nodelist": ["kripke-[0-127]"], "starttime": 1745185257, "expiration": 4898785163}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745185257.7271678,"name":"init"}
+{"timestamp":1745185257.7283845,"name":"starting"}
+{"timestamp":1745185257.7775414,"name":"shell.init","context":{"service":"0-shell-fiS14uiF","leader-rank":0,"size":128}}
+{"timestamp":1745185257.9430947,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,128,88,1]]}}}
+{"timestamp":1745185339.1926892,"name":"shell.task-exit","context":{"localid":86,"rank":350,"state":"Exited","pid":412,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745185339.7636492,"name":"complete","context":{"status":0}}
+{"timestamp":1745185339.7636814,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1577226076160 kripke-iter-2
+
+FLUX-JOB START 193508409344 kripke-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 128, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["kripke", "--layout", "DGZ", "--dset", "16", "--zones", "448,168,264", "--gset", "16", "--groups", "16", "--niter", "500", "--legendre", "2", "--quad", "16", "--procs", "64,8,22"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "kripke-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-127", "children": {"core": "0-87"}}], "nodelist": ["kripke-[0-127]"], "starttime": 1745185175, "expiration": 4898785163}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745185175.2541051,"name":"init"}
+{"timestamp":1745185175.2550166,"name":"starting"}
+{"timestamp":1745185175.3243639,"name":"shell.init","context":{"service":"0-shell-f65pgBNF","leader-rank":0,"size":128}}
+{"timestamp":1745185175.4879656,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,128,88,1]]}}}
+{"timestamp":1745185256.4072938,"name":"shell.task-exit","context":{"localid":73,"rank":73,"state":"Exited","pid":244,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745185257.0849643,"name":"complete","context":{"status":0}}
+{"timestamp":1745185257.0849962,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 193508409344 kripke-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

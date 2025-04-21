@@ -1,0 +1,327 @@
+Defaulted container "amg" out of: amg, flux-view (init)
+/flux_operator/wait-0.sh: line 22: /etc/flux/system/R: No such file or directory
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START amg2023-iter-$i"
+  flux run --setattr=user.study_id=amg2023-iter-$i -N128 -n 11264 -o cpu-affinity=per-task -o gpu-affinity=off    amg -n 256 256 128 -P 32 32 11 -problem 2 |& tee /tmp/amg2023.out
+    echo "FLUX-RUN END amg2023-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free    128    11264        0 amg-[0-127]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START amg2023-iter-1
+Running with these driver parameters:
+  Problem ID    = 2
+
+=============================================
+Hypre init times:
+=============================================
+Hypre init:
+  wall clock time = 0.000048 seconds
+  Laplacian_7pt:
+    (Nx, Ny, Nz) = (8192, 8192, 1408)
+    (Px, Py, Pz) = (32, 32, 11)
+
+=============================================
+Generate Matrix:
+=============================================
+Spatial Operator:
+  wall clock time = 4.293444 seconds
+  RHS vector has unit components
+  Initial guess is 0
+=============================================
+IJ Vector Setup:
+=============================================
+RHS and Initial Guess:
+  wall clock time = 0.249411 seconds
+[amg-29][[0,0],2620][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29][[0,0],2552][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00201] *** An error occurred in MPI_Isend
+[amg-29][[0,0],2562][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00068] *** An error occurred in MPI_Isend
+[amg-29:00201] *** reported by process [0,2620]
+[amg-29][[0,0],2600][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00084] *** An error occurred in MPI_Isend
+[amg-29:00068] *** reported by process [0,2552]
+[amg-29:00201] *** on communicator MPI_COMM_WORLD
+[amg-29:00160] *** An error occurred in MPI_Isend
+[amg-29:00084] *** reported by process [0,2562]
+[amg-29:00068] *** on communicator MPI_COMM_WORLD
+[amg-29:00201] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00160] *** reported by process [0,2600]
+[amg-29][[0,0],2564][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00084] *** on communicator MPI_COMM_WORLD
+[amg-29:00068] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00201] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29][[0,0],2606][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29][[0,0],2601][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00160] *** on communicator MPI_COMM_WORLD
+[amg-29][[0,0],2585][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00088] *** An error occurred in MPI_Isend
+[amg-29:00084] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00068] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29][[0,0],2639][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00201] ***    and potentially your MPI job)
+[amg-29:00172] *** An error occurred in MPI_Isend
+[amg-29:00162] *** An error occurred in MPI_Isend
+[amg-29:00160] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00130] *** An error occurred in MPI_Isend
+[amg-29][[0,0],2569][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00088] *** reported by process [0,2564]
+[amg-29:00084] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00068] ***    and potentially your MPI job)
+[amg-29:00239] *** An error occurred in MPI_Isend
+[amg-29:00172] *** reported by process [0,2606]
+[amg-29][[0,0],2603][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00162] *** reported by process [0,2601]
+[amg-29:00160] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29][[0,0],2588][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00130] *** reported by process [0,2585]
+[amg-29][[0,0],2573][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00098] *** An error occurred in MPI_Isend
+[amg-29:00088] *** on communicator MPI_COMM_WORLD
+[amg-29:00084] ***    and potentially your MPI job)
+[amg-29:00239] *** reported by process [0,2639]
+[amg-29:00172] *** on communicator MPI_COMM_WORLD
+[amg-29:00166] *** An error occurred in MPI_Isend
+[amg-29:00162] *** on communicator MPI_COMM_WORLD
+[amg-29:00160] ***    and potentially your MPI job)
+[amg-29][[0,0],2597][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00136] *** An error occurred in MPI_Isend
+[amg-29:00130] *** on communicator MPI_COMM_WORLD
+[amg-29:00106] *** An error occurred in MPI_Isend
+[amg-29:00098] *** reported by process [0,2569]
+[amg-29][[0,0],2567][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00088] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00239] *** on communicator MPI_COMM_WORLD
+[amg-29][[0,0],2608][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00172] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00166] *** reported by process [0,2603]
+[amg-29:00162] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00154] *** An error occurred in MPI_Isend
+[amg-29:00136] *** reported by process [0,2588]
+[amg-29:00130] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00106] *** reported by process [0,2573]
+[amg-29:00098] *** on communicator MPI_COMM_WORLD
+[amg-29:00094] *** An error occurred in MPI_Isend
+[amg-29:00088] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00239] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00177] *** An error occurred in MPI_Isend
+[amg-29:00172] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00166] *** on communicator MPI_COMM_WORLD
+[amg-29:00162] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00154] *** reported by process [0,2597]
+[amg-29:00136] *** on communicator MPI_COMM_WORLD
+[amg-29:00130] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00106] *** on communicator MPI_COMM_WORLD
+[amg-29][[0,0],2570][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00098] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00094] *** reported by process [0,2567]
+[amg-29:00088] ***    and potentially your MPI job)
+[amg-29:00239] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29][[0,0],2624][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29][[0,0],2609][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00177] *** reported by process [0,2608]
+[amg-29][[0,0],2607][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00172] ***    and potentially your MPI job)
+[amg-29:00166] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00162] ***    and potentially your MPI job)
+[amg-29:00154] *** on communicator MPI_COMM_WORLD
+[amg-29:00136] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00130] ***    and potentially your MPI job)
+[amg-29:00106] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00100] *** An error occurred in MPI_Isend
+[amg-29:00098] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00094] *** on communicator MPI_COMM_WORLD
+[amg-29][[0,0],2561][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29][[0,0],2554][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00239] ***    and potentially your MPI job)
+[amg-29][[0,0],2629][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00209] *** An error occurred in MPI_Isend
+[amg-29:00179] *** An error occurred in MPI_Isend
+[amg-29:00177] *** on communicator MPI_COMM_WORLD
+[amg-29:00174] *** An error occurred in MPI_Isend
+[amg-29:00166] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00154] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00136] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00106] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29][[0,0],2572][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00100] *** reported by process [0,2570]
+[amg-29:00098] ***    and potentially your MPI job)
+[amg-29:00094] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00082] *** An error occurred in MPI_Isend
+[amg-29][[0,0],2558][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29][[0,0],2557][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29][[0,0],2555][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00070] *** An error occurred in MPI_Isend
+[amg-29:00219] *** An error occurred in MPI_Isend
+[amg-29:00209] *** reported by process [0,2624]
+[amg-29][[0,0],2621][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29][[0,0],2613][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00179] *** reported by process [0,2609]
+[amg-29:00177] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00174] *** reported by process [0,2607]
+[amg-29:00166] ***    and potentially your MPI job)
+[amg-29:00154] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29][[0,0],2589][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00136] ***    and potentially your MPI job)
+[amg-29][[0,0],2581][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00106] ***    and potentially your MPI job)
+[amg-29:00104] *** An error occurred in MPI_Isend
+[amg-29:00100] *** on communicator MPI_COMM_WORLD
+[amg-29:00094] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00082] *** reported by process [0,2561]
+[amg-29:00076] *** An error occurred in MPI_Isend
+[amg-29:00073] *** An error occurred in MPI_Isend
+[amg-29:00071] *** An error occurred in MPI_Isend
+[amg-29:00070] *** reported by process [0,2554]
+[amg-29][[0,0],2553][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29][[0,0],2637][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29][[0,0],2632][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00219] *** reported by process [0,2629]
+[amg-29:00209] *** on communicator MPI_COMM_WORLD
+[amg-29:00203] *** An error occurred in MPI_Isend
+[amg-29:00187] *** An error occurred in MPI_Isend
+[amg-29][[0,0],2611][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00179] *** on communicator MPI_COMM_WORLD
+[amg-29:00177] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00174] *** on communicator MPI_COMM_WORLD
+[amg-29:00154] ***    and potentially your MPI job)
+[amg-29:00138] *** An error occurred in MPI_Isend
+[amg-29:00122] *** An error occurred in MPI_Isend
+[amg-29][[0,0],2575][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00104] *** reported by process [0,2572]
+[amg-29:00100] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00094] ***    and potentially your MPI job)
+[amg-29][[0,0],2566][btl_tcp_endpoint.c:730:mca_btl_tcp_endpoint_start_connect] bind on local address (10.44.108.3:0) failed: Address already in use (98)
+[amg-29:00082] *** on communicator MPI_COMM_WORLD
+[amg-29:00076] *** reported by process [0,2558]
+[amg-29:00073] *** reported by process [0,2557]
+[amg-29:00071] *** reported by process [0,2555]
+[amg-29:00070] *** on communicator MPI_COMM_WORLD
+[amg-29:00069] *** An error occurred in MPI_Isend
+[amg-29:00235] *** An error occurred in MPI_Isend
+[amg-29:00225] *** An error occurred in MPI_Isend
+[amg-29:00219] *** on communicator MPI_COMM_WORLD
+[amg-29:00209] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00203] *** reported by process [0,2621]
+[amg-29:00187] *** reported by process [0,2613]
+[amg-29:00183] *** An error occurred in MPI_Isend
+[amg-29:00179] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00177] ***    and potentially your MPI job)
+[amg-29:00174] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00138] *** reported by process [0,2589]
+[amg-29:00122] *** reported by process [0,2581]
+[amg-29:00110] *** An error occurred in MPI_Isend
+[amg-29:00104] *** on communicator MPI_COMM_WORLD
+[amg-29:00100] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00092] *** An error occurred in MPI_Isend
+[amg-29:00082] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00076] *** on communicator MPI_COMM_WORLD
+[amg-29:00073] *** on communicator MPI_COMM_WORLD
+[amg-29:00071] *** on communicator MPI_COMM_WORLD
+[amg-29:00070] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00069] *** reported by process [0,2553]
+[amg-29:00235] *** reported by process [0,2637]
+[amg-29:00225] *** reported by process [0,2632]
+[amg-29:00219] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00209] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00203] *** on communicator MPI_COMM_WORLD
+[amg-29:00187] *** on communicator MPI_COMM_WORLD
+[amg-29:00183] *** reported by process [0,2611]
+[amg-29:00179] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00174] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00138] *** on communicator MPI_COMM_WORLD
+[amg-29:00122] *** on communicator MPI_COMM_WORLD
+[amg-29:00110] *** reported by process [0,2575]
+[amg-29:00104] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00100] ***    and potentially your MPI job)
+[amg-29:00092] *** reported by process [0,2566]
+[amg-29:00082] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00076] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00073] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00071] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00070] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00069] *** on communicator MPI_COMM_WORLD
+[amg-29:00235] *** on communicator MPI_COMM_WORLD
+[amg-29:00225] *** on communicator MPI_COMM_WORLD
+[amg-29:00219] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00209] ***    and potentially your MPI job)
+[amg-29:00203] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00187] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00183] *** on communicator MPI_COMM_WORLD
+[amg-29:00179] ***    and potentially your MPI job)
+[amg-29:00174] ***    and potentially your MPI job)
+[amg-29:00138] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00122] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00110] *** on communicator MPI_COMM_WORLD
+[amg-29:00104] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00092] *** on communicator MPI_COMM_WORLD
+[amg-29:00082] ***    and potentially your MPI job)
+[amg-29:00076] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00073] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00071] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00070] ***    and potentially your MPI job)
+[amg-29:00069] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00235] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00225] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00219] ***    and potentially your MPI job)
+[amg-29:00203] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00187] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00183] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00138] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00122] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00110] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00104] ***    and potentially your MPI job)
+[amg-29:00092] *** MPI_ERR_OTHER: known error not in list
+[amg-29:00076] ***    and potentially your MPI job)
+[amg-29:00073] ***    and potentially your MPI job)
+[amg-29:00071] ***    and potentially your MPI job)
+[amg-29:00069] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00235] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00225] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00203] ***    and potentially your MPI job)
+[amg-29:00187] ***    and potentially your MPI job)
+[amg-29:00183] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00138] ***    and potentially your MPI job)
+[amg-29:00122] ***    and potentially your MPI job)
+[amg-29:00110] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00092] *** MPI_ERRORS_ARE_FATAL (processes in this communicator will now abort,
+[amg-29:00069] ***    and potentially your MPI job)
+[amg-29:00235] ***    and potentially your MPI job)
+[amg-29:00225] ***    and potentially your MPI job)
+[amg-29:00183] ***    and potentially your MPI job)
+[amg-29:00110] ***    and potentially your MPI job)
+[amg-29:00092] ***    and potentially your MPI job)
+159.592s: job.exception type=exec severity=0 MPI_Abort: N/A
+flux-job: task(s) exited with exit code 143
