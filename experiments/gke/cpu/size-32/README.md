@@ -1,7 +1,5 @@
 # GKE CPU Experiment Size 32
 
-- still need to do: quicksilver
-
 ## Setup
 
 ```bash
@@ -254,31 +252,30 @@ helm uninstall minife
 
 ### quicksilver
 
-**Not run yet, need params from Abhik**
-
 ```bash
 helm dependency update ./quicksilver
 helm install \
-  --set experiment.nodes=16 \
-  --set minicluster.size=16 \
-  --set minicluster.tasks=1408 \
-  --set experiment.tasks=1408 \
+  --set experiment.nodes=32 \
+  --set minicluster.size=32 \
+  --set minicluster.tasks=1344 \
+  --set experiment.tasks=1344 \
   --set minicluster.save_logs=true \
   --set quicksilver.inputfile="/opt/quicksilver/Examples/CORAL2_Benchmark/Problem1/Coral2_P1.inp" \
   --set quicksilver.X=128 \
-  --set quicksilver.Y=64 \
+  --set quicksilver.Y=128 \
   --set quicksilver.Z=64 \
   --set quicksilver.x=128 \
-  --set quicksilver.y=64 \
+  --set quicksilver.y=128 \
   --set quicksilver.z=64 \
-  --set quicksilver.I=8 \
-  --set quicksilver.J=8 \
-  --set quicksilver.K=8 \
-  --set quicksilver.n=167772160 \
+  --set quicksilver.I=16 \
+  --set quicksilver.J=14 \
+  --set quicksilver.K=6 \
+  --set quicksilver.n=335544320 \
+  --set env.OMP_NUM_THREADS=2 \
   --set experiment.iterations=5 \
   qs ./quicksilver
 
-time kubectl wait --for=condition=ready pod -l job-name=mixbench --timeout=600s
+time kubectl wait --for=condition=ready pod -l job-name=qs --timeout=600s
 pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
 kubectl logs ${pod} -f |& tee ./logs/quicksilver.out
 helm uninstall quicksilver
