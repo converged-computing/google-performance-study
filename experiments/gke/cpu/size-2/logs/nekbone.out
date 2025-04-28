@@ -1,0 +1,2915 @@
+Defaulted container "nekbone" out of: nekbone, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START nekbone-iter-$i"
+  flux run --setattr=user.study_id=nekbone-iter-$i -N2 -n 126 -o cpu-affinity=per-task -o gpu-affinity=off    ./nekbone |& tee /tmp/nekbone.out
+    echo "FLUX-RUN END nekbone-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      2      176        0 nekbone-[0-1]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START nekbone-iter-1
+flux-job: task(s) exited with exit code 15
+[1745801066.023278] [nekbone-1:79   :0]        mm_iface.c:790  UCX  ERROR mm_iface failed to allocate receive FIFO
+[1745801066.023300] [nekbone-1:80   :0]        mm_iface.c:790  UCX  ERROR mm_iface failed to allocate receive FIFO
+Abort(675407631) on node 0: Fatal error in internal_Init: Other MPI error, error stack:
+Abort(675407631) on node 0: Fatal error in internal_Init: Other MPI error, error stack:
+internal_Init(48301)..........: MPI_Init(argc=(nil), argv=(nil)) failed
+internal_Init(48301)..........: MPI_Init(argc=(nil), argv=(nil)) failed
+MPII_Init_thread(265).........: 
+MPII_Init_thread(265).........: 
+MPIR_init_comm_world(34)......: 
+MPIR_init_comm_world(34)......: 
+MPIR_Comm_commit(800).........: 
+MPIR_Comm_commit(800).........: 
+MPIR_Comm_commit_internal(585): 
+MPIR_Comm_commit_internal(585): 
+MPID_Comm_commit_pre_hook(151): 
+MPID_Comm_commit_pre_hook(151): 
+MPIDI_world_pre_init(640).....: 
+MPIDI_world_pre_init(640).....: 
+MPIDI_UCX_init_world(260).....: 
+MPIDI_UCX_init_world(260).....: 
+init_worker(38)...............:  ucx function returned with failed status(ucx_init.c 38 init_worker Out of memory)
+init_worker(38)...............:  ucx function returned with failed status(ucx_init.c 38 init_worker Out of memory)
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ Number of processors:           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ REAL    wdsize      :           8
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ INTEGER wdsize      :           4
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+
+
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+
+ ifmgrid    : F     ifbrick    : T
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+
+
+
+
+
+ ifmgrid    : F     ifbrick    : T
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+
+
+
+
+
+
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Number of processors:           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Number of processors:           1
+ REAL    wdsize      :           8
+
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ ifmgrid    : F     ifbrick    : T
+ INTEGER wdsize      :           4
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+
+
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Number of processors:           1
+ Number of processors:           1
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ ifmgrid    : F     ifbrick    : T
+ Local Element Distribution: mx,my,mz=           5           5           2
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+
+ Number of processors:           1
+ Number of processors:           1
+ ifmgrid    : F     ifbrick    : T
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ ifmgrid    : F     ifbrick    : T
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+gs_setup: 0 unique labels shared
+ Local Element Distribution: mx,my,mz=           5           5           2
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+ Element Distribution: nelx,nely,nelz=           5           5           2
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+
+   buffer bytes (avg, min, max): 0 0 0
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+
+gs_setup: 0 unique labels shared
+ Processor Distribution:  npx,npy,npz=           1           1           1
+   handle bytes (avg, min, max): 213908 213908 213908
+ ifmgrid    : F     ifbrick    : T
+   buffer bytes (avg, min, max): 0 0 0
+
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+
+   handle bytes (avg, min, max): 213908 213908 213908
+
+   buffer bytes (avg, min, max): 0 0 0
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+ Processor Distribution:  npx,npy,npz=           1           1           1
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+ Local Element Distribution: mx,my,mz=           5           5           2
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+ Processor Distribution:  npx,npy,npz=           1           1           1
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+
+cg:   0  1.0613E+02
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+   buffer bytes (avg, min, max): 0 0 0
+
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+ Element Distribution: nelx,nely,nelz=           5           5           2
+cg:   0  1.0613E+02
+
+
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+ Local Element Distribution: mx,my,mz=           5           5           2
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+ Local Element Distribution: mx,my,mz=           5           5           2
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+
+   handle bytes (avg, min, max): 213908 213908 213908
+
+
+   buffer bytes (avg, min, max): 0 0 0
+
+   buffer bytes (avg, min, max): 0 0 0
+ Element Distribution: nelx,nely,nelz=           5           5           2
+   buffer bytes (avg, min, max): 0 0 0
+
+cg:   0  1.0613E+02
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+cg:   0  1.0613E+02
+
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+ Local Element Distribution: mx,my,mz=           5           5           2
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+ Processor Distribution:  npx,npy,npz=           1           1           1
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+ Processor Distribution:  npx,npy,npz=           1           1           1
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+
+
+
+
+gs_setup: 0 unique labels shared
+cg:   0  1.0613E+02
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+ Processor Distribution:  npx,npy,npz=           1           1           1
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+
+
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Number of processors:           1
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+   buffer bytes (avg, min, max): 0 0 0
+
+ REAL    wdsize      :           8
+cg:   0  1.0613E+02
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ INTEGER wdsize      :           4
+cg:   0  1.0613E+02
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+
+
+ ifmgrid    : F     ifbrick    : T
+
+
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+gs_setup: 0 unique labels shared
+ Processor Distribution:  npx,npy,npz=           1           1           1
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+   buffer bytes (avg, min, max): 0 0 0
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+
+
+
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+ Element Distribution: nelx,nely,nelz=           5           5           2
+gs_setup: 0 unique labels shared
+ Element Distribution: nelx,nely,nelz=           5           5           2
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+ Processor Distribution:  npx,npy,npz=           1           1           1
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+ Element Distribution: nelx,nely,nelz=           5           5           2
+   buffer bytes (avg, min, max): 0 0 0
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+cg:   0  1.0613E+02
+ Local Element Distribution: mx,my,mz=           5           5           2
+cg:   0  1.0613E+02
+ Local Element Distribution: mx,my,mz=           5           5           2
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+ Local Element Distribution: mx,my,mz=           5           5           2
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+ Element Distribution: nelx,nely,nelz=           5           5           2
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+
+
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+
+   handle bytes (avg, min, max): 213908 213908 213908
+
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+
+   handle bytes (avg, min, max): 213908 213908 213908
+
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+gs_setup: 0 unique labels shared
+ Number of processors:           1
+cg:   0  1.0613E+02
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ Number of processors:           1
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+   handle bytes (avg, min, max): 213908 213908 213908
+ REAL    wdsize      :           8
+gs_setup: 0 unique labels shared
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+   buffer bytes (avg, min, max): 0 0 0
+ INTEGER wdsize      :           4
+gs_setup: 0 unique labels shared
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ Number of processors:           1
+ INTEGER wdsize      :           4
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+
+ ifmgrid    : F     ifbrick    : T
+   buffer bytes (avg, min, max): 0 0 0
+
+
+ REAL    wdsize      :           8
+ ifmgrid    : F     ifbrick    : T
+
+
+cg:   0  1.0613E+02
+
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Number of processors:           1
+ INTEGER wdsize      :           4
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+   handle bytes (avg, min, max): 213908 213908 213908
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ REAL    wdsize      :           8
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+   buffer bytes (avg, min, max): 0 0 0
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ INTEGER wdsize      :           4
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+   buffer bytes (avg, min, max): 0 0 0
+ Number of processors:           1
+ ifmgrid    : F     ifbrick    : T
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+cg:   0  1.0613E+02
+ REAL    wdsize      :           8
+
+ Element Distribution: nelx,nely,nelz=           5           5           2
+   handle bytes (avg, min, max): 213908 213908 213908
+ INTEGER wdsize      :           4
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+
+ ifmgrid    : F     ifbrick    : T
+ Element Distribution: nelx,nely,nelz=           5           5           2
+   handle bytes (avg, min, max): 213908 213908 213908
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Number of processors:           1
+cg:   0  1.0613E+02
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ REAL    wdsize      :           8
+   handle bytes (avg, min, max): 213908 213908 213908
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ INTEGER wdsize      :           4
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+ ifmgrid    : F     ifbrick    : T
+cg:   0  1.0613E+02
+ Number of processors:           1
+
+
+ REAL    wdsize      :           8
+ Processor Distribution:  npx,npy,npz=           1           1           1
+cg:   0  1.0613E+02
+ INTEGER wdsize      :           4
+ Number of processors:           1
+ Element Distribution: nelx,nely,nelz=           5           5           2
+gs_setup: 0 unique labels shared
+ ifmgrid    : F     ifbrick    : T
+ REAL    wdsize      :           8
+ Number of processors:           1
+ Local Element Distribution: mx,my,mz=           5           5           2
+   buffer bytes (avg, min, max): 0 0 0
+
+ INTEGER wdsize      :           4
+ REAL    wdsize      :           8
+cg:   0  1.0613E+02
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ ifmgrid    : F     ifbrick    : T
+ INTEGER wdsize      :           4
+   handle bytes (avg, min, max): 213908 213908 213908
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+ ifmgrid    : F     ifbrick    : T
+   handle bytes (avg, min, max): 213908 213908 213908
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+   handle bytes (avg, min, max): 213908 213908 213908
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Processor Distribution:  npx,npy,npz=           1           1           1
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+cg:   0  1.0613E+02
+ Local Element Distribution: mx,my,mz=           5           5           2
+   buffer bytes (avg, min, max): 0 0 0
+
+
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+ Number of processors:           1
+
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+ REAL    wdsize      :           8
+   buffer bytes (avg, min, max): 0 0 0
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+ INTEGER wdsize      :           4
+   buffer bytes (avg, min, max): 0 0 0
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+ ifmgrid    : F     ifbrick    : T
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+
+
+
+
+
+
+
+
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+ Processor Distribution:  npx,npy,npz=           1           1           1
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+ Element Distribution: nelx,nely,nelz=           5           5           2
+
+
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+ Local Element Distribution: mx,my,mz=           5           5           2
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+
+
+gs_setup: 0 unique labels shared
+
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+
+cg:   0  1.0613E+02
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+
+
+
+
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+
+
+
+
+   buffer bytes (avg, min, max): 0 0 0
+
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+
+   handle bytes (avg, min, max): 213908 213908 213908
+
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+   buffer bytes (avg, min, max): 0 0 0
+
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+
+
+
+
+
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+cg:   0  1.0613E+02
+
+   buffer bytes (avg, min, max): 0 0 0
+
+
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+
+
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+cg:   0  1.0613E+02
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+
+
+
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+gs_setup: 0 unique labels shared
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+
+   handle bytes (avg, min, max): 213908 213908 213908
+gs_setup: 0 unique labels shared
+
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   handle bytes (avg, min, max): 213908 213908 213908
+
+
+
+   buffer bytes (avg, min, max): 0 0 0
+
+
+   buffer bytes (avg, min, max): 0 0 0
+
+gs_setup: 0 unique labels shared
+
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+gs_setup: 0 unique labels shared
+ Number of processors:           1
+gs_setup: 0 unique labels shared
+ REAL    wdsize      :           8
+gs_setup: 0 unique labels shared
+ INTEGER wdsize      :           4
+   buffer bytes (avg, min, max): 0 0 0
+ ifmgrid    : F     ifbrick    : T
+   buffer bytes (avg, min, max): 0 0 0
+
+
+ Processor Distribution:  npx,npy,npz=           1           1           1
+   handle bytes (avg, min, max): 213908 213908 213908
+ Element Distribution: nelx,nely,nelz=           5           5           2
+   handle bytes (avg, min, max): 213908 213908 213908
+ Local Element Distribution: mx,my,mz=           5           5           2
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+
+
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+cg:   0  1.0613E+02
+   handle bytes (avg, min, max): 213908 213908 213908
+cg:   0  1.0613E+02
+   buffer bytes (avg, min, max): 0 0 0
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+cg:   0  1.0613E+02
+
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+
+cg:   0  1.0613E+02
+gs_setup: 0 unique labels shared
+   handle bytes (avg, min, max): 213908 213908 213908
+   buffer bytes (avg, min, max): 0 0 0
+
+cg:   0  1.0613E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg: 101  9.7806E-09  4.1667E-01  6.4421E-01  3.5637E-16
+cg:   0  1.1730E+02
+cg:   0  1.1730E+02
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   8.9101E+03, MFlops      =   8.9101E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.8650E-01
+
+
+Avg MFlops =   8.9101E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   8.9306E+03, MFlops      =   8.9306E+03
+Tot MFlops =   8.9057E+03, MFlops      =   8.9057E+03
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.8630E-01
+Solve Time =   0.8655E-01
+Tot MFlops =   8.8704E+03, MFlops      =   8.8704E+03
+Avg MFlops =   8.9306E+03
+Avg MFlops =   8.9057E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+ Exitting....
+Solve Time =   0.8689E-01
+Avg MFlops =   8.8704E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   8.8948E+03, MFlops      =   8.8948E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+
+Solve Time =   0.8665E-01
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Avg MFlops =   8.8948E+03
+Tot MFlops =   8.8407E+03, MFlops      =   8.8407E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+Tot MFlops =   8.8439E+03, MFlops      =   8.8439E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+Tot MFlops =   8.6167E+03, MFlops      =   8.6167E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Solve Time =   0.8945E-01
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Avg MFlops =   8.6167E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Solve Time =   0.8718E-01
+nelt =      50, np =         1, nx1 =      10, elements =        50
+
+Solve Time =   0.8715E-01
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Avg MFlops =   8.8407E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   8.8566E+03, MFlops      =   8.8566E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Avg MFlops =   8.8439E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+ Exitting....
+
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+
+
+Tot MFlops =   8.8416E+03, MFlops      =   8.8416E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+Tot MFlops =   8.7142E+03, MFlops      =   8.7142E+03
+Tot MFlops =   8.7945E+03, MFlops      =   8.7945E+03
+Tot MFlops =   8.8502E+03, MFlops      =   8.8502E+03
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.8845E-01
+Solve Time =   0.8764E-01
+Solve Time =   0.8709E-01
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Avg MFlops =   8.7142E+03
+Avg MFlops =   8.7945E+03
+Avg MFlops =   8.8502E+03
+Solve Time =   0.8703E-01
+ Exitting....
+ Exitting....
+ Exitting....
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   8.8367E+03, MFlops      =   8.8367E+03
+Tot MFlops =   8.9057E+03, MFlops      =   8.9057E+03
+Avg MFlops =   8.8566E+03
+Solve Time =   0.8717E-01
+Tot MFlops =   8.8335E+03, MFlops      =   8.8335E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Avg MFlops =   8.8416E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.8722E-01
+
+Solve Time =   0.8655E-01
+ Exitting....
+Solve Time =   0.8725E-01
+Avg MFlops =   8.8367E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Avg MFlops =   8.9057E+03
+Avg MFlops =   8.8335E+03
+ Exitting....
+Tot MFlops =   8.8481E+03, MFlops      =   8.8481E+03
+ Exitting....
+ Exitting....
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.8711E-01
+Avg MFlops =   8.8481E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   8.6825E+03, MFlops      =   8.6825E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.8877E-01
+
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Avg MFlops =   8.6825E+03
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+Tot MFlops =   8.6561E+03, MFlops      =   8.6561E+03
+Tot MFlops =   8.8524E+03, MFlops      =   8.8524E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.8904E-01
+Solve Time =   0.8707E-01
+Avg MFlops =   8.6561E+03
+Avg MFlops =   8.8524E+03
+ Exitting....
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   8.7666E+03, MFlops      =   8.7666E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Solve Time =   0.8792E-01
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Avg MFlops =   8.7666E+03
+
+Tot MFlops =   8.7629E+03, MFlops      =   8.7629E+03
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Tot MFlops =   8.7696E+03, MFlops      =   8.7696E+03
+Solve Time =   0.8796E-01
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   8.7629E+03
+Solve Time =   0.8789E-01
+ Exitting....
+Avg MFlops =   8.7696E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   8.6812E+03, MFlops      =   8.6812E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.8878E-01
+Avg MFlops =   8.6812E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.5007E+03, MFlops      =   7.5007E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1028E+00
+Avg MFlops =   7.5007E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.8283E+03, MFlops      =   7.8283E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9846E-01
+Avg MFlops =   7.8283E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.6767E+03, MFlops      =   7.6767E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1004E+00
+Avg MFlops =   7.6767E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+
+
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+
+Tot MFlops =   8.9542E+03, MFlops      =   8.9542E+03
+
+Tot MFlops =   7.4335E+03, MFlops      =   7.4335E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Tot MFlops =   7.6615E+03, MFlops      =   7.6615E+03
+Solve Time =   0.8608E-01
+Tot MFlops =   7.4516E+03, MFlops      =   7.4516E+03
+Solve Time =   0.1037E+00
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Avg MFlops =   8.9542E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   7.4335E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Solve Time =   0.1034E+00
+ Exitting....
+
+Avg MFlops =   7.4516E+03
+Solve Time =   0.1006E+00
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Avg MFlops =   7.6615E+03
+
+Tot MFlops =   7.7161E+03, MFlops      =   7.7161E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+
+Tot MFlops =   7.4083E+03, MFlops      =   7.4083E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9989E-01
+Tot MFlops =   8.9149E+03, MFlops      =   8.9149E+03
+Solve Time =   0.1040E+00
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   7.4083E+03
+Avg MFlops =   7.7161E+03
+Solve Time =   0.8646E-01
+ Exitting....
+
+Avg MFlops =   8.9149E+03
+ Exitting....
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.7115E+03, MFlops      =   7.7115E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9995E-01
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Avg MFlops =   7.7115E+03
+
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+Tot MFlops =   8.8886E+03, MFlops      =   8.8886E+03
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.8671E-01
+Tot MFlops =   8.9798E+03, MFlops      =   8.9798E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   7.7304E+03, MFlops      =   7.7304E+03
+Avg MFlops =   8.8886E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+
+ Exitting....
+Solve Time =   0.8583E-01
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   8.9798E+03
+
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   7.2447E+03, MFlops      =   7.2447E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9970E-01
+
+Tot MFlops =   7.3667E+03, MFlops      =   7.3667E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1064E+00
+Tot MFlops =   7.7042E+03, MFlops      =   7.7042E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Tot MFlops =   7.3827E+03, MFlops      =   7.3827E+03
+Tot MFlops =   7.3714E+03, MFlops      =   7.3714E+03
+Avg MFlops =   7.2447E+03
+Avg MFlops =   7.7304E+03
+Tot MFlops =   8.9010E+03, MFlops      =   8.9010E+03
+Solve Time =   0.1046E+00
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   7.3667E+03
+Tot MFlops =   7.3595E+03, MFlops      =   7.3595E+03
+Solve Time =   0.1044E+00
+Solve Time =   0.1046E+00
+ Exitting....
+Solve Time =   0.8659E-01
+ Exitting....
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   7.3827E+03
+Avg MFlops =   7.3714E+03
+Solve Time =   0.1000E+00
+Avg MFlops =   8.9010E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.1047E+00
+ Exitting....
+ Exitting....
+Avg MFlops =   7.7042E+03
+ Exitting....
+
+Avg MFlops =   7.3595E+03
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   8.9980E+03, MFlops      =   8.9980E+03
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.8566E-01
+Tot MFlops =   7.3725E+03, MFlops      =   7.3725E+03
+Avg MFlops =   8.9980E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Solve Time =   0.1045E+00
+Avg MFlops =   7.3725E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   8.9140E+03, MFlops      =   8.9140E+03
+Tot MFlops =   7.5010E+03, MFlops      =   7.5010E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Solve Time =   0.8647E-01
+Solve Time =   0.1028E+00
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Avg MFlops =   8.9140E+03
+Avg MFlops =   7.5010E+03
+Tot MFlops =   8.9206E+03, MFlops      =   8.9206E+03
+ Exitting....
+ Exitting....
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.8640E-01
+Avg MFlops =   8.9206E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.6334E+03, MFlops      =   7.6334E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1010E+00
+Avg MFlops =   7.6334E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.7119E+03, MFlops      =   7.7119E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Solve Time =   0.9994E-01
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+
+Avg MFlops =   7.7119E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   7.1440E+03, MFlops      =   7.1440E+03
+Tot MFlops =   7.7169E+03, MFlops      =   7.7169E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Solve Time =   0.1079E+00
+
+Avg MFlops =   7.1440E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.9988E-01
+Tot MFlops =   7.6786E+03, MFlops      =   7.6786E+03
+Avg MFlops =   7.7169E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   8.8910E+03, MFlops      =   8.8910E+03
+Solve Time =   0.1004E+00
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Solve Time =   0.8669E-01
+Avg MFlops =   8.8910E+03
+ Exitting....
+Avg MFlops =   7.6786E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   7.3641E+03, MFlops      =   7.3641E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.1047E+00
+
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Avg MFlops =   7.3641E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+Tot MFlops =   7.4496E+03, MFlops      =   7.4496E+03
+ Exitting....
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1035E+00
+Tot MFlops =   7.7255E+03, MFlops      =   7.7255E+03
+Tot MFlops =   8.9608E+03, MFlops      =   8.9608E+03
+Avg MFlops =   7.4496E+03
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+
+Solve Time =   0.8601E-01
+
+Avg MFlops =   8.9608E+03
+
+ Exitting....
+
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+
+Tot MFlops =   9.0196E+03, MFlops      =   9.0196E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.8545E-01
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Avg MFlops =   9.0196E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+
+Solve Time =   0.9977E-01
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.4787E+03, MFlops      =   7.4787E+03
+Tot MFlops =   7.3609E+03, MFlops      =   7.3609E+03
+Tot MFlops =   7.4579E+03, MFlops      =   7.4579E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Tot MFlops =   7.6991E+03, MFlops      =   7.6991E+03
+Solve Time =   0.1047E+00
+Tot MFlops =   7.6494E+03, MFlops      =   7.6494E+03
+Avg MFlops =   7.3609E+03
+Tot MFlops =   7.6614E+03, MFlops      =   7.6614E+03
+ Exitting....
+Tot MFlops =   7.6167E+03, MFlops      =   7.6167E+03
+Tot MFlops =   7.6374E+03, MFlops      =   7.6374E+03
+Tot MFlops =   7.6818E+03, MFlops      =   7.6818E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+Avg MFlops =   7.7255E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Tot MFlops =   7.2272E+03, MFlops      =   7.2272E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Tot MFlops =   8.9732E+03, MFlops      =   8.9732E+03
+Solve Time =   0.1066E+00
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   7.2272E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.8589E-01
+ Exitting....
+
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   8.9732E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   7.3503E+03, MFlops      =   7.3503E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Tot MFlops =   7.3068E+03, MFlops      =   7.3068E+03
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1049E+00
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Tot MFlops =   8.8907E+03, MFlops      =   8.8907E+03
+Avg MFlops =   7.3503E+03
+Tot MFlops =   7.3447E+03, MFlops      =   7.3447E+03
+Solve Time =   0.1055E+00
+Solve Time =   0.1031E+00
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   7.3068E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.1033E+00
+Solve Time =   0.8669E-01
+
+Solve Time =   0.1049E+00
+ Exitting....
+
+Solve Time =   0.1001E+00
+Avg MFlops =   8.8907E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Avg MFlops =   7.3447E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1008E+00
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   7.2794E+03, MFlops      =   7.2794E+03
+ Exitting....
+Tot MFlops =   7.3239E+03, MFlops      =   7.3239E+03
+Solve Time =   0.1006E+00
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1012E+00
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1059E+00
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+Solve Time =   0.1052E+00
+Solve Time =   0.1009E+00
+Tot MFlops =   7.3974E+03, MFlops      =   7.3974E+03
+Avg MFlops =   7.2794E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Avg MFlops =   7.3239E+03
+Solve Time =   0.1003E+00
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.3387E+03, MFlops      =   7.3387E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1042E+00
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.2977E+03, MFlops      =   7.2977E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Avg MFlops =   7.4787E+03
+Avg MFlops =   7.3974E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.3224E+03, MFlops      =   7.3224E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1050E+00
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Avg MFlops =   7.4579E+03
+ Exitting....
+
+Tot MFlops =   7.3215E+03, MFlops      =   7.3215E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1056E+00
+Avg MFlops =   7.3387E+03
+Tot MFlops =   7.3017E+03, MFlops      =   7.3017E+03
+Avg MFlops =   7.6991E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1053E+00
+Avg MFlops =   7.2977E+03
+ Exitting....
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   7.6494E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   7.3354E+03, MFlops      =   7.3354E+03
+Solve Time =   0.1053E+00
+Avg MFlops =   7.3224E+03
+ Exitting....
+Solve Time =   0.1056E+00
+Avg MFlops =   7.6614E+03
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   7.3215E+03
+ Exitting....
+Avg MFlops =   7.3017E+03
+Avg MFlops =   7.6167E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1051E+00
+ Exitting....
+ Exitting....
+Avg MFlops =   7.6374E+03
+Tot MFlops =   7.3553E+03, MFlops      =   7.3553E+03
+Avg MFlops =   7.3354E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Avg MFlops =   7.6818E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+
+Tot MFlops =   7.5843E+03, MFlops      =   7.5843E+03
+Solve Time =   0.1048E+00
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+Avg MFlops =   7.3553E+03
+Tot MFlops =   7.2202E+03, MFlops      =   7.2202E+03
+ Exitting....
+ Exitting....
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Solve Time =   0.1067E+00
+ Exitting....
+Avg MFlops =   7.2202E+03
+ Exitting....
+ Exitting....
+ Exitting....
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1016E+00
+Tot MFlops =   7.3318E+03, MFlops      =   7.3318E+03
+Avg MFlops =   7.5843E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Solve Time =   0.1051E+00
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Avg MFlops =   7.3318E+03
+
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.4646E+03, MFlops      =   7.4646E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1033E+00
+Avg MFlops =   7.4646E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.4861E+03, MFlops      =   7.4861E+03
+Tot MFlops =   7.4277E+03, MFlops      =   7.4277E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1030E+00
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.1038E+00
+Avg MFlops =   7.4861E+03
+
+Avg MFlops =   7.4277E+03
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   7.4533E+03, MFlops      =   7.4533E+03
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1034E+00
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Avg MFlops =   7.4533E+03
+Tot MFlops =   7.3890E+03, MFlops      =   7.3890E+03
+ Exitting....
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1043E+00
+Tot MFlops =   7.3809E+03, MFlops      =   7.3809E+03
+Avg MFlops =   7.3890E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Solve Time =   0.1044E+00
+Avg MFlops =   7.3809E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+nelt =      50, np =         1, nx1 =      10, elements =        50
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Tot MFlops =   7.3583E+03, MFlops      =   7.3583E+03
+Tot MFlops =   7.3903E+03, MFlops      =   7.3903E+03
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1047E+00
+Solve Time =   0.1043E+00
+Tot MFlops =   7.3914E+03, MFlops      =   7.3914E+03
+Avg MFlops =   7.3583E+03
+Avg MFlops =   7.3903E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+ Exitting....
+Solve Time =   0.1043E+00
+Avg MFlops =   7.3914E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.4629E+03, MFlops      =   7.4629E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.1033E+00
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+Avg MFlops =   7.4629E+03
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.4652E+03, MFlops      =   7.4652E+03
+Tot MFlops =   7.4575E+03, MFlops      =   7.4575E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1032E+00
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.1034E+00
+Avg MFlops =   7.4652E+03
+
+Avg MFlops =   7.4575E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+
+Tot MFlops =   7.4404E+03, MFlops      =   7.4404E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Tot MFlops =   7.4487E+03, MFlops      =   7.4487E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.1036E+00
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+
+Avg MFlops =   7.4404E+03
+Solve Time =   0.1035E+00
+nelt =      50, np =         1, nx1 =      10, elements =        50
+ Exitting....
+Avg MFlops =   7.4487E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.4414E+03, MFlops      =   7.4414E+03
+Tot MFlops =   7.1479E+03, MFlops      =   7.1479E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1078E+00
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   7.1479E+03
+Solve Time =   0.1036E+00
+ Exitting....
+Avg MFlops =   7.4414E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.3133E+03, MFlops      =   7.3133E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1054E+00
+Avg MFlops =   7.3133E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.5515E+03, MFlops      =   7.5515E+03
+
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Solve Time =   0.1021E+00
+
+Avg MFlops =   7.5515E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+ Exitting....
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.4130E+03, MFlops      =   7.4130E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+
+Tot MFlops =   7.4571E+03, MFlops      =   7.4571E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Tot MFlops =   7.4001E+03, MFlops      =   7.4001E+03
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1040E+00
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Tot MFlops =   7.4071E+03, MFlops      =   7.4071E+03
+Solve Time =   0.1034E+00
+Avg MFlops =   7.4130E+03
+Solve Time =   0.1042E+00
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Avg MFlops =   7.4571E+03
+ Exitting....
+Avg MFlops =   7.4001E+03
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+Solve Time =   0.1041E+00
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.1147E+03, MFlops      =   7.1147E+03
+ Exitting....
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+ Exitting....
+Solve Time =   0.1083E+00
+Avg MFlops =   7.4071E+03
+Avg MFlops =   7.1147E+03
+ Exitting....
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.3430E+03, MFlops      =   7.3430E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1050E+00
+Avg MFlops =   7.3430E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.3228E+03, MFlops      =   7.3228E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1053E+00
+Avg MFlops =   7.3228E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.4474E+03, MFlops      =   7.4474E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1035E+00
+Avg MFlops =   7.4474E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   9.1396E+03, MFlops      =   9.1396E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.8433E-01
+Avg MFlops =   9.1396E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.8355E+03, MFlops      =   7.8355E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9837E-01
+Avg MFlops =   7.8355E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.8905E+03, MFlops      =   7.8905E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9768E-01
+Avg MFlops =   7.8905E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.9867E+03, MFlops      =   7.9867E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9650E-01
+Avg MFlops =   7.9867E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.9662E+03, MFlops      =   7.9662E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9675E-01
+Avg MFlops =   7.9662E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   8.1322E+03, MFlops      =   8.1322E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9478E-01
+Avg MFlops =   8.1322E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   8.0670E+03, MFlops      =   8.0670E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9554E-01
+Avg MFlops =   8.0670E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   8.0686E+03, MFlops      =   8.0686E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.9553E-01
+Avg MFlops =   8.0686E+03
+ Exitting....
+cg: 101  1.2904E-08  4.1629E-01  6.4533E-01  6.2245E-16
+
+nelt =      50, np =         1, nx1 =      10, elements =        50
+Tot MFlops =   7.1182E+03, MFlops      =   7.1182E+03
+Setup Flop =   6.9500E+08, Solver Flop =   7.5750E+07
+Solve Time =   0.1083E+00
+Avg MFlops =   7.1182E+03
+ Exitting....

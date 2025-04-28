@@ -1,12 +1,17 @@
 # GKE CPU Experiment Size 4
 
-- quicksilver
-
 We are improving upon our initial performance study by using helm charts to deploy and run our containers.
 Note that while not all variables are required for each app (there are defaults) I am defining them below for transparency.
 
-## Setup
+Need to run/ prototype:
 
+- [ ] amg2023 with intel mpi
+- [ ] ior  (sharefs)
+- [ ] fio (single node
+- [ ] nek5000  (sharefs)
+- [ ] bdas
+
+## Setup
 
 ```bash
 GOOGLE_PROJECT=llnl-flux
@@ -49,12 +54,87 @@ Make an output directory:
 mkdir -p ./logs
 ```
 
+## Storage / I/O Applications
+
+Note that you'll need to clone [converged-computing/flux-apps-helm](https://github.com/converged-computing/flux-apps-helm).
+
+### IOR
+
+```bash
+helm dependency update ior/
+helm install \
+  --set experiment.nodes=1 \
+  --set minicluster.size=1 \
+  --set minicluster.tasks=12 \
+  --set experiment.tasks=12 \
+  --set minicluster.save_logs=true \
+  --set ior.summaryFormat=CSV \
+  --set experiment.iterations=1 \
+  ior ior/
+
+time kubectl wait --for=condition=ready pod -l job-name=nekrs --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/ior.out
+helm uninstall ior
+```
+
+# Note that we need the mount point to be shared
+# flux run -N$NODES --tasks-per-node=$PPN $IOR_EXEC -o=$DW_JOB_ior/test.bat -m -b=$BS -t=$TS -O summaryFormat=CSV -O summaryFile=$OUTPUT.csv -i 10 -w -r
+
+### NekRS
+
+```bash
+helm dependency update nekrs/
+helm install \
+  --set experiment.nodes=1 \
+  --set minicluster.size=1 \
+  --set minicluster.tasks=12 \
+  --set experiment.tasks=12 \
+  --set minicluster.save_logs=true \
+  --set experiment.iterations=1 \
+  ior nekrs/
+
+time kubectl wait --for=condition=ready pod -l job-name=nekrs --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/nekrs.out
+helm uninstall nekrs
+```
+
+### FIO
+
+This is run on single nodes
+
+```bash
+helm dependency update fio/
+helm install \
+  --set experiment.nodes=1 \
+  --set minicluster.size=1 \
+  --set minicluster.tasks=12 \
+  --set experiment.tasks=12 \
+  --set minicluster.save_logs=true \
+  --set minicluster.show_logs=true \
+  --set experiment.foreach=true \
+  --set minicluster.save_logs=true \
+  --set experiment.iterations=1 \
+  ior nekrs/
+
+time kubectl wait --for=condition=ready pod -l job-name=nekrs --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/amg.out
+helm uninstall nekrs
+```
+
 ## Applications
 
-Note that you'll need to clone [converged-computing/flux-apps-helm](https://github.com/converged-computing/flux-apps-helm)
+Note that you'll need to clone [converged-computing/flux-apps-helm](https://github.com/converged-computing/flux-apps-helm).
 
 ### AMG2023
 
+For an amg build with intel MPI:
+
+```console
+ --set minicluster.image=ghcr.io/rse-ops/amg2023:intel-mpi
+```
 ```bash
 helm dependency update amg2023/
 helm install \

@@ -1,0 +1,670 @@
+Defaulted container "exampm" out of: exampm, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START exampm-iter-$i"
+  flux run --setattr=user.study_id=exampm-iter-$i -N2 -n 126 -o cpu-affinity=per-task -o gpu-affinity=off    ./DamBreak 0.05 2 0 0.001 1.0 50 serial |& tee /tmp/exampm.out
+    echo "FLUX-RUN END exampm-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      2      176        0 exampm-[0-1]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START exampm-iter-1
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For unit testing set OMP_PROC_BIND=false
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  For unit testing set OMP_PROC_BIND=false
+
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+
+
+
+
+
+
+
+
+
+
+
+
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+
+
+
+
+
+
+
+
+
+
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+  For unit testing set OMP_PROC_BIND=false
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+  For unit testing set OMP_PROC_BIND=false
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Kokkos::OpenMP::initialize WARNING: OMP_PROC_BIND environment variable not set
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  In general, for best performance with OpenMP 4.0 or better set OMP_PROC_BIND=spread and OMP_PLACES=threads
+  For best performance with OpenMP 3.1 set OMP_PROC_BIND=true
+  For unit testing set OMP_PROC_BIND=false
+
