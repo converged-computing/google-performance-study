@@ -1,0 +1,207 @@
+Defaulted container "bdas" out of: bdas, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START bdas-iter-$i"
+  flux run --setattr=user.study_id=bdas-iter-$i -N8 -n 704 -o cpu-affinity=per-task -o gpu-affinity=off    Rscript /opt/bdas/benchmarks/r/svm.r 250 50 |& tee /tmp/bdas.out
+    echo "FLUX-RUN END bdas-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      8      704        0 bdas-[0-7]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START bdas-iter-1
+COMM.RANK = 0
+      min      mean       max 
+0.4990000 0.5661293 0.5710000 
+FLUX-RUN END bdas-iter-1
+FLUX-RUN START bdas-iter-2
+COMM.RANK = 0
+      min      mean       max 
+0.2700000 0.2803722 0.2830000 
+FLUX-RUN END bdas-iter-2
+FLUX-RUN START bdas-iter-3
+COMM.RANK = 0
+      min      mean       max 
+0.2480000 0.2511932 0.2530000 
+FLUX-RUN END bdas-iter-3
+FLUX-RUN START bdas-iter-4
+COMM.RANK = 0
+      min      mean       max 
+0.1060000 0.1089943 0.1110000 
+FLUX-RUN END bdas-iter-4
+FLUX-RUN START bdas-iter-5
+COMM.RANK = 0
+      min      mean       max 
+0.2660000 0.2766761 0.2810000 
+FLUX-RUN END bdas-iter-5
+0% [Working]            Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+0% [Connecting to security.ubuntu.com (185.125.190.81)]                                                       Get:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [2 InRelease 12.7 kB/128 kB 10%] [Waiting for headers]0% [2 InRelease 53.3 kB/128 kB 42%] [Waiting for headers]                                                         Get:3 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [2 InRelease 90.9 kB/128 kB 71%] [3 InRelease 14.2 kB/129 kB 11%]                                                                    0% [3 InRelease 14.2 kB/129 kB 11%]                                   Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 2588 B/127 kB 2%] [3 InRelease 14.2 kB/129 kB 11%]0% [4 InRelease 127 kB/127 kB 100%] [3 InRelease 14.2 kB/129 kB 11%]                                                                    0% [3 InRelease 14.2 kB/129 kB 11%]                                   Get:5 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1543 kB]
+0% [5 Packages 5551 B/1543 kB 0%] [3 InRelease 20.0 kB/129 kB 15%]0% [5 Packages 181 kB/1543 kB 12%] [3 InRelease 31.5 kB/129 kB 24%]                                                                   0% [Waiting for headers] [3 InRelease 57.6 kB/129 kB 45%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3155 kB]
+0% [6 Packages 224 kB/3155 kB 7%] [3 InRelease 57.6 kB/129 kB 45%]0% [5 Packages store 0 B] [6 Packages 237 kB/3155 kB 8%] [3 InRelease 57.6 kB/10% [5 Packages store 0 B] [Waiting for headers] [3 InRelease 77.9 kB/129 kB 60%                                                                               Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4272 kB]
+0% [5 Packages store 0 B] [7 Packages 16.4 kB/4272 kB 0%] [3 InRelease 77.9 kB/                                                                               0% [7 Packages 2232 kB/4272 kB 52%] [3 InRelease 77.9 kB/129 kB 60%]0% [6 Packages store 0 B] [7 Packages 2245 kB/4272 kB 53%] [3 InRelease 77.9 kB0% [6 Packages store 0 B] [Waiting for headers] [3 InRelease 77.9 kB/129 kB 60%                                                                               Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+0% [6 Packages store 0 B] [8 Packages 12.8 kB/55.7 kB 23%] [3 InRelease 77.9 kB0% [6 Packages store 0 B] [Waiting for headers] [3 InRelease 77.9 kB/129 kB 60%                                                                               Get:9 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+0% [6 Packages store 0 B] [9 Packages 22.4 kB/35.2 kB 64%] [3 InRelease 77.9 kB0% [6 Packages store 0 B] [Waiting for headers] [3 InRelease 77.9 kB/129 kB 60%                                                                               Get:10 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+0% [6 Packages store 0 B] [10 Packages 52.5 kB/82.7 kB 63%] [3 InRelease 77.9 k                                                                               0% [6 Packages store 0 B] [3 InRelease 77.9 kB/129 kB 60%]                                                          0% [3 InRelease 113 kB/129 kB 87%]0% [7 Packages store 0 B] [3 InRelease 113 kB/129 kB 87%]                                                         0% [7 Packages store 0 B]58% [7 Packages store 0 B]                          59% [Waiting for headers]59% [8 Packages store 0 B] [Waiting for headers]                                                60% [Waiting for headers]60% [9 Packages store 0 B] [Waiting for headers]                                                60% [Waiting for headers]60% [10 Packages store 0 B] [Waiting for headers]                                                 61% [Waiting for headers]                         Get:11 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4118 kB]
+61% [11 Packages 2655 B/4118 kB 0%]69% [11 Packages 1789 kB/4118 kB 43%]                                     79% [Working]79% [11 Packages store 0 B]                           Get:12 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+79% [11 Packages store 0 B] [12 Packages 5551 B/1244 kB 0%]                                                           85% [11 Packages store 0 B] [Waiting for headers]                                                 Get:13 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+85% [11 Packages store 0 B] [13 Packages 4009 B/2844 kB 0%]                                                           93% [13 Packages 1692 kB/2844 kB 60%]93% [12 Packages store 0 B] [13 Packages 1692 kB/2844 kB 60%]                                                             98% [12 Packages store 0 B] [Waiting for headers]                                                 Get:14 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+98% [12 Packages store 0 B] [14 Packages 8192 B/47.7 kB 17%]                                                            98% [12 Packages store 0 B]                           99% [Working]99% [13 Packages store 0 B]                           99% [Working]99% [14 Packages store 0 B]                           100% [Working]              Fetched 17.8 MB in 2s (9846 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 46%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 173 not upgraded.
+Need to get 357 kB of archives.
+After this operation, 1087 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libonig5 amd64 6.9.7.1-2build1 [172 kB]
+1% [1 libonig5 2604 B/172 kB 2%]                                45% [Working]             Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjq1 amd64 1.6-2.1ubuntu3 [133 kB]
+46% [2 libjq1 4052 B/133 kB 3%]                               82% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 jq amd64 1.6-2.1ubuntu3 [52.5 kB]
+83% [3 jq 4320 B/52.5 kB 8%]                            100% [Working]              Fetched 357 kB in 0s (893 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 52631 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.7.1-2build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.7.1-2build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-2.1ubuntu3) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking jq (1.6-2.1ubuntu3) ...
+Setting up libonig5:amd64 (6.9.7.1-2build1) ...
+Setting up libjq1:amd64 (1.6-2.1ubuntu3) ...
+Setting up jq (1.6-2.1ubuntu3) ...
+Processing triggers for man-db (2.10.2-1) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.1) ...
+
+FLUX-JOB START 293685166080 bdas-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["Rscript", "/opt/bdas/benchmarks/r/svm.r", "250", "50"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/bdas/benchmarks/r", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "bdas-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "starttime": 1745974097.4832201, "expiration": 0.0, "nodelist": ["bdas-[0-7]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745974097.4857171,"name":"init"}
+{"timestamp":1745974097.4863591,"name":"starting"}
+{"timestamp":1745974097.4986205,"name":"shell.init","context":{"service":"0-shell-f8iSxF3D","leader-rank":0,"size":8}}
+{"timestamp":1745974097.7016001,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1745974101.3037531,"name":"shell.task-exit","context":{"localid":82,"rank":82,"state":"Exited","pid":5348,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745974101.3755672,"name":"complete","context":{"status":0}}
+{"timestamp":1745974101.3755984,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 293685166080 bdas-iter-5
+
+FLUX-JOB START 230401507328 bdas-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["Rscript", "/opt/bdas/benchmarks/r/svm.r", "250", "50"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/bdas/benchmarks/r", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "bdas-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "starttime": 1745974093.7109647, "expiration": 0.0, "nodelist": ["bdas-[0-7]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745974093.7134595,"name":"init"}
+{"timestamp":1745974093.7140231,"name":"starting"}
+{"timestamp":1745974093.7250686,"name":"shell.init","context":{"service":"0-shell-f742nx4X","leader-rank":0,"size":8}}
+{"timestamp":1745974093.9267154,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1745974097.2632253,"name":"shell.task-exit","context":{"localid":87,"rank":87,"state":"Exited","pid":4286,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745974097.3385658,"name":"complete","context":{"status":0}}
+{"timestamp":1745974097.3385942,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 230401507328 bdas-iter-4
+
+FLUX-JOB START 163057762304 bdas-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["Rscript", "/opt/bdas/benchmarks/r/svm.r", "250", "50"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/bdas/benchmarks/r", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "bdas-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "starttime": 1745974089.6971982, "expiration": 0.0, "nodelist": ["bdas-[0-7]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745974089.6997745,"name":"init"}
+{"timestamp":1745974089.700388,"name":"starting"}
+{"timestamp":1745974089.7628207,"name":"shell.init","context":{"service":"0-shell-f5HRretP","leader-rank":0,"size":8}}
+{"timestamp":1745974089.9673004,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1745974093.4880166,"name":"shell.task-exit","context":{"localid":84,"rank":84,"state":"Exited","pid":3074,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745974093.5673215,"name":"complete","context":{"status":0}}
+{"timestamp":1745974093.5673561,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 163057762304 bdas-iter-3
+
+FLUX-JOB START 94824824832 bdas-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["Rscript", "/opt/bdas/benchmarks/r/svm.r", "250", "50"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/bdas/benchmarks/r", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "bdas-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "starttime": 1745974085.6302786, "expiration": 0.0, "nodelist": ["bdas-[0-7]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745974085.6326675,"name":"init"}
+{"timestamp":1745974085.6331847,"name":"starting"}
+{"timestamp":1745974085.644017,"name":"shell.init","context":{"service":"0-shell-f3VUM1my","leader-rank":0,"size":8}}
+{"timestamp":1745974085.85062,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1745974089.4133744,"name":"shell.task-exit","context":{"localid":86,"rank":174,"state":"Exited","pid":1907,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745974089.5700152,"name":"complete","context":{"status":0}}
+{"timestamp":1745974089.5700436,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 94824824832 bdas-iter-2
+
+FLUX-JOB START 21525168128 bdas-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["Rscript", "/opt/bdas/benchmarks/r/svm.r", "250", "50"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/bdas/benchmarks/r", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "bdas-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "starttime": 1745974081.2614851, "expiration": 0.0, "nodelist": ["bdas-[0-7]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745974081.2639458,"name":"init"}
+{"timestamp":1745974081.2644572,"name":"starting"}
+{"timestamp":1745974081.2753148,"name":"shell.init","context":{"service":"0-shell-fZo77ZR","leader-rank":0,"size":8}}
+{"timestamp":1745974081.4498749,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1745974085.403686,"name":"shell.task-exit","context":{"localid":81,"rank":81,"state":"Exited","pid":742,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745974085.4844615,"name":"complete","context":{"status":0}}
+{"timestamp":1745974085.4844871,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 21525168128 bdas-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

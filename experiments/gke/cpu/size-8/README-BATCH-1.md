@@ -1,4 +1,6 @@
-# GKE CPU Experiment Size 4
+# GKE CPU Experiment Size 8
+
+> Batch 1
 
 These are new applications to supplement those in the main [README](README.md). They are functionally equivalent, however the I/O benchmarks should be run on separate clusters with filesystems enabled / bound.
 
@@ -8,7 +10,7 @@ For the applications cluster:
 
 ```bash
 GOOGLE_PROJECT=llnl-flux
-NODES=2
+NODES=8
 INSTANCE=h3-standard-88
 
 time gcloud container clusters create test-cluster \
@@ -27,7 +29,7 @@ time gcloud container clusters create test-cluster \
 Save nodes:
 
 ```bash
-kubectl get nodes -o json > nodes-2-sharedfs.json 
+kubectl get nodes -o json > nodes-8-batch1.json 
 ```
 
 Install the Flux Operator
@@ -51,9 +53,9 @@ https://wiki.lustre.org/IOR
 ```bash
 helm dependency update ior/
 helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
-  --set minicluster.tasks=176 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set minicluster.tasks=704 \
   --set experiment.tasks=88 \
   --set minicluster.save_logs=true \
   --set minicluster.show_logs=true \
@@ -76,8 +78,8 @@ helm uninstall ior
 ```bash
 helm dependency update fio/
 helm install \
-  --set experiment.nodes=1 \
-  --set minicluster.size=1 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
   --set experiment.tasks=88 \
   --set minicluster.save_logs=true \
   --set minicluster.show_logs=true \
@@ -93,48 +95,18 @@ kubectl logs ${pod} -f |& tee ./logs/fio.out
 helm uninstall fio
 ```
 
-### NAS Parallel Benchmarks
-
-```bash
-helm dependency update nas-parallel-benchmarks/
-# for problem in bt cg ep ft is lu mg sp
-# do
-helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
-  --set experiment.tasks=176 \
-  --set minicluster.tasks=176 \
-  --set experiment.exclusive=true \
-  --set minicluster.save_logs=true \
-  --set npb.problem=is \
-  --set npb.class="C" \
-  --set experiment.iterations=1 \
-  npb ./nas-parallel-benchmarks
-  time kubectl wait --for=condition=ready pod -l job-name=npb --timeout=600s
-  pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-  kubectl logs ${pod} -f |& tee ./logs/npb-${problem}-C.out
-  helm uninstall npb
-```
-
-Why class C:
-
-- Class C is designed for systems with up to a few thousand processors.
-- Provides a good balance, being large enough to show parallel efficiency issues on hundreds or a few thousand cores, but potentially small enough in memory to fit on a single node or a small number of nodes.
-- For lower node counts (4-32 nodes, 352-2816 cores), Class C should provide meaningful runtimes where scaling can be observed.
-- Class D intended larger systems
-
 ### ES3M Kernels
 
 ```bash
 helm dependency update e3sm-kernels/
 
 helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
-  --set minicluster.tasks=176 \
-  --set experiment.tasks=176 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set experiment.tasks=704 \
+  --set minicluster.tasks=704 \
   --set minicluster.save_logs=true \
-  --set experiment.iterations=1 \
+  --set experiment.iterations=5 \
   atm ./e3sm-kernels
 time kubectl wait --for=condition=ready pod -l job-name=atm --timeout=600s
 pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
@@ -149,18 +121,18 @@ For this app, npx, npy, npz need to multiply out to procs.
 ```bash
 helm dependency update miniamr
 helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
-  --set minicluster.tasks=176 \
-  --set experiment.tasks=176 \
-  --set miniamr.npx=4 \
-  --set miniamr.npy=4 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set experiment.tasks=704 \
+  --set minicluster.tasks=704 \
+  --set miniamr.npx=8 \
+  --set miniamr.npy=8 \
   --set miniamr.npz=11 \
   --set miniamr.nx=20 \
   --set miniamr.ny=20 \
   --set miniamr.nz=20 \
   --set minicluster.save_logs=true \
-  --set experiment.iterations=1 \
+  --set experiment.iterations=5 \
   miniamr ./miniamr
 time kubectl wait --for=condition=ready pod -l job-name=miniamr --timeout=600s
 pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
@@ -175,20 +147,20 @@ This uses a build with intel MPI.
 ```bash
 helm dependency update amg2023/
 helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
-  --set minicluster.tasks=176 \
-  --set experiment.tasks=176 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set experiment.tasks=704 \
+  --set minicluster.tasks=704 \
   --set minicluster.save_logs=true \
   --set minicluster.image=ghcr.io/rse-ops/amg2023:intel-mpi \
   --set amg.problem_size="256 256 128" \
-  --set amg.processor_topology="4 4 11" \
-  --set experiment.iterations=1 \
+  --set amg.processor_topology="8 8 11" \
+  --set experiment.iterations=5 \
   amg amg2023/
 
 time kubectl wait --for=condition=ready pod -l job-name=amg --timeout=600s
 pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-kubectl logs ${pod} -f |& tee ./logs/amg.out
+kubectl logs ${pod} -f |& tee ./logs/amg-intel.out
 helm uninstall amg
 ```
 
@@ -199,16 +171,17 @@ helm dependency update bdas/
 for app in kmeans.r princomp.r svm.r
   do
   helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
-  --set minicluster.tasks=176 \
-  --set experiment.tasks=176 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set experiment.tasks=704 \
+  --set minicluster.tasks=704 \
   --set minicluster.save_logs=true \
   --set bdas.benchmark=/opt/bdas/benchmarks/r/${app} \
   --set bdas.rows=1000 \
   --set bdas.rows=250 \
-  --set experiment.iterations=1 \
+  --set experiment.iterations=5 \
   bdas ./bdas/  
+  sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=bdas --timeout=600s
   pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
   kubectl logs ${pod} -f |& tee ./logs/bdas-${app}.out
@@ -216,48 +189,42 @@ for app in kmeans.r princomp.r svm.r
 done
 ```
 
-- 4 nodes: 2 minutes
-
 ### Chatterbug
-
-** stopped here for memory pressure **
 
 ```bash
 helm dependency update chatterbug/
 helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
-  --set minicluster.tasks=176 \
-  --set experiment.tasks=176 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set experiment.tasks=704 \
+  --set minicluster.tasks=704 \
   --set minicluster.save_logs=true \
-  --set chatterbug.args="4 4 11 1024 1024 1024 4 100" \
+  --set chatterbug.args="8 8 11 1024 1024 1024 4 100" \
   --set chatterbug.binary="stencil3d" \
-  --set experiment.iterations=1 \
+  --set experiment.iterations=4 \
   bug ./chatterbug
-
-  # This was too big (it killed the node)
-  --set chatterbug.args="4 4 11 10000 10000 10000 4 2" \
-
-# nx * ny * nz needs to equal number of ranks (the first three)
-# the last number is the number of iterations (10)
-
-time kubectl wait --for=condition=ready pod -l job-name=bug --timeout=600s
+  time kubectl wait --for=condition=ready pod -l job-name=bug --timeout=600s
 pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
 kubectl logs ${pod} -f |& tee ./logs/chatterbug.out
 helm uninstall bug
+
+  # This was too big (it killed the node)
+  # --set chatterbug.args="4 4 11 10000 10000 10000 4 2" \
+  # nx * ny * nz needs to equal number of ranks (the first three)
+  # the last number is the number of iterations (10)
 ```
 
 ## Qmcpack
 
-**Note - oomed on 2 node, but first container worked. Try this first, then go back to first**
+**both OOM**
 
 ```bash
 helm dependency update qmcpack/
 helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
-  --set minicluster.tasks=176 \
-  --set experiment.tasks=176 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set experiment.tasks=704 \
+  --set minicluster.tasks=704 \
   --set minicluster.save_logs=true \
   --set experiment.iterations=1 \
   qmcpack ./qmcpack
@@ -273,10 +240,9 @@ helm uninstall pennant
 ```bash
 helm dependency update netmark/
 helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
-  --set experiment.tasks=2 \
-  --set minicluster.tasks=176 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set experiment.tasks=8 \
   --set minicluster.pullAlways=true \
   --set minicluster.sleep=true \
   --set netmark.warmups=10 \
@@ -299,16 +265,16 @@ helm uninstall netmark
 
 ## gamess-r1-mp2-miniapp
 
-# Note segfault at 2 nodes
+**segfault at 2,4 nodes**
 
 ```bash
 helm dependency update gamess-r1-mp2-miniapp/
 helm install \
-  --set experiment.nodes=2 \
-  --set minicluster.size=2 \
-  --set experiment.tasks=176 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set experiment.tasks=704 \
+  --set minicluster.tasks=704 \
   --set minicluster.pullAlways=true \
-  --set minicluster.tasks=176 \
   --set minicluster.save_logs=true \
   --set experiment.iterations=1 \
   gamess ./gamess-r1-mp2-miniapp
