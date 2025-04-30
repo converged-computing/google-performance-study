@@ -1,0 +1,194 @@
+Defaulted container "ior" out of: ior, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START ior-iter-$i"
+  for node in $(seq 0 3); do
+      flux submit --flags waitable --requires="hosts:ior-$node" -N 1 --setattr=user.study_id=ior-iter-$i-node-$node -n 88 -o cpu-affinity=per-task -o gpu-affinity=off    ior          -r    -w          -b=100M                 -t=1M      -O summaryFormat=CSV  -o testfile               
+  done 
+  echo "FLUX-RUN END ior-iter-$i"
+done
+flux job wait --all
+
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    echo "FLUX-JOB-LOG START"
+    flux job attach $jobid
+    echo "FLUX-JOB-LOG END"
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      4      352        0 ior-[0-3]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START ior-iter-1
+ƒ2fX6F75
+ƒ2j88Vqh
+ƒ2njAkaK
+ƒ2sZNQqV
+FLUX-RUN END ior-iter-1
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Connecting to archive.ubuntu.com] [1 InRelease 2588 B/129 kB 2%]                                                                    Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+                                                                    0% [1 InRelease 85.1 kB/129 kB 66%]                                   Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [3 InRelease 15.6 kB/128 kB 12%] [1 InRelease 85.1 kB/129 kB 66%]                                                                    0% [3 InRelease 41.7 kB/128 kB 33%]0% [3 InRelease 128 kB/128 kB 100%]                                   0% [Waiting for headers]                        Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 54.7 kB/127 kB 43%]                                   0% [Working]0% [Working]            Get:5 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+0% [5 Packages 2655 B/2844 kB 0%]0% [5 Packages 92.4 kB/2844 kB 3%]                                  Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3155 kB]
+0% [6 Packages 5551 B/3155 kB 0%] [5 Packages 133 kB/2844 kB 5%]18% [6 Packages 168 kB/3155 kB 5%] [5 Packages 163 kB/2844 kB 6%]                                                                 32% [5 Packages 349 kB/2844 kB 12%]32% [6 Packages store 0 B] [Waiting for headers] [5 Packages 349 kB/2844 kB 12%                                                                               Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+32% [6 Packages store 0 B] [7 Packages 0 B/55.7 kB 0%] [5 Packages 411 kB/2844                                                                                32% [6 Packages store 0 B] [5 Packages 411 kB/2844 kB 14%]                                                          Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4272 kB]
+32% [6 Packages store 0 B] [8 Packages 5940 B/4272 kB 0%] [5 Packages 411 kB/2852% [6 Packages store 0 B] [Waiting for headers] [5 Packages 496 kB/2844 kB 17%                                                                               Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1543 kB]
+52% [6 Packages store 0 B] [9 Packages 28.7 kB/1543 kB 2%] [5 Packages 496 kB/259% [6 Packages store 0 B] [Waiting for headers] [5 Packages 521 kB/2844 kB 18%                                                                               Get:10 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+59% [6 Packages store 0 B] [10 Packages 6709 B/82.7 kB 8%] [5 Packages 521 kB/259% [6 Packages store 0 B] [Waiting for headers] [5 Packages 521 kB/2844 kB 18%                                                                               Get:11 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+60% [6 Packages store 0 B] [11 Packages 5004 B/35.2 kB 14%] [5 Packages 521 kB/                                                                               60% [6 Packages store 0 B] [5 Packages 521 kB/2844 kB 18%]                                                          61% [5 Packages 633 kB/2844 kB 22%]61% [7 Packages store 0 B] [5 Packages 633 kB/2844 kB 22%]                                                          61% [5 Packages 641 kB/2844 kB 23%]61% [8 Packages store 0 B] [5 Packages 641 kB/2844 kB 23%]                                                          65% [5 Packages 1371 kB/2844 kB 48%]65% [9 Packages store 0 B] [5 Packages 1371 kB/2844 kB 48%]                                                           68% [5 Packages 1797 kB/2844 kB 63%]68% [10 Packages store 0 B] [5 Packages 1797 kB/2844 kB 63%]                                                            68% [5 Packages 1826 kB/2844 kB 64%]68% [11 Packages store 0 B] [5 Packages 1831 kB/2844 kB 64%]                                                            69% [5 Packages 1837 kB/2844 kB 65%]                                    73% [Working]73% [5 Packages store 0 B]                          Get:12 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+73% [5 Packages store 0 B] [12 Packages 6999 B/1244 kB 1%]                                                          77% [12 Packages 672 kB/1244 kB 54%]                                    80% [Waiting for headers]                         Get:13 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+80% [13 Packages 4096 B/47.7 kB 9%]80% [12 Packages store 0 B] [13 Packages 8440 B/47.7 kB 18%]                                                            80% [12 Packages store 0 B] [Waiting for headers]                                                 Get:14 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4118 kB]
+80% [12 Packages store 0 B] [14 Packages 2465 B/4118 kB 0%]                                                           83% [14 Packages 669 kB/4118 kB 16%]83% [13 Packages store 0 B] [14 Packages 669 kB/4118 kB 16%]                                                            84% [14 Packages 712 kB/4118 kB 17%]                                    99% [Working]99% [14 Packages store 0 B]                           100% [Working]              Fetched 17.8 MB in 2s (10.6 MB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 30%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 116 not upgraded.
+Need to get 357 kB of archives.
+After this operation, 1087 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libonig5 amd64 6.9.7.1-2build1 [172 kB]
+0% [1 libonig5 1156 B/172 kB 1%]                                45% [Working]             Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjq1 amd64 1.6-2.1ubuntu3 [133 kB]
+46% [2 libjq1 4052 B/133 kB 3%]                               82% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 jq amd64 1.6-2.1ubuntu3 [52.5 kB]
+82% [3 jq 2872 B/52.5 kB 5%]                            100% [Working]              Fetched 357 kB in 0s (1099 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 24274 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.7.1-2build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.7.1-2build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-2.1ubuntu3) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking jq (1.6-2.1ubuntu3) ...
+Setting up libonig5:amd64 (6.9.7.1-2build1) ...
+Setting up libjq1:amd64 (1.6-2.1ubuntu3) ...
+Setting up jq (1.6-2.1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.1) ...
+
+FLUX-JOB START 71252836352 ior-iter-1-node-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-3"]}}, "user": {"study_id": "ior-iter-1-node-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2088.9965,2089.0203,0.0361,102400.0000,1024.0000,0.0003,4.2125,1.5687,4.2125,88,0
+read,382394.6127,382640.3956,0.0002,102400.0000,1024.0000,0.0005,0.0230,0.0010,0.0230,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "3", "children": {"core": "0-87"}}], "starttime": 1745968837.5064046, "expiration": 0.0, "nodelist": ["ior-3"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745968837.5076556,"name":"init"}
+{"timestamp":1745968837.5081813,"name":"starting"}
+{"timestamp":1745968837.5211127,"name":"shell.init","context":{"service":"0-shell-f2sZNQqV","leader-rank":3,"size":1}}
+{"timestamp":1745968837.6931264,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745968843.961549,"name":"shell.task-exit","context":{"localid":79,"rank":79,"state":"Exited","pid":152,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745968844.0103385,"name":"complete","context":{"status":0}}
+{"timestamp":1745968844.0103698,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 71252836352 ior-iter-1-node-3
+
+FLUX-JOB START 68081942528 ior-iter-1-node-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-2"]}}, "user": {"study_id": "ior-iter-1-node-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2644.4145,2644.4541,0.0321,102400.0000,1024.0000,0.0003,3.3277,1.0786,3.3278,88,0
+read,386050.2170,386215.8379,0.0002,102400.0000,1024.0000,0.0004,0.0228,0.0008,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "2", "children": {"core": "0-87"}}], "starttime": 1745968837.3169639, "expiration": 0.0, "nodelist": ["ior-2"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745968837.3181398,"name":"init"}
+{"timestamp":1745968837.3186939,"name":"starting"}
+{"timestamp":1745968837.3400207,"name":"shell.init","context":{"service":"0-shell-f2njAkaK","leader-rank":2,"size":1}}
+{"timestamp":1745968837.504663,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745968842.912874,"name":"shell.task-exit","context":{"localid":69,"rank":69,"state":"Exited","pid":142,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745968842.9531133,"name":"complete","context":{"status":0}}
+{"timestamp":1745968842.9531367,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 68081942528 ior-iter-1-node-2
+
+FLUX-JOB START 65716355072 ior-iter-1-node-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-1"]}}, "user": {"study_id": "ior-iter-1-node-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2624.9076,2624.9554,0.0302,102400.0000,1024.0000,0.0003,3.3524,0.9759,3.3525,88,0
+read,366391.1216,366820.7949,0.0002,102400.0000,1024.0000,0.0003,0.0240,0.0020,0.0240,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "1", "children": {"core": "0-87"}}], "starttime": 1745968837.1749871, "expiration": 0.0, "nodelist": ["ior-1"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745968837.1761353,"name":"init"}
+{"timestamp":1745968837.176703,"name":"starting"}
+{"timestamp":1745968837.1884947,"name":"shell.init","context":{"service":"0-shell-f2j88Vqh","leader-rank":1,"size":1}}
+{"timestamp":1745968837.3645205,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745968842.7527478,"name":"shell.task-exit","context":{"localid":45,"rank":45,"state":"Exited","pid":118,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745968842.7986131,"name":"complete","context":{"status":0}}
+{"timestamp":1745968842.7986441,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 65716355072 ior-iter-1-node-1
+
+FLUX-JOB START 63350767616 ior-iter-1-node-0
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-0"]}}, "user": {"study_id": "ior-iter-1-node-0"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2636.2698,2636.3133,0.0321,102400.0000,1024.0000,0.0002,3.3380,2.1605,3.3380,88,0
+read,382592.8001,382775.3140,0.0002,102400.0000,1024.0000,0.0004,0.0230,0.0009,0.0230,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "starttime": 1745968837.0349739, "expiration": 0.0, "nodelist": ["ior-0"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745968837.0363004,"name":"init"}
+{"timestamp":1745968837.0442684,"name":"shell.init","context":{"service":"0-shell-f2fX6F75","leader-rank":0,"size":1}}
+{"timestamp":1745968837.0367873,"name":"starting"}
+{"timestamp":1745968837.2142475,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745968842.6469328,"name":"shell.task-exit","context":{"localid":1,"rank":1,"state":"Exited","pid":108,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745968842.6924374,"name":"complete","context":{"status":0}}
+{"timestamp":1745968842.692466,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 63350767616 ior-iter-1-node-0
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":4,"total":4},"successful":4,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}
