@@ -1,0 +1,1996 @@
+Defaulted container "miniamr" out of: miniamr, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START miniamr-iter-$i"
+  flux run --setattr=user.study_id=miniamr-iter-$i -N32 -n 2816 -o cpu-affinity=per-task -o gpu-affinity=off    miniAMR.x --nx 20 --ny 20 --nz 20 --npx 16 --npy 16 --npz 11 |& tee /tmp/miniamr.out
+    echo "FLUX-RUN END miniamr-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     32     2816        0 miniamr-[0-31]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START miniamr-iter-1
+Number of blocks at level 0 at timestep 0 is 2816
+Number of blocks at level 1 at timestep 0 is 0
+Number of blocks at level 2 at timestep 0 is 0
+Number of blocks at level 3 at timestep 0 is 0
+Number of blocks at level 4 at timestep 0 is 0
+Number of blocks at level 5 at timestep 0 is 0
+Total number of blocks at timestep 0 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 1 time 0.000000 delta 1.000000
+Timestep 2 time 1.000000 delta 1.000000
+Timestep 3 time 2.000000 delta 1.000000
+Timestep 4 time 3.000000 delta 1.000000
+Timestep 5 time 4.000000 delta 1.000000
+Number of blocks at level 0 at timestep 5 is 2816
+Number of blocks at level 1 at timestep 5 is 0
+Number of blocks at level 2 at timestep 5 is 0
+Number of blocks at level 3 at timestep 5 is 0
+Number of blocks at level 4 at timestep 5 is 0
+Number of blocks at level 5 at timestep 5 is 0
+Total number of blocks at timestep 5 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 6 time 5.000000 delta 1.000000
+Timestep 7 time 6.000000 delta 1.000000
+Timestep 8 time 7.000000 delta 1.000000
+Timestep 9 time 8.000000 delta 1.000000
+Timestep 10 time 9.000000 delta 1.000000
+Number of blocks at level 0 at timestep 10 is 2816
+Number of blocks at level 1 at timestep 10 is 0
+Number of blocks at level 2 at timestep 10 is 0
+Number of blocks at level 3 at timestep 10 is 0
+Number of blocks at level 4 at timestep 10 is 0
+Number of blocks at level 5 at timestep 10 is 0
+Total number of blocks at timestep 10 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 11 time 10.000000 delta 1.000000
+Timestep 12 time 11.000000 delta 1.000000
+Timestep 13 time 12.000000 delta 1.000000
+Timestep 14 time 13.000000 delta 1.000000
+Timestep 15 time 14.000000 delta 1.000000
+Number of blocks at level 0 at timestep 15 is 2816
+Number of blocks at level 1 at timestep 15 is 0
+Number of blocks at level 2 at timestep 15 is 0
+Number of blocks at level 3 at timestep 15 is 0
+Number of blocks at level 4 at timestep 15 is 0
+Number of blocks at level 5 at timestep 15 is 0
+Total number of blocks at timestep 15 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 16 time 15.000000 delta 1.000000
+Timestep 17 time 16.000000 delta 1.000000
+Timestep 18 time 17.000000 delta 1.000000
+Timestep 19 time 18.000000 delta 1.000000
+Timestep 20 time 19.000000 delta 1.000000
+Number of blocks at level 0 at timestep 20 is 2816
+Number of blocks at level 1 at timestep 20 is 0
+Number of blocks at level 2 at timestep 20 is 0
+Number of blocks at level 3 at timestep 20 is 0
+Number of blocks at level 4 at timestep 20 is 0
+Number of blocks at level 5 at timestep 20 is 0
+Total number of blocks at timestep 20 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+
+ ================ Start report ===================
+
+          Mantevo miniAMR
+          version 1.7.0 (modified w/OpenMP)
+
+Run on 2816 ranks arranged in a 16 x 16 x 11 grid
+Threads per rank 1
+initial blocks per rank 1 x 1 x 1
+block size 20 x 20 x 20
+Initial ranks arranged by RCB across machine
+
+change_dir 0 group_blocks 0 limit_move 0
+Maximum number of blocks per rank is 500
+Number of levels of refinement is 5
+Blocks can change by 5 levels per refinement step
+
+Blocks will be refined by 0 objects
+
+
+Number of timesteps is 20
+Communicaion/computation stages per timestep is 20
+Communication will be performed with nonblocking sends
+Will perform checksums every 5 stages
+Will refine every 5 timesteps
+Load balance by RCB (Recursive Coordinate Bisection)
+Load balance when inbalanced by 0%
+Will not plot results
+Calculate on 40 variables with 7 point stencil
+Communicate 40 variables at a time
+Error tolorance for variable sums is 10^(-8)
+
+Total time for test: ave, std, min, max (sec): 30.333298 0.000009 30.333268 30.333556
+
+
+Number of malloc calls: ave, std, min, max (sec): 10140579.999645 0.018841 10140579.000000 10140580.000000
+
+Amount malloced: ave, std, min, max: 2807402708.000000 0.000000 2807402708.000000 2807402708.000000
+
+Malloc calls in init: ave, std, min, max (sec): 10140579.999645 0.018841 10140579.000000 10140580.000000
+
+Amount malloced in init: ave, std, min, max: 2807402708.000000 0.000000 2807402708.000000 2807402708.000000
+
+Malloc calls in timestepping: ave, std, min, max (sec): 0.000000 0.000000 0.000000 0.000000
+
+Amount malloced in timestepping: ave, std, min, max: 0.000000 0.000000 0.000000 0.000000
+
+Main (parse, allocate) Time: ave, stddev, min, max (sec): 1.220796 0.019205 1.178142 1.349781
+
+Initailize Time: ave, stddev, min, max (sec): 1.678124 0.019721 1.548688 1.724947
+
+---------------------------------------------
+          Computational Performance
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.276958 0.037212 0.224928 0.447951
+
+     total GFLOPS:             8484.525123
+     Average GFLOPS per rank:  3.012971
+
+     Total floating point ops: 2523136000000.000000
+
+        Adds:                  2162688000000.000000
+        Muls:                  0.000000
+        Divides:               360448000000.000000
+
+     Sum of min/max compute times per ts: 0.222755 0.531010
+
+---------------------------------------------
+           Interblock communication
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 10.331258 2.348009 3.483774 15.463841
+
+
+Total communication:
+
+                              average    stddev  minimum  maximum
+     Total                  : 10.331083 2.348007 3.483639 15.463620
+     Post IRecv             : 0.011412 0.005910 0.001601 0.114477
+     Pack faces             : 0.112047 0.037851 0.046621 0.291556
+     Send messages          : 0.021920 0.040212 0.006011 0.287875
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 10.040797 2.326115 3.325671 15.184072
+     Unpack faces           : 0.134383 0.047992 0.051653 0.357695
+
+     Comm partners total ave: 5.568182 0.606226 3.000000 6.000000
+     Comm partners total min: 5.568182 0.606226 3.000000 6.000000
+     Comm partners total max: 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq ave : 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq min : 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq max : 5.568182 0.606226 3.000000 6.000000
+     Messages received      : 2227.272727 242.490521 1200.000000 2400.000000
+     Bytes received         : 285090909.090909 31038786.719067 153600000.000000 307200000.000000
+     Faces received         : 2227.272727 242.490521 1200.000000 2400.000000
+     Messages sent          : 2227.272727 242.490521 1200.000000 2400.000000
+     Bytes sent             : 285090909.090909 31038786.719067 153600000.000000 307200000.000000
+     Faces sent             : 2227.272727 242.490521 1200.000000 2400.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.431818 0.606226 0.000000 3.000000
+
+X direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 2.786183 1.086624 0.218551 6.881742
+     Post IRecv             : 0.002754 0.002251 0.000337 0.074988
+     Pack faces             : 0.017898 0.004823 0.006075 0.035812
+     Send messages          : 0.011680 0.038742 0.000566 0.273677
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 2.733351 1.082721 0.182037 6.848319
+     Unpack faces           : 0.018454 0.006857 0.007001 0.075011
+
+     Comm partners average  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners minimum  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners maximum  : 1.875000 0.330719 1.000000 2.000000
+     Messages received      : 750.000000 132.287566 400.000000 800.000000
+     Bytes received         : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces received         : 750.000000 132.287566 400.000000 800.000000
+     Messages sent          : 750.000000 132.287566 400.000000 800.000000
+     Bytes sent             : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces sent             : 750.000000 132.287566 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.125000 0.330719 0.000000 1.000000
+
+Y direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 3.364257 1.150050 0.365708 7.389914
+     Post IRecv             : 0.005565 0.004635 0.000619 0.112722
+     Pack faces             : 0.025151 0.010828 0.009008 0.123259
+     Send messages          : 0.001833 0.011306 0.000232 0.272775
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 3.304045 1.149306 0.296646 7.334325
+     Unpack faces           : 0.024285 0.011487 0.008319 0.100171
+
+     Comm partners average  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners minimum  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners maximum  : 1.875000 0.330719 1.000000 2.000000
+     Messages received      : 750.000000 132.287566 400.000000 800.000000
+     Bytes received         : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces received         : 750.000000 132.287566 400.000000 800.000000
+     Messages sent          : 750.000000 132.287566 400.000000 800.000000
+     Bytes sent             : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces sent             : 750.000000 132.287566 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.125000 0.330719 0.000000 1.000000
+
+Z direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 4.180644 1.240947 0.749619 9.074352
+     Post IRecv             : 0.003093 0.001750 0.000267 0.017570
+     Pack faces             : 0.068998 0.028236 0.027065 0.216952
+     Send messages          : 0.008408 0.001923 0.003057 0.022945
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 4.003400 1.225106 0.655038 8.886250
+     Unpack faces           : 0.091644 0.036142 0.032001 0.233545
+
+     Comm partners average  : 1.818182 0.385695 1.000000 2.000000
+     Comm partners minimum  : 1.818182 0.385695 1.000000 2.000000
+     Comm partners maximum  : 1.818182 0.385695 1.000000 2.000000
+     Messages received      : 727.272727 154.277843 400.000000 800.000000
+     Bytes received         : 93090909.090909 19747563.925501 51200000.000000 102400000.000000
+     Faces received         : 727.272727 154.277843 400.000000 800.000000
+     Messages sent          : 727.272727 154.277843 400.000000 800.000000
+     Bytes sent             : 93090909.090909 19747563.925501 51200000.000000 102400000.000000
+     Faces sent             : 727.272727 154.277843 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.181818 0.385695 0.000000 1.000000
+
+     Sum of min/max communicate times per ts: 0.786510 21.282685
+
+     Sum of min/max calc and comm times per ts: 1.062663 21.546093
+
+---------------------------------------------
+             Gridsum performance
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 16.889142 2.267602 12.109222 23.672281
+
+        red : ave, stddev, min, max (sec): 16.868674 2.267587 12.089131 23.651759
+
+        calc: ave, stddev, min, max (sec): 0.019110 0.000787 0.018661 0.030984
+
+     total number:             3200
+     number per timestep:      40
+
+     Sum of min/max gridsum times per ts: 8.975573 26.134368
+
+---------------------------------------------
+               Mesh Refinement
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 2.765249 0.189953 2.244517 3.057749
+
+     Number of refinement steps: 5
+
+     Number of load balance steps: 0
+
+     Number of redistributing steps: 0
+
+     Total blocks           : 1126400
+     Blocks/timestep ave, min, max : 2816.000000 2816 2816
+     Max blocks on a processor at any time: 1
+     total blocks split     : 0.000000
+     total blocks reformed  : 0.000000
+
+     total blocks moved     : 0.000000
+     total moved load bal   : 0.000000
+     total moved redistribut: 0.000000
+     total moved coasening  : 0.000000
+
+     parents ave, min, max  : 0.000000 0 0
+     max dots ave, min, max : 0.000000 0 0
+     ave dots used          : -nan
+
+     number of times more sets of blocks than ranks: 0
+     total sets of blocks over num of ranks: 0
+     max number of sets of blocks on a rank: 1
+
+                              average    stddev  minimum  maximum
+     Per processor:
+     total blocks split     : 0.000000 0.000000 0.000000 0.000000
+     total blocks reformed  : 0.000000 0.000000 0.000000 0.000000
+     Total blocks moved     : 0.000000 0.000000 0.000000 0.000000
+     Blocks moved load bal  : 0.000000 0.000000 0.000000 0.000000
+     Blocks moved redistribu: 0.000000 0.000000 0.000000 0.000000
+     Blocks moved coarsening: 0.000000 0.000000 0.000000 0.000000
+     Time:
+        initial refine      : 1.523929 0.000008 1.523901 1.524027
+
+        compare objects     : 0.000046 0.000034 0.000025 0.000450
+        mark refine/coarsen : 0.675776 0.088304 0.321489 0.763458
+        communicate block 1 : 0.088491 0.088253 0.000885 0.442991
+        split blocks        : 0.019106 0.030003 0.000525 0.173728
+        communicate block 2 : 0.044739 0.044697 0.000939 0.196961
+        sync time           : 0.605812 0.189996 0.084348 0.898034
+        time for groups     : 0.012499 0.000491 0.005680 0.020649
+        misc time           : 0.042369 0.000366 0.035601 0.044225
+        total coarsen blocks: 1.191077 0.045896 1.054141 1.252406
+           coarsen blocks   : 1.191066 0.045896 1.054125 1.252397
+           pack blocks      : 0.000000 0.000000 0.000000 0.000000
+           move blocks      : 0.000000 0.000000 0.000000 0.000000
+           unpack blocks    : 0.000000 0.000000 0.000000 0.000000
+        total redistribute  : 0.097820 0.002832 0.088112 0.190215
+           choose blocks    : 0.000000 0.000000 0.000000 0.000000
+           pack blocks      : 0.000000 0.000000 0.000000 0.000000
+           move blocks      : 0.000000 0.000000 0.000000 0.000000
+           unpack blocks    : 0.000000 0.000000 0.000000 0.000000
+        total load balance  : 0.000000 0.000000 0.000000 0.000000
+           sort             : 0.000000 0.000000 0.000000 0.000000
+           move dots back   : 0.000000 0.000000 0.000000 0.000000
+           move blocks total: 0.000000 0.000000 0.000000 0.000000
+              pack blocks   : 0.000000 0.000000 0.000000 0.000000
+              move blocks   : 0.000000 0.000000 0.000000 0.000000
+              unpack blocks : 0.000000 0.000000 0.000000 0.000000
+              misc          : 0.000000 0.000000 0.000000 0.000000
+
+     Sum of min/max refinement times per ts: 0.699597 1.540400
+
+---------------------------------------------
+                   Plot
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.000001 0.000000 0.000001 0.000013
+
+     Number of plot steps: 0
+
+ ================== End report ===================
+Summary: ranks 2816 threads 1 ts 20 time 30.333298 calc 0.276958 comm 10.331258 red 16.889142 refine 2.765249 blocks/ts 2816.000000 max_blocks 1
+FLUX-RUN END miniamr-iter-1
+FLUX-RUN START miniamr-iter-2
+Number of blocks at level 0 at timestep 0 is 2816
+Number of blocks at level 1 at timestep 0 is 0
+Number of blocks at level 2 at timestep 0 is 0
+Number of blocks at level 3 at timestep 0 is 0
+Number of blocks at level 4 at timestep 0 is 0
+Number of blocks at level 5 at timestep 0 is 0
+Total number of blocks at timestep 0 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 1 time 0.000000 delta 1.000000
+Timestep 2 time 1.000000 delta 1.000000
+Timestep 3 time 2.000000 delta 1.000000
+Timestep 4 time 3.000000 delta 1.000000
+Timestep 5 time 4.000000 delta 1.000000
+Number of blocks at level 0 at timestep 5 is 2816
+Number of blocks at level 1 at timestep 5 is 0
+Number of blocks at level 2 at timestep 5 is 0
+Number of blocks at level 3 at timestep 5 is 0
+Number of blocks at level 4 at timestep 5 is 0
+Number of blocks at level 5 at timestep 5 is 0
+Total number of blocks at timestep 5 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 6 time 5.000000 delta 1.000000
+Timestep 7 time 6.000000 delta 1.000000
+Timestep 8 time 7.000000 delta 1.000000
+Timestep 9 time 8.000000 delta 1.000000
+Timestep 10 time 9.000000 delta 1.000000
+Number of blocks at level 0 at timestep 10 is 2816
+Number of blocks at level 1 at timestep 10 is 0
+Number of blocks at level 2 at timestep 10 is 0
+Number of blocks at level 3 at timestep 10 is 0
+Number of blocks at level 4 at timestep 10 is 0
+Number of blocks at level 5 at timestep 10 is 0
+Total number of blocks at timestep 10 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 11 time 10.000000 delta 1.000000
+Timestep 12 time 11.000000 delta 1.000000
+Timestep 13 time 12.000000 delta 1.000000
+Timestep 14 time 13.000000 delta 1.000000
+Timestep 15 time 14.000000 delta 1.000000
+Number of blocks at level 0 at timestep 15 is 2816
+Number of blocks at level 1 at timestep 15 is 0
+Number of blocks at level 2 at timestep 15 is 0
+Number of blocks at level 3 at timestep 15 is 0
+Number of blocks at level 4 at timestep 15 is 0
+Number of blocks at level 5 at timestep 15 is 0
+Total number of blocks at timestep 15 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 16 time 15.000000 delta 1.000000
+Timestep 17 time 16.000000 delta 1.000000
+Timestep 18 time 17.000000 delta 1.000000
+Timestep 19 time 18.000000 delta 1.000000
+Timestep 20 time 19.000000 delta 1.000000
+Number of blocks at level 0 at timestep 20 is 2816
+Number of blocks at level 1 at timestep 20 is 0
+Number of blocks at level 2 at timestep 20 is 0
+Number of blocks at level 3 at timestep 20 is 0
+Number of blocks at level 4 at timestep 20 is 0
+Number of blocks at level 5 at timestep 20 is 0
+Total number of blocks at timestep 20 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+
+ ================ Start report ===================
+
+          Mantevo miniAMR
+          version 1.7.0 (modified w/OpenMP)
+
+Run on 2816 ranks arranged in a 16 x 16 x 11 grid
+Threads per rank 1
+initial blocks per rank 1 x 1 x 1
+block size 20 x 20 x 20
+Initial ranks arranged by RCB across machine
+
+change_dir 0 group_blocks 0 limit_move 0
+Maximum number of blocks per rank is 500
+Number of levels of refinement is 5
+Blocks can change by 5 levels per refinement step
+
+Blocks will be refined by 0 objects
+
+
+Number of timesteps is 20
+Communicaion/computation stages per timestep is 20
+Communication will be performed with nonblocking sends
+Will perform checksums every 5 stages
+Will refine every 5 timesteps
+Load balance by RCB (Recursive Coordinate Bisection)
+Load balance when inbalanced by 0%
+Will not plot results
+Calculate on 40 variables with 7 point stencil
+Communicate 40 variables at a time
+Error tolorance for variable sums is 10^(-8)
+
+Total time for test: ave, std, min, max (sec): 26.505293 0.000005 26.505220 26.505352
+
+
+Number of malloc calls: ave, std, min, max (sec): 10140579.999645 0.018841 10140579.000000 10140580.000000
+
+Amount malloced: ave, std, min, max: 2807402708.000000 0.000000 2807402708.000000 2807402708.000000
+
+Malloc calls in init: ave, std, min, max (sec): 10140579.999645 0.018841 10140579.000000 10140580.000000
+
+Amount malloced in init: ave, std, min, max: 2807402708.000000 0.000000 2807402708.000000 2807402708.000000
+
+Malloc calls in timestepping: ave, std, min, max (sec): 0.000000 0.000000 0.000000 0.000000
+
+Amount malloced in timestepping: ave, std, min, max: 0.000000 0.000000 0.000000 0.000000
+
+Main (parse, allocate) Time: ave, stddev, min, max (sec): 1.209798 0.018374 1.170232 1.342302
+
+Initailize Time: ave, stddev, min, max (sec): 0.253240 0.019254 0.115007 0.298890
+
+---------------------------------------------
+          Computational Performance
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.276646 0.040128 0.225783 0.483780
+
+     total GFLOPS:             8494.087609
+     Average GFLOPS per rank:  3.016366
+
+     Total floating point ops: 2523136000000.000000
+
+        Adds:                  2162688000000.000000
+        Muls:                  0.000000
+        Divides:               360448000000.000000
+
+     Sum of min/max compute times per ts: 0.223079 0.544389
+
+---------------------------------------------
+           Interblock communication
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 9.666746 2.495174 2.215057 14.711008
+
+
+Total communication:
+
+                              average    stddev  minimum  maximum
+     Total                  : 9.666573 2.495171 2.214925 14.710865
+     Post IRecv             : 0.010931 0.004379 0.001478 0.041973
+     Pack faces             : 0.110104 0.037144 0.045337 0.273801
+     Send messages          : 0.011837 0.002949 0.005961 0.028070
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 9.389608 2.476759 2.064848 14.432613
+     Unpack faces           : 0.133508 0.046156 0.050273 0.347122
+
+     Comm partners total ave: 5.568182 0.606226 3.000000 6.000000
+     Comm partners total min: 5.568182 0.606226 3.000000 6.000000
+     Comm partners total max: 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq ave : 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq min : 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq max : 5.568182 0.606226 3.000000 6.000000
+     Messages received      : 2227.272727 242.490521 1200.000000 2400.000000
+     Bytes received         : 285090909.090909 31038786.719067 153600000.000000 307200000.000000
+     Faces received         : 2227.272727 242.490521 1200.000000 2400.000000
+     Messages sent          : 2227.272727 242.490521 1200.000000 2400.000000
+     Bytes sent             : 285090909.090909 31038786.719067 153600000.000000 307200000.000000
+     Faces sent             : 2227.272727 242.490521 1200.000000 2400.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.431818 0.606226 0.000000 3.000000
+
+X direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 2.522595 1.133698 0.147602 6.396391
+     Post IRecv             : 0.002559 0.001035 0.000383 0.008860
+     Pack faces             : 0.017411 0.004949 0.005388 0.038480
+     Send messages          : 0.002316 0.002349 0.000529 0.010645
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 2.479903 1.133016 0.116583 6.354052
+     Unpack faces           : 0.018397 0.007367 0.006457 0.078145
+
+     Comm partners average  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners minimum  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners maximum  : 1.875000 0.330719 1.000000 2.000000
+     Messages received      : 750.000000 132.287566 400.000000 800.000000
+     Bytes received         : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces received         : 750.000000 132.287566 400.000000 800.000000
+     Messages sent          : 750.000000 132.287566 400.000000 800.000000
+     Bytes sent             : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces sent             : 750.000000 132.287566 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.125000 0.330719 0.000000 1.000000
+
+Y direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 3.130793 1.207195 0.166961 6.870533
+     Post IRecv             : 0.005285 0.003057 0.000545 0.031370
+     Pack faces             : 0.024964 0.010920 0.008985 0.107959
+     Send messages          : 0.001207 0.001506 0.000246 0.012401
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 3.071939 1.207211 0.118990 6.786078
+     Unpack faces           : 0.023979 0.011276 0.008249 0.090954
+
+     Comm partners average  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners minimum  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners maximum  : 1.875000 0.330719 1.000000 2.000000
+     Messages received      : 750.000000 132.287566 400.000000 800.000000
+     Bytes received         : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces received         : 750.000000 132.287566 400.000000 800.000000
+     Messages sent          : 750.000000 132.287566 400.000000 800.000000
+     Bytes sent             : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces sent             : 750.000000 132.287566 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.125000 0.330719 0.000000 1.000000
+
+Z direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 4.013184 1.325715 0.641166 8.455043
+     Post IRecv             : 0.003087 0.001764 0.000241 0.014717
+     Pack faces             : 0.067728 0.027069 0.027618 0.193585
+     Send messages          : 0.008314 0.001877 0.003148 0.025664
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 3.837766 1.307347 0.549578 8.264171
+     Unpack faces           : 0.091133 0.034472 0.031591 0.220534
+
+     Comm partners average  : 1.818182 0.385695 1.000000 2.000000
+     Comm partners minimum  : 1.818182 0.385695 1.000000 2.000000
+     Comm partners maximum  : 1.818182 0.385695 1.000000 2.000000
+     Messages received      : 727.272727 154.277843 400.000000 800.000000
+     Bytes received         : 93090909.090909 19747563.925501 51200000.000000 102400000.000000
+     Faces received         : 727.272727 154.277843 400.000000 800.000000
+     Messages sent          : 727.272727 154.277843 400.000000 800.000000
+     Bytes sent             : 93090909.090909 19747563.925501 51200000.000000 102400000.000000
+     Faces sent             : 727.272727 154.277843 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.181818 0.385695 0.000000 1.000000
+
+     Sum of min/max communicate times per ts: 0.782603 20.971131
+
+     Sum of min/max calc and comm times per ts: 1.054613 21.228335
+
+---------------------------------------------
+             Gridsum performance
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 15.526701 2.411915 10.514431 22.705891
+
+        red : ave, stddev, min, max (sec): 15.506268 2.411904 10.493716 22.685831
+
+        calc: ave, stddev, min, max (sec): 0.019084 0.000832 0.018634 0.032660
+
+     total number:             3200
+     number per timestep:      40
+
+     Sum of min/max gridsum times per ts: 7.208564 24.126229
+
+---------------------------------------------
+               Mesh Refinement
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.961377 0.186707 0.425875 1.252852
+
+     Number of refinement steps: 5
+
+     Number of load balance steps: 0
+
+     Number of redistributing steps: 0
+
+     Total blocks           : 1126400
+     Blocks/timestep ave, min, max : 2816.000000 2816 2816
+     Max blocks on a processor at any time: 1
+     total blocks split     : 0.000000
+     total blocks reformed  : 0.000000
+
+     total blocks moved     : 0.000000
+     total moved load bal   : 0.000000
+     total moved redistribut: 0.000000
+     total moved coasening  : 0.000000
+
+     parents ave, min, max  : 0.000000 0 0
+     max dots ave, min, max : 0.000000 0 0
+     ave dots used          : -nan
+
+     number of times more sets of blocks than ranks: 0
+     total sets of blocks over num of ranks: 0
+     max number of sets of blocks on a rank: 1
+
+                              average    stddev  minimum  maximum
+     Per processor:
+     total blocks split     : 0.000000 0.000000 0.000000 0.000000
+     total blocks reformed  : 0.000000 0.000000 0.000000 0.000000
+     Total blocks moved     : 0.000000 0.000000 0.000000 0.000000
+     Blocks moved load bal  : 0.000000 0.000000 0.000000 0.000000
+     Blocks moved redistribu: 0.000000 0.000000 0.000000 0.000000
+     Blocks moved coarsening: 0.000000 0.000000 0.000000 0.000000
+     Time:
+        initial refine      : 0.051735 0.000006 0.051660 0.051756
+
+        compare objects     : 0.000040 0.000030 0.000021 0.000303
+        mark refine/coarsen : 0.090577 0.003940 0.073830 0.102811
+        communicate block 1 : 0.006698 0.003865 0.000704 0.022688
+        split blocks        : 0.003236 0.001781 0.000501 0.015175
+        communicate block 2 : 0.004100 0.002000 0.000790 0.020255
+        sync time           : 0.604022 0.186715 0.068281 0.895267
+        time for groups     : 0.009612 0.000479 0.003330 0.010785
+        misc time           : 0.016580 0.000478 0.010300 0.017090
+        total coarsen blocks: 0.180272 0.002497 0.166325 0.187738
+           coarsen blocks   : 0.180263 0.002498 0.166316 0.187729
+           pack blocks      : 0.000000 0.000000 0.000000 0.000000
+           move blocks      : 0.000000 0.000000 0.000000 0.000000
+           unpack blocks    : 0.000000 0.000000 0.000000 0.000000
+        total redistribute  : 0.055838 0.000597 0.049641 0.060073
+           choose blocks    : 0.000000 0.000000 0.000000 0.000000
+           pack blocks      : 0.000000 0.000000 0.000000 0.000000
+           move blocks      : 0.000000 0.000000 0.000000 0.000000
+           unpack blocks    : 0.000000 0.000000 0.000000 0.000000
+        total load balance  : 0.000000 0.000000 0.000000 0.000000
+           sort             : 0.000000 0.000000 0.000000 0.000000
+           move dots back   : 0.000000 0.000000 0.000000 0.000000
+           move blocks total: 0.000000 0.000000 0.000000 0.000000
+              pack blocks   : 0.000000 0.000000 0.000000 0.000000
+              move blocks   : 0.000000 0.000000 0.000000 0.000000
+              unpack blocks : 0.000000 0.000000 0.000000 0.000000
+              misc          : 0.000000 0.000000 0.000000 0.000000
+
+     Sum of min/max refinement times per ts: 0.352491 1.203531
+
+---------------------------------------------
+                   Plot
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.000001 0.000001 0.000001 0.000036
+
+     Number of plot steps: 0
+
+ ================== End report ===================
+Summary: ranks 2816 threads 1 ts 20 time 26.505293 calc 0.276646 comm 9.666746 red 15.526701 refine 0.961377 blocks/ts 2816.000000 max_blocks 1
+FLUX-RUN END miniamr-iter-2
+FLUX-RUN START miniamr-iter-3
+Number of blocks at level 0 at timestep 0 is 2816
+Number of blocks at level 1 at timestep 0 is 0
+Number of blocks at level 2 at timestep 0 is 0
+Number of blocks at level 3 at timestep 0 is 0
+Number of blocks at level 4 at timestep 0 is 0
+Number of blocks at level 5 at timestep 0 is 0
+Total number of blocks at timestep 0 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 1 time 0.000000 delta 1.000000
+Timestep 2 time 1.000000 delta 1.000000
+Timestep 3 time 2.000000 delta 1.000000
+Timestep 4 time 3.000000 delta 1.000000
+Timestep 5 time 4.000000 delta 1.000000
+Number of blocks at level 0 at timestep 5 is 2816
+Number of blocks at level 1 at timestep 5 is 0
+Number of blocks at level 2 at timestep 5 is 0
+Number of blocks at level 3 at timestep 5 is 0
+Number of blocks at level 4 at timestep 5 is 0
+Number of blocks at level 5 at timestep 5 is 0
+Total number of blocks at timestep 5 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 6 time 5.000000 delta 1.000000
+Timestep 7 time 6.000000 delta 1.000000
+Timestep 8 time 7.000000 delta 1.000000
+Timestep 9 time 8.000000 delta 1.000000
+Timestep 10 time 9.000000 delta 1.000000
+Number of blocks at level 0 at timestep 10 is 2816
+Number of blocks at level 1 at timestep 10 is 0
+Number of blocks at level 2 at timestep 10 is 0
+Number of blocks at level 3 at timestep 10 is 0
+Number of blocks at level 4 at timestep 10 is 0
+Number of blocks at level 5 at timestep 10 is 0
+Total number of blocks at timestep 10 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 11 time 10.000000 delta 1.000000
+Timestep 12 time 11.000000 delta 1.000000
+Timestep 13 time 12.000000 delta 1.000000
+Timestep 14 time 13.000000 delta 1.000000
+Timestep 15 time 14.000000 delta 1.000000
+Number of blocks at level 0 at timestep 15 is 2816
+Number of blocks at level 1 at timestep 15 is 0
+Number of blocks at level 2 at timestep 15 is 0
+Number of blocks at level 3 at timestep 15 is 0
+Number of blocks at level 4 at timestep 15 is 0
+Number of blocks at level 5 at timestep 15 is 0
+Total number of blocks at timestep 15 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 16 time 15.000000 delta 1.000000
+Timestep 17 time 16.000000 delta 1.000000
+Timestep 18 time 17.000000 delta 1.000000
+Timestep 19 time 18.000000 delta 1.000000
+Timestep 20 time 19.000000 delta 1.000000
+Number of blocks at level 0 at timestep 20 is 2816
+Number of blocks at level 1 at timestep 20 is 0
+Number of blocks at level 2 at timestep 20 is 0
+Number of blocks at level 3 at timestep 20 is 0
+Number of blocks at level 4 at timestep 20 is 0
+Number of blocks at level 5 at timestep 20 is 0
+Total number of blocks at timestep 20 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+
+ ================ Start report ===================
+
+          Mantevo miniAMR
+          version 1.7.0 (modified w/OpenMP)
+
+Run on 2816 ranks arranged in a 16 x 16 x 11 grid
+Threads per rank 1
+initial blocks per rank 1 x 1 x 1
+block size 20 x 20 x 20
+Initial ranks arranged by RCB across machine
+
+change_dir 0 group_blocks 0 limit_move 0
+Maximum number of blocks per rank is 500
+Number of levels of refinement is 5
+Blocks can change by 5 levels per refinement step
+
+Blocks will be refined by 0 objects
+
+
+Number of timesteps is 20
+Communicaion/computation stages per timestep is 20
+Communication will be performed with nonblocking sends
+Will perform checksums every 5 stages
+Will refine every 5 timesteps
+Load balance by RCB (Recursive Coordinate Bisection)
+Load balance when inbalanced by 0%
+Will not plot results
+Calculate on 40 variables with 7 point stencil
+Communicate 40 variables at a time
+Error tolorance for variable sums is 10^(-8)
+
+Total time for test: ave, std, min, max (sec): 25.731353 0.000006 25.731329 25.731402
+
+
+Number of malloc calls: ave, std, min, max (sec): 10140579.999645 0.018841 10140579.000000 10140580.000000
+
+Amount malloced: ave, std, min, max: 2807402708.000000 0.000000 2807402708.000000 2807402708.000000
+
+Malloc calls in init: ave, std, min, max (sec): 10140579.999645 0.018841 10140579.000000 10140580.000000
+
+Amount malloced in init: ave, std, min, max: 2807402708.000000 0.000000 2807402708.000000 2807402708.000000
+
+Malloc calls in timestepping: ave, std, min, max (sec): 0.000000 0.000000 0.000000 0.000000
+
+Amount malloced in timestepping: ave, std, min, max: 0.000000 0.000000 0.000000 0.000000
+
+Main (parse, allocate) Time: ave, stddev, min, max (sec): 1.214680 0.020454 1.171078 1.333168
+
+Initailize Time: ave, stddev, min, max (sec): 0.267320 0.020794 0.148740 0.316057
+
+---------------------------------------------
+          Computational Performance
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.275803 0.039898 0.225453 0.475855
+
+     total GFLOPS:             8520.050783
+     Average GFLOPS per rank:  3.025586
+
+     Total floating point ops: 2523136000000.000000
+
+        Adds:                  2162688000000.000000
+        Muls:                  0.000000
+        Divides:               360448000000.000000
+
+     Sum of min/max compute times per ts: 0.222536 0.543125
+
+---------------------------------------------
+           Interblock communication
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 9.701004 2.776665 1.125323 15.320927
+
+
+Total communication:
+
+                              average    stddev  minimum  maximum
+     Total                  : 9.700833 2.776664 1.125142 15.320779
+     Post IRecv             : 0.010936 0.004566 0.001751 0.058341
+     Pack faces             : 0.110155 0.037817 0.047148 0.297029
+     Send messages          : 0.011803 0.002949 0.005525 0.027635
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 9.424153 2.761148 0.869007 15.044898
+     Unpack faces           : 0.133371 0.046759 0.050461 0.335917
+
+     Comm partners total ave: 5.568182 0.606226 3.000000 6.000000
+     Comm partners total min: 5.568182 0.606226 3.000000 6.000000
+     Comm partners total max: 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq ave : 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq min : 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq max : 5.568182 0.606226 3.000000 6.000000
+     Messages received      : 2227.272727 242.490521 1200.000000 2400.000000
+     Bytes received         : 285090909.090909 31038786.719067 153600000.000000 307200000.000000
+     Faces received         : 2227.272727 242.490521 1200.000000 2400.000000
+     Messages sent          : 2227.272727 242.490521 1200.000000 2400.000000
+     Bytes sent             : 285090909.090909 31038786.719067 153600000.000000 307200000.000000
+     Faces sent             : 2227.272727 242.490521 1200.000000 2400.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.431818 0.606226 0.000000 3.000000
+
+X direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 2.532883 1.169714 0.163691 7.034370
+     Post IRecv             : 0.002563 0.001063 0.000401 0.008885
+     Pack faces             : 0.017282 0.004897 0.005908 0.049820
+     Send messages          : 0.002295 0.002329 0.000546 0.010070
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 2.490357 1.168589 0.135555 6.997278
+     Unpack faces           : 0.018385 0.007547 0.006404 0.117921
+
+     Comm partners average  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners minimum  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners maximum  : 1.875000 0.330719 1.000000 2.000000
+     Messages received      : 750.000000 132.287566 400.000000 800.000000
+     Bytes received         : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces received         : 750.000000 132.287566 400.000000 800.000000
+     Messages sent          : 750.000000 132.287566 400.000000 800.000000
+     Bytes sent             : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces sent             : 750.000000 132.287566 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.125000 0.330719 0.000000 1.000000
+
+Y direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 3.173219 1.286202 0.120446 7.041260
+     Post IRecv             : 0.005302 0.003214 0.000595 0.044239
+     Pack faces             : 0.025090 0.011470 0.008881 0.105083
+     Send messages          : 0.001201 0.001500 0.000243 0.011409
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 3.114425 1.286375 0.084444 6.992221
+     Unpack faces           : 0.023917 0.011251 0.007820 0.085756
+
+     Comm partners average  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners minimum  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners maximum  : 1.875000 0.330719 1.000000 2.000000
+     Messages received      : 750.000000 132.287566 400.000000 800.000000
+     Bytes received         : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces received         : 750.000000 132.287566 400.000000 800.000000
+     Messages sent          : 750.000000 132.287566 400.000000 800.000000
+     Bytes sent             : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces sent             : 750.000000 132.287566 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.125000 0.330719 0.000000 1.000000
+
+Z direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 3.994731 1.334589 0.457621 8.395324
+     Post IRecv             : 0.003071 0.001776 0.000232 0.015169
+     Pack faces             : 0.067783 0.027466 0.027021 0.232587
+     Send messages          : 0.008307 0.001892 0.003149 0.025007
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 3.819371 1.321752 0.322996 8.195704
+     Unpack faces           : 0.091069 0.034862 0.032396 0.227215
+
+     Comm partners average  : 1.818182 0.385695 1.000000 2.000000
+     Comm partners minimum  : 1.818182 0.385695 1.000000 2.000000
+     Comm partners maximum  : 1.818182 0.385695 1.000000 2.000000
+     Messages received      : 727.272727 154.277843 400.000000 800.000000
+     Bytes received         : 93090909.090909 19747563.925501 51200000.000000 102400000.000000
+     Faces received         : 727.272727 154.277843 400.000000 800.000000
+     Messages sent          : 727.272727 154.277843 400.000000 800.000000
+     Bytes sent             : 93090909.090909 19747563.925501 51200000.000000 102400000.000000
+     Faces sent             : 727.272727 154.277843 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.181818 0.385695 0.000000 1.000000
+
+     Sum of min/max communicate times per ts: 0.775578 21.339372
+
+     Sum of min/max calc and comm times per ts: 1.043741 21.605880
+
+---------------------------------------------
+             Gridsum performance
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 14.447163 2.646369 8.918843 22.579706
+
+        red : ave, stddev, min, max (sec): 14.426707 2.646338 8.898757 22.558719
+
+        calc: ave, stddev, min, max (sec): 0.019112 0.000802 0.018565 0.032861
+
+     total number:             3200
+     number per timestep:      40
+
+     Sum of min/max gridsum times per ts: 5.937192 22.955324
+
+---------------------------------------------
+               Mesh Refinement
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 1.272853 0.215672 0.638459 1.667623
+
+     Number of refinement steps: 5
+
+     Number of load balance steps: 0
+
+     Number of redistributing steps: 0
+
+     Total blocks           : 1126400
+     Blocks/timestep ave, min, max : 2816.000000 2816 2816
+     Max blocks on a processor at any time: 1
+     total blocks split     : 0.000000
+     total blocks reformed  : 0.000000
+
+     total blocks moved     : 0.000000
+     total moved load bal   : 0.000000
+     total moved redistribut: 0.000000
+     total moved coasening  : 0.000000
+
+     parents ave, min, max  : 0.000000 0 0
+     max dots ave, min, max : 0.000000 0 0
+     ave dots used          : -nan
+
+     number of times more sets of blocks than ranks: 0
+     total sets of blocks over num of ranks: 0
+     max number of sets of blocks on a rank: 1
+
+                              average    stddev  minimum  maximum
+     Per processor:
+     total blocks split     : 0.000000 0.000000 0.000000 0.000000
+     total blocks reformed  : 0.000000 0.000000 0.000000 0.000000
+     Total blocks moved     : 0.000000 0.000000 0.000000 0.000000
+     Blocks moved load bal  : 0.000000 0.000000 0.000000 0.000000
+     Blocks moved redistribu: 0.000000 0.000000 0.000000 0.000000
+     Blocks moved coarsening: 0.000000 0.000000 0.000000 0.000000
+     Time:
+        initial refine      : 0.133248 0.000006 0.133228 0.133269
+
+        compare objects     : 0.000042 0.000034 0.000023 0.000640
+        mark refine/coarsen : 0.082855 0.004044 0.072627 0.096611
+        communicate block 1 : 0.006968 0.003877 0.000703 0.016788
+        split blocks        : 0.003461 0.001902 0.000525 0.012380
+        communicate block 2 : 0.004493 0.002065 0.000872 0.016115
+        sync time           : 0.908411 0.215648 0.273835 1.302938
+        time for groups     : 0.002633 0.000032 0.001685 0.003026
+        misc time           : 0.012643 0.000031 0.011699 0.012805
+        total coarsen blocks: 0.196906 0.002621 0.186106 0.209379
+           coarsen blocks   : 0.196897 0.002622 0.186100 0.209369
+           pack blocks      : 0.000000 0.000000 0.000000 0.000000
+           move blocks      : 0.000000 0.000000 0.000000 0.000000
+           unpack blocks    : 0.000000 0.000000 0.000000 0.000000
+        total redistribute  : 0.057059 0.000914 0.048761 0.064658
+           choose blocks    : 0.000000 0.000000 0.000000 0.000000
+           pack blocks      : 0.000000 0.000000 0.000000 0.000000
+           move blocks      : 0.000000 0.000000 0.000000 0.000000
+           unpack blocks    : 0.000000 0.000000 0.000000 0.000000
+        total load balance  : 0.000000 0.000000 0.000000 0.000000
+           sort             : 0.000000 0.000000 0.000000 0.000000
+           move dots back   : 0.000000 0.000000 0.000000 0.000000
+           move blocks total: 0.000000 0.000000 0.000000 0.000000
+              pack blocks   : 0.000000 0.000000 0.000000 0.000000
+              move blocks   : 0.000000 0.000000 0.000000 0.000000
+              unpack blocks : 0.000000 0.000000 0.000000 0.000000
+              misc          : 0.000000 0.000000 0.000000 0.000000
+
+     Sum of min/max refinement times per ts: 0.293180 1.537656
+
+---------------------------------------------
+                   Plot
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.000001 0.000001 0.000001 0.000028
+
+     Number of plot steps: 0
+
+ ================== End report ===================
+Summary: ranks 2816 threads 1 ts 20 time 25.731353 calc 0.275803 comm 9.701004 red 14.447163 refine 1.272853 blocks/ts 2816.000000 max_blocks 1
+FLUX-RUN END miniamr-iter-3
+FLUX-RUN START miniamr-iter-4
+Number of blocks at level 0 at timestep 0 is 2816
+Number of blocks at level 1 at timestep 0 is 0
+Number of blocks at level 2 at timestep 0 is 0
+Number of blocks at level 3 at timestep 0 is 0
+Number of blocks at level 4 at timestep 0 is 0
+Number of blocks at level 5 at timestep 0 is 0
+Total number of blocks at timestep 0 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 1 time 0.000000 delta 1.000000
+Timestep 2 time 1.000000 delta 1.000000
+Timestep 3 time 2.000000 delta 1.000000
+Timestep 4 time 3.000000 delta 1.000000
+Timestep 5 time 4.000000 delta 1.000000
+Number of blocks at level 0 at timestep 5 is 2816
+Number of blocks at level 1 at timestep 5 is 0
+Number of blocks at level 2 at timestep 5 is 0
+Number of blocks at level 3 at timestep 5 is 0
+Number of blocks at level 4 at timestep 5 is 0
+Number of blocks at level 5 at timestep 5 is 0
+Total number of blocks at timestep 5 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 6 time 5.000000 delta 1.000000
+Timestep 7 time 6.000000 delta 1.000000
+Timestep 8 time 7.000000 delta 1.000000
+Timestep 9 time 8.000000 delta 1.000000
+Timestep 10 time 9.000000 delta 1.000000
+Number of blocks at level 0 at timestep 10 is 2816
+Number of blocks at level 1 at timestep 10 is 0
+Number of blocks at level 2 at timestep 10 is 0
+Number of blocks at level 3 at timestep 10 is 0
+Number of blocks at level 4 at timestep 10 is 0
+Number of blocks at level 5 at timestep 10 is 0
+Total number of blocks at timestep 10 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 11 time 10.000000 delta 1.000000
+Timestep 12 time 11.000000 delta 1.000000
+Timestep 13 time 12.000000 delta 1.000000
+Timestep 14 time 13.000000 delta 1.000000
+Timestep 15 time 14.000000 delta 1.000000
+Number of blocks at level 0 at timestep 15 is 2816
+Number of blocks at level 1 at timestep 15 is 0
+Number of blocks at level 2 at timestep 15 is 0
+Number of blocks at level 3 at timestep 15 is 0
+Number of blocks at level 4 at timestep 15 is 0
+Number of blocks at level 5 at timestep 15 is 0
+Total number of blocks at timestep 15 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 16 time 15.000000 delta 1.000000
+Timestep 17 time 16.000000 delta 1.000000
+Timestep 18 time 17.000000 delta 1.000000
+Timestep 19 time 18.000000 delta 1.000000
+Timestep 20 time 19.000000 delta 1.000000
+Number of blocks at level 0 at timestep 20 is 2816
+Number of blocks at level 1 at timestep 20 is 0
+Number of blocks at level 2 at timestep 20 is 0
+Number of blocks at level 3 at timestep 20 is 0
+Number of blocks at level 4 at timestep 20 is 0
+Number of blocks at level 5 at timestep 20 is 0
+Total number of blocks at timestep 20 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+
+ ================ Start report ===================
+
+          Mantevo miniAMR
+          version 1.7.0 (modified w/OpenMP)
+
+Run on 2816 ranks arranged in a 16 x 16 x 11 grid
+Threads per rank 1
+initial blocks per rank 1 x 1 x 1
+block size 20 x 20 x 20
+Initial ranks arranged by RCB across machine
+
+change_dir 0 group_blocks 0 limit_move 0
+Maximum number of blocks per rank is 500
+Number of levels of refinement is 5
+Blocks can change by 5 levels per refinement step
+
+Blocks will be refined by 0 objects
+
+
+Number of timesteps is 20
+Communicaion/computation stages per timestep is 20
+Communication will be performed with nonblocking sends
+Will perform checksums every 5 stages
+Will refine every 5 timesteps
+Load balance by RCB (Recursive Coordinate Bisection)
+Load balance when inbalanced by 0%
+Will not plot results
+Calculate on 40 variables with 7 point stencil
+Communicate 40 variables at a time
+Error tolorance for variable sums is 10^(-8)
+
+Total time for test: ave, std, min, max (sec): 26.002143 0.000072 26.002120 26.005970
+
+
+Number of malloc calls: ave, std, min, max (sec): 10140579.999645 0.018841 10140579.000000 10140580.000000
+
+Amount malloced: ave, std, min, max: 2807402708.000000 0.000000 2807402708.000000 2807402708.000000
+
+Malloc calls in init: ave, std, min, max (sec): 10140579.999645 0.018841 10140579.000000 10140580.000000
+
+Amount malloced in init: ave, std, min, max: 2807402708.000000 0.000000 2807402708.000000 2807402708.000000
+
+Malloc calls in timestepping: ave, std, min, max (sec): 0.000000 0.000000 0.000000 0.000000
+
+Amount malloced in timestepping: ave, std, min, max: 0.000000 0.000000 0.000000 0.000000
+
+Main (parse, allocate) Time: ave, stddev, min, max (sec): 1.213441 0.018383 1.172198 1.380367
+
+Initailize Time: ave, stddev, min, max (sec): 0.273251 0.018824 0.105036 0.319245
+
+---------------------------------------------
+          Computational Performance
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.276139 0.039841 0.224239 0.448849
+
+     total GFLOPS:             8509.672104
+     Average GFLOPS per rank:  3.021901
+
+     Total floating point ops: 2523136000000.000000
+
+        Adds:                  2162688000000.000000
+        Muls:                  0.000000
+        Divides:               360448000000.000000
+
+     Sum of min/max compute times per ts: 0.222032 0.539531
+
+---------------------------------------------
+           Interblock communication
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 9.662918 2.324108 2.859412 14.887670
+
+
+Total communication:
+
+                              average    stddev  minimum  maximum
+     Total                  : 9.662746 2.324108 2.859298 14.887501
+     Post IRecv             : 0.010944 0.004645 0.001351 0.055503
+     Pack faces             : 0.110178 0.036995 0.046164 0.298031
+     Send messages          : 0.011777 0.002900 0.005560 0.028784
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 9.386154 2.308601 2.633526 14.612999
+     Unpack faces           : 0.133216 0.045874 0.052262 0.320112
+
+     Comm partners total ave: 5.568182 0.606226 3.000000 6.000000
+     Comm partners total min: 5.568182 0.606226 3.000000 6.000000
+     Comm partners total max: 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq ave : 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq min : 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq max : 5.568182 0.606226 3.000000 6.000000
+     Messages received      : 2227.272727 242.490521 1200.000000 2400.000000
+     Bytes received         : 285090909.090909 31038786.719067 153600000.000000 307200000.000000
+     Faces received         : 2227.272727 242.490521 1200.000000 2400.000000
+     Messages sent          : 2227.272727 242.490521 1200.000000 2400.000000
+     Bytes sent             : 285090909.090909 31038786.719067 153600000.000000 307200000.000000
+     Faces sent             : 2227.272727 242.490521 1200.000000 2400.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.431818 0.606226 0.000000 3.000000
+
+X direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 2.616191 1.070183 0.180362 6.105629
+     Post IRecv             : 0.002568 0.001065 0.000371 0.008497
+     Pack faces             : 0.017363 0.004883 0.005773 0.039285
+     Send messages          : 0.002296 0.002330 0.000566 0.010359
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 2.573510 1.068402 0.144067 6.034699
+     Unpack faces           : 0.018453 0.007744 0.006856 0.096799
+
+     Comm partners average  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners minimum  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners maximum  : 1.875000 0.330719 1.000000 2.000000
+     Messages received      : 750.000000 132.287566 400.000000 800.000000
+     Bytes received         : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces received         : 750.000000 132.287566 400.000000 800.000000
+     Messages sent          : 750.000000 132.287566 400.000000 800.000000
+     Bytes sent             : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces sent             : 750.000000 132.287566 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.125000 0.330719 0.000000 1.000000
+
+Y direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 3.218436 1.196470 0.192297 7.984901
+     Post IRecv             : 0.005311 0.003316 0.000492 0.045911
+     Pack faces             : 0.025044 0.011340 0.008922 0.114204
+     Send messages          : 0.001192 0.001479 0.000241 0.011685
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 3.159667 1.196331 0.090528 7.935599
+     Unpack faces           : 0.023910 0.010962 0.008321 0.085302
+
+     Comm partners average  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners minimum  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners maximum  : 1.875000 0.330719 1.000000 2.000000
+     Messages received      : 750.000000 132.287566 400.000000 800.000000
+     Bytes received         : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces received         : 750.000000 132.287566 400.000000 800.000000
+     Messages sent          : 750.000000 132.287566 400.000000 800.000000
+     Bytes sent             : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces sent             : 750.000000 132.287566 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.125000 0.330719 0.000000 1.000000
+
+Z direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 3.828119 1.403192 1.105920 8.962334
+     Post IRecv             : 0.003065 0.001746 0.000241 0.013041
+     Pack faces             : 0.067771 0.026629 0.027526 0.215592
+     Send messages          : 0.008289 0.001849 0.002982 0.022446
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 3.652977 1.386460 1.001955 8.756894
+     Unpack faces           : 0.090853 0.034358 0.031888 0.223865
+
+     Comm partners average  : 1.818182 0.385695 1.000000 2.000000
+     Comm partners minimum  : 1.818182 0.385695 1.000000 2.000000
+     Comm partners maximum  : 1.818182 0.385695 1.000000 2.000000
+     Messages received      : 727.272727 154.277843 400.000000 800.000000
+     Bytes received         : 93090909.090909 19747563.925501 51200000.000000 102400000.000000
+     Faces received         : 727.272727 154.277843 400.000000 800.000000
+     Messages sent          : 727.272727 154.277843 400.000000 800.000000
+     Bytes sent             : 93090909.090909 19747563.925501 51200000.000000 102400000.000000
+     Faces sent             : 727.272727 154.277843 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.181818 0.385695 0.000000 1.000000
+
+     Sum of min/max communicate times per ts: 0.771110 20.571363
+
+     Sum of min/max calc and comm times per ts: 1.045171 20.833954
+
+---------------------------------------------
+             Gridsum performance
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 14.993690 2.225904 10.051173 21.594022
+
+        red : ave, stddev, min, max (sec): 14.973264 2.225887 10.031068 21.573673
+
+        calc: ave, stddev, min, max (sec): 0.019080 0.000760 0.018656 0.031777
+
+     total number:             3200
+     number per timestep:      40
+
+     Sum of min/max gridsum times per ts: 7.267971 23.643523
+
+---------------------------------------------
+               Mesh Refinement
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 1.024006 0.178659 0.624887 1.242723
+
+     Number of refinement steps: 5
+
+     Number of load balance steps: 0
+
+     Number of redistributing steps: 0
+
+     Total blocks           : 1126400
+     Blocks/timestep ave, min, max : 2816.000000 2816 2816
+     Max blocks on a processor at any time: 1
+     total blocks split     : 0.000000
+     total blocks reformed  : 0.000000
+
+     total blocks moved     : 0.000000
+     total moved load bal   : 0.000000
+     total moved redistribut: 0.000000
+     total moved coasening  : 0.000000
+
+     parents ave, min, max  : 0.000000 0 0
+     max dots ave, min, max : 0.000000 0 0
+     ave dots used          : -nan
+
+     number of times more sets of blocks than ranks: 0
+     total sets of blocks over num of ranks: 0
+     max number of sets of blocks on a rank: 1
+
+                              average    stddev  minimum  maximum
+     Per processor:
+     total blocks split     : 0.000000 0.000000 0.000000 0.000000
+     total blocks reformed  : 0.000000 0.000000 0.000000 0.000000
+     Total blocks moved     : 0.000000 0.000000 0.000000 0.000000
+     Blocks moved load bal  : 0.000000 0.000000 0.000000 0.000000
+     Blocks moved redistribu: 0.000000 0.000000 0.000000 0.000000
+     Blocks moved coarsening: 0.000000 0.000000 0.000000 0.000000
+     Time:
+        initial refine      : 0.080017 0.000006 0.079995 0.080109
+
+        compare objects     : 0.000039 0.000028 0.000022 0.000359
+        mark refine/coarsen : 0.118722 0.004285 0.105305 0.129859
+        communicate block 1 : 0.007301 0.004173 0.000557 0.020887
+        split blocks        : 0.003697 0.002367 0.000554 0.017224
+        communicate block 2 : 0.005745 0.003314 0.001008 0.020439
+        sync time           : 0.541919 0.178666 0.142437 0.760261
+        time for groups     : 0.008690 0.000152 0.004124 0.014544
+        misc time           : 0.031529 0.000083 0.028700 0.032973
+        total coarsen blocks: 0.224455 0.004175 0.204003 0.232281
+           coarsen blocks   : 0.224446 0.004175 0.203992 0.232270
+           pack blocks      : 0.000000 0.000000 0.000000 0.000000
+           move blocks      : 0.000000 0.000000 0.000000 0.000000
+           unpack blocks    : 0.000000 0.000000 0.000000 0.000000
+        total redistribute  : 0.090585 0.000681 0.081451 0.096372
+           choose blocks    : 0.000000 0.000000 0.000000 0.000000
+           pack blocks      : 0.000000 0.000000 0.000000 0.000000
+           move blocks      : 0.000000 0.000000 0.000000 0.000000
+           unpack blocks    : 0.000000 0.000000 0.000000 0.000000
+        total load balance  : 0.000000 0.000000 0.000000 0.000000
+           sort             : 0.000000 0.000000 0.000000 0.000000
+           move dots back   : 0.000000 0.000000 0.000000 0.000000
+           move blocks total: 0.000000 0.000000 0.000000 0.000000
+              pack blocks   : 0.000000 0.000000 0.000000 0.000000
+              move blocks   : 0.000000 0.000000 0.000000 0.000000
+              unpack blocks : 0.000000 0.000000 0.000000 0.000000
+              misc          : 0.000000 0.000000 0.000000 0.000000
+
+     Sum of min/max refinement times per ts: 0.483002 1.165830
+
+---------------------------------------------
+                   Plot
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.000001 0.000001 0.000001 0.000021
+
+     Number of plot steps: 0
+
+ ================== End report ===================
+Summary: ranks 2816 threads 1 ts 20 time 26.002143 calc 0.276139 comm 9.662918 red 14.993690 refine 1.024006 blocks/ts 2816.000000 max_blocks 1
+FLUX-RUN END miniamr-iter-4
+FLUX-RUN START miniamr-iter-5
+Number of blocks at level 0 at timestep 0 is 2816
+Number of blocks at level 1 at timestep 0 is 0
+Number of blocks at level 2 at timestep 0 is 0
+Number of blocks at level 3 at timestep 0 is 0
+Number of blocks at level 4 at timestep 0 is 0
+Number of blocks at level 5 at timestep 0 is 0
+Total number of blocks at timestep 0 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 1 time 0.000000 delta 1.000000
+Timestep 2 time 1.000000 delta 1.000000
+Timestep 3 time 2.000000 delta 1.000000
+Timestep 4 time 3.000000 delta 1.000000
+Timestep 5 time 4.000000 delta 1.000000
+Number of blocks at level 0 at timestep 5 is 2816
+Number of blocks at level 1 at timestep 5 is 0
+Number of blocks at level 2 at timestep 5 is 0
+Number of blocks at level 3 at timestep 5 is 0
+Number of blocks at level 4 at timestep 5 is 0
+Number of blocks at level 5 at timestep 5 is 0
+Total number of blocks at timestep 5 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 6 time 5.000000 delta 1.000000
+Timestep 7 time 6.000000 delta 1.000000
+Timestep 8 time 7.000000 delta 1.000000
+Timestep 9 time 8.000000 delta 1.000000
+Timestep 10 time 9.000000 delta 1.000000
+Number of blocks at level 0 at timestep 10 is 2816
+Number of blocks at level 1 at timestep 10 is 0
+Number of blocks at level 2 at timestep 10 is 0
+Number of blocks at level 3 at timestep 10 is 0
+Number of blocks at level 4 at timestep 10 is 0
+Number of blocks at level 5 at timestep 10 is 0
+Total number of blocks at timestep 10 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 11 time 10.000000 delta 1.000000
+Timestep 12 time 11.000000 delta 1.000000
+Timestep 13 time 12.000000 delta 1.000000
+Timestep 14 time 13.000000 delta 1.000000
+Timestep 15 time 14.000000 delta 1.000000
+Number of blocks at level 0 at timestep 15 is 2816
+Number of blocks at level 1 at timestep 15 is 0
+Number of blocks at level 2 at timestep 15 is 0
+Number of blocks at level 3 at timestep 15 is 0
+Number of blocks at level 4 at timestep 15 is 0
+Number of blocks at level 5 at timestep 15 is 0
+Total number of blocks at timestep 15 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+Timestep 16 time 15.000000 delta 1.000000
+Timestep 17 time 16.000000 delta 1.000000
+Timestep 18 time 17.000000 delta 1.000000
+Timestep 19 time 18.000000 delta 1.000000
+Timestep 20 time 19.000000 delta 1.000000
+Number of blocks at level 0 at timestep 20 is 2816
+Number of blocks at level 1 at timestep 20 is 0
+Number of blocks at level 2 at timestep 20 is 0
+Number of blocks at level 3 at timestep 20 is 0
+Number of blocks at level 4 at timestep 20 is 0
+Number of blocks at level 5 at timestep 20 is 0
+Total number of blocks at timestep 20 is 2816
+comm partners x ave   1.88 min 1 max 2
+comm partners y ave   1.88 min 1 max 2
+comm partners z ave   1.82 min 1 max 2
+comm partners total ave   5.57 min 3 max 6
+comm partners unique ave   5.57 min 3 max 6
+
+
+ ================ Start report ===================
+
+          Mantevo miniAMR
+          version 1.7.0 (modified w/OpenMP)
+
+Run on 2816 ranks arranged in a 16 x 16 x 11 grid
+Threads per rank 1
+initial blocks per rank 1 x 1 x 1
+block size 20 x 20 x 20
+Initial ranks arranged by RCB across machine
+
+change_dir 0 group_blocks 0 limit_move 0
+Maximum number of blocks per rank is 500
+Number of levels of refinement is 5
+Blocks can change by 5 levels per refinement step
+
+Blocks will be refined by 0 objects
+
+
+Number of timesteps is 20
+Communicaion/computation stages per timestep is 20
+Communication will be performed with nonblocking sends
+Will perform checksums every 5 stages
+Will refine every 5 timesteps
+Load balance by RCB (Recursive Coordinate Bisection)
+Load balance when inbalanced by 0%
+Will not plot results
+Calculate on 40 variables with 7 point stencil
+Communicate 40 variables at a time
+Error tolorance for variable sums is 10^(-8)
+
+Total time for test: ave, std, min, max (sec): 25.037013 0.000013 25.036396 25.037168
+
+
+Number of malloc calls: ave, std, min, max (sec): 10140579.999645 0.018841 10140579.000000 10140580.000000
+
+Amount malloced: ave, std, min, max: 2807402708.000000 0.000000 2807402708.000000 2807402708.000000
+
+Malloc calls in init: ave, std, min, max (sec): 10140579.999645 0.018841 10140579.000000 10140580.000000
+
+Amount malloced in init: ave, std, min, max: 2807402708.000000 0.000000 2807402708.000000 2807402708.000000
+
+Malloc calls in timestepping: ave, std, min, max (sec): 0.000000 0.000000 0.000000 0.000000
+
+Amount malloced in timestepping: ave, std, min, max: 0.000000 0.000000 0.000000 0.000000
+
+Main (parse, allocate) Time: ave, stddev, min, max (sec): 1.216570 0.019162 1.173405 1.427320
+
+Initailize Time: ave, stddev, min, max (sec): 0.358125 0.019890 0.146659 0.404805
+
+---------------------------------------------
+          Computational Performance
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.275476 0.039287 0.225780 0.457845
+
+     total GFLOPS:             8530.144082
+     Average GFLOPS per rank:  3.029170
+
+     Total floating point ops: 2523136000000.000000
+
+        Adds:                  2162688000000.000000
+        Muls:                  0.000000
+        Divides:               360448000000.000000
+
+     Sum of min/max compute times per ts: 0.222571 0.539259
+
+---------------------------------------------
+           Interblock communication
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 9.815365 2.602322 1.685083 15.454273
+
+
+Total communication:
+
+                              average    stddev  minimum  maximum
+     Total                  : 9.815193 2.602322 1.684944 15.454057
+     Post IRecv             : 0.010887 0.004383 0.001634 0.043589
+     Pack faces             : 0.110300 0.037702 0.046764 0.291653
+     Send messages          : 0.011786 0.002945 0.005426 0.027803
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 9.538573 2.584624 1.534764 15.035625
+     Unpack faces           : 0.133205 0.046020 0.050582 0.374449
+
+     Comm partners total ave: 5.568182 0.606226 3.000000 6.000000
+     Comm partners total min: 5.568182 0.606226 3.000000 6.000000
+     Comm partners total max: 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq ave : 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq min : 5.568182 0.606226 3.000000 6.000000
+     Comm partners uniq max : 5.568182 0.606226 3.000000 6.000000
+     Messages received      : 2227.272727 242.490521 1200.000000 2400.000000
+     Bytes received         : 285090909.090909 31038786.719067 153600000.000000 307200000.000000
+     Faces received         : 2227.272727 242.490521 1200.000000 2400.000000
+     Messages sent          : 2227.272727 242.490521 1200.000000 2400.000000
+     Bytes sent             : 285090909.090909 31038786.719067 153600000.000000 307200000.000000
+     Faces sent             : 2227.272727 242.490521 1200.000000 2400.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.431818 0.606226 0.000000 3.000000
+
+X direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 2.629775 1.122608 0.232412 7.409293
+     Post IRecv             : 0.002579 0.001069 0.000399 0.011450
+     Pack faces             : 0.017262 0.004883 0.006062 0.037314
+     Send messages          : 0.002290 0.002320 0.000503 0.010721
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 2.587283 1.121638 0.195411 7.367732
+     Unpack faces           : 0.018371 0.007511 0.006133 0.100363
+
+     Comm partners average  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners minimum  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners maximum  : 1.875000 0.330719 1.000000 2.000000
+     Messages received      : 750.000000 132.287566 400.000000 800.000000
+     Bytes received         : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces received         : 750.000000 132.287566 400.000000 800.000000
+     Messages sent          : 750.000000 132.287566 400.000000 800.000000
+     Bytes sent             : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces sent             : 750.000000 132.287566 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.125000 0.330719 0.000000 1.000000
+
+Y direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 3.207046 1.261551 0.249488 7.702012
+     Post IRecv             : 0.005244 0.003026 0.000612 0.033384
+     Pack faces             : 0.025100 0.011516 0.008548 0.111494
+     Send messages          : 0.001198 0.001488 0.000223 0.014492
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 3.148135 1.261838 0.205836 7.575695
+     Unpack faces           : 0.024071 0.011487 0.008151 0.089403
+
+     Comm partners average  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners minimum  : 1.875000 0.330719 1.000000 2.000000
+     Comm partners maximum  : 1.875000 0.330719 1.000000 2.000000
+     Messages received      : 750.000000 132.287566 400.000000 800.000000
+     Bytes received         : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces received         : 750.000000 132.287566 400.000000 800.000000
+     Messages sent          : 750.000000 132.287566 400.000000 800.000000
+     Bytes sent             : 96000000.000000 16932808.390813 51200000.000000 102400000.000000
+     Faces sent             : 750.000000 132.287566 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.125000 0.330719 0.000000 1.000000
+
+Z direction communication statistics:
+
+                              average    stddev  minimum  maximum
+     Total                  : 3.978372 1.356795 0.466566 8.794823
+     Post IRecv             : 0.003065 0.001790 0.000253 0.015474
+     Pack faces             : 0.067938 0.027351 0.027166 0.218505
+     Send messages          : 0.008298 0.001907 0.003103 0.023751
+     Exchange same level    : 0.000000 0.000000 0.000000 0.000000
+     Exchange diff level    : 0.000000 0.000000 0.000000 0.000000
+     Apply BC               : 0.000000 0.000000 0.000000 0.000000
+     Wait time              : 3.803155 1.339309 0.377635 8.564265
+     Unpack faces           : 0.090763 0.034225 0.031925 0.227079
+
+     Comm partners average  : 1.818182 0.385695 1.000000 2.000000
+     Comm partners minimum  : 1.818182 0.385695 1.000000 2.000000
+     Comm partners maximum  : 1.818182 0.385695 1.000000 2.000000
+     Messages received      : 727.272727 154.277843 400.000000 800.000000
+     Bytes received         : 93090909.090909 19747563.925501 51200000.000000 102400000.000000
+     Faces received         : 727.272727 154.277843 400.000000 800.000000
+     Messages sent          : 727.272727 154.277843 400.000000 800.000000
+     Bytes sent             : 93090909.090909 19747563.925501 51200000.000000 102400000.000000
+     Faces sent             : 727.272727 154.277843 400.000000 800.000000
+     Faces exchanged same   : 0.000000 0.000000 0.000000 0.000000
+     Faces exchanged diff   : 0.000000 0.000000 0.000000 0.000000
+     Faces with BC applied  : 0.181818 0.385695 0.000000 1.000000
+
+     Sum of min/max communicate times per ts: 0.766063 20.931957
+
+     Sum of min/max calc and comm times per ts: 1.036835 21.190606
+
+---------------------------------------------
+             Gridsum performance
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 14.218285 2.446317 8.815611 22.009413
+
+        red : ave, stddev, min, max (sec): 14.197834 2.446282 8.795266 21.989103
+
+        calc: ave, stddev, min, max (sec): 0.019108 0.000885 0.018658 0.032099
+
+     total number:             3200
+     number per timestep:      40
+
+     Sum of min/max gridsum times per ts: 5.568231 22.893337
+
+---------------------------------------------
+               Mesh Refinement
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.710326 0.214369 0.249698 1.070818
+
+     Number of refinement steps: 5
+
+     Number of load balance steps: 0
+
+     Number of redistributing steps: 0
+
+     Total blocks           : 1126400
+     Blocks/timestep ave, min, max : 2816.000000 2816 2816
+     Max blocks on a processor at any time: 1
+     total blocks split     : 0.000000
+     total blocks reformed  : 0.000000
+
+     total blocks moved     : 0.000000
+     total moved load bal   : 0.000000
+     total moved redistribut: 0.000000
+     total moved coasening  : 0.000000
+
+     parents ave, min, max  : 0.000000 0 0
+     max dots ave, min, max : 0.000000 0 0
+     ave dots used          : -nan
+
+     number of times more sets of blocks than ranks: 0
+     total sets of blocks over num of ranks: 0
+     max number of sets of blocks on a rank: 1
+
+                              average    stddev  minimum  maximum
+     Per processor:
+     total blocks split     : 0.000000 0.000000 0.000000 0.000000
+     total blocks reformed  : 0.000000 0.000000 0.000000 0.000000
+     Total blocks moved     : 0.000000 0.000000 0.000000 0.000000
+     Blocks moved load bal  : 0.000000 0.000000 0.000000 0.000000
+     Blocks moved redistribu: 0.000000 0.000000 0.000000 0.000000
+     Blocks moved coarsening: 0.000000 0.000000 0.000000 0.000000
+     Time:
+        initial refine      : 0.086678 0.000020 0.086058 0.087452
+
+        compare objects     : 0.000039 0.000135 0.000021 0.007052
+        mark refine/coarsen : 0.043684 0.003886 0.029656 0.049714
+        communicate block 1 : 0.006661 0.003812 0.000767 0.020870
+        split blocks        : 0.003207 0.001824 0.000546 0.014074
+        communicate block 2 : 0.003863 0.001829 0.000829 0.014161
+        sync time           : 0.501393 0.214366 0.041690 0.861643
+        time for groups     : 0.001228 0.000011 0.001185 0.001356
+        misc time           : 0.005014 0.000098 0.004968 0.007564
+        total coarsen blocks: 0.126638 0.002375 0.116962 0.131499
+           coarsen blocks   : 0.126629 0.002375 0.116952 0.131492
+           pack blocks      : 0.000000 0.000000 0.000000 0.000000
+           move blocks      : 0.000000 0.000000 0.000000 0.000000
+           unpack blocks    : 0.000000 0.000000 0.000000 0.000000
+        total redistribute  : 0.019812 0.000664 0.019317 0.025327
+           choose blocks    : 0.000000 0.000000 0.000000 0.000000
+           pack blocks      : 0.000000 0.000000 0.000000 0.000000
+           move blocks      : 0.000000 0.000000 0.000000 0.000000
+           unpack blocks    : 0.000000 0.000000 0.000000 0.000000
+        total load balance  : 0.000000 0.000000 0.000000 0.000000
+           sort             : 0.000000 0.000000 0.000000 0.000000
+           move dots back   : 0.000000 0.000000 0.000000 0.000000
+           move blocks total: 0.000000 0.000000 0.000000 0.000000
+              pack blocks   : 0.000000 0.000000 0.000000 0.000000
+              move blocks   : 0.000000 0.000000 0.000000 0.000000
+              unpack blocks : 0.000000 0.000000 0.000000 0.000000
+              misc          : 0.000000 0.000000 0.000000 0.000000
+
+     Sum of min/max refinement times per ts: 0.153034 0.992564
+
+---------------------------------------------
+                   Plot
+---------------------------------------------
+
+     Time: ave, stddev, min, max (sec): 0.000001 0.000001 0.000001 0.000030
+
+     Number of plot steps: 0
+
+ ================== End report ===================
+Summary: ranks 2816 threads 1 ts 20 time 25.037013 calc 0.275476 comm 9.815365 red 14.218285 refine 0.710326 blocks/ts 2816.000000 max_blocks 1
+FLUX-RUN END miniamr-iter-5
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Connecting to archive.ubuntu.com (185.125.190.83)] [1 InRelease 8380 B/129                                                                                0% [Waiting for headers]                        Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+                        0% [Working]0% [Waiting for headers]                        Get:3 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+0% [Waiting for headers] [3 Packages 2655 B/2844 kB 0%]                                                       Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [4 InRelease 5484 B/128 kB 4%] [3 Packages 2655 B/2844 kB 0%]0% [4 InRelease 15.6 kB/128 kB 12%] [3 Packages 136 kB/2844 kB 5%]                                                                  0% [4 InRelease 43.1 kB/128 kB 34%]0% [3 Packages store 0 B] [4 InRelease 43.1 kB/128 kB 34%] [Waiting for headers                                                                               Get:5 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+0% [3 Packages store 0 B] [4 InRelease 47.5 kB/128 kB 37%] [5 Packages 6999 B/1                                                                               0% [3 Packages store 0 B] [4 InRelease 47.5 kB/128 kB 37%]                                                          0% [4 InRelease 77.9 kB/128 kB 61%]0% [5 Packages store 0 B] [4 InRelease 77.9 kB/128 kB 61%]                                                          0% [4 InRelease 89.5 kB/128 kB 70%]                                   0% [Working]0% [Waiting for headers]                        Get:6 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [6 InRelease 2588 B/127 kB 2%]                                 0% [Working]58% [Waiting for headers]                         Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1543 kB]
+58% [7 Packages 2655 B/1543 kB 0%]                                  71% [Waiting for headers]                         Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3155 kB]
+71% [7 Packages store 0 B] [8 Packages 9895 B/3155 kB 0%]                                                         79% [8 Packages 786 kB/3155 kB 25%]                                   99% [Working]99% [8 Packages store 0 B]                          100% [Working]              Fetched 9170 kB in 2s (5116 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 14%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+
+FLUX-JOB START 2491114586112 miniamr-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["miniAMR.x", "--nx", "20", "--ny", "20", "--nz", "20", "--npx", "16", "--npy", "16", "--npz", "11"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "miniamr-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["miniamr-[0-31]"], "starttime": 1745983346, "expiration": 4899583197}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745983346.3428352,"name":"init"}
+{"timestamp":1745983346.3435256,"name":"starting"}
+{"timestamp":1745983346.362525,"name":"shell.init","context":{"service":"0-shell-f28SNGQKh","leader-rank":0,"size":32}}
+{"timestamp":1745983346.569732,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1745983379.9803391,"name":"shell.task-exit","context":{"localid":19,"rank":2571,"state":"Exited","pid":820,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745983380.1586287,"name":"complete","context":{"status":0}}
+{"timestamp":1745983380.1586621,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2491114586112 miniamr-iter-5
+
+FLUX-JOB START 1897838673920 miniamr-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["miniAMR.x", "--nx", "20", "--ny", "20", "--nz", "20", "--npx", "16", "--npy", "16", "--npz", "11"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "miniamr-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["miniamr-[0-31]"], "starttime": 1745983310, "expiration": 4899583197}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745983310.9813218,"name":"init"}
+{"timestamp":1745983310.9821036,"name":"starting"}
+{"timestamp":1745983311.0034215,"name":"shell.init","context":{"service":"0-shell-frrUWH3u","leader-rank":0,"size":32}}
+{"timestamp":1745983311.2102468,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1745983345.8253336,"name":"shell.task-exit","context":{"localid":3,"rank":1235,"state":"Exited","pid":611,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745983346.038686,"name":"complete","context":{"status":0}}
+{"timestamp":1745983346.0387187,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1897838673920 miniamr-iter-4
+
+FLUX-JOB START 1311860850688 miniamr-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["miniAMR.x", "--nx", "20", "--ny", "20", "--nz", "20", "--npx", "16", "--npy", "16", "--npz", "11"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "miniamr-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["miniamr-[0-31]"], "starttime": 1745983276, "expiration": 4899583197}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745983276.0537975,"name":"init"}
+{"timestamp":1745983276.0546446,"name":"starting"}
+{"timestamp":1745983276.0759919,"name":"shell.init","context":{"service":"0-shell-fbThemN7","leader-rank":0,"size":32}}
+{"timestamp":1745983276.2836404,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1745983310.4869075,"name":"shell.task-exit","context":{"localid":61,"rank":1733,"state":"Exited","pid":550,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745983310.6742663,"name":"complete","context":{"status":0}}
+{"timestamp":1745983310.6743031,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1311860850688 miniamr-iter-3
+
+FLUX-JOB START 709911117824 miniamr-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["miniAMR.x", "--nx", "20", "--ny", "20", "--nz", "20", "--npx", "16", "--npy", "16", "--npz", "11"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "miniamr-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["miniamr-[0-31]"], "starttime": 1745983240, "expiration": 4899583197}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745983240.1756911,"name":"init"}
+{"timestamp":1745983240.1764398,"name":"starting"}
+{"timestamp":1745983240.1958778,"name":"shell.init","context":{"service":"0-shell-fKebR3Q3","leader-rank":0,"size":32}}
+{"timestamp":1745983240.4040353,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1745983275.5476706,"name":"shell.task-exit","context":{"localid":12,"rank":1596,"state":"Exited","pid":275,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745983275.7571599,"name":"complete","context":{"status":0}}
+{"timestamp":1745983275.757194,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 709911117824 miniamr-iter-2
+
+FLUX-JOB START 16693329920 miniamr-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["miniAMR.x", "--nx", "20", "--ny", "20", "--nz", "20", "--npx", "16", "--npy", "16", "--npz", "11"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "miniamr-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["miniamr-[0-31]"], "starttime": 1745983198, "expiration": 4899583197}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745983198.8562627,"name":"init"}
+{"timestamp":1745983198.8568819,"name":"starting"}
+{"timestamp":1745983198.8757339,"name":"shell.init","context":{"service":"0-shell-fSS8gQ7","leader-rank":0,"size":32}}
+{"timestamp":1745983199.0806384,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1745983239.6436694,"name":"shell.task-exit","context":{"localid":73,"rank":2625,"state":"Exited","pid":220,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745983239.8626726,"name":"complete","context":{"status":0}}
+{"timestamp":1745983239.8627005,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 16693329920 miniamr-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}
