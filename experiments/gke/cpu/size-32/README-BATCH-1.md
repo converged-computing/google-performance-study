@@ -193,7 +193,6 @@ done
 
 ### Chatterbug
 
-MPI abort at this size
 ```bash
 helm dependency update chatterbug/
 helm install \
@@ -202,7 +201,7 @@ helm install \
   --set experiment.tasks=2816 \
   --set minicluster.tasks=2816 \
   --set minicluster.save_logs=true \
-  --set chatterbug.args="8 16 11 1024 1024 1024 4 100" \
+  --set chatterbug.args="16 16 11 1024 1024 1024 4 100" \
   --set chatterbug.binary="stencil3d" \
   --set experiment.iterations=4 \
   bug ./chatterbug
