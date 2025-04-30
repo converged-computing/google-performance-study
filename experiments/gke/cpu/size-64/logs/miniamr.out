@@ -1,0 +1,52 @@
+Defaulted container "miniamr" out of: miniamr, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START miniamr-iter-$i"
+  flux run --setattr=user.study_id=miniamr-iter-$i -N64 -n 5632 -o cpu-affinity=per-task -o gpu-affinity=off    miniAMR.x --nx 20 --ny 20 --nz 20 --npx 16 --npy 16 --npz 11 |& tee /tmp/miniamr.out
+    echo "FLUX-RUN END miniamr-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     64     5632        0 miniamr-[0-63]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START miniamr-iter-1
+--------------------------------------------------------------------------
+MPI_ABORT was invoked on rank 0 in communicator MPI_COMM_WORLD
+with errorcode -1.
+
+NOTE: invoking MPI_ABORT causes Open MPI to kill all MPI processes.
+You may or may not see output from other processes, depending on
+exactly when Open MPI kills them.
+--------------------------------------------------------------------------
+PMI_Abort: (0) N/A
+number of processors used does not match number allocated
+43.507s: flux-shell[0]: FATAL: doom: rank 0 exited and exit-timeout=30s has expired
+43.513s: job.exception type=exec severity=0 rank 0 exited and exit-timeout=30s has expired
