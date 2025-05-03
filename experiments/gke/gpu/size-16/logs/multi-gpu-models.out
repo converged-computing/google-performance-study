@@ -1,0 +1,1190 @@
+Defaulted container "mgm" out of: mgm, flux-view (init)
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"gpu": "0", "core": "0-1"}}], "starttime": 0.0, "expiration": 0.0, "nodelist": ["mgm-[0-15]"]}}
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START multi-gpu-models-iter-$i"
+  flux run --setattr=user.study_id=multi-gpu-models-iter-$i -N16 -n 16 -o cpu-affinity=per-task -o gpu-affinity=per-task    -g 1  /opt/multi-gpu-programming-models/mpi/jacobi -niter 10000 -nx 16384 -ny 16384 |& tee /tmp/multi-gpu-models.out
+    echo "FLUX-RUN END multi-gpu-models-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     16       32       16 mgm-[0-15]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START multi-gpu-models-iter-1
+Single GPU jacobi relaxation: 10000 iterations on 16384 x 16384 mesh with norm check every 1 iterations
+    0, 31.999022
+  100, 0.897983
+  200, 0.535684
+  300, 0.395651
+  400, 0.319039
+  500, 0.269961
+  600, 0.235509
+  700, 0.209829
+  800, 0.189854
+  900, 0.173818
+ 1000, 0.160622
+ 1100, 0.149550
+ 1200, 0.140108
+ 1300, 0.131950
+ 1400, 0.124820
+ 1500, 0.118529
+ 1600, 0.112931
+ 1700, 0.107913
+ 1800, 0.103387
+ 1900, 0.099280
+ 2000, 0.095534
+ 2100, 0.092103
+ 2200, 0.088945
+ 2300, 0.086030
+ 2400, 0.083328
+ 2500, 0.080816
+ 2600, 0.078474
+ 2700, 0.076284
+ 2800, 0.074232
+ 2900, 0.072304
+ 3000, 0.070489
+ 3100, 0.068777
+ 3200, 0.067159
+ 3300, 0.065627
+ 3400, 0.064174
+ 3500, 0.062794
+ 3600, 0.061481
+ 3700, 0.060231
+ 3800, 0.059038
+ 3900, 0.057899
+ 4000, 0.056810
+ 4100, 0.055768
+ 4200, 0.054769
+ 4300, 0.053811
+ 4400, 0.052891
+ 4500, 0.052007
+ 4600, 0.051157
+ 4700, 0.050338
+ 4800, 0.049549
+ 4900, 0.048789
+ 5000, 0.048055
+ 5100, 0.047347
+ 5200, 0.046662
+ 5300, 0.046000
+ 5400, 0.045360
+ 5500, 0.044740
+ 5600, 0.044139
+ 5700, 0.043557
+ 5800, 0.042993
+ 5900, 0.042445
+ 6000, 0.041913
+ 6100, 0.041397
+ 6200, 0.040895
+ 6300, 0.040407
+ 6400, 0.039932
+ 6500, 0.039471
+ 6600, 0.039021
+ 6700, 0.038583
+ 6800, 0.038157
+ 6900, 0.037741
+ 7000, 0.037336
+ 7100, 0.036941
+ 7200, 0.036556
+ 7300, 0.036179
+ 7400, 0.035812
+ 7500, 0.035453
+ 7600, 0.035102
+ 7700, 0.034760
+ 7800, 0.034425
+ 7900, 0.034098
+ 8000, 0.033777
+ 8100, 0.033464
+ 8200, 0.033158
+ 8300, 0.032857
+ 8400, 0.032563
+ 8500, 0.032276
+ 8600, 0.031994
+ 8700, 0.031717
+ 8800, 0.031446
+ 8900, 0.031181
+ 9000, 0.030921
+ 9100, 0.030665
+ 9200, 0.030415
+ 9300, 0.030169
+ 9400, 0.029928
+ 9500, 0.029692
+ 9600, 0.029459
+ 9700, 0.029231
+ 9800, 0.029007
+ 9900, 0.028787
+Jacobi relaxation: 10000 iterations on 16384 x 16384 mesh with norm check every 1 iterations
+    0, 31.999023
+  100, 0.897983
+  200, 0.535685
+  300, 0.395651
+  400, 0.319039
+  500, 0.269961
+  600, 0.235510
+  700, 0.209829
+  800, 0.189854
+  900, 0.173818
+ 1000, 0.160622
+ 1100, 0.149550
+ 1200, 0.140108
+ 1300, 0.131950
+ 1400, 0.124820
+ 1500, 0.118529
+ 1600, 0.112931
+ 1700, 0.107913
+ 1800, 0.103387
+ 1900, 0.099280
+ 2000, 0.095534
+ 2100, 0.092103
+ 2200, 0.088946
+ 2300, 0.086030
+ 2400, 0.083328
+ 2500, 0.080816
+ 2600, 0.078474
+ 2700, 0.076284
+ 2800, 0.074232
+ 2900, 0.072304
+ 3000, 0.070489
+ 3100, 0.068777
+ 3200, 0.067159
+ 3300, 0.065627
+ 3400, 0.064174
+ 3500, 0.062794
+ 3600, 0.061481
+ 3700, 0.060231
+ 3800, 0.059038
+ 3900, 0.057899
+ 4000, 0.056810
+ 4100, 0.055768
+ 4200, 0.054769
+ 4300, 0.053811
+ 4400, 0.052891
+ 4500, 0.052007
+ 4600, 0.051157
+ 4700, 0.050338
+ 4800, 0.049550
+ 4900, 0.048789
+ 5000, 0.048055
+ 5100, 0.047347
+ 5200, 0.046662
+ 5300, 0.046000
+ 5400, 0.045360
+ 5500, 0.044740
+ 5600, 0.044139
+ 5700, 0.043557
+ 5800, 0.042993
+ 5900, 0.042445
+ 6000, 0.041913
+ 6100, 0.041397
+ 6200, 0.040895
+ 6300, 0.040407
+ 6400, 0.039932
+ 6500, 0.039471
+ 6600, 0.039021
+ 6700, 0.038584
+ 6800, 0.038157
+ 6900, 0.037742
+ 7000, 0.037336
+ 7100, 0.036941
+ 7200, 0.036556
+ 7300, 0.036179
+ 7400, 0.035812
+ 7500, 0.035453
+ 7600, 0.035103
+ 7700, 0.034760
+ 7800, 0.034425
+ 7900, 0.034098
+ 8000, 0.033777
+ 8100, 0.033464
+ 8200, 0.033158
+ 8300, 0.032857
+ 8400, 0.032563
+ 8500, 0.032276
+ 8600, 0.031994
+ 8700, 0.031717
+ 8800, 0.031447
+ 8900, 0.031181
+ 9000, 0.030921
+ 9100, 0.030666
+ 9200, 0.030415
+ 9300, 0.030169
+ 9400, 0.029928
+ 9500, 0.029692
+ 9600, 0.029459
+ 9700, 0.029231
+ 9800, 0.029007
+ 9900, 0.028787
+Num GPUs: 16.
+16384x16384: 1 GPU:  33.3847 s, 16 GPUs:   9.6720 s, speedup:     3.45, efficiency:    21.57 
+FLUX-RUN END multi-gpu-models-iter-1
+FLUX-RUN START multi-gpu-models-iter-2
+Single GPU jacobi relaxation: 10000 iterations on 16384 x 16384 mesh with norm check every 1 iterations
+    0, 31.999022
+  100, 0.897983
+  200, 0.535684
+  300, 0.395651
+  400, 0.319039
+  500, 0.269961
+  600, 0.235509
+  700, 0.209829
+  800, 0.189854
+  900, 0.173818
+ 1000, 0.160622
+ 1100, 0.149550
+ 1200, 0.140108
+ 1300, 0.131950
+ 1400, 0.124820
+ 1500, 0.118529
+ 1600, 0.112931
+ 1700, 0.107913
+ 1800, 0.103387
+ 1900, 0.099280
+ 2000, 0.095534
+ 2100, 0.092103
+ 2200, 0.088945
+ 2300, 0.086030
+ 2400, 0.083328
+ 2500, 0.080816
+ 2600, 0.078474
+ 2700, 0.076284
+ 2800, 0.074232
+ 2900, 0.072304
+ 3000, 0.070489
+ 3100, 0.068777
+ 3200, 0.067159
+ 3300, 0.065627
+ 3400, 0.064174
+ 3500, 0.062794
+ 3600, 0.061481
+ 3700, 0.060231
+ 3800, 0.059038
+ 3900, 0.057899
+ 4000, 0.056810
+ 4100, 0.055768
+ 4200, 0.054769
+ 4300, 0.053811
+ 4400, 0.052891
+ 4500, 0.052007
+ 4600, 0.051157
+ 4700, 0.050338
+ 4800, 0.049549
+ 4900, 0.048789
+ 5000, 0.048055
+ 5100, 0.047347
+ 5200, 0.046662
+ 5300, 0.046000
+ 5400, 0.045360
+ 5500, 0.044740
+ 5600, 0.044139
+ 5700, 0.043557
+ 5800, 0.042993
+ 5900, 0.042445
+ 6000, 0.041913
+ 6100, 0.041397
+ 6200, 0.040895
+ 6300, 0.040407
+ 6400, 0.039932
+ 6500, 0.039471
+ 6600, 0.039021
+ 6700, 0.038583
+ 6800, 0.038157
+ 6900, 0.037741
+ 7000, 0.037336
+ 7100, 0.036941
+ 7200, 0.036556
+ 7300, 0.036179
+ 7400, 0.035812
+ 7500, 0.035453
+ 7600, 0.035102
+ 7700, 0.034760
+ 7800, 0.034425
+ 7900, 0.034098
+ 8000, 0.033777
+ 8100, 0.033464
+ 8200, 0.033158
+ 8300, 0.032857
+ 8400, 0.032563
+ 8500, 0.032276
+ 8600, 0.031994
+ 8700, 0.031717
+ 8800, 0.031446
+ 8900, 0.031181
+ 9000, 0.030921
+ 9100, 0.030665
+ 9200, 0.030415
+ 9300, 0.030169
+ 9400, 0.029928
+ 9500, 0.029692
+ 9600, 0.029459
+ 9700, 0.029231
+ 9800, 0.029007
+ 9900, 0.028787
+Jacobi relaxation: 10000 iterations on 16384 x 16384 mesh with norm check every 1 iterations
+    0, 31.999023
+  100, 0.897983
+  200, 0.535685
+  300, 0.395651
+  400, 0.319039
+  500, 0.269961
+  600, 0.235510
+  700, 0.209829
+  800, 0.189854
+  900, 0.173818
+ 1000, 0.160622
+ 1100, 0.149550
+ 1200, 0.140108
+ 1300, 0.131950
+ 1400, 0.124820
+ 1500, 0.118529
+ 1600, 0.112931
+ 1700, 0.107913
+ 1800, 0.103387
+ 1900, 0.099280
+ 2000, 0.095534
+ 2100, 0.092103
+ 2200, 0.088946
+ 2300, 0.086030
+ 2400, 0.083328
+ 2500, 0.080816
+ 2600, 0.078474
+ 2700, 0.076284
+ 2800, 0.074232
+ 2900, 0.072304
+ 3000, 0.070489
+ 3100, 0.068777
+ 3200, 0.067159
+ 3300, 0.065627
+ 3400, 0.064174
+ 3500, 0.062794
+ 3600, 0.061481
+ 3700, 0.060231
+ 3800, 0.059038
+ 3900, 0.057899
+ 4000, 0.056810
+ 4100, 0.055768
+ 4200, 0.054769
+ 4300, 0.053811
+ 4400, 0.052891
+ 4500, 0.052007
+ 4600, 0.051157
+ 4700, 0.050338
+ 4800, 0.049550
+ 4900, 0.048789
+ 5000, 0.048055
+ 5100, 0.047347
+ 5200, 0.046662
+ 5300, 0.046000
+ 5400, 0.045360
+ 5500, 0.044740
+ 5600, 0.044139
+ 5700, 0.043557
+ 5800, 0.042993
+ 5900, 0.042445
+ 6000, 0.041913
+ 6100, 0.041397
+ 6200, 0.040895
+ 6300, 0.040407
+ 6400, 0.039932
+ 6500, 0.039471
+ 6600, 0.039021
+ 6700, 0.038584
+ 6800, 0.038157
+ 6900, 0.037742
+ 7000, 0.037336
+ 7100, 0.036941
+ 7200, 0.036556
+ 7300, 0.036179
+ 7400, 0.035812
+ 7500, 0.035453
+ 7600, 0.035103
+ 7700, 0.034760
+ 7800, 0.034425
+ 7900, 0.034098
+ 8000, 0.033777
+ 8100, 0.033464
+ 8200, 0.033158
+ 8300, 0.032857
+ 8400, 0.032563
+ 8500, 0.032276
+ 8600, 0.031994
+ 8700, 0.031717
+ 8800, 0.031447
+ 8900, 0.031181
+ 9000, 0.030921
+ 9100, 0.030666
+ 9200, 0.030415
+ 9300, 0.030169
+ 9400, 0.029928
+ 9500, 0.029692
+ 9600, 0.029459
+ 9700, 0.029231
+ 9800, 0.029007
+ 9900, 0.028787
+Num GPUs: 16.
+16384x16384: 1 GPU:  33.3599 s, 16 GPUs:  10.0841 s, speedup:     3.31, efficiency:    20.68 
+FLUX-RUN END multi-gpu-models-iter-2
+FLUX-RUN START multi-gpu-models-iter-3
+Single GPU jacobi relaxation: 10000 iterations on 16384 x 16384 mesh with norm check every 1 iterations
+    0, 31.999022
+  100, 0.897983
+  200, 0.535684
+  300, 0.395651
+  400, 0.319039
+  500, 0.269961
+  600, 0.235509
+  700, 0.209829
+  800, 0.189854
+  900, 0.173818
+ 1000, 0.160622
+ 1100, 0.149550
+ 1200, 0.140108
+ 1300, 0.131950
+ 1400, 0.124820
+ 1500, 0.118529
+ 1600, 0.112931
+ 1700, 0.107913
+ 1800, 0.103387
+ 1900, 0.099280
+ 2000, 0.095534
+ 2100, 0.092103
+ 2200, 0.088945
+ 2300, 0.086030
+ 2400, 0.083328
+ 2500, 0.080816
+ 2600, 0.078474
+ 2700, 0.076284
+ 2800, 0.074232
+ 2900, 0.072304
+ 3000, 0.070489
+ 3100, 0.068777
+ 3200, 0.067159
+ 3300, 0.065627
+ 3400, 0.064174
+ 3500, 0.062794
+ 3600, 0.061481
+ 3700, 0.060231
+ 3800, 0.059038
+ 3900, 0.057899
+ 4000, 0.056810
+ 4100, 0.055768
+ 4200, 0.054769
+ 4300, 0.053811
+ 4400, 0.052891
+ 4500, 0.052007
+ 4600, 0.051157
+ 4700, 0.050338
+ 4800, 0.049549
+ 4900, 0.048789
+ 5000, 0.048055
+ 5100, 0.047347
+ 5200, 0.046662
+ 5300, 0.046000
+ 5400, 0.045360
+ 5500, 0.044740
+ 5600, 0.044139
+ 5700, 0.043557
+ 5800, 0.042993
+ 5900, 0.042445
+ 6000, 0.041913
+ 6100, 0.041397
+ 6200, 0.040895
+ 6300, 0.040407
+ 6400, 0.039932
+ 6500, 0.039471
+ 6600, 0.039021
+ 6700, 0.038583
+ 6800, 0.038157
+ 6900, 0.037741
+ 7000, 0.037336
+ 7100, 0.036941
+ 7200, 0.036556
+ 7300, 0.036179
+ 7400, 0.035812
+ 7500, 0.035453
+ 7600, 0.035102
+ 7700, 0.034760
+ 7800, 0.034425
+ 7900, 0.034098
+ 8000, 0.033777
+ 8100, 0.033464
+ 8200, 0.033158
+ 8300, 0.032857
+ 8400, 0.032563
+ 8500, 0.032276
+ 8600, 0.031994
+ 8700, 0.031717
+ 8800, 0.031446
+ 8900, 0.031181
+ 9000, 0.030921
+ 9100, 0.030665
+ 9200, 0.030415
+ 9300, 0.030169
+ 9400, 0.029928
+ 9500, 0.029692
+ 9600, 0.029459
+ 9700, 0.029231
+ 9800, 0.029007
+ 9900, 0.028787
+Jacobi relaxation: 10000 iterations on 16384 x 16384 mesh with norm check every 1 iterations
+    0, 31.999023
+  100, 0.897983
+  200, 0.535685
+  300, 0.395651
+  400, 0.319039
+  500, 0.269961
+  600, 0.235510
+  700, 0.209829
+  800, 0.189854
+  900, 0.173818
+ 1000, 0.160622
+ 1100, 0.149550
+ 1200, 0.140108
+ 1300, 0.131950
+ 1400, 0.124820
+ 1500, 0.118529
+ 1600, 0.112931
+ 1700, 0.107913
+ 1800, 0.103387
+ 1900, 0.099280
+ 2000, 0.095534
+ 2100, 0.092103
+ 2200, 0.088946
+ 2300, 0.086030
+ 2400, 0.083328
+ 2500, 0.080816
+ 2600, 0.078474
+ 2700, 0.076284
+ 2800, 0.074232
+ 2900, 0.072304
+ 3000, 0.070489
+ 3100, 0.068777
+ 3200, 0.067159
+ 3300, 0.065627
+ 3400, 0.064174
+ 3500, 0.062794
+ 3600, 0.061481
+ 3700, 0.060231
+ 3800, 0.059038
+ 3900, 0.057899
+ 4000, 0.056810
+ 4100, 0.055768
+ 4200, 0.054769
+ 4300, 0.053811
+ 4400, 0.052891
+ 4500, 0.052007
+ 4600, 0.051157
+ 4700, 0.050338
+ 4800, 0.049550
+ 4900, 0.048789
+ 5000, 0.048055
+ 5100, 0.047347
+ 5200, 0.046662
+ 5300, 0.046000
+ 5400, 0.045360
+ 5500, 0.044740
+ 5600, 0.044139
+ 5700, 0.043557
+ 5800, 0.042993
+ 5900, 0.042445
+ 6000, 0.041913
+ 6100, 0.041397
+ 6200, 0.040895
+ 6300, 0.040407
+ 6400, 0.039932
+ 6500, 0.039471
+ 6600, 0.039021
+ 6700, 0.038584
+ 6800, 0.038157
+ 6900, 0.037742
+ 7000, 0.037336
+ 7100, 0.036941
+ 7200, 0.036556
+ 7300, 0.036179
+ 7400, 0.035812
+ 7500, 0.035453
+ 7600, 0.035103
+ 7700, 0.034760
+ 7800, 0.034425
+ 7900, 0.034098
+ 8000, 0.033777
+ 8100, 0.033464
+ 8200, 0.033158
+ 8300, 0.032857
+ 8400, 0.032563
+ 8500, 0.032276
+ 8600, 0.031994
+ 8700, 0.031717
+ 8800, 0.031447
+ 8900, 0.031181
+ 9000, 0.030921
+ 9100, 0.030666
+ 9200, 0.030415
+ 9300, 0.030169
+ 9400, 0.029928
+ 9500, 0.029692
+ 9600, 0.029459
+ 9700, 0.029231
+ 9800, 0.029007
+ 9900, 0.028787
+Num GPUs: 16.
+16384x16384: 1 GPU:  33.3641 s, 16 GPUs:   9.8426 s, speedup:     3.39, efficiency:    21.19 
+FLUX-RUN END multi-gpu-models-iter-3
+FLUX-RUN START multi-gpu-models-iter-4
+Single GPU jacobi relaxation: 10000 iterations on 16384 x 16384 mesh with norm check every 1 iterations
+    0, 31.999022
+  100, 0.897983
+  200, 0.535684
+  300, 0.395651
+  400, 0.319039
+  500, 0.269961
+  600, 0.235509
+  700, 0.209829
+  800, 0.189854
+  900, 0.173818
+ 1000, 0.160622
+ 1100, 0.149550
+ 1200, 0.140108
+ 1300, 0.131950
+ 1400, 0.124820
+ 1500, 0.118529
+ 1600, 0.112931
+ 1700, 0.107913
+ 1800, 0.103387
+ 1900, 0.099280
+ 2000, 0.095534
+ 2100, 0.092103
+ 2200, 0.088945
+ 2300, 0.086030
+ 2400, 0.083328
+ 2500, 0.080816
+ 2600, 0.078474
+ 2700, 0.076284
+ 2800, 0.074232
+ 2900, 0.072304
+ 3000, 0.070489
+ 3100, 0.068777
+ 3200, 0.067159
+ 3300, 0.065627
+ 3400, 0.064174
+ 3500, 0.062794
+ 3600, 0.061481
+ 3700, 0.060231
+ 3800, 0.059038
+ 3900, 0.057899
+ 4000, 0.056810
+ 4100, 0.055768
+ 4200, 0.054769
+ 4300, 0.053811
+ 4400, 0.052891
+ 4500, 0.052007
+ 4600, 0.051157
+ 4700, 0.050338
+ 4800, 0.049549
+ 4900, 0.048789
+ 5000, 0.048055
+ 5100, 0.047347
+ 5200, 0.046662
+ 5300, 0.046000
+ 5400, 0.045360
+ 5500, 0.044740
+ 5600, 0.044139
+ 5700, 0.043557
+ 5800, 0.042993
+ 5900, 0.042445
+ 6000, 0.041913
+ 6100, 0.041397
+ 6200, 0.040895
+ 6300, 0.040407
+ 6400, 0.039932
+ 6500, 0.039471
+ 6600, 0.039021
+ 6700, 0.038583
+ 6800, 0.038157
+ 6900, 0.037741
+ 7000, 0.037336
+ 7100, 0.036941
+ 7200, 0.036556
+ 7300, 0.036179
+ 7400, 0.035812
+ 7500, 0.035453
+ 7600, 0.035102
+ 7700, 0.034760
+ 7800, 0.034425
+ 7900, 0.034098
+ 8000, 0.033777
+ 8100, 0.033464
+ 8200, 0.033158
+ 8300, 0.032857
+ 8400, 0.032563
+ 8500, 0.032276
+ 8600, 0.031994
+ 8700, 0.031717
+ 8800, 0.031446
+ 8900, 0.031181
+ 9000, 0.030921
+ 9100, 0.030665
+ 9200, 0.030415
+ 9300, 0.030169
+ 9400, 0.029928
+ 9500, 0.029692
+ 9600, 0.029459
+ 9700, 0.029231
+ 9800, 0.029007
+ 9900, 0.028787
+Jacobi relaxation: 10000 iterations on 16384 x 16384 mesh with norm check every 1 iterations
+    0, 31.999023
+  100, 0.897983
+  200, 0.535685
+  300, 0.395651
+  400, 0.319039
+  500, 0.269961
+  600, 0.235510
+  700, 0.209829
+  800, 0.189854
+  900, 0.173818
+ 1000, 0.160622
+ 1100, 0.149550
+ 1200, 0.140108
+ 1300, 0.131950
+ 1400, 0.124820
+ 1500, 0.118529
+ 1600, 0.112931
+ 1700, 0.107913
+ 1800, 0.103387
+ 1900, 0.099280
+ 2000, 0.095534
+ 2100, 0.092103
+ 2200, 0.088946
+ 2300, 0.086030
+ 2400, 0.083328
+ 2500, 0.080816
+ 2600, 0.078474
+ 2700, 0.076284
+ 2800, 0.074232
+ 2900, 0.072304
+ 3000, 0.070489
+ 3100, 0.068777
+ 3200, 0.067159
+ 3300, 0.065627
+ 3400, 0.064174
+ 3500, 0.062794
+ 3600, 0.061481
+ 3700, 0.060231
+ 3800, 0.059038
+ 3900, 0.057899
+ 4000, 0.056810
+ 4100, 0.055768
+ 4200, 0.054769
+ 4300, 0.053811
+ 4400, 0.052891
+ 4500, 0.052007
+ 4600, 0.051157
+ 4700, 0.050338
+ 4800, 0.049550
+ 4900, 0.048789
+ 5000, 0.048055
+ 5100, 0.047347
+ 5200, 0.046662
+ 5300, 0.046000
+ 5400, 0.045360
+ 5500, 0.044740
+ 5600, 0.044139
+ 5700, 0.043557
+ 5800, 0.042993
+ 5900, 0.042445
+ 6000, 0.041913
+ 6100, 0.041397
+ 6200, 0.040895
+ 6300, 0.040407
+ 6400, 0.039932
+ 6500, 0.039471
+ 6600, 0.039021
+ 6700, 0.038584
+ 6800, 0.038157
+ 6900, 0.037742
+ 7000, 0.037336
+ 7100, 0.036941
+ 7200, 0.036556
+ 7300, 0.036179
+ 7400, 0.035812
+ 7500, 0.035453
+ 7600, 0.035103
+ 7700, 0.034760
+ 7800, 0.034425
+ 7900, 0.034098
+ 8000, 0.033777
+ 8100, 0.033464
+ 8200, 0.033158
+ 8300, 0.032857
+ 8400, 0.032563
+ 8500, 0.032276
+ 8600, 0.031994
+ 8700, 0.031717
+ 8800, 0.031447
+ 8900, 0.031181
+ 9000, 0.030921
+ 9100, 0.030666
+ 9200, 0.030415
+ 9300, 0.030169
+ 9400, 0.029928
+ 9500, 0.029692
+ 9600, 0.029459
+ 9700, 0.029231
+ 9800, 0.029007
+ 9900, 0.028787
+Num GPUs: 16.
+16384x16384: 1 GPU:  33.3862 s, 16 GPUs:   9.5684 s, speedup:     3.49, efficiency:    21.81 
+FLUX-RUN END multi-gpu-models-iter-4
+FLUX-RUN START multi-gpu-models-iter-5
+Single GPU jacobi relaxation: 10000 iterations on 16384 x 16384 mesh with norm check every 1 iterations
+    0, 31.999022
+  100, 0.897983
+  200, 0.535684
+  300, 0.395651
+  400, 0.319039
+  500, 0.269961
+  600, 0.235509
+  700, 0.209829
+  800, 0.189854
+  900, 0.173818
+ 1000, 0.160622
+ 1100, 0.149550
+ 1200, 0.140108
+ 1300, 0.131950
+ 1400, 0.124820
+ 1500, 0.118529
+ 1600, 0.112931
+ 1700, 0.107913
+ 1800, 0.103387
+ 1900, 0.099280
+ 2000, 0.095534
+ 2100, 0.092103
+ 2200, 0.088945
+ 2300, 0.086030
+ 2400, 0.083328
+ 2500, 0.080816
+ 2600, 0.078474
+ 2700, 0.076284
+ 2800, 0.074232
+ 2900, 0.072304
+ 3000, 0.070489
+ 3100, 0.068777
+ 3200, 0.067159
+ 3300, 0.065627
+ 3400, 0.064174
+ 3500, 0.062794
+ 3600, 0.061481
+ 3700, 0.060231
+ 3800, 0.059038
+ 3900, 0.057899
+ 4000, 0.056810
+ 4100, 0.055768
+ 4200, 0.054769
+ 4300, 0.053811
+ 4400, 0.052891
+ 4500, 0.052007
+ 4600, 0.051157
+ 4700, 0.050338
+ 4800, 0.049549
+ 4900, 0.048789
+ 5000, 0.048055
+ 5100, 0.047347
+ 5200, 0.046662
+ 5300, 0.046000
+ 5400, 0.045360
+ 5500, 0.044740
+ 5600, 0.044139
+ 5700, 0.043557
+ 5800, 0.042993
+ 5900, 0.042445
+ 6000, 0.041913
+ 6100, 0.041397
+ 6200, 0.040895
+ 6300, 0.040407
+ 6400, 0.039932
+ 6500, 0.039471
+ 6600, 0.039021
+ 6700, 0.038583
+ 6800, 0.038157
+ 6900, 0.037741
+ 7000, 0.037336
+ 7100, 0.036941
+ 7200, 0.036556
+ 7300, 0.036179
+ 7400, 0.035812
+ 7500, 0.035453
+ 7600, 0.035102
+ 7700, 0.034760
+ 7800, 0.034425
+ 7900, 0.034098
+ 8000, 0.033777
+ 8100, 0.033464
+ 8200, 0.033158
+ 8300, 0.032857
+ 8400, 0.032563
+ 8500, 0.032276
+ 8600, 0.031994
+ 8700, 0.031717
+ 8800, 0.031446
+ 8900, 0.031181
+ 9000, 0.030921
+ 9100, 0.030665
+ 9200, 0.030415
+ 9300, 0.030169
+ 9400, 0.029928
+ 9500, 0.029692
+ 9600, 0.029459
+ 9700, 0.029231
+ 9800, 0.029007
+ 9900, 0.028787
+Jacobi relaxation: 10000 iterations on 16384 x 16384 mesh with norm check every 1 iterations
+    0, 31.999023
+  100, 0.897983
+  200, 0.535685
+  300, 0.395651
+  400, 0.319039
+  500, 0.269961
+  600, 0.235510
+  700, 0.209829
+  800, 0.189854
+  900, 0.173818
+ 1000, 0.160622
+ 1100, 0.149550
+ 1200, 0.140108
+ 1300, 0.131950
+ 1400, 0.124820
+ 1500, 0.118529
+ 1600, 0.112931
+ 1700, 0.107913
+ 1800, 0.103387
+ 1900, 0.099280
+ 2000, 0.095534
+ 2100, 0.092103
+ 2200, 0.088946
+ 2300, 0.086030
+ 2400, 0.083328
+ 2500, 0.080816
+ 2600, 0.078474
+ 2700, 0.076284
+ 2800, 0.074232
+ 2900, 0.072304
+ 3000, 0.070489
+ 3100, 0.068777
+ 3200, 0.067159
+ 3300, 0.065627
+ 3400, 0.064174
+ 3500, 0.062794
+ 3600, 0.061481
+ 3700, 0.060231
+ 3800, 0.059038
+ 3900, 0.057899
+ 4000, 0.056810
+ 4100, 0.055768
+ 4200, 0.054769
+ 4300, 0.053811
+ 4400, 0.052891
+ 4500, 0.052007
+ 4600, 0.051157
+ 4700, 0.050338
+ 4800, 0.049550
+ 4900, 0.048789
+ 5000, 0.048055
+ 5100, 0.047347
+ 5200, 0.046662
+ 5300, 0.046000
+ 5400, 0.045360
+ 5500, 0.044740
+ 5600, 0.044139
+ 5700, 0.043557
+ 5800, 0.042993
+ 5900, 0.042445
+ 6000, 0.041913
+ 6100, 0.041397
+ 6200, 0.040895
+ 6300, 0.040407
+ 6400, 0.039932
+ 6500, 0.039471
+ 6600, 0.039021
+ 6700, 0.038584
+ 6800, 0.038157
+ 6900, 0.037742
+ 7000, 0.037336
+ 7100, 0.036941
+ 7200, 0.036556
+ 7300, 0.036179
+ 7400, 0.035812
+ 7500, 0.035453
+ 7600, 0.035103
+ 7700, 0.034760
+ 7800, 0.034425
+ 7900, 0.034098
+ 8000, 0.033777
+ 8100, 0.033464
+ 8200, 0.033158
+ 8300, 0.032857
+ 8400, 0.032563
+ 8500, 0.032276
+ 8600, 0.031994
+ 8700, 0.031717
+ 8800, 0.031447
+ 8900, 0.031181
+ 9000, 0.030921
+ 9100, 0.030666
+ 9200, 0.030415
+ 9300, 0.030169
+ 9400, 0.029928
+ 9500, 0.029692
+ 9600, 0.029459
+ 9700, 0.029231
+ 9800, 0.029007
+ 9900, 0.028787
+Num GPUs: 16.
+16384x16384: 1 GPU:  33.3726 s, 16 GPUs:   9.7961 s, speedup:     3.41, efficiency:    21.29 
+FLUX-RUN END multi-gpu-models-iter-5
+0% [Working]            Get:1 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease [1581 B]
+0% [Waiting for headers] [Connecting to security.ubuntu.com (185.125.190.82)] [                                                                               0% [Waiting for headers] [Connecting to security.ubuntu.com (185.125.190.82)]                                                                             Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+                                                                             0% [Waiting for headers]0% [Waiting for headers] [Waiting for headers]                                              Get:3 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Waiting for headers] [3 InRelease 14.2 kB/129 kB 11%] [Waiting for headers]                                                                               Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [4 InRelease 12.3 kB/128 kB 10%] [3 InRelease 14.2 kB/129 kB 11%] [Waiting f0% [4 InRelease 15.6 kB/128 kB 12%] [3 InRelease 14.2 kB/129 kB 11%] [Waiting f                                                                               Get:5 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  Packages [1659 kB]
+0% [4 InRelease 62.0 kB/128 kB 48%] [3 InRelease 59.1 kB/129 kB 46%] [5 Package0% [Waiting for headers] [3 InRelease 123 kB/129 kB 95%] [5 Packages 1629 kB/16                                                                               0% [Waiting for headers] [3 InRelease 129 kB/129 kB 100%]                                                         0% [Waiting for headers]0% [5 Packages store 0 B] [Waiting for headers]0% [5 Packages store 0 B] [Waiting for headers]                                               0% [Waiting for headers]                        Get:6 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [6 InRelease 2588 B/127 kB 2%]0% [6 InRelease 113 kB/127 kB 89%]                                  0% [Waiting for headers]                        Get:7 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+0% [Waiting for headers] [7 Packages 2659 B/47.7 kB 6%]23% [Waiting for headers] [7 Packages 9899 B/47.7 kB 21%]                                                         Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+23% [8 Packages 2655 B/3200 kB 0%] [7 Packages 21.5 kB/47.7 kB 45%]                                                                   23% [8 Packages 44.6 kB/3200 kB 1%]23% [7 Packages store 0 B] [8 Packages 47.5 kB/3200 kB 1%] [Waiting for headers                                                                               24% [8 Packages 50.4 kB/3200 kB 2%] [Waiting for headers]                                                         Get:9 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4118 kB]
+25% [8 Packages 229 kB/3200 kB 7%] [9 Packages 2655 B/4118 kB 0%]                                                                 41% [Waiting for headers] [9 Packages 1000 kB/4118 kB 24%]                                                          Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+41% [10 Packages 55.7 kB/55.7 kB 100%] [9 Packages 1000 kB/4118 kB 24%]41% [8 Packages store 0 B] [10 Packages 55.7 kB/55.7 kB 100%] [9 Packages 1000                                                                                41% [8 Packages store 0 B] [9 Packages 1015 kB/4118 kB 25%]                                                           Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+42% [8 Packages store 0 B] [11 Packages 156 kB/1544 kB 10%] [9 Packages 1015 kB                                                                               49% [8 Packages store 0 B] [9 Packages 1446 kB/4118 kB 35%]                                                           Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+49% [8 Packages store 0 B] [12 Packages 0 B/4420 kB 0%] [9 Packages 1446 kB/411                                                                               74% [8 Packages store 0 B] [9 Packages 2984 kB/4118 kB 72%]                                                           Get:13 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+74% [8 Packages store 0 B] [13 Packages 49.2 kB/82.7 kB 59%] [9 Packages 2984 k                                                                               74% [8 Packages store 0 B] [9 Packages 3051 kB/4118 kB 74%]                                                           Get:14 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+74% [8 Packages store 0 B] [9 Packages 3051 kB/4118 kB 74%]                                                           76% [9 Packages 3269 kB/4118 kB 79%]76% [10 Packages store 0 B] [9 Packages 3291 kB/4118 kB 80%]                                                            76% [9 Packages 3335 kB/4118 kB 81%]76% [11 Packages store 0 B] [9 Packages 3338 kB/4118 kB 81%]                                                            Get:15 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+80% [11 Packages store 0 B] [15 Packages 174 kB/1244 kB 14%]                                                            Get:16 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+85% [11 Packages store 0 B] [16 Packages 73.4 kB/2844 kB 3%]                                                            87% [16 Packages 464 kB/2844 kB 16%]87% [12 Packages store 0 B] [16 Packages 464 kB/2844 kB 16%]                                                            97% [12 Packages store 0 B]                           97% [Working]97% [13 Packages store 0 B]                           98% [Working]98% [14 Packages store 0 B]                           98% [Working]98% [9 Packages store 0 B]                          99% [Working]99% [15 Packages store 0 B]                           99% [Working]99% [16 Packages store 0 B]                           100% [Working]              Fetched 19.6 MB in 3s (7657 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 44%Reading package lists... 44%Reading package lists... 45%Reading package lists... 45%Reading package lists... 54%Reading package lists... 54%Reading package lists... 57%Reading package lists... 66%Reading package lists... 66%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 79%Reading package lists... 79%Reading package lists... 91%Reading package lists... 91%Reading package lists... 95%Reading package lists... 95%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 44%Reading package lists... 44%Reading package lists... 45%Reading package lists... 45%Reading package lists... 54%Reading package lists... 54%Reading package lists... 57%Reading package lists... 66%Reading package lists... 66%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 79%Reading package lists... 79%Reading package lists... 91%Reading package lists... 91%Reading package lists... 95%Reading package lists... 95%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 114 not upgraded.
+
+FLUX-JOB START 3257246154752 multi-gpu-models-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}, {"type": "gpu", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/multi-gpu-programming-models/mpi/jacobi", "-niter", "10000", "-nx", "16384", "-ny", "16384"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/multi-gpu-programming-models/mpi", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "per-task"}}}, "user": {"study_id": "multi-gpu-models-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "1", "gpu": "0"}}], "nodelist": ["mgm-[0-15]"], "starttime": 1746238485, "expiration": 4899838291}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746238485.5170629,"name":"init"}
+{"timestamp":1746238485.5185146,"name":"starting"}
+{"timestamp":1746238485.5453684,"name":"shell.init","context":{"service":"0-shell-f2UZcgx4F","leader-rank":0,"size":16}}
+{"timestamp":1746238485.5512879,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,1,1]]}}}
+{"timestamp":1746238531.9022088,"name":"shell.task-exit","context":{"localid":0,"rank":2,"state":"Exited","pid":87,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746238531.9247322,"name":"complete","context":{"status":0}}
+{"timestamp":1746238531.9247522,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 3257246154752 multi-gpu-models-iter-5
+
+FLUX-JOB START 2477273382912 multi-gpu-models-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}, {"type": "gpu", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/multi-gpu-programming-models/mpi/jacobi", "-niter", "10000", "-nx", "16384", "-ny", "16384"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/multi-gpu-programming-models/mpi", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "per-task"}}}, "user": {"study_id": "multi-gpu-models-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "1", "gpu": "0"}}], "nodelist": ["mgm-[0-15]"], "starttime": 1746238439, "expiration": 4899838291}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746238439.0268927,"name":"init"}
+{"timestamp":1746238439.0284903,"name":"starting"}
+{"timestamp":1746238439.0585456,"name":"shell.init","context":{"service":"0-shell-f285HAcqD","leader-rank":0,"size":16}}
+{"timestamp":1746238439.0663433,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,1,1]]}}}
+{"timestamp":1746238485.2136703,"name":"shell.task-exit","context":{"localid":0,"rank":2,"state":"Exited","pid":82,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746238485.2213423,"name":"complete","context":{"status":0}}
+{"timestamp":1746238485.2213645,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2477273382912 multi-gpu-models-iter-4
+
+FLUX-JOB START 1692468772864 multi-gpu-models-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}, {"type": "gpu", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/multi-gpu-programming-models/mpi/jacobi", "-niter", "10000", "-nx", "16384", "-ny", "16384"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/multi-gpu-programming-models/mpi", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "per-task"}}}, "user": {"study_id": "multi-gpu-models-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "1", "gpu": "0"}}], "nodelist": ["mgm-[0-15]"], "starttime": 1746238392, "expiration": 4899838291}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746238392.2483532,"name":"init"}
+{"timestamp":1746238392.2501082,"name":"starting"}
+{"timestamp":1746238392.2788284,"name":"shell.init","context":{"service":"0-shell-fmTafrSs","leader-rank":0,"size":16}}
+{"timestamp":1746238392.286263,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,1,1]]}}}
+{"timestamp":1746238438.7375958,"name":"shell.task-exit","context":{"localid":0,"rank":2,"state":"Exited","pid":77,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746238438.7487855,"name":"complete","context":{"status":0}}
+{"timestamp":1746238438.7488067,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1692468772864 multi-gpu-models-iter-3
+
+FLUX-JOB START 903570522112 multi-gpu-models-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}, {"type": "gpu", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/multi-gpu-programming-models/mpi/jacobi", "-niter", "10000", "-nx", "16384", "-ny", "16384"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/multi-gpu-programming-models/mpi", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "per-task"}}}, "user": {"study_id": "multi-gpu-models-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "1", "gpu": "0"}}], "nodelist": ["mgm-[0-15]"], "starttime": 1746238345, "expiration": 4899838291}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746238345.2274325,"name":"init"}
+{"timestamp":1746238345.2292211,"name":"starting"}
+{"timestamp":1746238345.2603648,"name":"shell.init","context":{"service":"0-shell-fQjeS7JP","leader-rank":0,"size":16}}
+{"timestamp":1746238345.2665038,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,1,1]]}}}
+{"timestamp":1746238391.9544315,"name":"shell.task-exit","context":{"localid":0,"rank":2,"state":"Exited","pid":72,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746238391.9635971,"name":"complete","context":{"status":0}}
+{"timestamp":1746238391.9636219,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 903570522112 multi-gpu-models-iter-2
+
+FLUX-JOB START 112122134528 multi-gpu-models-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}, {"type": "gpu", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/multi-gpu-programming-models/mpi/jacobi", "-niter", "10000", "-nx", "16384", "-ny", "16384"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/multi-gpu-programming-models/mpi", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "per-task"}}}, "user": {"study_id": "multi-gpu-models-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "1", "gpu": "0"}}], "nodelist": ["mgm-[0-15]"], "starttime": 1746238298, "expiration": 4899838291}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746238298.0530102,"name":"init"}
+{"timestamp":1746238298.0549872,"name":"starting"}
+{"timestamp":1746238298.0840802,"name":"shell.init","context":{"service":"0-shell-f3wprFKV","leader-rank":0,"size":16}}
+{"timestamp":1746238298.0898645,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,1,1]]}}}
+{"timestamp":1746238344.9200015,"name":"shell.task-exit","context":{"localid":0,"rank":2,"state":"Exited","pid":67,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746238344.9269559,"name":"complete","context":{"status":0}}
+{"timestamp":1746238344.9269986,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 112122134528 multi-gpu-models-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}
