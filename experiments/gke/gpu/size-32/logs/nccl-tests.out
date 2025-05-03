@@ -1,0 +1,517 @@
+Defaulted container "nccl" out of: nccl, flux-view (init)
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"gpu": "0", "core": "0-1"}}], "starttime": 0.0, "expiration": 0.0, "nodelist": ["nccl-[0-31]"]}}
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START nccl-tests-iter-$i"
+  flux run --setattr=user.study_id=nccl-tests-iter-$i -N32 -n 32 -o cpu-affinity=per-task -o gpu-affinity=per-task    -g 1  ./nccl-tests/build/all_reduce_perf -b 8 -e 1G -f 2 -g 1 |& tee /tmp/nccl-tests.out
+    echo "FLUX-RUN END nccl-tests-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     32       64       32 nccl-[0-31]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START nccl-tests-iter-1
+# nThread 1 nGpus 1 minBytes 8 maxBytes 1073741824 step: 2(factor) warmup iters: 5 iters: 20 agg iters: 1 validation: 1 graph: 0
+#
+# Using devices
+#  Rank  0 Group  0 Pid    103 on     nccl-0 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  1 Group  0 Pid     67 on     nccl-1 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  2 Group  0 Pid     67 on     nccl-2 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  3 Group  0 Pid     66 on     nccl-3 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  4 Group  0 Pid     66 on     nccl-4 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  5 Group  0 Pid     67 on     nccl-5 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  6 Group  0 Pid     67 on     nccl-6 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  7 Group  0 Pid     67 on     nccl-7 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  8 Group  0 Pid     67 on     nccl-8 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  9 Group  0 Pid     67 on     nccl-9 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 10 Group  0 Pid     67 on    nccl-10 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 11 Group  0 Pid     67 on    nccl-11 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 12 Group  0 Pid     66 on    nccl-12 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 13 Group  0 Pid     67 on    nccl-13 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 14 Group  0 Pid     67 on    nccl-14 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 15 Group  0 Pid     66 on    nccl-15 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 16 Group  0 Pid     67 on    nccl-16 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 17 Group  0 Pid     66 on    nccl-17 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 18 Group  0 Pid     67 on    nccl-18 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 19 Group  0 Pid     67 on    nccl-19 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 20 Group  0 Pid     67 on    nccl-20 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 21 Group  0 Pid     67 on    nccl-21 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 22 Group  0 Pid     67 on    nccl-22 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 23 Group  0 Pid     67 on    nccl-23 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 24 Group  0 Pid     67 on    nccl-24 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 25 Group  0 Pid     67 on    nccl-25 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 26 Group  0 Pid     66 on    nccl-26 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 27 Group  0 Pid     67 on    nccl-27 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 28 Group  0 Pid     67 on    nccl-28 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 29 Group  0 Pid     67 on    nccl-29 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 30 Group  0 Pid     67 on    nccl-30 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 31 Group  0 Pid     67 on    nccl-31 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#
+#                                                              out-of-place                       in-place          
+#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)       
+           8             2     float     sum      -1    891.6    0.00    0.00      0    505.3    0.00    0.00      0
+          16             4     float     sum      -1    692.3    0.00    0.00      0    516.7    0.00    0.00      0
+          32             8     float     sum      -1    519.2    0.00    0.00      0    516.8    0.00    0.00      0
+          64            16     float     sum      -1    512.9    0.00    0.00      0    525.2    0.00    0.00      0
+         128            32     float     sum      -1    539.9    0.00    0.00      0    670.4    0.00    0.00      0
+         256            64     float     sum      -1    536.9    0.00    0.00      0   6945.6    0.00    0.00      0
+         512           128     float     sum      -1   2849.8    0.00    0.00      0   3487.8    0.00    0.00      0
+        1024           256     float     sum      -1   5357.4    0.00    0.00      0   2279.3    0.00    0.00      0
+        2048           512     float     sum      -1   3587.0    0.00    0.00      0   2616.3    0.00    0.00      0
+        4096          1024     float     sum      -1   2301.0    0.00    0.00      0   6332.3    0.00    0.00      0
+        8192          2048     float     sum      -1   2037.5    0.00    0.01      0   1579.6    0.01    0.01      0
+       16384          4096     float     sum      -1   4936.8    0.00    0.01      0   5669.2    0.00    0.01      0
+       32768          8192     float     sum      -1   3787.7    0.01    0.02      0   3948.7    0.01    0.02      0
+       65536         16384     float     sum      -1   4734.7    0.01    0.03      0   4013.3    0.02    0.03      0
+      131072         32768     float     sum      -1   4359.7    0.03    0.06      0   4272.8    0.03    0.06      0
+      262144         65536     float     sum      -1   8139.2    0.03    0.06      0   8535.3    0.03    0.06      0
+      524288        131072     float     sum      -1   9627.3    0.05    0.11      0   9725.3    0.05    0.10      0
+     1048576        262144     float     sum      -1    13212    0.08    0.15      0    12901    0.08    0.16      0
+     2097152        524288     float     sum      -1    15108    0.14    0.27      0    14653    0.14    0.28      0
+     4194304       1048576     float     sum      -1    20827    0.20    0.39      0    21134    0.20    0.38      0
+     8388608       2097152     float     sum      -1    32133    0.26    0.51      0    32603    0.26    0.50      0
+    16777216       4194304     float     sum      -1    55605    0.30    0.58      0    58932    0.28    0.55      0
+    33554432       8388608     float     sum      -1   162399    0.21    0.40      0   161430    0.21    0.40      0
+    67108864      16777216     float     sum      -1   395728    0.17    0.33      0   406389    0.17    0.32      0
+   134217728      33554432     float     sum      -1   568191    0.24    0.46      0   667703    0.20    0.39      0
+   268435456      67108864     float     sum      -1  1167275    0.23    0.45      0  1202189    0.22    0.43      0
+   536870912     134217728     float     sum      -1  2339618    0.23    0.44      0  2379456    0.23    0.44      0
+  1073741824     268435456     float     sum      -1  4558416    0.24    0.46      0  4733875    0.23    0.44      0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 0.166246 
+#
+
+FLUX-RUN END nccl-tests-iter-1
+FLUX-RUN START nccl-tests-iter-2
+# nThread 1 nGpus 1 minBytes 8 maxBytes 1073741824 step: 2(factor) warmup iters: 5 iters: 20 agg iters: 1 validation: 1 graph: 0
+#
+# Using devices
+#  Rank  0 Group  0 Pid    117 on     nccl-0 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  1 Group  0 Pid     76 on     nccl-1 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  2 Group  0 Pid     76 on     nccl-2 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  3 Group  0 Pid     75 on     nccl-3 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  4 Group  0 Pid     75 on     nccl-4 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  5 Group  0 Pid     76 on     nccl-5 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  6 Group  0 Pid     76 on     nccl-6 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  7 Group  0 Pid     76 on     nccl-7 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  8 Group  0 Pid     76 on     nccl-8 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  9 Group  0 Pid     76 on     nccl-9 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 10 Group  0 Pid     76 on    nccl-10 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 11 Group  0 Pid     76 on    nccl-11 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 12 Group  0 Pid     75 on    nccl-12 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 13 Group  0 Pid     76 on    nccl-13 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 14 Group  0 Pid     76 on    nccl-14 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 15 Group  0 Pid     75 on    nccl-15 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 16 Group  0 Pid     76 on    nccl-16 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 17 Group  0 Pid     75 on    nccl-17 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 18 Group  0 Pid     76 on    nccl-18 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 19 Group  0 Pid     76 on    nccl-19 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 20 Group  0 Pid     76 on    nccl-20 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 21 Group  0 Pid     76 on    nccl-21 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 22 Group  0 Pid     76 on    nccl-22 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 23 Group  0 Pid     76 on    nccl-23 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 24 Group  0 Pid     76 on    nccl-24 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 25 Group  0 Pid     76 on    nccl-25 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 26 Group  0 Pid     75 on    nccl-26 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 27 Group  0 Pid     76 on    nccl-27 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 28 Group  0 Pid     76 on    nccl-28 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 29 Group  0 Pid     76 on    nccl-29 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 30 Group  0 Pid     76 on    nccl-30 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 31 Group  0 Pid     76 on    nccl-31 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#
+#                                                              out-of-place                       in-place          
+#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)       
+           8             2     float     sum      -1    568.3    0.00    0.00      0    536.4    0.00    0.00      0
+          16             4     float     sum      -1    534.8    0.00    0.00      0    542.3    0.00    0.00      0
+          32             8     float     sum      -1    551.8    0.00    0.00      0    550.1    0.00    0.00      0
+          64            16     float     sum      -1    536.1    0.00    0.00      0    550.9    0.00    0.00      0
+         128            32     float     sum      -1    581.6    0.00    0.00      0    555.2    0.00    0.00      0
+         256            64     float     sum      -1    551.3    0.00    0.00      0   3798.5    0.00    0.00      0
+         512           128     float     sum      -1   5746.1    0.00    0.00      0   8649.7    0.00    0.00      0
+        1024           256     float     sum      -1   4273.1    0.00    0.00      0   4474.3    0.00    0.00      0
+        2048           512     float     sum      -1   9705.0    0.00    0.00      0   4033.6    0.00    0.00      0
+        4096          1024     float     sum      -1   2930.5    0.00    0.00      0   5209.2    0.00    0.00      0
+        8192          2048     float     sum      -1    876.5    0.01    0.02      0    830.3    0.01    0.02      0
+       16384          4096     float     sum      -1   5231.9    0.00    0.01      0   4796.7    0.00    0.01      0
+       32768          8192     float     sum      -1   3852.6    0.01    0.02      0   3998.8    0.01    0.02      0
+       65536         16384     float     sum      -1   4008.0    0.02    0.03      0   4462.3    0.01    0.03      0
+      131072         32768     float     sum      -1   4256.6    0.03    0.06      0   4212.9    0.03    0.06      0
+      262144         65536     float     sum      -1   8482.6    0.03    0.06      0   8269.3    0.03    0.06      0
+      524288        131072     float     sum      -1   9621.5    0.05    0.11      0   9445.0    0.06    0.11      0
+     1048576        262144     float     sum      -1    13152    0.08    0.15      0    12468    0.08    0.16      0
+     2097152        524288     float     sum      -1    14618    0.14    0.28      0    15684    0.13    0.26      0
+     4194304       1048576     float     sum      -1    20991    0.20    0.39      0    21555    0.19    0.38      0
+     8388608       2097152     float     sum      -1    34995    0.24    0.46      0    33428    0.25    0.49      0
+    16777216       4194304     float     sum      -1    57465    0.29    0.57      0    57669    0.29    0.56      0
+    33554432       8388608     float     sum      -1   164876    0.20    0.39      0   127341    0.26    0.51      0
+    67108864      16777216     float     sum      -1   416104    0.16    0.31      0   415699    0.16    0.31      0
+   134217728      33554432     float     sum      -1   675290    0.20    0.39      0   633381    0.21    0.41      0
+   268435456      67108864     float     sum      -1  1481983    0.18    0.35      0  1497930    0.18    0.35      0
+   536870912     134217728     float     sum      -1  3016763    0.18    0.34      0  2805202    0.19    0.37      0
+  1073741824     268435456     float     sum      -1  5234340    0.21    0.40      0  5858124    0.18    0.36      0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 0.157089 
+#
+
+FLUX-RUN END nccl-tests-iter-2
+FLUX-RUN START nccl-tests-iter-3
+# nThread 1 nGpus 1 minBytes 8 maxBytes 1073741824 step: 2(factor) warmup iters: 5 iters: 20 agg iters: 1 validation: 1 graph: 0
+#
+# Using devices
+#  Rank  0 Group  0 Pid    131 on     nccl-0 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  1 Group  0 Pid     85 on     nccl-1 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  2 Group  0 Pid     85 on     nccl-2 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  3 Group  0 Pid     84 on     nccl-3 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  4 Group  0 Pid     84 on     nccl-4 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  5 Group  0 Pid     85 on     nccl-5 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  6 Group  0 Pid     85 on     nccl-6 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  7 Group  0 Pid     85 on     nccl-7 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  8 Group  0 Pid     85 on     nccl-8 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  9 Group  0 Pid     85 on     nccl-9 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 10 Group  0 Pid     85 on    nccl-10 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 11 Group  0 Pid     85 on    nccl-11 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 12 Group  0 Pid     84 on    nccl-12 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 13 Group  0 Pid     85 on    nccl-13 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 14 Group  0 Pid     85 on    nccl-14 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 15 Group  0 Pid     84 on    nccl-15 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 16 Group  0 Pid     85 on    nccl-16 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 17 Group  0 Pid     84 on    nccl-17 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 18 Group  0 Pid     85 on    nccl-18 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 19 Group  0 Pid     85 on    nccl-19 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 20 Group  0 Pid     85 on    nccl-20 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 21 Group  0 Pid     85 on    nccl-21 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 22 Group  0 Pid     85 on    nccl-22 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 23 Group  0 Pid     85 on    nccl-23 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 24 Group  0 Pid     85 on    nccl-24 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 25 Group  0 Pid     85 on    nccl-25 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 26 Group  0 Pid     84 on    nccl-26 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 27 Group  0 Pid     85 on    nccl-27 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 28 Group  0 Pid     85 on    nccl-28 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 29 Group  0 Pid     85 on    nccl-29 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 30 Group  0 Pid     85 on    nccl-30 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 31 Group  0 Pid     85 on    nccl-31 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#
+#                                                              out-of-place                       in-place          
+#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)       
+           8             2     float     sum      -1    564.7    0.00    0.00      0    524.4    0.00    0.00      0
+          16             4     float     sum      -1    535.7    0.00    0.00      0    519.7    0.00    0.00      0
+          32             8     float     sum      -1    540.0    0.00    0.00      0    526.8    0.00    0.00      0
+          64            16     float     sum      -1    546.5    0.00    0.00      0    556.9    0.00    0.00      0
+         128            32     float     sum      -1    620.7    0.00    0.00      0    832.6    0.00    0.00      0
+         256            64     float     sum      -1    585.2    0.00    0.00      0   4694.5    0.00    0.00      0
+         512           128     float     sum      -1   2576.0    0.00    0.00      0   1159.8    0.00    0.00      0
+        1024           256     float     sum      -1   4505.4    0.00    0.00      0   1498.2    0.00    0.00      0
+        2048           512     float     sum      -1   5864.8    0.00    0.00      0   3762.7    0.00    0.00      0
+        4096          1024     float     sum      -1   5268.4    0.00    0.00      0   2876.3    0.00    0.00      0
+        8192          2048     float     sum      -1    911.0    0.01    0.02      0    838.3    0.01    0.02      0
+       16384          4096     float     sum      -1   5270.2    0.00    0.01      0   4688.6    0.00    0.01      0
+       32768          8192     float     sum      -1   4000.2    0.01    0.02      0   3916.9    0.01    0.02      0
+       65536         16384     float     sum      -1   4189.4    0.02    0.03      0   4087.4    0.02    0.03      0
+      131072         32768     float     sum      -1   4255.4    0.03    0.06      0   4309.2    0.03    0.06      0
+      262144         65536     float     sum      -1   7976.4    0.03    0.06      0   8216.9    0.03    0.06      0
+      524288        131072     float     sum      -1   9168.2    0.06    0.11      0   9654.1    0.05    0.11      0
+     1048576        262144     float     sum      -1    12534    0.08    0.16      0    12647    0.08    0.16      0
+     2097152        524288     float     sum      -1    15044    0.14    0.27      0    14770    0.14    0.28      0
+     4194304       1048576     float     sum      -1    21357    0.20    0.38      0    21352    0.20    0.38      0
+     8388608       2097152     float     sum      -1    34624    0.24    0.47      0    33527    0.25    0.48      0
+    16777216       4194304     float     sum      -1    62893    0.27    0.52      0    53413    0.31    0.61      0
+    33554432       8388608     float     sum      -1   138680    0.24    0.47      0   133161    0.25    0.49      0
+    67108864      16777216     float     sum      -1   312150    0.21    0.42      0   407716    0.16    0.32      0
+   134217728      33554432     float     sum      -1   726492    0.18    0.36      0   793865    0.17    0.33      0
+   268435456      67108864     float     sum      -1  1439216    0.19    0.36      0  1499793    0.18    0.35      0
+   536870912     134217728     float     sum      -1  2931439    0.18    0.35      0  3059328    0.18    0.34      0
+  1073741824     268435456     float     sum      -1  6322486    0.17    0.33      0  6061773    0.18    0.34      0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 0.156715 
+#
+
+FLUX-RUN END nccl-tests-iter-3
+FLUX-RUN START nccl-tests-iter-4
+# nThread 1 nGpus 1 minBytes 8 maxBytes 1073741824 step: 2(factor) warmup iters: 5 iters: 20 agg iters: 1 validation: 1 graph: 0
+#
+# Using devices
+#  Rank  0 Group  0 Pid    145 on     nccl-0 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  1 Group  0 Pid     94 on     nccl-1 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  2 Group  0 Pid     94 on     nccl-2 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  3 Group  0 Pid     93 on     nccl-3 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  4 Group  0 Pid     93 on     nccl-4 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  5 Group  0 Pid     94 on     nccl-5 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  6 Group  0 Pid     94 on     nccl-6 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  7 Group  0 Pid     94 on     nccl-7 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  8 Group  0 Pid     94 on     nccl-8 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  9 Group  0 Pid     94 on     nccl-9 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 10 Group  0 Pid     94 on    nccl-10 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 11 Group  0 Pid     94 on    nccl-11 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 12 Group  0 Pid     93 on    nccl-12 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 13 Group  0 Pid     94 on    nccl-13 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 14 Group  0 Pid     94 on    nccl-14 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 15 Group  0 Pid     93 on    nccl-15 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 16 Group  0 Pid     94 on    nccl-16 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 17 Group  0 Pid     93 on    nccl-17 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 18 Group  0 Pid     94 on    nccl-18 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 19 Group  0 Pid     94 on    nccl-19 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 20 Group  0 Pid     94 on    nccl-20 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 21 Group  0 Pid     94 on    nccl-21 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 22 Group  0 Pid     94 on    nccl-22 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 23 Group  0 Pid     94 on    nccl-23 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 24 Group  0 Pid     94 on    nccl-24 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 25 Group  0 Pid     94 on    nccl-25 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 26 Group  0 Pid     93 on    nccl-26 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 27 Group  0 Pid     94 on    nccl-27 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 28 Group  0 Pid     94 on    nccl-28 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 29 Group  0 Pid     94 on    nccl-29 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 30 Group  0 Pid     94 on    nccl-30 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 31 Group  0 Pid     94 on    nccl-31 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#
+#                                                              out-of-place                       in-place          
+#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)       
+           8             2     float     sum      -1    548.1    0.00    0.00      0    541.2    0.00    0.00      0
+          16             4     float     sum      -1    543.2    0.00    0.00      0    526.2    0.00    0.00      0
+          32             8     float     sum      -1    770.0    0.00    0.00      0    547.8    0.00    0.00      0
+          64            16     float     sum      -1    527.5    0.00    0.00      0    536.2    0.00    0.00      0
+         128            32     float     sum      -1    548.4    0.00    0.00      0    546.9    0.00    0.00      0
+         256            64     float     sum      -1    547.2    0.00    0.00      0   8507.6    0.00    0.00      0
+         512           128     float     sum      -1   5489.9    0.00    0.00      0   3588.4    0.00    0.00      0
+        1024           256     float     sum      -1   7494.8    0.00    0.00      0   3055.9    0.00    0.00      0
+        2048           512     float     sum      -1   8530.1    0.00    0.00      0   6555.3    0.00    0.00      0
+        4096          1024     float     sum      -1   3068.4    0.00    0.00      0   6134.8    0.00    0.00      0
+        8192          2048     float     sum      -1    890.2    0.01    0.02      0   1211.2    0.01    0.01      0
+       16384          4096     float     sum      -1   4633.7    0.00    0.01      0   5158.0    0.00    0.01      0
+       32768          8192     float     sum      -1   4021.5    0.01    0.02      0   4035.1    0.01    0.02      0
+       65536         16384     float     sum      -1   4277.7    0.02    0.03      0   4299.3    0.02    0.03      0
+      131072         32768     float     sum      -1   4302.7    0.03    0.06      0   4243.7    0.03    0.06      0
+      262144         65536     float     sum      -1   7998.2    0.03    0.06      0   7854.9    0.03    0.06      0
+      524288        131072     float     sum      -1   9512.6    0.06    0.11      0   9198.9    0.06    0.11      0
+     1048576        262144     float     sum      -1    12503    0.08    0.16      0    12658    0.08    0.16      0
+     2097152        524288     float     sum      -1    14818    0.14    0.27      0    15007    0.14    0.27      0
+     4194304       1048576     float     sum      -1    21270    0.20    0.38      0    20842    0.20    0.39      0
+     8388608       2097152     float     sum      -1    36755    0.23    0.44      0    33466    0.25    0.49      0
+    16777216       4194304     float     sum      -1    66623    0.25    0.49      0    65988    0.25    0.49      0
+    33554432       8388608     float     sum      -1   179133    0.19    0.36      0   259797    0.13    0.25      0
+    67108864      16777216     float     sum      -1   352535    0.19    0.37      0   438750    0.15    0.30      0
+   134217728      33554432     float     sum      -1   637728    0.21    0.41      0   696112    0.19    0.37      0
+   268435456      67108864     float     sum      -1  1350418    0.20    0.39      0  1431752    0.19    0.36      0
+   536870912     134217728     float     sum      -1  2406478    0.22    0.43      0  2694760    0.20    0.39      0
+  1073741824     268435456     float     sum      -1  5553760    0.19    0.37      0  5606195    0.19    0.37      0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 0.15229 
+#
+
+FLUX-RUN END nccl-tests-iter-4
+FLUX-RUN START nccl-tests-iter-5
+# nThread 1 nGpus 1 minBytes 8 maxBytes 1073741824 step: 2(factor) warmup iters: 5 iters: 20 agg iters: 1 validation: 1 graph: 0
+#
+# Using devices
+#  Rank  0 Group  0 Pid    159 on     nccl-0 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  1 Group  0 Pid    103 on     nccl-1 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  2 Group  0 Pid    103 on     nccl-2 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  3 Group  0 Pid    102 on     nccl-3 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  4 Group  0 Pid    102 on     nccl-4 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  5 Group  0 Pid    103 on     nccl-5 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  6 Group  0 Pid    103 on     nccl-6 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  7 Group  0 Pid    103 on     nccl-7 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  8 Group  0 Pid    103 on     nccl-8 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank  9 Group  0 Pid    103 on     nccl-9 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 10 Group  0 Pid    103 on    nccl-10 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 11 Group  0 Pid    103 on    nccl-11 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 12 Group  0 Pid    102 on    nccl-12 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 13 Group  0 Pid    103 on    nccl-13 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 14 Group  0 Pid    103 on    nccl-14 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 15 Group  0 Pid    102 on    nccl-15 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 16 Group  0 Pid    103 on    nccl-16 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 17 Group  0 Pid    102 on    nccl-17 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 18 Group  0 Pid    103 on    nccl-18 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 19 Group  0 Pid    103 on    nccl-19 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 20 Group  0 Pid    103 on    nccl-20 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 21 Group  0 Pid    103 on    nccl-21 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 22 Group  0 Pid    103 on    nccl-22 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 23 Group  0 Pid    103 on    nccl-23 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 24 Group  0 Pid    103 on    nccl-24 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 25 Group  0 Pid    103 on    nccl-25 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 26 Group  0 Pid    102 on    nccl-26 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 27 Group  0 Pid    103 on    nccl-27 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 28 Group  0 Pid    103 on    nccl-28 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 29 Group  0 Pid    103 on    nccl-29 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 30 Group  0 Pid    103 on    nccl-30 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#  Rank 31 Group  0 Pid    103 on    nccl-31 device  0 [0000:00:04] Tesla V100-SXM2-16GB
+#
+#                                                              out-of-place                       in-place          
+#       size         count      type   redop    root     time   algbw   busbw #wrong     time   algbw   busbw #wrong
+#        (B)    (elements)                               (us)  (GB/s)  (GB/s)            (us)  (GB/s)  (GB/s)       
+           8             2     float     sum      -1    555.1    0.00    0.00      0    559.8    0.00    0.00      0
+          16             4     float     sum      -1    580.2    0.00    0.00      0    540.8    0.00    0.00      0
+          32             8     float     sum      -1    548.0    0.00    0.00      0    547.1    0.00    0.00      0
+          64            16     float     sum      -1    567.3    0.00    0.00      0    584.3    0.00    0.00      0
+         128            32     float     sum      -1    555.5    0.00    0.00      0    548.6    0.00    0.00      0
+         256            64     float     sum      -1    563.5    0.00    0.00      0   5763.3    0.00    0.00      0
+         512           128     float     sum      -1   7278.1    0.00    0.00      0   1568.9    0.00    0.00      0
+        1024           256     float     sum      -1   2869.7    0.00    0.00      0   9472.1    0.00    0.00      0
+        2048           512     float     sum      -1   6518.6    0.00    0.00      0   4184.8    0.00    0.00      0
+        4096          1024     float     sum      -1   6882.4    0.00    0.00      0   1392.1    0.00    0.01      0
+        8192          2048     float     sum      -1   1255.3    0.01    0.01      0    860.4    0.01    0.02      0
+       16384          4096     float     sum      -1   5119.8    0.00    0.01      0   4300.0    0.00    0.01      0
+       32768          8192     float     sum      -1   3916.0    0.01    0.02      0   3840.2    0.01    0.02      0
+       65536         16384     float     sum      -1   4032.6    0.02    0.03      0   4142.7    0.02    0.03      0
+      131072         32768     float     sum      -1   4390.1    0.03    0.06      0   4344.9    0.03    0.06      0
+      262144         65536     float     sum      -1   7955.7    0.03    0.06      0   8061.0    0.03    0.06      0
+      524288        131072     float     sum      -1   9616.6    0.05    0.11      0   9400.2    0.06    0.11      0
+     1048576        262144     float     sum      -1    12526    0.08    0.16      0    13291    0.08    0.15      0
+     2097152        524288     float     sum      -1    14778    0.14    0.27      0    14565    0.14    0.28      0
+     4194304       1048576     float     sum      -1    21452    0.20    0.38      0    22135    0.19    0.37      0
+     8388608       2097152     float     sum      -1    35012    0.24    0.46      0    33014    0.25    0.49      0
+    16777216       4194304     float     sum      -1    60444    0.28    0.54      0    56331    0.30    0.58      0
+    33554432       8388608     float     sum      -1   133423    0.25    0.49      0   139157    0.24    0.47      0
+    67108864      16777216     float     sum      -1   334665    0.20    0.39      0   363141    0.18    0.36      0
+   134217728      33554432     float     sum      -1   677729    0.20    0.38      0   644221    0.21    0.40      0
+   268435456      67108864     float     sum      -1  1466267    0.18    0.35      0  1462520    0.18    0.36      0
+   536870912     134217728     float     sum      -1  2723769    0.20    0.38      0  2737022    0.20    0.38      0
+  1073741824     268435456     float     sum      -1  5621402    0.19    0.37      0  5814831    0.18    0.36      0
+# Out of bounds values : 0 OK
+# Avg bus bandwidth    : 0.160427 
+#
+
+FLUX-RUN END nccl-tests-iter-5
+0% [Working]            Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+0% [Waiting for headers] [Connected to developer.download.nvidia.com (23.62.33.                                                                               Get:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+                                                                               Get:3 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+                                                                               Get:4 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease [1581 B]
+                                                                               0% [2 InRelease 15.6 kB/128 kB 12%] [3 InRelease 22.9 kB/129 kB 18%]                                                                    0% [2 InRelease 90.9 kB/128 kB 71%]                                   0% [Waiting for headers]                        Get:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [5 InRelease 4036 B/127 kB 3%]0% [5 InRelease 127 kB/127 kB 100%]                                   0% [Working]0% [Working]            Get:6 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  Packages [1659 kB]
+0% [6 Packages 16.0 kB/1659 kB 1%]                                  0% [Working]0% [6 Packages store 0 B]0% [6 Packages store 0 B]                         0% [Working]0% [Working]            Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+0% [7 Packages 6999 B/1544 kB 0%]51% [7 Packages 675 kB/1544 kB 44%]                                   61% [Working]61% [7 Packages store 0 B] [Waiting for headers]                                                Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+62% [7 Packages store 0 B] [8 Packages 31.6 kB/3200 kB 1%]                                                          99% [8 Packages 3200 kB/3200 kB 100%]                                     99% [Working]99% [8 Packages store 0 B]                          100% [Working]              Fetched 6789 kB in 1s (7060 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 44%Reading package lists... 44%Reading package lists... 45%Reading package lists... 45%Reading package lists... 54%Reading package lists... 54%Reading package lists... 54%Reading package lists... 66%Reading package lists... 66%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 79%Reading package lists... 79%Reading package lists... 91%Reading package lists... 91%Reading package lists... 95%Reading package lists... 95%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 44%Reading package lists... 44%Reading package lists... 45%Reading package lists... 45%Reading package lists... 54%Reading package lists... 54%Reading package lists... 57%Reading package lists... 66%Reading package lists... 66%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 71%Reading package lists... 79%Reading package lists... 79%Reading package lists... 91%Reading package lists... 91%Reading package lists... 95%Reading package lists... 95%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 47 not upgraded.
+
+FLUX-JOB START 35086158266368 nccl-tests-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}, {"type": "gpu", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["./nccl-tests/build/all_reduce_perf", "-b", "8", "-e", "1G", "-f", "2", "-g", "1"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "per-task"}}}, "user": {"study_id": "nccl-tests-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "1", "gpu": "0"}}], "nodelist": ["nccl-[0-31]"], "starttime": 1746252618, "expiration": 4899850527}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746252618.33498,"name":"init"}
+{"timestamp":1746252618.3371577,"name":"starting"}
+{"timestamp":1746252618.3752291,"name":"shell.init","context":{"service":"0-shell-fGtevfECF","leader-rank":0,"size":32}}
+{"timestamp":1746252618.3821306,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,1,1]]}}}
+{"timestamp":1746253146.7001832,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":159,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746253146.7198901,"name":"complete","context":{"status":0}}
+{"timestamp":1746253146.7199223,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 35086158266368 nccl-tests-iter-5
+
+FLUX-JOB START 26370394554368 nccl-tests-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}, {"type": "gpu", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["./nccl-tests/build/all_reduce_perf", "-b", "8", "-e", "1G", "-f", "2", "-g", "1"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "per-task"}}}, "user": {"study_id": "nccl-tests-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "1", "gpu": "0"}}], "nodelist": ["nccl-[0-31]"], "starttime": 1746252098, "expiration": 4899850527}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746252098.8340847,"name":"init"}
+{"timestamp":1746252098.8359072,"name":"starting"}
+{"timestamp":1746252098.8765268,"name":"shell.init","context":{"service":"0-shell-fCwhvU1GK","leader-rank":0,"size":32}}
+{"timestamp":1746252098.8861053,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,1,1]]}}}
+{"timestamp":1746252618.0369573,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":145,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746252618.0520768,"name":"complete","context":{"status":0}}
+{"timestamp":1746252618.0521138,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 26370394554368 nccl-tests-iter-4
+
+FLUX-JOB START 16823789551616 nccl-tests-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}, {"type": "gpu", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["./nccl-tests/build/all_reduce_perf", "-b", "8", "-e", "1G", "-f", "2", "-g", "1"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "per-task"}}}, "user": {"study_id": "nccl-tests-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "1", "gpu": "0"}}], "nodelist": ["nccl-[0-31]"], "starttime": 1746251529, "expiration": 4899850527}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746251529.8137784,"name":"init"}
+{"timestamp":1746251529.815439,"name":"starting"}
+{"timestamp":1746251529.8538389,"name":"shell.init","context":{"service":"0-shell-f8cw5fzfq","leader-rank":0,"size":32}}
+{"timestamp":1746251529.864388,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,1,1]]}}}
+{"timestamp":1746252098.5326352,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":131,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746252098.5510929,"name":"complete","context":{"status":0}}
+{"timestamp":1746252098.5511124,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 16823789551616 nccl-tests-iter-3
+
+FLUX-JOB START 7806941921280 nccl-tests-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}, {"type": "gpu", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["./nccl-tests/build/all_reduce_perf", "-b", "8", "-e", "1G", "-f", "2", "-g", "1"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "per-task"}}}, "user": {"study_id": "nccl-tests-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "1", "gpu": "0"}}], "nodelist": ["nccl-[0-31]"], "starttime": 1746250992, "expiration": 4899850527}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746250992.3656929,"name":"init"}
+{"timestamp":1746250992.3671339,"name":"starting"}
+{"timestamp":1746250992.4112034,"name":"shell.init","context":{"service":"0-shell-f4Y5MizRd","leader-rank":0,"size":32}}
+{"timestamp":1746250992.4208775,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,1,1]]}}}
+{"timestamp":1746251529.510159,"name":"shell.task-exit","context":{"localid":0,"rank":3,"state":"Exited","pid":75,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746251529.533308,"name":"complete","context":{"status":0}}
+{"timestamp":1746251529.5333273,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 7806941921280 nccl-tests-iter-2
+
+FLUX-JOB START 138948902912 nccl-tests-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}, {"type": "gpu", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["./nccl-tests/build/all_reduce_perf", "-b", "8", "-e", "1G", "-f", "2", "-g", "1"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "per-task"}}}, "user": {"study_id": "nccl-tests-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "1", "gpu": "0"}}], "nodelist": ["nccl-[0-31]"], "starttime": 1746250535, "expiration": 4899850527}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746250535.3224399,"name":"init"}
+{"timestamp":1746250535.3244741,"name":"starting"}
+{"timestamp":1746250535.5156174,"name":"shell.init","context":{"service":"0-shell-f4ehSSvs","leader-rank":0,"size":32}}
+{"timestamp":1746250535.5258646,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,1,1]]}}}
+{"timestamp":1746250992.0737803,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":103,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746250992.0924675,"name":"complete","context":{"status":0}}
+{"timestamp":1746250992.0924871,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 138948902912 nccl-tests-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

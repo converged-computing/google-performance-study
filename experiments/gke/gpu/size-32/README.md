@@ -1,10 +1,10 @@
-# GKE GPU Experiment Size 4
+# GKE GPU Experiment Size 32
 
 ## GPU Setup
 
 ```bash
 GOOGLE_PROJECT=llnl-flux
-NODES=4
+NODES=32
 GPUS=1
 
 time gcloud container clusters create test-cluster \
@@ -22,7 +22,7 @@ time gcloud container clusters create test-cluster \
 Save nodes:
 
 ```bash
-kubectl get nodes -o json > nodes-4.json 
+kubectl get nodes -o json > nodes-32.json 
 ```
 
 Install the nvidia device plugin (note that this likely isn't needed, Google Cloud works and does it for you)!
@@ -52,11 +52,11 @@ The output directory should already exist.
 ```bash
 helm dependency update multi-gpu-models/
 helm install \
-  --set experiment.nodes=4 \
+  --set experiment.nodes=32 \
   --set minicluster.gpus=1 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=4 \
-  --set experiment.tasks=4 \
+  --set minicluster.size=32 \
+  --set minicluster.tasks=64 \
+  --set experiment.tasks=32 \
   --set experiment.iterations=5 \
   --set minicluster.save_logs=true \
   --set mgm.niter=10000 \
@@ -77,10 +77,9 @@ Note that the master defaults to 1.
 ```bash
 helm dependency update pytorch-mnist-fashion/
 for i in 0 1 2 3 4
-for i in 3 4
   do
   helm install \
-  --set worker.replicas=3 \
+  --set worker.replicas=31 \
   --set master.gpus=1 \
   --set worker.gpus=1 \
   mnist ./pytorch-mnist-fashion
@@ -98,11 +97,11 @@ Needs test with flux-gpu container
 ```bash
 helm dependency update nccl-tests/
 helm install \
-  --set experiment.nodes=4 \
+  --set experiment.nodes=32 \
   --set minicluster.gpus=1 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=4 \
-  --set experiment.tasks=4 \
+  --set minicluster.size=32 \
+  --set minicluster.tasks=64 \
+  --set experiment.tasks=32 \
   --set experiment.iterations=5 \
   --set minicluster.save_logs=true \
   --set nccl.begin=8 \
