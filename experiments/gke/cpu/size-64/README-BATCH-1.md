@@ -118,7 +118,6 @@ helm uninstall atm
 For this app, npx, npy, npz need to multiply out to procs.
 
 **16 was the first size that didn't segfault!**
-**started segfaulting at 64**
 
 ```bash
 helm dependency update miniamr
@@ -129,7 +128,7 @@ helm install \
   --set minicluster.tasks=5632 \
   --set miniamr.npx=16 \
   --set miniamr.npy=16 \
-  --set miniamr.npz=11 \
+  --set miniamr.npz=22 \
   --set miniamr.nx=20 \
   --set miniamr.ny=20 \
   --set miniamr.nz=20 \

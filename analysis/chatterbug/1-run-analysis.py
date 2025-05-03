@@ -64,7 +64,7 @@ def main():
         os.makedirs(outdir)
 
     # Find input files (skip anything with test)
-    files = ps.find_inputs(indir, "amg")
+    files = ps.find_inputs(indir, "chatterbug")
     if not files:
         raise ValueError(f"There are no input files in {indir}")
 
@@ -73,35 +73,25 @@ def main():
     plot_results(df, outdir, args.non_anon)
 
 
-def get_fom_line(item, name):
-    """
-    Get a figure of merit based on the name
-    """
-    line = [x for x in item.split("\n") if name in x][0]
-    return float(line.rsplit(" ", 1)[-1])
-
 
 def parse_data(indir, outdir, files):
     """
     Parse filepaths for environment, etc., and results files for data.
     """
     # metrics here will be figures of merit, and seconds runtime
-    p = ps.ProblemSizeParser("amg2023")
-
-    # For flux we can save jobspecs and other event data
+    p = ps.ResultParser("chatterbug")
     data = {}
-
+    
     # It's important to just parse raw data once, and then use intermediate
     for filename in files:
         exp = ps.ExperimentNameParser(filename, indir)
-        if "compute-engine" in filename:
-            continue
-        mpi = "openmpi"
-        if "intel" in filename:
-            mpi = "intel"
         if exp.prefix not in data:
             data[exp.prefix] = []
 
+        # Skip size 2: testing
+        if exp.size == 2:
+            continue
+            
         # Set the parsing context for the result data frame
         p.set_context(exp.cloud, exp.env, exp.env_type, exp.size)
         
@@ -110,33 +100,23 @@ def parse_data(indir, outdir, files):
         exp.show()
          
         item = ps.read_file(filename)
-        
-        # amg started to error at size 64
-        if "MPI_ERR" in item:
-            continue
-
         jobs = ps.parse_flux_jobs(item)
-        for job, metadata in jobs.items():
-            if "log" not in metadata:
-                print(filename)
-                continue
-            # Parse the FOM from the item - I see three.
-            # This needs to throw an error if we can't find it - indicates the result file is wonky
-            # Figure of Merit (FOM): nnz_AP / (Setup Phase Time + 3 * Solve Phase Time) 1.148604e+09
-            fom_overall = get_fom_line(metadata['log'], "Figure of Merit (FOM)")
-            p.add_result("fom_overall", fom_overall, mpi)
-            if "duration" in metadata:
-                p.add_result("duration", metadata['duration'], mpi)
-            else:
-                print(filename)
 
-    print("Done parsing amg2023 results!")
+        for job, metadata in jobs.items():
+            # Running stencil3d on 5632 processors each with (1024, 1024, 1024) grid points with 4 variables
+            # Finished 100 iterations
+            # Time elapsed per iteration for grid size (1024,1024,1024) x 4 x 8: 0.612048 s
+            time_per_iteration = [x for x in metadata['log'].split('\n') if "per iteration" in x][0]
+            time_per_iteration = float(time_per_iteration.replace('s', '').strip().split(' ')[-1])
+            p.add_result("duration", metadata['duration'])
+            p.add_result("time_per_iteration", time_per_iteration)
+
+    print("Done parsing chatterbug results!")
 
     # Save stuff to file first
-    p.df.to_csv(os.path.join(outdir, "amg2023-results.csv"))
+    p.df.to_csv(os.path.join(outdir, "chatterbug-results.csv"))
     ps.write_json(jobs, os.path.join(outdir, "flux-jobs-and-events.json"))
     return p.df
-
 
 def plot_results(df, outdir, non_anon=False):
     """
@@ -147,9 +127,6 @@ def plot_results(df, outdir, non_anon=False):
     img_outdir = os.path.join(outdir, "img")
     if not os.path.exists(img_outdir):
         os.makedirs(img_outdir)
-
-    # TODO do we want to do this?
-    # ps.print_experiment_cost(df, outdir)
     
     # We are going to put the plots together, and the colors need to match!
     cloud_colors = {}
@@ -165,8 +142,6 @@ def plot_results(df, outdir, non_anon=False):
         # We can look at the metric across sizes, colored by experiment
         for metric in subset.metric.unique():
             metric_df = subset[subset.metric == metric]
-            title = " ".join([x.capitalize() for x in metric.split("_")])
-            title = title.replace("Fom", "FOM")
             frames[metric] = {'cpu': metric_df}
 
     for metric, data_frames in frames.items():
@@ -183,23 +158,19 @@ def plot_results(df, outdir, non_anon=False):
             ax=axes[0],
             x="nodes",
             y="value",
-            hue="problem_size",
+            hue="experiment",
             err_kws={"color": "darkred"},
-            #hue_order=[
-            #    "google/gke/cpu",
-    #            "google/compute-engine/cpu",
-           # ],
-            # palette=cloud_colors,
-            order=[4, 8, 16, 32],
+            hue_order=[
+                "google/gke/cpu",
+            ],
+            palette=cloud_colors,
+            order=[4, 8, 16, 32, 64],
+            # order=[4, 8, 16, 32, 64, 128],
         )
-        if metric == "duration":        
-            axes[0].set_title("AMG2023 Duration (CPU)", fontsize=14)
-            axes[0].set_ylabel("Seconds", fontsize=14)
-        else:
-            axes[0].set_title("FOM Overall (CPU)", fontsize=14)
-            axes[0].set_ylabel("FOM Overall", fontsize=14)
+        title = " ".join([x.capitalize() for x in metric.split("_")])        
+        axes[0].set_title(f"Chatterbug {title} (CPU)", fontsize=14)
+        axes[0].set_ylabel("Seconds", fontsize=14)
         axes[0].set_xlabel("Nodes", fontsize=14)
-        
         handles, labels = axes[0].get_legend_handles_labels()
         labels = ["/".join(x.split("/")[0:2]) for x in labels]
         axes[1].legend(
@@ -210,8 +181,8 @@ def plot_results(df, outdir, non_anon=False):
         axes[1].axis("off")
     
         plt.tight_layout()
-        plt.savefig(os.path.join(img_outdir, f"amg-{metric}-cpu.svg"))
-        plt.savefig(os.path.join(img_outdir, f"amg-{metric}-cpu.png"))
+        plt.savefig(os.path.join(img_outdir, f"chatterbug-{metric}-cpu.svg"))
+        plt.savefig(os.path.join(img_outdir, f"chatterbug-{metric}-cpu.png"))
         plt.clf()
 
         # Print the total number of data points

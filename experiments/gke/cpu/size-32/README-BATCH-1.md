@@ -118,8 +118,6 @@ helm uninstall atm
 
 For this app, npx, npy, npz need to multiply out to procs.
 
-**16 was the first size that didn't segfault!**
-
 ```bash
 helm dependency update miniamr
 helm install \
