@@ -1,0 +1,50 @@
+Defaulted container "npb" out of: npb, flux-view (init)
+/flux_operator/wait-0.sh: line 22: /opt/spack/spack-environment/share/spack/setup-env.sh: No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START npb-iter-$i"
+  flux run --setattr=user.study_id=npb-iter-$i -N4 -n 352 -o cpu-affinity=per-task -o gpu-affinity=off   --exclusive is.C.x |& tee /tmp/npb.out
+    echo "FLUX-RUN END npb-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      4      352        0 npb-[0-3]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START npb-iter-1
+0.036s: flux-shell[3]: FATAL: task 264 (host npb-3): start failed: is.C.x: No such file or directory
+0.036s: flux-shell[1]: FATAL: task 88 (host npb-1): start failed: is.C.x: No such file or directory
+0.036s: flux-shell[2]: FATAL: task 176 (host npb-2): start failed: is.C.x: No such file or directory
+0.036s: flux-shell[0]: FATAL: task 0 (host npb-0): start failed: is.C.x: No such file or directory
+0.037s: job.exception type=exec severity=0 task 264 (host npb-3): start failed: is.C.x: No such file or directory
+0.037s: job.exception type=exec severity=0 task 88 (host npb-1): start failed: is.C.x: No such file or directory
+0.037s: job.exception type=exec severity=0 task 0 (host npb-0): start failed: is.C.x: No such file or directory
+0.037s: job.exception type=exec severity=0 task 176 (host npb-2): start failed: is.C.x: No such file or directory
+flux-job: task(s) exited with exit code 127

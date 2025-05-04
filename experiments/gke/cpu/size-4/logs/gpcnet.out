@@ -1,0 +1,346 @@
+Defaulted container "gpcnet" out of: gpcnet, flux-view (init)
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START gpcnet-iter-$i"
+  flux run --setattr=user.study_id=gpcnet-iter-$i -N4 -n 352 -o cpu-affinity=per-task -o gpu-affinity=off     network_test |& tee /tmp/gpcnet.out
+    echo "FLUX-RUN END gpcnet-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      4      352        0 gpcnet-[0-3]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START gpcnet-iter-1
+Network Tests v1.3
+  Test with 352 MPI ranks (4 nodes)
+
+  Legend
+   RR = random ring communication pattern
+   Nat = natural ring communication pattern
+   Lat = latency
+   BW = bandwidth
+   BW+Sync = bandwidth with barrier
++------------------------------------------------------------------------------+
+|                            Isolated Network Tests                            |
++---------------------------------+--------------+--------------+--------------+
+|                            Name |          Avg |          99% |        Units |
++---------------------------------+--------------+--------------+--------------+
+|          RR Two-sided Lat (8 B) |         31.6 |         87.3 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|                RR Get Lat (8 B) |        100.0 |        167.2 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      RR Two-sided BW (131072 B) |        253.6 |         10.3 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|            RR Put BW (131072 B) |        357.1 |         79.5 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+| RR Two-sided BW+Sync (131072 B) |        287.7 |         50.0 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|     Nat Two-sided BW (131072 B) |        236.6 |         11.6 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|        Multiple Allreduce (8 B) |         93.4 |        268.4 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      Multiple Alltoall (4096 B) |        112.8 |         43.1 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+FLUX-RUN END gpcnet-iter-1
+FLUX-RUN START gpcnet-iter-2
+Network Tests v1.3
+  Test with 352 MPI ranks (4 nodes)
+
+  Legend
+   RR = random ring communication pattern
+   Nat = natural ring communication pattern
+   Lat = latency
+   BW = bandwidth
+   BW+Sync = bandwidth with barrier
++------------------------------------------------------------------------------+
+|                            Isolated Network Tests                            |
++---------------------------------+--------------+--------------+--------------+
+|                            Name |          Avg |          99% |        Units |
++---------------------------------+--------------+--------------+--------------+
+|          RR Two-sided Lat (8 B) |         30.9 |         80.5 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|                RR Get Lat (8 B) |         98.8 |        158.6 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      RR Two-sided BW (131072 B) |        268.3 |         10.1 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|            RR Put BW (131072 B) |        375.0 |         81.6 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+| RR Two-sided BW+Sync (131072 B) |        314.6 |         50.8 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|     Nat Two-sided BW (131072 B) |        245.0 |         34.9 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|        Multiple Allreduce (8 B) |         92.1 |        341.2 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      Multiple Alltoall (4096 B) |        112.2 |         45.0 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+FLUX-RUN END gpcnet-iter-2
+FLUX-RUN START gpcnet-iter-3
+Network Tests v1.3
+  Test with 352 MPI ranks (4 nodes)
+
+  Legend
+   RR = random ring communication pattern
+   Nat = natural ring communication pattern
+   Lat = latency
+   BW = bandwidth
+   BW+Sync = bandwidth with barrier
++------------------------------------------------------------------------------+
+|                            Isolated Network Tests                            |
++---------------------------------+--------------+--------------+--------------+
+|                            Name |          Avg |          99% |        Units |
++---------------------------------+--------------+--------------+--------------+
+|          RR Two-sided Lat (8 B) |         31.6 |         85.9 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|                RR Get Lat (8 B) |        100.5 |        170.8 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      RR Two-sided BW (131072 B) |        265.8 |         10.1 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|            RR Put BW (131072 B) |        357.7 |         77.5 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+| RR Two-sided BW+Sync (131072 B) |        319.6 |         55.4 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|     Nat Two-sided BW (131072 B) |        262.0 |         10.9 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|        Multiple Allreduce (8 B) |         91.3 |        329.9 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      Multiple Alltoall (4096 B) |        107.9 |         34.9 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+FLUX-RUN END gpcnet-iter-3
+FLUX-RUN START gpcnet-iter-4
+Network Tests v1.3
+  Test with 352 MPI ranks (4 nodes)
+
+  Legend
+   RR = random ring communication pattern
+   Nat = natural ring communication pattern
+   Lat = latency
+   BW = bandwidth
+   BW+Sync = bandwidth with barrier
++------------------------------------------------------------------------------+
+|                            Isolated Network Tests                            |
++---------------------------------+--------------+--------------+--------------+
+|                            Name |          Avg |          99% |        Units |
++---------------------------------+--------------+--------------+--------------+
+|          RR Two-sided Lat (8 B) |         31.7 |         87.3 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|                RR Get Lat (8 B) |        101.1 |        174.7 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      RR Two-sided BW (131072 B) |        277.5 |         10.1 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|            RR Put BW (131072 B) |        382.8 |         82.1 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+| RR Two-sided BW+Sync (131072 B) |        348.5 |         51.1 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|     Nat Two-sided BW (131072 B) |        236.0 |         10.3 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|        Multiple Allreduce (8 B) |         93.4 |        306.6 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      Multiple Alltoall (4096 B) |        102.0 |         31.7 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+FLUX-RUN END gpcnet-iter-4
+FLUX-RUN START gpcnet-iter-5
+Network Tests v1.3
+  Test with 352 MPI ranks (4 nodes)
+
+  Legend
+   RR = random ring communication pattern
+   Nat = natural ring communication pattern
+   Lat = latency
+   BW = bandwidth
+   BW+Sync = bandwidth with barrier
++------------------------------------------------------------------------------+
+|                            Isolated Network Tests                            |
++---------------------------------+--------------+--------------+--------------+
+|                            Name |          Avg |          99% |        Units |
++---------------------------------+--------------+--------------+--------------+
+|          RR Two-sided Lat (8 B) |         32.9 |         92.5 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|                RR Get Lat (8 B) |        102.0 |        178.6 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      RR Two-sided BW (131072 B) |        262.9 |         10.1 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|            RR Put BW (131072 B) |        373.8 |         78.3 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+| RR Two-sided BW+Sync (131072 B) |        334.8 |         54.7 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|     Nat Two-sided BW (131072 B) |        267.9 |         10.2 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|        Multiple Allreduce (8 B) |         97.1 |        281.0 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      Multiple Alltoall (4096 B) |        102.6 |         36.8 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+FLUX-RUN END gpcnet-iter-5
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy InRelease [270 kB]
+0% [1 InRelease 2588 B/270 kB 1%] [Connecting to security.ubuntu.com (185.125.1                                                                               Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+                                                                               0% [1 InRelease 208 kB/270 kB 77%] [2 InRelease 11.3 kB/129 kB 9%]                                                                  0% [2 InRelease 14.2 kB/129 kB 11%]                                   Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [3 InRelease 8380 B/128 kB 7%] [2 InRelease 14.2 kB/129 kB 11%]                                                                  0% [2 InRelease 14.2 kB/129 kB 11%]0% [Waiting for headers] [2 InRelease 14.2 kB/129 kB 11%]                                                         Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 8380 B/127 kB 7%] [2 InRelease 14.2 kB/129 kB 11%]                                                                  0% [2 InRelease 14.2 kB/129 kB 11%]                                   Get:5 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [266 kB]
+0% [5 Packages 8449 B/266 kB 3%] [2 InRelease 28.7 kB/129 kB 22%]0% [5 Packages 60.6 kB/266 kB 23%] [2 InRelease 28.7 kB/129 kB 22%]                                                                   0% [Waiting for headers] [2 InRelease 40.2 kB/129 kB 31%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [17.5 MB]
+0% [6 Packages 53.2 kB/17.5 MB 0%] [2 InRelease 40.2 kB/129 kB 31%]0% [5 Packages store 0 B] [6 Packages 59.5 kB/17.5 MB 0%] [2 InRelease 40.2 kB/                                                                               0% [6 Packages 156 kB/17.5 MB 1%] [2 InRelease 43.1 kB/129 kB 33%]0% [6 Packages 386 kB/17.5 MB 2%] [2 InRelease 43.1 kB/129 kB 33%]                                                                  0% [Waiting for headers] [2 InRelease 95.3 kB/129 kB 74%]                                                         Get:7 http://archive.ubuntu.com/ubuntu jammy/main amd64 Packages [1792 kB]
+0% [7 Packages 25.3 kB/1792 kB 1%] [2 InRelease 95.3 kB/129 kB 74%]0% [6 Packages store 0 B] [7 Packages 86.0 kB/1792 kB 5%] [2 InRelease 95.3 kB/0% [6 Packages store 0 B] [Waiting for headers] [2 InRelease 98.2 kB/129 kB 76%                                                                               Get:8 http://archive.ubuntu.com/ubuntu jammy/restricted amd64 Packages [164 kB]
+0% [6 Packages store 0 B] [8 Packages 2340 B/164 kB 1%] [2 InRelease 98.2 kB/120% [6 Packages store 0 B] [Waiting for headers] [2 InRelease 98.2 kB/129 kB 76%                                                                               Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+0% [6 Packages store 0 B] [9 Packages 29.6 kB/55.7 kB 53%] [2 InRelease 98.2 kB0% [6 Packages store 0 B] [Waiting for headers] [2 InRelease 98.2 kB/129 kB 76%                                                                               Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+0% [6 Packages store 0 B] [10 Packages 39.3 kB/4420 kB 1%] [2 InRelease 98.2 kB0% [6 Packages store 0 B] [Waiting for headers] [2 InRelease 107 kB/129 kB 83%]                                                                               Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+0% [6 Packages store 0 B] [11 Packages 10.4 kB/3200 kB 0%] [2 InRelease 107 kB/0% [6 Packages store 0 B] [Waiting for headers] [2 InRelease 113 kB/129 kB 87%]                                                                               Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+0% [6 Packages store 0 B] [12 Packages 10.6 kB/1544 kB 1%] [2 InRelease 113 kB/0% [6 Packages store 0 B] [Waiting for headers] [2 InRelease 113 kB/129 kB 87%]                                                                               Get:13 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+0% [6 Packages store 0 B] [13 Packages 35.2 kB/35.2 kB 100%] [2 InRelease 113 k0% [6 Packages store 0 B] [Waiting for headers] [2 InRelease 113 kB/129 kB 87%]                                                                               Get:14 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+0% [6 Packages store 0 B] [14 Packages 14.4 kB/82.7 kB 17%] [2 InRelease 113 kB                                                                               0% [6 Packages store 0 B] [2 InRelease 113 kB/129 kB 87%]                                                         0% [6 Packages store 0 B]75% [6 Packages store 0 B]                          Get:15 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+75% [6 Packages store 0 B] [15 Packages 2655 B/1244 kB 0%]                                                          77% [15 Packages 651 kB/1244 kB 52%]77% [7 Packages store 0 B] [15 Packages 651 kB/1244 kB 52%]                                                           79% [15 Packages 1035 kB/1244 kB 83%]79% [8 Packages store 0 B] [15 Packages 1035 kB/1244 kB 83%]                                                            79% [15 Packages 1093 kB/1244 kB 88%]79% [9 Packages store 0 B] [15 Packages 1093 kB/1244 kB 88%]                                                            80% [15 Packages 1115 kB/1244 kB 90%]80% [10 Packages store 0 B] [15 Packages 1115 kB/1244 kB 90%]                                                             80% [10 Packages store 0 B]                           Get:16 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+80% [10 Packages store 0 B] [16 Packages 7003 B/47.7 kB 15%]                                                            80% [10 Packages store 0 B] [Waiting for headers]                                                 Get:17 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+80% [10 Packages store 0 B] [17 Packages 15.5 kB/2844 kB 1%]                                                            82% [17 Packages 742 kB/2844 kB 26%]82% [11 Packages store 0 B] [17 Packages 742 kB/2844 kB 26%]                                                            86% [17 Packages 2280 kB/2844 kB 80%]86% [12 Packages store 0 B] [17 Packages 2280 kB/2844 kB 80%]                                                             87% [12 Packages store 0 B] [Waiting for headers]                                                 Get:18 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4118 kB]
+87% [12 Packages store 0 B] [18 Packages 10.8 kB/4118 kB 0%]                                                            90% [18 Packages 770 kB/4118 kB 19%]90% [13 Packages store 0 B] [18 Packages 770 kB/4118 kB 19%]                                                            90% [18 Packages 803 kB/4118 kB 19%]90% [14 Packages store 0 B] [18 Packages 803 kB/4118 kB 19%]                                                            91% [18 Packages 935 kB/4118 kB 23%]91% [15 Packages store 0 B] [18 Packages 935 kB/4118 kB 23%]                                                            95% [18 Packages 2681 kB/4118 kB 65%]95% [16 Packages store 0 B] [18 Packages 2681 kB/4118 kB 65%]                                                             96% [18 Packages 2746 kB/4118 kB 67%]96% [17 Packages store 0 B] [18 Packages 2746 kB/4118 kB 67%]                                                             99% [17 Packages store 0 B]                           99% [Working]99% [18 Packages store 0 B]                           100% [Working]              Fetched 37.9 MB in 2s (19.4 MB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 1%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 1 not upgraded.
+Need to get 357 kB of archives.
+After this operation, 1087 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libonig5 amd64 6.9.7.1-2build1 [172 kB]
+1% [1 libonig5 5500 B/172 kB 3%]                                45% [Working]             Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjq1 amd64 1.6-2.1ubuntu3 [133 kB]
+46% [2 libjq1 2604 B/133 kB 2%]                               82% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 jq amd64 1.6-2.1ubuntu3 [52.5 kB]
+82% [3 jq 2896 B/52.5 kB 6%]                            100% [Working]              Fetched 357 kB in 1s (385 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 8293 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.7.1-2build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.7.1-2build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-2.1ubuntu3) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking jq (1.6-2.1ubuntu3) ...
+Setting up libonig5:amd64 (6.9.7.1-2build1) ...
+Setting up libjq1:amd64 (1.6-2.1ubuntu3) ...
+Setting up jq (1.6-2.1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.9) ...
+
+FLUX-JOB START 8597501116416 gpcnet-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["network_test"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/gpcnet", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "gpcnet-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["gpcnet-[0-3]"], "starttime": 1746375790, "expiration": 4899975278}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746375790.4552965,"name":"init"}
+{"timestamp":1746375790.4558792,"name":"starting"}
+{"timestamp":1746375790.468466,"name":"shell.init","context":{"service":"0-shell-f4tqpjWUF","leader-rank":0,"size":4}}
+{"timestamp":1746375790.6471837,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746375916.1551399,"name":"shell.task-exit","context":{"localid":87,"rank":87,"state":"Exited","pid":1055,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746375916.1847336,"name":"complete","context":{"status":0}}
+{"timestamp":1746375916.1847584,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 8597501116416 gpcnet-iter-5
+
+FLUX-JOB START 6477095895040 gpcnet-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["network_test"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/gpcnet", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "gpcnet-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["gpcnet-[0-3]"], "starttime": 1746375664, "expiration": 4899975278}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746375664.0698874,"name":"init"}
+{"timestamp":1746375664.0706263,"name":"starting"}
+{"timestamp":1746375664.0828848,"name":"shell.init","context":{"service":"0-shell-f3w9FnVxs","leader-rank":0,"size":4}}
+{"timestamp":1746375664.2616374,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746375790.1925309,"name":"shell.task-exit","context":{"localid":21,"rank":21,"state":"Exited","pid":741,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746375790.2268441,"name":"complete","context":{"status":0}}
+{"timestamp":1746375790.2268808,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 6477095895040 gpcnet-iter-4
+
+FLUX-JOB START 4314428866560 gpcnet-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["network_test"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/gpcnet", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "gpcnet-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["gpcnet-[0-3]"], "starttime": 1746375535, "expiration": 4899975278}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746375535.1649363,"name":"init"}
+{"timestamp":1746375535.1655178,"name":"starting"}
+{"timestamp":1746375535.1782491,"name":"shell.init","context":{"service":"0-shell-f2xLJJgas","leader-rank":0,"size":4}}
+{"timestamp":1746375535.3565595,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746375663.8108418,"name":"shell.task-exit","context":{"localid":63,"rank":63,"state":"Exited","pid":645,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746375663.839499,"name":"complete","context":{"status":0}}
+{"timestamp":1746375663.8395269,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 4314428866560 gpcnet-iter-3
+
+FLUX-JOB START 2192765353984 gpcnet-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["network_test"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/gpcnet", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "gpcnet-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["gpcnet-[0-3]"], "starttime": 1746375408, "expiration": 4899975278}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746375408.7045245,"name":"init"}
+{"timestamp":1746375408.7052155,"name":"starting"}
+{"timestamp":1746375408.7176037,"name":"shell.init","context":{"service":"0-shell-fzbpAbwd","leader-rank":0,"size":4}}
+{"timestamp":1746375408.8971705,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746375534.8758941,"name":"shell.task-exit","context":{"localid":87,"rank":87,"state":"Exited","pid":512,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746375534.9372277,"name":"complete","context":{"status":0}}
+{"timestamp":1746375534.9372547,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2192765353984 gpcnet-iter-2
+
+FLUX-JOB START 17414750208 gpcnet-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["network_test"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/gpcnet", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "gpcnet-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["gpcnet-[0-3]"], "starttime": 1746375279, "expiration": 4899975278}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746375279.0431945,"name":"init"}
+{"timestamp":1746375279.0437062,"name":"starting"}
+{"timestamp":1746375279.0558777,"name":"shell.init","context":{"service":"0-shell-fTXt9Ww","leader-rank":0,"size":4}}
+{"timestamp":1746375279.2356997,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746375408.4165986,"name":"shell.task-exit","context":{"localid":82,"rank":82,"state":"Exited","pid":321,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746375408.4750445,"name":"complete","context":{"status":0}}
+{"timestamp":1746375408.4750705,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 17414750208 gpcnet-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

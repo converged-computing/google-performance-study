@@ -159,7 +159,7 @@ def plot_results(df, outdir, non_anon=False):
             err_kws={"color": "darkred"},
             hue_order=["google/gke/gpu",],
             palette=cloud_colors,
-            order=[4, 8, 16, 32],
+            order=[4, 8, 16, 32, 64],
             # order=[4, 8, 16, 32, 64, 128],
        )
         axes[0].set_title(f"Pytorch MNIST {metric.capitalize()} (GPU)", fontsize=14)

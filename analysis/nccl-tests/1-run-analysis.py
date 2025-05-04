@@ -111,7 +111,7 @@ def parse_data(indir, outdir, files):
                 parts = line.split()
                 message_size = int(parts[0])
                 # These are GB/s
-                busbw_out_of_place = (parts[7])
+                busbw_out_of_place = float(parts[7])
                 busbw_in_place = float(parts[11])
                 p.add_result("out_of_place_bandwidth", busbw_out_of_place, message_size)   
                 p.add_result("in_place_bandwidth", busbw_in_place, message_size)   
@@ -165,18 +165,20 @@ def plot_results(df, outdir, non_anon=False):
                 err_kws={"color": "darkred"},
                 hue_order=["google/gke/gpu",],
                 palette=cloud_colors,
-                order=[4, 8, 16, 32],
-                # order=[4, 8, 16, 32, 64, 128],
+                order=[4, 8, 16, 32, 64],
             )
         else:
+            print(metric + " min")
+            print(data_frames['gpu'].groupby('nodes')['value'].min())
+            print(metric + " max")
+            print(data_frames['gpu'].groupby('nodes')['value'].max())
             sns.lineplot(
                 data_frames["gpu"],
                 ax=axes[0],
-                hue="experiment",
+                hue="nodes",
                 x="problem_size",
                 y="value",
                 markers=True,
-                palette=cloud_colors,
                 dashes=True,
                 errorbar=("ci", 95),
             )
@@ -191,7 +193,7 @@ def plot_results(df, outdir, non_anon=False):
             axes[0].set_xlabel("Message Size (bytes)", fontsize=14)
             axes[0].set_ylabel(metric + " MB/s", fontsize=14)
             axes[0].set_xscale("log")
-            axes[0].set_yscale("log")
+            # axes[0].set_yscale("log")
 
         handles, labels = axes[0].get_legend_handles_labels()
         labels = ["/".join(x.split("/")[0:2]) for x in labels]
