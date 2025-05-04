@@ -1,0 +1,678 @@
+Defaulted container "rajaperf" out of: rajaperf, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START rajaperf-iter-$i"
+  flux run --setattr=user.study_id=rajaperf-iter-$i -N8 -n 704 -o cpu-affinity=per-task -o gpu-affinity=off     /opt/RAJAPerf/build/bin/raja-perf.exe  --kernels COPY DAXPY REDUCE_SUM |& tee /tmp/rajaperf.out
+  echo RAJAPerf RAJAPerf-fom.csv; cat RAJAPerf-fom.csv; rm RAJAPerf-fom.csv; echo RAJAPerf RAJAPerf-kernels.csv; cat RAJAPerf-kernels.csv; rm RAJAPerf-kernels.csv; echo RAJAPERF RAJAPerf-speedup-Average.csv; cat RAJAPerf-speedup-Average.csv; rm RAJAPerf-speedup-Average.csv; echo RAJAPerf RAJAPERF RAJAPerf-timing-Average.csv; cat RAJAPerf-timing-Average.csv; rm RAJAPerf-timing-Average.csv;
+   echo "FLUX-RUN END rajaperf-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      8      704        0 rajaperf-[0-7]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START rajaperf-iter-1
+
+
+Running with 704 MPI ranks...
+
+
+Reading command line input...
+
+Setting up suite based on input...
+
+
+RAJA performance suite run summary....
+--------------------------------------
+
+How suite will be run:
+	 # passes = 1
+	 Kernel size factor = 1
+	 Kernel rep factor = 1
+	 Output files will be named ./RAJAPerf*
+
+Running with 704 MPI procs
+	 3D division = 44 x 4 x 4 
+
+The following kernels and variants (when available for a kernel) will be run:
+
+Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+Reduction Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+MPI Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+Variants and Tunings
+--------
+Base_Seq-default
+Lambda_Seq-default
+RAJA_Seq-default
+RAJA_Seq-new
+Base_OpenMP-default
+Lambda_OpenMP-default
+RAJA_OpenMP-default
+RAJA_OpenMP-new
+
+Kernels                ,    Problem size ,    Reps ,    Iterations/rep , Kernels/rep ,    Bytes/rep ,    FLOPS/rep ,    BytesRead/rep ,    BytesWritten/rep ,    BytesAtomicModifyWritten/rep
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Basic_DAXPY            ,         1000000 ,     500 ,           1000000 ,           1 ,     24000000 ,      2000000 ,         16000000 ,             8000000 ,                               0
+Stream_COPY            ,         1000000 ,    1800 ,           1000000 ,           1 ,     16000000 ,            0 ,          8000000 ,             8000000 ,                               0
+Algorithm_REDUCE_SUM   ,         1000000 ,      50 ,           1000000 ,           1 ,      8000016 ,      1000000 ,          8000008 ,                   8 ,                               0
+
+
+Run warmup kernels...
+
+Run kernel -- Basic_DAXPY
+
+Run kernel -- Basic_REDUCE3_INT
+
+
+Running specified kernels and variants...
+
+
+Generate run report files...
+
+
+DONE!!!....
+RAJAPerf RAJAPerf-fom.csv
+FOM Report : signed speedup(-)/slowdown(+) for each PM (base vs. RAJA) -> (T_RAJA - T_base) / T_base ) ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  , 
+'OVER_TOL' in column to right if RAJA speedup is over tolerance ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq-default     ,         , Lambda_Seq-default   ,         , RAJA_Seq-default     ,         , RAJA_Seq-new         ,         , Base_OpenMP-default  ,         , Lambda_OpenMP-default,         , RAJA_OpenMP-default  ,         , RAJA_OpenMP-new      ,        
+Basic_DAXPY           , 0                    ,base_ref , -0.0026              ,         , 0.0019               ,         , 0                    ,         , 0                    ,base_ref , 0.0054               ,         , 0.0083               ,         , 0                    ,        
+Stream_COPY           , 0                    ,base_ref , -0.0019              ,         , -0.0042              ,         , 0                    ,         , 0                    ,base_ref , -0.00074             ,         , 0.0022               ,         , 0                    ,        
+Algorithm_REDUCE_SUM  , 0                    ,base_ref , -0.16                ,         , 0.27                 ,OVER_TOL , -0.089               ,         , 0                    ,base_ref , -0.13                ,         , -0.13                ,         , -0.068               ,        
+                      ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,        
+Col Min               , 0                    ,         , -0.16                ,         , -0.0042              ,         , -0.089               ,         , 0                    ,         , -0.13                ,         , -0.13                ,         , -0.068               ,        
+Col Max               , 0                    ,         , -0.0019              ,         , 0.27                 ,         , -0.089               ,         , 0                    ,         , 0.0054               ,         , 0.0083               ,         , -0.068               ,        
+Col Avg               , 0                    ,         , -0.054               ,         , 0.091                ,         , -0.089               ,         , 0                    ,         , -0.043               ,         , -0.041               ,         , -0.068               ,        
+Col Std Dev           , 0                    ,         , 0.0054               ,         , 0.017                ,         , 0                    ,         , 0                    ,         , 0.004                ,         , 0.0044               ,         , 0                    ,        
+RAJAPerf RAJAPerf-kernels.csv
+Kernels run on 704 MPI ranks
+Kernels                ,    Problem size ,    Reps ,    Iterations/rep , Kernels/rep ,    Bytes/rep ,    FLOPS/rep ,    BytesRead/rep ,    BytesWritten/rep ,    BytesAtomicModifyWritten/rep
+Basic_DAXPY            ,         1000000 ,     500 ,           1000000 ,           1 ,     24000000 ,      2000000 ,         16000000 ,             8000000 ,                               0
+Stream_COPY            ,         1000000 ,    1800 ,           1000000 ,           1 ,     16000000 ,            0 ,          8000000 ,             8000000 ,                               0
+Algorithm_REDUCE_SUM   ,         1000000 ,      50 ,           1000000 ,           1 ,      8000016 ,      1000000 ,          8000008 ,                   8 ,                               0
+RAJAPERF RAJAPerf-speedup-Average.csv
+Mean Speedup Report (T_ref/T_var): ref var = Base_Seq  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq , Lambda_Seq , RAJA_Seq , RAJA_Seq , Base_OpenMP , Lambda_OpenMP , RAJA_OpenMP , RAJA_OpenMP
+Kernel                , default  , default    , default  , new      , default     , default       , default     , new        
+Basic_DAXPY           ,    1.000 ,      1.003 ,    0.998 ,  Not run ,       0.998 ,         0.993 ,       0.990 ,     Not run
+Stream_COPY           ,    1.000 ,      1.002 ,    1.004 ,  Not run ,       1.000 ,         1.000 ,       0.997 ,     Not run
+Algorithm_REDUCE_SUM  ,    1.000 ,      1.188 ,    0.785 ,    1.098 ,       1.024 ,         1.180 ,       1.184 ,       1.099
+RAJAPerf RAJAPERF RAJAPerf-timing-Average.csv
+Mean Runtime Report (sec.)  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq , Lambda_Seq , RAJA_Seq , RAJA_Seq , Base_OpenMP , Lambda_OpenMP , RAJA_OpenMP , RAJA_OpenMP
+Kernel                , default  , default    , default  , new      , default     , default       , default     , new        
+Basic_DAXPY           , 2.356426 ,   2.350235 , 2.361001 ,  Not run ,    2.360836 ,      2.373575 ,    2.380473 ,     Not run
+Stream_COPY           , 8.524869 ,   8.508768 , 8.488856 ,  Not run ,    8.528833 ,      8.522481 ,    8.547612 ,     Not run
+Algorithm_REDUCE_SUM  , 0.081997 ,   0.069021 , 0.104503 , 0.074665 ,    0.080055 ,      0.069470 ,    0.069260 ,    0.074630
+FLUX-RUN END rajaperf-iter-1
+FLUX-RUN START rajaperf-iter-2
+
+
+Running with 704 MPI ranks...
+
+
+Reading command line input...
+
+Setting up suite based on input...
+
+
+RAJA performance suite run summary....
+--------------------------------------
+
+How suite will be run:
+	 # passes = 1
+	 Kernel size factor = 1
+	 Kernel rep factor = 1
+	 Output files will be named ./RAJAPerf*
+
+Running with 704 MPI procs
+	 3D division = 44 x 4 x 4 
+
+The following kernels and variants (when available for a kernel) will be run:
+
+Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+Reduction Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+MPI Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+Variants and Tunings
+--------
+Base_Seq-default
+Lambda_Seq-default
+RAJA_Seq-default
+RAJA_Seq-new
+Base_OpenMP-default
+Lambda_OpenMP-default
+RAJA_OpenMP-default
+RAJA_OpenMP-new
+
+Kernels                ,    Problem size ,    Reps ,    Iterations/rep , Kernels/rep ,    Bytes/rep ,    FLOPS/rep ,    BytesRead/rep ,    BytesWritten/rep ,    BytesAtomicModifyWritten/rep
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Basic_DAXPY            ,         1000000 ,     500 ,           1000000 ,           1 ,     24000000 ,      2000000 ,         16000000 ,             8000000 ,                               0
+Stream_COPY            ,         1000000 ,    1800 ,           1000000 ,           1 ,     16000000 ,            0 ,          8000000 ,             8000000 ,                               0
+Algorithm_REDUCE_SUM   ,         1000000 ,      50 ,           1000000 ,           1 ,      8000016 ,      1000000 ,          8000008 ,                   8 ,                               0
+
+
+Run warmup kernels...
+
+Run kernel -- Basic_DAXPY
+
+Run kernel -- Basic_REDUCE3_INT
+
+
+Running specified kernels and variants...
+
+
+Generate run report files...
+
+
+DONE!!!....
+RAJAPerf RAJAPerf-fom.csv
+FOM Report : signed speedup(-)/slowdown(+) for each PM (base vs. RAJA) -> (T_RAJA - T_base) / T_base ) ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  , 
+'OVER_TOL' in column to right if RAJA speedup is over tolerance ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq-default     ,         , Lambda_Seq-default   ,         , RAJA_Seq-default     ,         , RAJA_Seq-new         ,         , Base_OpenMP-default  ,         , Lambda_OpenMP-default,         , RAJA_OpenMP-default  ,         , RAJA_OpenMP-new      ,        
+Basic_DAXPY           , 0                    ,base_ref , -0.0032              ,         , -0.0048              ,         , 0                    ,         , 0                    ,base_ref , 0.0029               ,         , -0.0008              ,         , 0                    ,        
+Stream_COPY           , 0                    ,base_ref , -0.0028              ,         , -0.00067             ,         , 0                    ,         , 0                    ,base_ref , -0.0047              ,         , -0.0034              ,         , 0                    ,        
+Algorithm_REDUCE_SUM  , 0                    ,base_ref , -0.0079              ,         , 0.36                 ,OVER_TOL , 0.00065              ,         , 0                    ,base_ref , 0.0098               ,         , -0.0079              ,         , 0.022                ,        
+                      ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,        
+Col Min               , 0                    ,         , -0.0079              ,         , -0.0048              ,         , 0.00065              ,         , 0                    ,         , -0.0047              ,         , -0.0079              ,         , 0.022                ,        
+Col Max               , 0                    ,         , -0.0028              ,         , 0.36                 ,         , 0.00065              ,         , 0                    ,         , 0.0098               ,         , -0.0008              ,         , 0.022                ,        
+Col Avg               , 0                    ,         , -0.0046              ,         , 0.12                 ,         , 0.00065              ,         , 0                    ,         , 0.0026               ,         , -0.004               ,         , 0.022                ,        
+Col Std Dev           , 0                    ,         , 5.4e-06              ,         , 0.029                ,         , 0                    ,         , 0                    ,         , 3.5e-05              ,         , 8.5e-06              ,         , 0                    ,        
+RAJAPerf RAJAPerf-kernels.csv
+Kernels run on 704 MPI ranks
+Kernels                ,    Problem size ,    Reps ,    Iterations/rep , Kernels/rep ,    Bytes/rep ,    FLOPS/rep ,    BytesRead/rep ,    BytesWritten/rep ,    BytesAtomicModifyWritten/rep
+Basic_DAXPY            ,         1000000 ,     500 ,           1000000 ,           1 ,     24000000 ,      2000000 ,         16000000 ,             8000000 ,                               0
+Stream_COPY            ,         1000000 ,    1800 ,           1000000 ,           1 ,     16000000 ,            0 ,          8000000 ,             8000000 ,                               0
+Algorithm_REDUCE_SUM   ,         1000000 ,      50 ,           1000000 ,           1 ,      8000016 ,      1000000 ,          8000008 ,                   8 ,                               0
+RAJAPERF RAJAPerf-speedup-Average.csv
+Mean Speedup Report (T_ref/T_var): ref var = Base_Seq  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq , Lambda_Seq , RAJA_Seq , RAJA_Seq , Base_OpenMP , Lambda_OpenMP , RAJA_OpenMP , RAJA_OpenMP
+Kernel                , default  , default    , default  , new      , default     , default       , default     , new        
+Basic_DAXPY           ,    1.000 ,      1.003 ,    1.005 ,  Not run ,       1.003 ,         1.000 ,       1.004 ,     Not run
+Stream_COPY           ,    1.000 ,      1.003 ,    1.001 ,  Not run ,       0.996 ,         1.001 ,       0.999 ,     Not run
+Algorithm_REDUCE_SUM  ,    1.000 ,      1.008 ,    0.738 ,    0.999 ,       1.011 ,         1.001 ,       1.019 ,       0.989
+RAJAPerf RAJAPERF RAJAPerf-timing-Average.csv
+Mean Runtime Report (sec.)  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq , Lambda_Seq , RAJA_Seq , RAJA_Seq , Base_OpenMP , Lambda_OpenMP , RAJA_OpenMP , RAJA_OpenMP
+Kernel                , default  , default    , default  , new      , default     , default       , default     , new        
+Basic_DAXPY           , 2.355748 ,   2.348232 , 2.344507 ,  Not run ,    2.348796 ,      2.355538 ,    2.346908 ,     Not run
+Stream_COPY           , 8.507682 ,   8.483770 , 8.502014 ,  Not run ,    8.542609 ,      8.502577 ,    8.513270 ,     Not run
+Algorithm_REDUCE_SUM  , 0.067265 ,   0.066734 , 0.091195 , 0.067309 ,    0.066537 ,      0.067187 ,    0.066013 ,    0.068022
+FLUX-RUN END rajaperf-iter-2
+FLUX-RUN START rajaperf-iter-3
+
+
+Running with 704 MPI ranks...
+
+
+Reading command line input...
+
+Setting up suite based on input...
+
+
+RAJA performance suite run summary....
+--------------------------------------
+
+How suite will be run:
+	 # passes = 1
+	 Kernel size factor = 1
+	 Kernel rep factor = 1
+	 Output files will be named ./RAJAPerf*
+
+Running with 704 MPI procs
+	 3D division = 44 x 4 x 4 
+
+The following kernels and variants (when available for a kernel) will be run:
+
+Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+Reduction Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+MPI Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+Variants and Tunings
+--------
+Base_Seq-default
+Lambda_Seq-default
+RAJA_Seq-default
+RAJA_Seq-new
+Base_OpenMP-default
+Lambda_OpenMP-default
+RAJA_OpenMP-default
+RAJA_OpenMP-new
+
+Kernels                ,    Problem size ,    Reps ,    Iterations/rep , Kernels/rep ,    Bytes/rep ,    FLOPS/rep ,    BytesRead/rep ,    BytesWritten/rep ,    BytesAtomicModifyWritten/rep
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Basic_DAXPY            ,         1000000 ,     500 ,           1000000 ,           1 ,     24000000 ,      2000000 ,         16000000 ,             8000000 ,                               0
+Stream_COPY            ,         1000000 ,    1800 ,           1000000 ,           1 ,     16000000 ,            0 ,          8000000 ,             8000000 ,                               0
+Algorithm_REDUCE_SUM   ,         1000000 ,      50 ,           1000000 ,           1 ,      8000016 ,      1000000 ,          8000008 ,                   8 ,                               0
+
+
+Run warmup kernels...
+
+Run kernel -- Basic_DAXPY
+
+Run kernel -- Basic_REDUCE3_INT
+
+
+Running specified kernels and variants...
+
+
+Generate run report files...
+
+
+DONE!!!....
+RAJAPerf RAJAPerf-fom.csv
+FOM Report : signed speedup(-)/slowdown(+) for each PM (base vs. RAJA) -> (T_RAJA - T_base) / T_base ) ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  , 
+'OVER_TOL' in column to right if RAJA speedup is over tolerance ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq-default     ,         , Lambda_Seq-default   ,         , RAJA_Seq-default     ,         , RAJA_Seq-new         ,         , Base_OpenMP-default  ,         , Lambda_OpenMP-default,         , RAJA_OpenMP-default  ,         , RAJA_OpenMP-new      ,        
+Basic_DAXPY           , 0                    ,base_ref , -0.0069              ,         , -0.0066              ,         , 0                    ,         , 0                    ,base_ref , -0.00098             ,         , 0.0017               ,         , 0                    ,        
+Stream_COPY           , 0                    ,base_ref , -0.0017              ,         , -0.0017              ,         , 0                    ,         , 0                    ,base_ref , 0.00068              ,         , -0.0015              ,         , 0                    ,        
+Algorithm_REDUCE_SUM  , 0                    ,base_ref , -0.0075              ,         , 0.46                 ,OVER_TOL , 0.0073               ,         , 0                    ,base_ref , -0.0048              ,         , -0.028               ,         , 0.00067              ,        
+                      ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,        
+Col Min               , 0                    ,         , -0.0075              ,         , -0.0066              ,         , 0.0073               ,         , 0                    ,         , -0.0048              ,         , -0.028               ,         , 0.00067              ,        
+Col Max               , 0                    ,         , -0.0017              ,         , 0.46                 ,         , 0.0073               ,         , 0                    ,         , 0.00068              ,         , 0.0017               ,         , 0.00067              ,        
+Col Avg               , 0                    ,         , -0.0054              ,         , 0.15                 ,         , 0.0073               ,         , 0                    ,         , -0.0017              ,         , -0.0094              ,         , 0.00067              ,        
+Col Std Dev           , 0                    ,         , 6.7e-06              ,         , 0.048                ,         , 0                    ,         , 0                    ,         , 5.2e-06              ,         , 0.00018              ,         , 0                    ,        
+RAJAPerf RAJAPerf-kernels.csv
+Kernels run on 704 MPI ranks
+Kernels                ,    Problem size ,    Reps ,    Iterations/rep , Kernels/rep ,    Bytes/rep ,    FLOPS/rep ,    BytesRead/rep ,    BytesWritten/rep ,    BytesAtomicModifyWritten/rep
+Basic_DAXPY            ,         1000000 ,     500 ,           1000000 ,           1 ,     24000000 ,      2000000 ,         16000000 ,             8000000 ,                               0
+Stream_COPY            ,         1000000 ,    1800 ,           1000000 ,           1 ,     16000000 ,            0 ,          8000000 ,             8000000 ,                               0
+Algorithm_REDUCE_SUM   ,         1000000 ,      50 ,           1000000 ,           1 ,      8000016 ,      1000000 ,          8000008 ,                   8 ,                               0
+RAJAPERF RAJAPerf-speedup-Average.csv
+Mean Speedup Report (T_ref/T_var): ref var = Base_Seq  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq , Lambda_Seq , RAJA_Seq , RAJA_Seq , Base_OpenMP , Lambda_OpenMP , RAJA_OpenMP , RAJA_OpenMP
+Kernel                , default  , default    , default  , new      , default     , default       , default     , new        
+Basic_DAXPY           ,    1.000 ,      1.007 ,    1.007 ,  Not run ,       1.003 ,         1.004 ,       1.001 ,     Not run
+Stream_COPY           ,    1.000 ,      1.002 ,    1.002 ,  Not run ,       1.001 ,         1.000 ,       1.002 ,     Not run
+Algorithm_REDUCE_SUM  ,    1.000 ,      1.008 ,    0.685 ,    0.993 ,       0.979 ,         0.984 ,       1.007 ,       0.978
+RAJAPerf RAJAPERF RAJAPerf-timing-Average.csv
+Mean Runtime Report (sec.)  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq , Lambda_Seq , RAJA_Seq , RAJA_Seq , Base_OpenMP , Lambda_OpenMP , RAJA_OpenMP , RAJA_OpenMP
+Kernel                , default  , default    , default  , new      , default     , default       , default     , new        
+Basic_DAXPY           , 2.353948 ,   2.337733 , 2.338506 ,  Not run ,    2.348015 ,      2.345708 ,    2.352062 ,     Not run
+Stream_COPY           , 8.530669 ,   8.516119 , 8.515796 ,  Not run ,    8.524844 ,      8.530668 ,    8.511732 ,     Not run
+Algorithm_REDUCE_SUM  , 0.066424 ,   0.065926 , 0.097024 , 0.066910 ,    0.067852 ,      0.067530 ,    0.065937 ,    0.067898
+FLUX-RUN END rajaperf-iter-3
+FLUX-RUN START rajaperf-iter-4
+
+
+Running with 704 MPI ranks...
+
+
+Reading command line input...
+
+Setting up suite based on input...
+
+
+RAJA performance suite run summary....
+--------------------------------------
+
+How suite will be run:
+	 # passes = 1
+	 Kernel size factor = 1
+	 Kernel rep factor = 1
+	 Output files will be named ./RAJAPerf*
+
+Running with 704 MPI procs
+	 3D division = 44 x 4 x 4 
+
+The following kernels and variants (when available for a kernel) will be run:
+
+Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+Reduction Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+MPI Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+Variants and Tunings
+--------
+Base_Seq-default
+Lambda_Seq-default
+RAJA_Seq-default
+RAJA_Seq-new
+Base_OpenMP-default
+Lambda_OpenMP-default
+RAJA_OpenMP-default
+RAJA_OpenMP-new
+
+Kernels                ,    Problem size ,    Reps ,    Iterations/rep , Kernels/rep ,    Bytes/rep ,    FLOPS/rep ,    BytesRead/rep ,    BytesWritten/rep ,    BytesAtomicModifyWritten/rep
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Basic_DAXPY            ,         1000000 ,     500 ,           1000000 ,           1 ,     24000000 ,      2000000 ,         16000000 ,             8000000 ,                               0
+Stream_COPY            ,         1000000 ,    1800 ,           1000000 ,           1 ,     16000000 ,            0 ,          8000000 ,             8000000 ,                               0
+Algorithm_REDUCE_SUM   ,         1000000 ,      50 ,           1000000 ,           1 ,      8000016 ,      1000000 ,          8000008 ,                   8 ,                               0
+
+
+Run warmup kernels...
+
+Run kernel -- Basic_DAXPY
+
+Run kernel -- Basic_REDUCE3_INT
+
+
+Running specified kernels and variants...
+
+
+Generate run report files...
+
+
+DONE!!!....
+RAJAPerf RAJAPerf-fom.csv
+FOM Report : signed speedup(-)/slowdown(+) for each PM (base vs. RAJA) -> (T_RAJA - T_base) / T_base ) ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  , 
+'OVER_TOL' in column to right if RAJA speedup is over tolerance ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq-default     ,         , Lambda_Seq-default   ,         , RAJA_Seq-default     ,         , RAJA_Seq-new         ,         , Base_OpenMP-default  ,         , Lambda_OpenMP-default,         , RAJA_OpenMP-default  ,         , RAJA_OpenMP-new      ,        
+Basic_DAXPY           , 0                    ,base_ref , -0.0054              ,         , -0.0028              ,         , 0                    ,         , 0                    ,base_ref , 0.00039              ,         , -0.00073             ,         , 0                    ,        
+Stream_COPY           , 0                    ,base_ref , -0.0019              ,         , 0.00038              ,         , 0                    ,         , 0                    ,base_ref , -0.0032              ,         , -0.0018              ,         , 0                    ,        
+Algorithm_REDUCE_SUM  , 0                    ,base_ref , -0.011               ,         , 0.6                  ,OVER_TOL , -0.015               ,         , 0                    ,base_ref , 0.0043               ,         , 0.011                ,         , 0.13                 ,OVER_TOL
+                      ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,        
+Col Min               , 0                    ,         , -0.011               ,         , -0.0028              ,         , -0.015               ,         , 0                    ,         , -0.0032              ,         , -0.0018              ,         , 0.13                 ,        
+Col Max               , 0                    ,         , -0.0019              ,         , 0.6                  ,         , -0.015               ,         , 0                    ,         , 0.0043               ,         , 0.011                ,         , 0.13                 ,        
+Col Avg               , 0                    ,         , -0.0061              ,         , 0.2                  ,         , -0.015               ,         , 0                    ,         , 0.00051              ,         , 0.0027               ,         , 0.13                 ,        
+Col Std Dev           , 0                    ,         , 1.4e-05              ,         , 0.08                 ,         , 0                    ,         , 0                    ,         , 9.5e-06              ,         , 3.2e-05              ,         , 0                    ,        
+RAJAPerf RAJAPerf-kernels.csv
+Kernels run on 704 MPI ranks
+Kernels                ,    Problem size ,    Reps ,    Iterations/rep , Kernels/rep ,    Bytes/rep ,    FLOPS/rep ,    BytesRead/rep ,    BytesWritten/rep ,    BytesAtomicModifyWritten/rep
+Basic_DAXPY            ,         1000000 ,     500 ,           1000000 ,           1 ,     24000000 ,      2000000 ,         16000000 ,             8000000 ,                               0
+Stream_COPY            ,         1000000 ,    1800 ,           1000000 ,           1 ,     16000000 ,            0 ,          8000000 ,             8000000 ,                               0
+Algorithm_REDUCE_SUM   ,         1000000 ,      50 ,           1000000 ,           1 ,      8000016 ,      1000000 ,          8000008 ,                   8 ,                               0
+RAJAPERF RAJAPerf-speedup-Average.csv
+Mean Speedup Report (T_ref/T_var): ref var = Base_Seq  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq , Lambda_Seq , RAJA_Seq , RAJA_Seq , Base_OpenMP , Lambda_OpenMP , RAJA_OpenMP , RAJA_OpenMP
+Kernel                , default  , default    , default  , new      , default     , default       , default     , new        
+Basic_DAXPY           ,    1.000 ,      1.005 ,    1.003 ,  Not run ,       1.001 ,         1.000 ,       1.001 ,     Not run
+Stream_COPY           ,    1.000 ,      1.002 ,    1.000 ,  Not run ,       0.998 ,         1.001 ,       1.000 ,     Not run
+Algorithm_REDUCE_SUM  ,    1.000 ,      1.011 ,    0.625 ,    1.015 ,       1.017 ,         1.013 ,       1.006 ,       0.903
+RAJAPerf RAJAPERF RAJAPerf-timing-Average.csv
+Mean Runtime Report (sec.)  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq , Lambda_Seq , RAJA_Seq , RAJA_Seq , Base_OpenMP , Lambda_OpenMP , RAJA_OpenMP , RAJA_OpenMP
+Kernel                , default  , default    , default  , new      , default     , default       , default     , new        
+Basic_DAXPY           , 2.349150 ,   2.336430 , 2.342622 ,  Not run ,    2.347837 ,      2.348744 ,    2.346120 ,     Not run
+Stream_COPY           , 8.507567 ,   8.491169 , 8.510772 ,  Not run ,    8.524974 ,      8.497791 ,    8.509690 ,     Not run
+Algorithm_REDUCE_SUM  , 0.068064 ,   0.067311 , 0.108833 , 0.067055 ,    0.066931 ,      0.067222 ,    0.067645 ,    0.075379
+FLUX-RUN END rajaperf-iter-4
+FLUX-RUN START rajaperf-iter-5
+
+
+Running with 704 MPI ranks...
+
+
+Reading command line input...
+
+Setting up suite based on input...
+
+
+RAJA performance suite run summary....
+--------------------------------------
+
+How suite will be run:
+	 # passes = 1
+	 Kernel size factor = 1
+	 Kernel rep factor = 1
+	 Output files will be named ./RAJAPerf*
+
+Running with 704 MPI procs
+	 3D division = 44 x 4 x 4 
+
+The following kernels and variants (when available for a kernel) will be run:
+
+Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+Reduction Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+MPI Data Spaces
+--------
+Seq - Host
+OpenMP - Omp
+
+Variants and Tunings
+--------
+Base_Seq-default
+Lambda_Seq-default
+RAJA_Seq-default
+RAJA_Seq-new
+Base_OpenMP-default
+Lambda_OpenMP-default
+RAJA_OpenMP-default
+RAJA_OpenMP-new
+
+Kernels                ,    Problem size ,    Reps ,    Iterations/rep , Kernels/rep ,    Bytes/rep ,    FLOPS/rep ,    BytesRead/rep ,    BytesWritten/rep ,    BytesAtomicModifyWritten/rep
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Basic_DAXPY            ,         1000000 ,     500 ,           1000000 ,           1 ,     24000000 ,      2000000 ,         16000000 ,             8000000 ,                               0
+Stream_COPY            ,         1000000 ,    1800 ,           1000000 ,           1 ,     16000000 ,            0 ,          8000000 ,             8000000 ,                               0
+Algorithm_REDUCE_SUM   ,         1000000 ,      50 ,           1000000 ,           1 ,      8000016 ,      1000000 ,          8000008 ,                   8 ,                               0
+
+
+Run warmup kernels...
+
+Run kernel -- Basic_DAXPY
+
+Run kernel -- Basic_REDUCE3_INT
+
+
+Running specified kernels and variants...
+
+
+Generate run report files...
+
+
+DONE!!!....
+RAJAPerf RAJAPerf-fom.csv
+FOM Report : signed speedup(-)/slowdown(+) for each PM (base vs. RAJA) -> (T_RAJA - T_base) / T_base ) ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  , 
+'OVER_TOL' in column to right if RAJA speedup is over tolerance ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq-default     ,         , Lambda_Seq-default   ,         , RAJA_Seq-default     ,         , RAJA_Seq-new         ,         , Base_OpenMP-default  ,         , Lambda_OpenMP-default,         , RAJA_OpenMP-default  ,         , RAJA_OpenMP-new      ,        
+Basic_DAXPY           , 0                    ,base_ref , -0.0018              ,         , -0.0012              ,         , 0                    ,         , 0                    ,base_ref , 0.00039              ,         , 0.00081              ,         , 0                    ,        
+Stream_COPY           , 0                    ,base_ref , -0.0035              ,         , -0.0027              ,         , 0                    ,         , 0                    ,base_ref , -0.00042             ,         , 0.00015              ,         , 0                    ,        
+Algorithm_REDUCE_SUM  , 0                    ,base_ref , -0.026               ,         , 0.35                 ,OVER_TOL , 0.048                ,         , 0                    ,base_ref , 0.025                ,         , 0.022                ,         , 0.03                 ,        
+                      ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,         ,                      ,        
+Col Min               , 0                    ,         , -0.026               ,         , -0.0027              ,         , 0.048                ,         , 0                    ,         , -0.00042             ,         , 0.00015              ,         , 0.03                 ,        
+Col Max               , 0                    ,         , -0.0018              ,         , 0.35                 ,         , 0.048                ,         , 0                    ,         , 0.025                ,         , 0.022                ,         , 0.03                 ,        
+Col Avg               , 0                    ,         , -0.011               ,         , 0.12                 ,         , 0.048                ,         , 0                    ,         , 0.0084               ,         , 0.0078               ,         , 0.03                 ,        
+Col Std Dev           , 0                    ,         , 0.00013              ,         , 0.028                ,         , 0                    ,         , 0                    ,         , 0.00014              ,         , 0.00011              ,         , 0                    ,        
+RAJAPerf RAJAPerf-kernels.csv
+Kernels run on 704 MPI ranks
+Kernels                ,    Problem size ,    Reps ,    Iterations/rep , Kernels/rep ,    Bytes/rep ,    FLOPS/rep ,    BytesRead/rep ,    BytesWritten/rep ,    BytesAtomicModifyWritten/rep
+Basic_DAXPY            ,         1000000 ,     500 ,           1000000 ,           1 ,     24000000 ,      2000000 ,         16000000 ,             8000000 ,                               0
+Stream_COPY            ,         1000000 ,    1800 ,           1000000 ,           1 ,     16000000 ,            0 ,          8000000 ,             8000000 ,                               0
+Algorithm_REDUCE_SUM   ,         1000000 ,      50 ,           1000000 ,           1 ,      8000016 ,      1000000 ,          8000008 ,                   8 ,                               0
+RAJAPERF RAJAPerf-speedup-Average.csv
+Mean Speedup Report (T_ref/T_var): ref var = Base_Seq  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq , Lambda_Seq , RAJA_Seq , RAJA_Seq , Base_OpenMP , Lambda_OpenMP , RAJA_OpenMP , RAJA_OpenMP
+Kernel                , default  , default    , default  , new      , default     , default       , default     , new        
+Basic_DAXPY           ,    1.000 ,      1.002 ,    1.001 ,  Not run ,       0.998 ,         0.998 ,       0.998 ,     Not run
+Stream_COPY           ,    1.000 ,      1.003 ,    1.003 ,  Not run ,       1.000 ,         1.001 ,       1.000 ,     Not run
+Algorithm_REDUCE_SUM  ,    1.000 ,      1.027 ,    0.738 ,    0.954 ,       1.018 ,         0.993 ,       0.996 ,       0.989
+RAJAPerf RAJAPERF RAJAPerf-timing-Average.csv
+Mean Runtime Report (sec.)  ,  ,  ,  ,  ,  ,  ,  , 
+Kernel                , Base_Seq , Lambda_Seq , RAJA_Seq , RAJA_Seq , Base_OpenMP , Lambda_OpenMP , RAJA_OpenMP , RAJA_OpenMP
+Kernel                , default  , default    , default  , new      , default     , default       , default     , new        
+Basic_DAXPY           , 2.345552 ,   2.341297 , 2.342629 ,  Not run ,    2.349409 ,      2.350331 ,    2.351302 ,     Not run
+Stream_COPY           , 8.529045 ,   8.499552 , 8.505676 ,  Not run ,    8.527089 ,      8.523509 ,    8.528410 ,     Not run
+Algorithm_REDUCE_SUM  , 0.066395 ,   0.064644 , 0.089923 , 0.069580 ,    0.065220 ,      0.066857 ,    0.066685 ,    0.067156
+FLUX-RUN END rajaperf-iter-5
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Connecting to archive.ubuntu.com (185.125.190.81)] [1 InRelease 4036 B/129                                                                                0% [Waiting for headers]                        Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+                        0% [Working]0% [Waiting for headers]                        Get:3 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+0% [Waiting for headers] [3 Packages 2655 B/1244 kB 0%]                                                       Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [4 InRelease 5484 B/128 kB 4%] [3 Packages 5551 B/1244 kB 0%]0% [4 InRelease 15.6 kB/128 kB 12%] [3 Packages 158 kB/1244 kB 13%]                                                                   0% [4 InRelease 27.2 kB/128 kB 21%]0% [3 Packages store 0 B] [4 InRelease 27.2 kB/128 kB 21%]                                                          0% [4 InRelease 47.5 kB/128 kB 37%]                                   0% [Working]0% [Waiting for headers]                        Get:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [5 InRelease 2588 B/127 kB 2%]                                 0% [Working]30% [Waiting for headers]                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+30% [6 Packages 2655 B/1544 kB 0%]                                  41% [Waiting for headers]                         Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+41% [7 Packages 9153 B/3200 kB 0%]41% [6 Packages store 0 B] [7 Packages 9153 B/3200 kB 0%]                                                         47% [7 Packages 781 kB/3200 kB 24%]                                   65% [Waiting for headers]                         Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+65% [8 Packages 16.1 kB/4420 kB 0%]65% [7 Packages store 0 B] [8 Packages 16.1 kB/4420 kB 0%]                                                          98% [7 Packages store 0 B] [Waiting for headers]                                                Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+98% [7 Packages store 0 B] [9 Packages 12.7 kB/55.7 kB 23%]                                                           98% [7 Packages store 0 B]                          99% [Working]99% [8 Packages store 0 B]                          99% [Working]99% [9 Packages store 0 B]                          100% [Working]              Fetched 10.8 MB in 2s (5547 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 10%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
+
+FLUX-JOB START 5738613178368 rajaperf-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/RAJAPerf/build/bin/raja-perf.exe", "--kernels", "COPY", "DAXPY", "REDUCE_SUM"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/RAJAPerf", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "rajaperf-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "nodelist": ["rajaperf-[0-7]"], "starttime": 1746401048, "expiration": 4900000706}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746401048.5294688,"name":"init"}
+{"timestamp":1746401048.5301306,"name":"starting"}
+{"timestamp":1746401048.5417616,"name":"shell.init","context":{"service":"0-shell-f3bk8bYeb","leader-rank":0,"size":8}}
+{"timestamp":1746401048.7494276,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1746401133.4971859,"name":"shell.task-exit","context":{"localid":78,"rank":78,"state":"Exited","pid":1011,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746401133.5717659,"name":"complete","context":{"status":0}}
+{"timestamp":1746401133.57179,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 5738613178368 rajaperf-iter-5
+
+FLUX-JOB START 4308338737152 rajaperf-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/RAJAPerf/build/bin/raja-perf.exe", "--kernels", "COPY", "DAXPY", "REDUCE_SUM"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/RAJAPerf", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "rajaperf-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "nodelist": ["rajaperf-[0-7]"], "starttime": 1746400963, "expiration": 4900000706}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746400963.2784953,"name":"init"}
+{"timestamp":1746400963.2790911,"name":"starting"}
+{"timestamp":1746400963.2911825,"name":"shell.init","context":{"service":"0-shell-f2xB29BHh","leader-rank":0,"size":8}}
+{"timestamp":1746400963.4976287,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1746401048.2227333,"name":"shell.task-exit","context":{"localid":75,"rank":75,"state":"Exited","pid":816,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746401048.3049037,"name":"complete","context":{"status":0}}
+{"timestamp":1746401048.3049293,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 4308338737152 rajaperf-iter-4
+
+FLUX-JOB START 2878081073152 rajaperf-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/RAJAPerf/build/bin/raja-perf.exe", "--kernels", "COPY", "DAXPY", "REDUCE_SUM"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/RAJAPerf", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "rajaperf-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "nodelist": ["rajaperf-[0-7]"], "starttime": 1746400878, "expiration": 4900000706}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746400878.0285044,"name":"init"}
+{"timestamp":1746400878.0290713,"name":"starting"}
+{"timestamp":1746400878.0410841,"name":"shell.init","context":{"service":"0-shell-f2JbwAoD9","leader-rank":0,"size":8}}
+{"timestamp":1746400878.2486129,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1746400962.9881222,"name":"shell.task-exit","context":{"localid":62,"rank":62,"state":"Exited","pid":601,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746400963.0584161,"name":"complete","context":{"status":0}}
+{"timestamp":1746400963.058444,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2878081073152 rajaperf-iter-3
+
+FLUX-JOB START 1447940849664 rajaperf-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/RAJAPerf/build/bin/raja-perf.exe", "--kernels", "COPY", "DAXPY", "REDUCE_SUM"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/RAJAPerf", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "rajaperf-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "nodelist": ["rajaperf-[0-7]"], "starttime": 1746400792, "expiration": 4900000706}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746400792.7859519,"name":"init"}
+{"timestamp":1746400792.7865608,"name":"starting"}
+{"timestamp":1746400792.7984371,"name":"shell.init","context":{"service":"0-shell-ff32aL71","leader-rank":0,"size":8}}
+{"timestamp":1746400793.0047455,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1746400877.7422321,"name":"shell.task-exit","context":{"localid":78,"rank":430,"state":"Exited","pid":396,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746400877.8067284,"name":"complete","context":{"status":0}}
+{"timestamp":1746400877.806751,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1447940849664 rajaperf-iter-2
+
+FLUX-JOB START 11089739776 rajaperf-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/RAJAPerf/build/bin/raja-perf.exe", "--kernels", "COPY", "DAXPY", "REDUCE_SUM"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/RAJAPerf", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "rajaperf-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "nodelist": ["rajaperf-[0-7]"], "starttime": 1746400707, "expiration": 4900000706}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746400707.1428037,"name":"init"}
+{"timestamp":1746400707.1434219,"name":"starting"}
+{"timestamp":1746400707.1553631,"name":"shell.init","context":{"service":"0-shell-fHtxpGw","leader-rank":0,"size":8}}
+{"timestamp":1746400707.3606851,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1746400792.4878495,"name":"shell.task-exit","context":{"localid":87,"rank":87,"state":"Exited","pid":273,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746400792.5603766,"name":"complete","context":{"status":0}}
+{"timestamp":1746400792.5604005,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 11089739776 rajaperf-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}
