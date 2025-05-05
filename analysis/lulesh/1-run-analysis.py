@@ -58,7 +58,7 @@ def main():
         os.makedirs(outdir)
 
     # Find input files (skip anything with test)
-    files = ps.find_inputs(indir, "gromacs")
+    files = ps.find_inputs(indir, "lulesh")
     if not files:
         raise ValueError(f"There are no input files in {indir}")
 
@@ -72,7 +72,7 @@ def parse_data(indir, outdir, files):
     Parse filepaths for environment, etc., and results files for data.
     """
     # metrics here will be figures of merit, and seconds runtime
-    p = ps.ResultParser("gromacs")
+    p = ps.ResultParser("lulesh")
 
     # For flux we can save jobspecs and other event data
     data = {}
@@ -82,6 +82,9 @@ def parse_data(indir, outdir, files):
         exp = ps.ExperimentNameParser(filename, indir)
         if exp.prefix not in data:
             data[exp.prefix] = []
+
+        if exp.size == 2:
+            continue
 
         # Set the parsing context for the result data frame
         p.set_context(exp.cloud, exp.env, exp.env_type, exp.size)
@@ -94,17 +97,17 @@ def parse_data(indir, outdir, files):
         jobs = ps.parse_flux_jobs(item)
 
         for job, metadata in jobs.items():
+            log = metadata['log']
+            lines = metadata["log"].split("\n")
+            fom = [x for x in lines if "FOM" in x]
+            fom = float([x for x in lines if "FOM" in x][0].split()[-2])
             p.add_result("duration", metadata["duration"])
-
-            perf = [x for x in metadata["log"].split("\n") if "Performance" in x][0]
-            _, ns_simulation_per_day, hour_per_ns = perf.split()
-            p.add_result("simulation_ns_per_day", float(ns_simulation_per_day))
-            p.add_result("hour_per_ns", float(hour_per_ns))
-
-    print("Done parsing gromacs results!")
+            p.add_result("zones_per_second", fom)
+    
+    print("Done parsing lulesh results!")
 
     # Save stuff to file first
-    p.df.to_csv(os.path.join(outdir, "gromacs-results.csv"))
+    p.df.to_csv(os.path.join(outdir, "lulesh-results.csv"))
     ps.write_json(jobs, os.path.join(outdir, "flux-jobs-and-events.json"))
     return p.df
 
@@ -161,14 +164,13 @@ def plot_results(df, outdir, non_anon=False):
             palette=cloud_colors,
             order=[4, 8, 16, 32, 64],
         )
-        title = " ".join([x.capitalize() for x in metric.split('_')])
-        axes[0].set_title(f"Gromacs {title} (CPU)", fontsize=14)
+        title = " ".join([x.capitalize() for x in metric.split("_")])
         if "duration" == metric:
             axes[0].set_ylabel("Seconds", fontsize=14)
-        elif metric == "simulation_ns_per_day":
-            axes[0].set_ylabel("NS/Day", fontsize=14)
+            axes[0].set_title(f"Lulesh {title} (CPU)", fontsize=14)
         else:
-            axes[0].set_ylabel("Hour/NS", fontsize=14)
+            axes[0].set_ylabel(f"Lulesh {title}", fontsize=14)
+            axes[0].set_title(f"Lulesh Zones/Second (CPU)", fontsize=14)
         axes[0].set_xlabel("Nodes", fontsize=14)
 
         handles, labels = axes[0].get_legend_handles_labels()
@@ -185,8 +187,8 @@ def plot_results(df, outdir, non_anon=False):
         axes[1].axis("off")
 
         plt.tight_layout()
-        plt.savefig(os.path.join(img_outdir, f"gromacs-{metric}-cpu.svg"))
-        plt.savefig(os.path.join(img_outdir, f"gromacs-{metric}-cpu.png"))
+        plt.savefig(os.path.join(img_outdir, f"lulesh-{metric}-cpu.svg"))
+        plt.savefig(os.path.join(img_outdir, f"lulesh-{metric}-cpu.png"))
         plt.clf()
 
         # Print the total number of data points

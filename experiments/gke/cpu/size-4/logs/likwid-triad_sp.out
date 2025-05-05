@@ -1,0 +1,578 @@
+Defaulted container "likwid" out of: likwid, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START likwid-iter-$i"
+  flux run --setattr=user.study_id=likwid-iter-$i -N1 -n 1 -o cpu-affinity=per-task -o gpu-affinity=off  --cores-per-task 88   likwid-bench -t triad_sp -w S0:100MB |& tee /tmp/likwid.out
+  
+   echo "FLUX-RUN END likwid-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      1       88        0 likwid-0
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START likwid-iter-1
+Running without Marker API. Activate Marker API with -m on commandline.
+Warning: Sanitizing vector length to a multiple of the loop stride 8 and thread count 44 from 6250000 elements (25000000 bytes) to 6249760 elements (24999040 bytes)
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Initialization: First thread in domain initializes the whole stream
+--------------------------------------------------------------------------------
+LIKWID MICRO BENCHMARK
+Test: triad_sp
+--------------------------------------------------------------------------------
+Using 1 work groups
+Using 44 threads
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Group: 0 Thread 0 Global Thread 0 running on hwthread 0 - Vector length 142040 Offset 0
+Group: 0 Thread 1 Global Thread 1 running on hwthread 1 - Vector length 142040 Offset 142040
+Group: 0 Thread 2 Global Thread 2 running on hwthread 2 - Vector length 142040 Offset 284080
+Group: 0 Thread 4 Global Thread 4 running on hwthread 4 - Vector length 142040 Offset 568160
+Group: 0 Thread 3 Global Thread 3 running on hwthread 3 - Vector length 142040 Offset 426120
+Group: 0 Thread 5 Global Thread 5 running on hwthread 5 - Vector length 142040 Offset 710200
+Group: 0 Thread 6 Global Thread 6 running on hwthread 6 - Vector length 142040 Offset 852240
+Group: 0 Thread 7 Global Thread 7 running on hwthread 7 - Vector length 142040 Offset 994280
+Group: 0 Thread 8 Global Thread 8 running on hwthread 8 - Vector length 142040 Offset 1136320
+Group: 0 Thread 10 Global Thread 10 running on hwthread 10 - Vector length 142040 Offset 1420400
+Group: 0 Thread 9 Global Thread 9 running on hwthread 9 - Vector length 142040 Offset 1278360
+Group: 0 Thread 11 Global Thread 11 running on hwthread 11 - Vector length 142040 Offset 1562440
+Group: 0 Thread 12 Global Thread 12 running on hwthread 12 - Vector length 142040 Offset 1704480
+Group: 0 Thread 13 Global Thread 13 running on hwthread 13 - Vector length 142040 Offset 1846520
+Group: 0 Thread 14 Global Thread 14 running on hwthread 14 - Vector length 142040 Offset 1988560
+Group: 0 Thread 15 Global Thread 15 running on hwthread 15 - Vector length 142040 Offset 2130600
+Group: 0 Thread 16 Global Thread 16 running on hwthread 16 - Vector length 142040 Offset 2272640
+Group: 0 Thread 17 Global Thread 17 running on hwthread 17 - Vector length 142040 Offset 2414680
+Group: 0 Thread 18 Global Thread 18 running on hwthread 18 - Vector length 142040 Offset 2556720
+Group: 0 Thread 19 Global Thread 19 running on hwthread 19 - Vector length 142040 Offset 2698760
+Group: 0 Thread 20 Global Thread 20 running on hwthread 20 - Vector length 142040 Offset 2840800
+Group: 0 Thread 21 Global Thread 21 running on hwthread 21 - Vector length 142040 Offset 2982840
+Group: 0 Thread 22 Global Thread 22 running on hwthread 22 - Vector length 142040 Offset 3124880
+Group: 0 Thread 23 Global Thread 23 running on hwthread 23 - Vector length 142040 Offset 3266920
+Group: 0 Thread 24 Global Thread 24 running on hwthread 24 - Vector length 142040 Offset 3408960
+Group: 0 Thread 25 Global Thread 25 running on hwthread 25 - Vector length 142040 Offset 3551000
+Group: 0 Thread 26 Global Thread 26 running on hwthread 26 - Vector length 142040 Offset 3693040
+Group: 0 Thread 27 Global Thread 27 running on hwthread 27 - Vector length 142040 Offset 3835080
+Group: 0 Thread 29 Global Thread 29 running on hwthread 29 - Vector length 142040 Offset 4119160
+Group: 0 Thread 30 Global Thread 30 running on hwthread 30 - Vector length 142040 Offset 4261200
+Group: 0 Thread 31 Global Thread 31 running on hwthread 31 - Vector length 142040 Offset 4403240
+Group: 0 Thread 33 Global Thread 33 running on hwthread 33 - Vector length 142040 Offset 4687320
+Group: 0 Thread 28 Global Thread 28 running on hwthread 28 - Vector length 142040 Offset 3977120
+Group: 0 Thread 32 Global Thread 32 running on hwthread 32 - Vector length 142040 Offset 4545280
+Group: 0 Thread 34 Global Thread 34 running on hwthread 34 - Vector length 142040 Offset 4829360
+Group: 0 Thread 35 Global Thread 35 running on hwthread 35 - Vector length 142040 Offset 4971400
+Group: 0 Thread 36 Global Thread 36 running on hwthread 36 - Vector length 142040 Offset 5113440
+Group: 0 Thread 37 Global Thread 37 running on hwthread 37 - Vector length 142040 Offset 5255480
+Group: 0 Thread 38 Global Thread 38 running on hwthread 38 - Vector length 142040 Offset 5397520
+Group: 0 Thread 39 Global Thread 39 running on hwthread 39 - Vector length 142040 Offset 5539560
+Group: 0 Thread 40 Global Thread 40 running on hwthread 40 - Vector length 142040 Offset 5681600
+Group: 0 Thread 41 Global Thread 41 running on hwthread 41 - Vector length 142040 Offset 5823640
+Group: 0 Thread 43 Global Thread 43 running on hwthread 43 - Vector length 142040 Offset 6107720
+Group: 0 Thread 42 Global Thread 42 running on hwthread 42 - Vector length 142040 Offset 5965680
+--------------------------------------------------------------------------------
+Cycles:			14565619719
+CPU Clock:		2699990989
+Cycle Clock:		2699990989
+Time:			5.394692e+00 sec
+Iterations:		1441792
+Iterations per thread:	32768
+Inner loop executions:	17755
+Size (Byte):		99996160
+Size per thread:	2272640
+Number of Flops:	409584271360
+MFlops/s:		75923.57
+Data volume (Byte):	3276674170880
+MByte/s:		607388.56
+Cycles per update:	0.071124
+Cycles per cacheline:	1.137983
+Loads per update:	3
+Stores per update:	1
+Load bytes per element:	12
+Store bytes per elem.:	4
+Load/store ratio:	3.00
+Instructions:		895965593616
+UOPs:			1484742983680
+--------------------------------------------------------------------------------
+FLUX-RUN END likwid-iter-1
+FLUX-RUN START likwid-iter-2
+Running without Marker API. Activate Marker API with -m on commandline.
+Warning: Sanitizing vector length to a multiple of the loop stride 8 and thread count 44 from 6250000 elements (25000000 bytes) to 6249760 elements (24999040 bytes)
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Initialization: First thread in domain initializes the whole stream
+--------------------------------------------------------------------------------
+LIKWID MICRO BENCHMARK
+Test: triad_sp
+--------------------------------------------------------------------------------
+Using 1 work groups
+Using 44 threads
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Group: 0 Thread 0 Global Thread 0 running on hwthread 0 - Vector length 142040 Offset 0
+Group: 0 Thread 1 Global Thread 1 running on hwthread 1 - Vector length 142040 Offset 142040
+Group: 0 Thread 2 Global Thread 2 running on hwthread 2 - Vector length 142040 Offset 284080
+Group: 0 Thread 3 Global Thread 3 running on hwthread 3 - Vector length 142040 Offset 426120
+Group: 0 Thread 4 Global Thread 4 running on hwthread 4 - Vector length 142040 Offset 568160
+Group: 0 Thread 5 Global Thread 5 running on hwthread 5 - Vector length 142040 Offset 710200
+Group: 0 Thread 6 Global Thread 6 running on hwthread 6 - Vector length 142040 Offset 852240
+Group: 0 Thread 7 Global Thread 7 running on hwthread 7 - Vector length 142040 Offset 994280
+Group: 0 Thread 8 Global Thread 8 running on hwthread 8 - Vector length 142040 Offset 1136320
+Group: 0 Thread 9 Global Thread 9 running on hwthread 9 - Vector length 142040 Offset 1278360
+Group: 0 Thread 10 Global Thread 10 running on hwthread 10 - Vector length 142040 Offset 1420400
+Group: 0 Thread 11 Global Thread 11 running on hwthread 11 - Vector length 142040 Offset 1562440
+Group: 0 Thread 12 Global Thread 12 running on hwthread 12 - Vector length 142040 Offset 1704480
+Group: 0 Thread 13 Global Thread 13 running on hwthread 13 - Vector length 142040 Offset 1846520
+Group: 0 Thread 14 Global Thread 14 running on hwthread 14 - Vector length 142040 Offset 1988560
+Group: 0 Thread 15 Global Thread 15 running on hwthread 15 - Vector length 142040 Offset 2130600
+Group: 0 Thread 17 Global Thread 17 running on hwthread 17 - Vector length 142040 Offset 2414680
+Group: 0 Thread 16 Global Thread 16 running on hwthread 16 - Vector length 142040 Offset 2272640
+Group: 0 Thread 19 Global Thread 19 running on hwthread 19 - Vector length 142040 Offset 2698760
+Group: 0 Thread 18 Global Thread 18 running on hwthread 18 - Vector length 142040 Offset 2556720
+Group: 0 Thread 20 Global Thread 20 running on hwthread 20 - Vector length 142040 Offset 2840800
+Group: 0 Thread 21 Global Thread 21 running on hwthread 21 - Vector length 142040 Offset 2982840
+Group: 0 Thread 22 Global Thread 22 running on hwthread 22 - Vector length 142040 Offset 3124880
+Group: 0 Thread 24 Global Thread 24 running on hwthread 24 - Vector length 142040 Offset 3408960
+Group: 0 Thread 25 Global Thread 25 running on hwthread 25 - Vector length 142040 Offset 3551000
+Group: 0 Thread 23 Global Thread 23 running on hwthread 23 - Vector length 142040 Offset 3266920
+Group: 0 Thread 26 Global Thread 26 running on hwthread 26 - Vector length 142040 Offset 3693040
+Group: 0 Thread 28 Global Thread 28 running on hwthread 28 - Vector length 142040 Offset 3977120
+Group: 0 Thread 27 Global Thread 27 running on hwthread 27 - Vector length 142040 Offset 3835080
+Group: 0 Thread 29 Global Thread 29 running on hwthread 29 - Vector length 142040 Offset 4119160
+Group: 0 Thread 31 Global Thread 31 running on hwthread 31 - Vector length 142040 Offset 4403240
+Group: 0 Thread 30 Global Thread 30 running on hwthread 30 - Vector length 142040 Offset 4261200
+Group: 0 Thread 34 Global Thread 34 running on hwthread 34 - Vector length 142040 Offset 4829360
+Group: 0 Thread 35 Global Thread 35 running on hwthread 35 - Vector length 142040 Offset 4971400
+Group: 0 Thread 36 Global Thread 36 running on hwthread 36 - Vector length 142040 Offset 5113440
+Group: 0 Thread 38 Global Thread 38 running on hwthread 38 - Vector length 142040 Offset 5397520
+Group: 0 Thread 39 Global Thread 39 running on hwthread 39 - Vector length 142040 Offset 5539560
+Group: 0 Thread 41 Global Thread 41 running on hwthread 41 - Vector length 142040 Offset 5823640
+Group: 0 Thread 33 Global Thread 33 running on hwthread 33 - Vector length 142040 Offset 4687320
+Group: 0 Thread 40 Global Thread 40 running on hwthread 40 - Vector length 142040 Offset 5681600
+Group: 0 Thread 42 Global Thread 42 running on hwthread 42 - Vector length 142040 Offset 5965680
+Group: 0 Thread 37 Global Thread 37 running on hwthread 37 - Vector length 142040 Offset 5255480
+Group: 0 Thread 43 Global Thread 43 running on hwthread 43 - Vector length 142040 Offset 6107720
+Group: 0 Thread 32 Global Thread 32 running on hwthread 32 - Vector length 142040 Offset 4545280
+--------------------------------------------------------------------------------
+Cycles:			12304192326
+CPU Clock:		2699984490
+Cycle Clock:		2699984490
+Time:			4.557134e+00 sec
+Iterations:		1441792
+Iterations per thread:	32768
+Inner loop executions:	17755
+Size (Byte):		99996160
+Size per thread:	2272640
+Number of Flops:	409584271360
+MFlops/s:		89877.59
+Data volume (Byte):	3276674170880
+MByte/s:		719020.74
+Cycles per update:	0.060081
+Cycles per cacheline:	0.961302
+Loads per update:	3
+Stores per update:	1
+Load bytes per element:	12
+Store bytes per elem.:	4
+Load/store ratio:	3.00
+Instructions:		895965593616
+UOPs:			1484742983680
+--------------------------------------------------------------------------------
+FLUX-RUN END likwid-iter-2
+FLUX-RUN START likwid-iter-3
+Running without Marker API. Activate Marker API with -m on commandline.
+Warning: Sanitizing vector length to a multiple of the loop stride 8 and thread count 44 from 6250000 elements (25000000 bytes) to 6249760 elements (24999040 bytes)
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Initialization: First thread in domain initializes the whole stream
+--------------------------------------------------------------------------------
+LIKWID MICRO BENCHMARK
+Test: triad_sp
+--------------------------------------------------------------------------------
+Using 1 work groups
+Using 44 threads
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Group: 0 Thread 0 Global Thread 0 running on hwthread 0 - Vector length 142040 Offset 0
+Group: 0 Thread 1 Global Thread 1 running on hwthread 1 - Vector length 142040 Offset 142040
+Group: 0 Thread 2 Global Thread 2 running on hwthread 2 - Vector length 142040 Offset 284080
+Group: 0 Thread 3 Global Thread 3 running on hwthread 3 - Vector length 142040 Offset 426120
+Group: 0 Thread 4 Global Thread 4 running on hwthread 4 - Vector length 142040 Offset 568160
+Group: 0 Thread 5 Global Thread 5 running on hwthread 5 - Vector length 142040 Offset 710200
+Group: 0 Thread 6 Global Thread 6 running on hwthread 6 - Vector length 142040 Offset 852240
+Group: 0 Thread 7 Global Thread 7 running on hwthread 7 - Vector length 142040 Offset 994280
+Group: 0 Thread 8 Global Thread 8 running on hwthread 8 - Vector length 142040 Offset 1136320
+Group: 0 Thread 9 Global Thread 9 running on hwthread 9 - Vector length 142040 Offset 1278360
+Group: 0 Thread 10 Global Thread 10 running on hwthread 10 - Vector length 142040 Offset 1420400
+Group: 0 Thread 11 Global Thread 11 running on hwthread 11 - Vector length 142040 Offset 1562440
+Group: 0 Thread 12 Global Thread 12 running on hwthread 12 - Vector length 142040 Offset 1704480
+Group: 0 Thread 13 Global Thread 13 running on hwthread 13 - Vector length 142040 Offset 1846520
+Group: 0 Thread 14 Global Thread 14 running on hwthread 14 - Vector length 142040 Offset 1988560
+Group: 0 Thread 15 Global Thread 15 running on hwthread 15 - Vector length 142040 Offset 2130600
+Group: 0 Thread 16 Global Thread 16 running on hwthread 16 - Vector length 142040 Offset 2272640
+Group: 0 Thread 17 Global Thread 17 running on hwthread 17 - Vector length 142040 Offset 2414680
+Group: 0 Thread 18 Global Thread 18 running on hwthread 18 - Vector length 142040 Offset 2556720
+Group: 0 Thread 20 Global Thread 20 running on hwthread 20 - Vector length 142040 Offset 2840800
+Group: 0 Thread 19 Global Thread 19 running on hwthread 19 - Vector length 142040 Offset 2698760
+Group: 0 Thread 21 Global Thread 21 running on hwthread 21 - Vector length 142040 Offset 2982840
+Group: 0 Thread 22 Global Thread 22 running on hwthread 22 - Vector length 142040 Offset 3124880
+Group: 0 Thread 23 Global Thread 23 running on hwthread 23 - Vector length 142040 Offset 3266920
+Group: 0 Thread 24 Global Thread 24 running on hwthread 24 - Vector length 142040 Offset 3408960
+Group: 0 Thread 25 Global Thread 25 running on hwthread 25 - Vector length 142040 Offset 3551000
+Group: 0 Thread 26 Global Thread 26 running on hwthread 26 - Vector length 142040 Offset 3693040
+Group: 0 Thread 27 Global Thread 27 running on hwthread 27 - Vector length 142040 Offset 3835080
+Group: 0 Thread 28 Global Thread 28 running on hwthread 28 - Vector length 142040 Offset 3977120
+Group: 0 Thread 29 Global Thread 29 running on hwthread 29 - Vector length 142040 Offset 4119160
+Group: 0 Thread 30 Global Thread 30 running on hwthread 30 - Vector length 142040 Offset 4261200
+Group: 0 Thread 31 Global Thread 31 running on hwthread 31 - Vector length 142040 Offset 4403240
+Group: 0 Thread 33 Global Thread 33 running on hwthread 33 - Vector length 142040 Offset 4687320
+Group: 0 Thread 32 Global Thread 32 running on hwthread 32 - Vector length 142040 Offset 4545280
+Group: 0 Thread 34 Global Thread 34 running on hwthread 34 - Vector length 142040 Offset 4829360
+Group: 0 Thread 35 Global Thread 35 running on hwthread 35 - Vector length 142040 Offset 4971400
+Group: 0 Thread 36 Global Thread 36 running on hwthread 36 - Vector length 142040 Offset 5113440
+Group: 0 Thread 37 Global Thread 37 running on hwthread 37 - Vector length 142040 Offset 5255480
+Group: 0 Thread 38 Global Thread 38 running on hwthread 38 - Vector length 142040 Offset 5397520
+Group: 0 Thread 40 Global Thread 40 running on hwthread 40 - Vector length 142040 Offset 5681600
+Group: 0 Thread 41 Global Thread 41 running on hwthread 41 - Vector length 142040 Offset 5823640
+Group: 0 Thread 42 Global Thread 42 running on hwthread 42 - Vector length 142040 Offset 5965680
+Group: 0 Thread 43 Global Thread 43 running on hwthread 43 - Vector length 142040 Offset 6107720
+Group: 0 Thread 39 Global Thread 39 running on hwthread 39 - Vector length 142040 Offset 5539560
+--------------------------------------------------------------------------------
+Cycles:			13554194518
+CPU Clock:		2699986907
+Cycle Clock:		2699986907
+Time:			5.020096e+00 sec
+Iterations:		1441792
+Iterations per thread:	32768
+Inner loop executions:	17755
+Size (Byte):		99996160
+Size per thread:	2272640
+Number of Flops:	409584271360
+MFlops/s:		81588.93
+Data volume (Byte):	3276674170880
+MByte/s:		652711.41
+Cycles per update:	0.066185
+Cycles per cacheline:	1.058962
+Loads per update:	3
+Stores per update:	1
+Load bytes per element:	12
+Store bytes per elem.:	4
+Load/store ratio:	3.00
+Instructions:		895965593616
+UOPs:			1484742983680
+--------------------------------------------------------------------------------
+FLUX-RUN END likwid-iter-3
+FLUX-RUN START likwid-iter-4
+Running without Marker API. Activate Marker API with -m on commandline.
+Warning: Sanitizing vector length to a multiple of the loop stride 8 and thread count 44 from 6250000 elements (25000000 bytes) to 6249760 elements (24999040 bytes)
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Initialization: First thread in domain initializes the whole stream
+--------------------------------------------------------------------------------
+LIKWID MICRO BENCHMARK
+Test: triad_sp
+--------------------------------------------------------------------------------
+Using 1 work groups
+Using 44 threads
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Group: 0 Thread 0 Global Thread 0 running on hwthread 0 - Vector length 142040 Offset 0
+Group: 0 Thread 1 Global Thread 1 running on hwthread 1 - Vector length 142040 Offset 142040
+Group: 0 Thread 2 Global Thread 2 running on hwthread 2 - Vector length 142040 Offset 284080
+Group: 0 Thread 3 Global Thread 3 running on hwthread 3 - Vector length 142040 Offset 426120
+Group: 0 Thread 4 Global Thread 4 running on hwthread 4 - Vector length 142040 Offset 568160
+Group: 0 Thread 5 Global Thread 5 running on hwthread 5 - Vector length 142040 Offset 710200
+Group: 0 Thread 6 Global Thread 6 running on hwthread 6 - Vector length 142040 Offset 852240
+Group: 0 Thread 7 Global Thread 7 running on hwthread 7 - Vector length 142040 Offset 994280
+Group: 0 Thread 8 Global Thread 8 running on hwthread 8 - Vector length 142040 Offset 1136320
+Group: 0 Thread 9 Global Thread 9 running on hwthread 9 - Vector length 142040 Offset 1278360
+Group: 0 Thread 10 Global Thread 10 running on hwthread 10 - Vector length 142040 Offset 1420400
+Group: 0 Thread 12 Global Thread 12 running on hwthread 12 - Vector length 142040 Offset 1704480
+Group: 0 Thread 13 Global Thread 13 running on hwthread 13 - Vector length 142040 Offset 1846520
+Group: 0 Thread 11 Global Thread 11 running on hwthread 11 - Vector length 142040 Offset 1562440
+Group: 0 Thread 14 Global Thread 14 running on hwthread 14 - Vector length 142040 Offset 1988560
+Group: 0 Thread 15 Global Thread 15 running on hwthread 15 - Vector length 142040 Offset 2130600
+Group: 0 Thread 16 Global Thread 16 running on hwthread 16 - Vector length 142040 Offset 2272640
+Group: 0 Thread 18 Global Thread 18 running on hwthread 18 - Vector length 142040 Offset 2556720
+Group: 0 Thread 17 Global Thread 17 running on hwthread 17 - Vector length 142040 Offset 2414680
+Group: 0 Thread 19 Global Thread 19 running on hwthread 19 - Vector length 142040 Offset 2698760
+Group: 0 Thread 21 Global Thread 21 running on hwthread 21 - Vector length 142040 Offset 2982840
+Group: 0 Thread 22 Global Thread 22 running on hwthread 22 - Vector length 142040 Offset 3124880
+Group: 0 Thread 23 Global Thread 23 running on hwthread 23 - Vector length 142040 Offset 3266920
+Group: 0 Thread 20 Global Thread 20 running on hwthread 20 - Vector length 142040 Offset 2840800
+Group: 0 Thread 24 Global Thread 24 running on hwthread 24 - Vector length 142040 Offset 3408960
+Group: 0 Thread 25 Global Thread 25 running on hwthread 25 - Vector length 142040 Offset 3551000
+Group: 0 Thread 26 Global Thread 26 running on hwthread 26 - Vector length 142040 Offset 3693040
+Group: 0 Thread 27 Global Thread 27 running on hwthread 27 - Vector length 142040 Offset 3835080
+Group: 0 Thread 29 Global Thread 29 running on hwthread 29 - Vector length 142040 Offset 4119160
+Group: 0 Thread 28 Global Thread 28 running on hwthread 28 - Vector length 142040 Offset 3977120
+Group: 0 Thread 30 Global Thread 30 running on hwthread 30 - Vector length 142040 Offset 4261200
+Group: 0 Thread 31 Global Thread 31 running on hwthread 31 - Vector length 142040 Offset 4403240
+Group: 0 Thread 33 Global Thread 33 running on hwthread 33 - Vector length 142040 Offset 4687320
+Group: 0 Thread 32 Global Thread 32 running on hwthread 32 - Vector length 142040 Offset 4545280
+Group: 0 Thread 34 Global Thread 34 running on hwthread 34 - Vector length 142040 Offset 4829360
+Group: 0 Thread 35 Global Thread 35 running on hwthread 35 - Vector length 142040 Offset 4971400
+Group: 0 Thread 36 Global Thread 36 running on hwthread 36 - Vector length 142040 Offset 5113440
+Group: 0 Thread 37 Global Thread 37 running on hwthread 37 - Vector length 142040 Offset 5255480
+Group: 0 Thread 38 Global Thread 38 running on hwthread 38 - Vector length 142040 Offset 5397520
+Group: 0 Thread 39 Global Thread 39 running on hwthread 39 - Vector length 142040 Offset 5539560
+Group: 0 Thread 40 Global Thread 40 running on hwthread 40 - Vector length 142040 Offset 5681600
+Group: 0 Thread 41 Global Thread 41 running on hwthread 41 - Vector length 142040 Offset 5823640
+Group: 0 Thread 43 Global Thread 43 running on hwthread 43 - Vector length 142040 Offset 6107720
+Group: 0 Thread 42 Global Thread 42 running on hwthread 42 - Vector length 142040 Offset 5965680
+--------------------------------------------------------------------------------
+Cycles:			7151618671
+CPU Clock:		2699990697
+Cycle Clock:		2699990697
+Time:			2.648757e+00 sec
+Iterations:		720896
+Iterations per thread:	16384
+Inner loop executions:	17755
+Size (Byte):		99996160
+Size per thread:	2272640
+Number of Flops:	204792135680
+MFlops/s:		77316.32
+Data volume (Byte):	1638337085440
+MByte/s:		618530.59
+Cycles per update:	0.069843
+Cycles per cacheline:	1.117483
+Loads per update:	3
+Stores per update:	1
+Load bytes per element:	12
+Store bytes per elem.:	4
+Load/store ratio:	3.00
+Instructions:		447982796816
+UOPs:			742371491840
+--------------------------------------------------------------------------------
+FLUX-RUN END likwid-iter-4
+FLUX-RUN START likwid-iter-5
+Running without Marker API. Activate Marker API with -m on commandline.
+Warning: Sanitizing vector length to a multiple of the loop stride 8 and thread count 44 from 6250000 elements (25000000 bytes) to 6249760 elements (24999040 bytes)
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Allocate: Process running on hwthread 0 (Domain S0) - Vector length 6249760/24999040 Offset 0 Alignment 1024
+Initialization: First thread in domain initializes the whole stream
+--------------------------------------------------------------------------------
+LIKWID MICRO BENCHMARK
+Test: triad_sp
+--------------------------------------------------------------------------------
+Using 1 work groups
+Using 44 threads
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Group: 0 Thread 0 Global Thread 0 running on hwthread 0 - Vector length 142040 Offset 0
+Group: 0 Thread 1 Global Thread 1 running on hwthread 1 - Vector length 142040 Offset 142040
+Group: 0 Thread 2 Global Thread 2 running on hwthread 2 - Vector length 142040 Offset 284080
+Group: 0 Thread 3 Global Thread 3 running on hwthread 3 - Vector length 142040 Offset 426120
+Group: 0 Thread 4 Global Thread 4 running on hwthread 4 - Vector length 142040 Offset 568160
+Group: 0 Thread 5 Global Thread 5 running on hwthread 5 - Vector length 142040 Offset 710200
+Group: 0 Thread 6 Global Thread 6 running on hwthread 6 - Vector length 142040 Offset 852240
+Group: 0 Thread 8 Global Thread 8 running on hwthread 8 - Vector length 142040 Offset 1136320
+Group: 0 Thread 7 Global Thread 7 running on hwthread 7 - Vector length 142040 Offset 994280
+Group: 0 Thread 9 Global Thread 9 running on hwthread 9 - Vector length 142040 Offset 1278360
+Group: 0 Thread 10 Global Thread 10 running on hwthread 10 - Vector length 142040 Offset 1420400
+Group: 0 Thread 11 Global Thread 11 running on hwthread 11 - Vector length 142040 Offset 1562440
+Group: 0 Thread 12 Global Thread 12 running on hwthread 12 - Vector length 142040 Offset 1704480
+Group: 0 Thread 13 Global Thread 13 running on hwthread 13 - Vector length 142040 Offset 1846520
+Group: 0 Thread 14 Global Thread 14 running on hwthread 14 - Vector length 142040 Offset 1988560
+Group: 0 Thread 15 Global Thread 15 running on hwthread 15 - Vector length 142040 Offset 2130600
+Group: 0 Thread 16 Global Thread 16 running on hwthread 16 - Vector length 142040 Offset 2272640
+Group: 0 Thread 17 Global Thread 17 running on hwthread 17 - Vector length 142040 Offset 2414680
+Group: 0 Thread 18 Global Thread 18 running on hwthread 18 - Vector length 142040 Offset 2556720
+Group: 0 Thread 19 Global Thread 19 running on hwthread 19 - Vector length 142040 Offset 2698760
+Group: 0 Thread 20 Global Thread 20 running on hwthread 20 - Vector length 142040 Offset 2840800
+Group: 0 Thread 21 Global Thread 21 running on hwthread 21 - Vector length 142040 Offset 2982840
+Group: 0 Thread 22 Global Thread 22 running on hwthread 22 - Vector length 142040 Offset 3124880
+Group: 0 Thread 23 Global Thread 23 running on hwthread 23 - Vector length 142040 Offset 3266920
+Group: 0 Thread 24 Global Thread 24 running on hwthread 24 - Vector length 142040 Offset 3408960
+Group: 0 Thread 25 Global Thread 25 running on hwthread 25 - Vector length 142040 Offset 3551000
+Group: 0 Thread 26 Global Thread 26 running on hwthread 26 - Vector length 142040 Offset 3693040
+Group: 0 Thread 27 Global Thread 27 running on hwthread 27 - Vector length 142040 Offset 3835080
+Group: 0 Thread 28 Global Thread 28 running on hwthread 28 - Vector length 142040 Offset 3977120
+Group: 0 Thread 29 Global Thread 29 running on hwthread 29 - Vector length 142040 Offset 4119160
+Group: 0 Thread 30 Global Thread 30 running on hwthread 30 - Vector length 142040 Offset 4261200
+Group: 0 Thread 31 Global Thread 31 running on hwthread 31 - Vector length 142040 Offset 4403240
+Group: 0 Thread 33 Global Thread 33 running on hwthread 33 - Vector length 142040 Offset 4687320
+Group: 0 Thread 32 Global Thread 32 running on hwthread 32 - Vector length 142040 Offset 4545280
+Group: 0 Thread 34 Global Thread 34 running on hwthread 34 - Vector length 142040 Offset 4829360
+Group: 0 Thread 35 Global Thread 35 running on hwthread 35 - Vector length 142040 Offset 4971400
+Group: 0 Thread 36 Global Thread 36 running on hwthread 36 - Vector length 142040 Offset 5113440
+Group: 0 Thread 37 Global Thread 37 running on hwthread 37 - Vector length 142040 Offset 5255480
+Group: 0 Thread 38 Global Thread 38 running on hwthread 38 - Vector length 142040 Offset 5397520
+Group: 0 Thread 39 Global Thread 39 running on hwthread 39 - Vector length 142040 Offset 5539560
+Group: 0 Thread 40 Global Thread 40 running on hwthread 40 - Vector length 142040 Offset 5681600
+Group: 0 Thread 41 Global Thread 41 running on hwthread 41 - Vector length 142040 Offset 5823640
+Group: 0 Thread 42 Global Thread 42 running on hwthread 42 - Vector length 142040 Offset 5965680
+Group: 0 Thread 43 Global Thread 43 running on hwthread 43 - Vector length 142040 Offset 6107720
+--------------------------------------------------------------------------------
+Cycles:			13915148176
+CPU Clock:		2699986643
+Cycle Clock:		2699986643
+Time:			5.153784e+00 sec
+Iterations:		1441792
+Iterations per thread:	32768
+Inner loop executions:	17755
+Size (Byte):		99996160
+Size per thread:	2272640
+Number of Flops:	409584271360
+MFlops/s:		79472.53
+Data volume (Byte):	3276674170880
+MByte/s:		635780.26
+Cycles per update:	0.067948
+Cycles per cacheline:	1.087163
+Loads per update:	3
+Stores per update:	1
+Load bytes per element:	12
+Store bytes per elem.:	4
+Load/store ratio:	3.00
+Instructions:		895965593616
+UOPs:			1484742983680
+--------------------------------------------------------------------------------
+FLUX-RUN END likwid-iter-5
+0% [Working]            Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+0% [Connecting to security.ubuntu.com (185.125.190.81)]                                                       Get:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [2 InRelease 8380 B/128 kB 7%] [Connecting to security.ubuntu.com (185.125.1                                                                               0% [2 InRelease 62.0 kB/128 kB 48%] [Waiting for headers]                                                         Get:3 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [2 InRelease 123 kB/128 kB 96%] [3 InRelease 6932 B/129 kB 5%]                                                                 0% [3 InRelease 14.2 kB/129 kB 11%]                                   Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 2588 B/127 kB 2%] [3 InRelease 14.2 kB/129 kB 11%]0% [4 InRelease 127 kB/127 kB 100%] [3 InRelease 14.2 kB/129 kB 11%]                                                                    0% [3 InRelease 14.2 kB/129 kB 11%]                                   Get:5 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+0% [5 Packages 6999 B/1544 kB 0%] [3 InRelease 14.2 kB/129 kB 11%]0% [5 Packages 224 kB/1544 kB 15%] [3 InRelease 28.7 kB/129 kB 22%]                                                                   0% [Waiting for headers] [3 InRelease 43.1 kB/129 kB 33%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+0% [6 Packages 219 kB/3200 kB 7%] [3 InRelease 43.1 kB/129 kB 33%]0% [5 Packages store 0 B] [6 Packages 219 kB/3200 kB 7%] [3 InRelease 43.1 kB/10% [5 Packages store 0 B] [Waiting for headers] [3 InRelease 66.3 kB/129 kB 51%                                                                               Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+0% [5 Packages store 0 B] [7 Packages 24.6 kB/55.7 kB 44%] [3 InRelease 66.3 kB0% [5 Packages store 0 B] [Waiting for headers] [3 InRelease 66.3 kB/129 kB 51%                                                                               Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+0% [5 Packages store 0 B] [8 Packages 32.8 kB/4420 kB 1%] [3 InRelease 66.3 kB/                                                                               0% [8 Packages 2122 kB/4420 kB 48%] [3 InRelease 72.1 kB/129 kB 56%]0% [6 Packages store 0 B] [8 Packages 2152 kB/4420 kB 49%] [3 InRelease 72.1 kB                                                                               0% [6 Packages store 0 B] [3 InRelease 77.9 kB/129 kB 60%]                                                          0% [3 InRelease 113 kB/129 kB 87%]0% [7 Packages store 0 B] [3 InRelease 113 kB/129 kB 87%]                                                         0% [3 InRelease 113 kB/129 kB 87%]0% [8 Packages store 0 B] [3 InRelease 113 kB/129 kB 87%]                                                         0% [8 Packages store 0 B]90% [8 Packages store 0 B]                          90% [Waiting for headers]                         Get:9 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+90% [9 Packages 2655 B/1244 kB 0%]                                  99% [Working]99% [9 Packages store 0 B]                          100% [Working]              Fetched 10.8 MB in 1s (8076 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 27%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
+
+FLUX-JOB START 621746847744 likwid-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 88}], "label": "task"}]}], "tasks": [{"command": ["likwid-bench", "-t", "triad_sp", "-w", "S0:100MB"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "likwid-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "nodelist": ["likwid-0"], "starttime": 1746423689, "expiration": 4900023652}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746423689.3581181,"name":"init"}
+{"timestamp":1746423689.3669355,"name":"shell.init","context":{"service":"0-shell-fHLGe7Vy","leader-rank":0,"size":1}}
+{"timestamp":1746423689.3691261,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,1,1]]}}}
+{"timestamp":1746423689.3585627,"name":"starting"}
+{"timestamp":1746423699.594538,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":326,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746423699.5959558,"name":"complete","context":{"status":0}}
+{"timestamp":1746423699.5959837,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 621746847744 likwid-iter-5
+
+FLUX-JOB START 521335209984 likwid-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 88}], "label": "task"}]}], "tasks": [{"command": ["likwid-bench", "-t", "triad_sp", "-w", "S0:100MB"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "likwid-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "nodelist": ["likwid-0"], "starttime": 1746423683, "expiration": 4900023652}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746423683.3724606,"name":"init"}
+{"timestamp":1746423683.3808222,"name":"shell.init","context":{"service":"0-shell-fEhHcDtB","leader-rank":0,"size":1}}
+{"timestamp":1746423683.3833997,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,1,1]]}}}
+{"timestamp":1746423683.3729012,"name":"starting"}
+{"timestamp":1746423689.1580279,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":272,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746423689.1595931,"name":"complete","context":{"status":0}}
+{"timestamp":1746423689.1596212,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 521335209984 likwid-iter-4
+
+FLUX-JOB START 350140497920 likwid-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 88}], "label": "task"}]}], "tasks": [{"command": ["likwid-bench", "-t", "triad_sp", "-w", "S0:100MB"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "likwid-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "nodelist": ["likwid-0"], "starttime": 1746423673, "expiration": 4900023652}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746423673.1682773,"name":"init"}
+{"timestamp":1746423673.1766934,"name":"shell.init","context":{"service":"0-shell-fACTiaKZ","leader-rank":0,"size":1}}
+{"timestamp":1746423673.1790576,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,1,1]]}}}
+{"timestamp":1746423673.1687007,"name":"starting"}
+{"timestamp":1746423683.174123,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":218,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746423683.1757228,"name":"complete","context":{"status":0}}
+{"timestamp":1746423683.1757512,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 350140497920 likwid-iter-3
+
+FLUX-JOB START 185874776064 likwid-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 88}], "label": "task"}]}], "tasks": [{"command": ["likwid-bench", "-t", "triad_sp", "-w", "S0:100MB"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "likwid-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "nodelist": ["likwid-0"], "starttime": 1746423663, "expiration": 4900023652}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746423663.3778303,"name":"init"}
+{"timestamp":1746423663.3782539,"name":"starting"}
+{"timestamp":1746423663.4768965,"name":"shell.init","context":{"service":"0-shell-f5tC7p9M","leader-rank":0,"size":1}}
+{"timestamp":1746423663.4790471,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,1,1]]}}}
+{"timestamp":1746423672.9678466,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":164,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746423672.9693592,"name":"complete","context":{"status":0}}
+{"timestamp":1746423672.9693887,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 185874776064 likwid-iter-2
+
+FLUX-JOB START 7834959872 likwid-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 88}], "label": "task"}]}], "tasks": [{"command": ["likwid-bench", "-t", "triad_sp", "-w", "S0:100MB"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "likwid-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "nodelist": ["likwid-0"], "starttime": 1746423652, "expiration": 4900023652}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746423652.7661521,"name":"init"}
+{"timestamp":1746423652.77442,"name":"shell.init","context":{"service":"0-shell-fCwMDc3","leader-rank":0,"size":1}}
+{"timestamp":1746423652.7766111,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,1,1]]}}}
+{"timestamp":1746423652.7665918,"name":"starting"}
+{"timestamp":1746423663.1780772,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":110,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746423663.1795917,"name":"complete","context":{"status":0}}
+{"timestamp":1746423663.1796191,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 7834959872 likwid-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}
