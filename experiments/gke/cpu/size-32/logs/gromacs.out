@@ -1,0 +1,431 @@
+Defaulted container "gromacs" out of: gromacs, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START gromacs-iter-$i"
+  flux run --setattr=user.study_id=gromacs-iter-$i -N32 -n 2816 -o cpu-affinity=per-task -o gpu-affinity=off     gmx_mpi mdrun -v -deffnm system -s reference_s.tpr -ntomp 1 |& tee /tmp/gromacs.out
+  
+   echo "FLUX-RUN END gromacs-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     32     2816        0 gromacs-[0-31]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START gromacs-iter-1
+                      :-) GROMACS - gmx mdrun, 2024.2 (-:
+
+Executable:   /usr/bin/gmx_mpi
+Data prefix:  /usr
+Working dir:  /opt/gromacs-2024.2/build/tests/regressiontests-2024.2/complex/argon
+Command line:
+  gmx_mpi mdrun -v -deffnm system -s reference_s.tpr -ntomp 1
+
+Reading file reference_s.tpr, VERSION 2019-dev-20180518-7d5382b-local (single precision)
+Note: file tpx version 113, software tpx version 133
+Using 2816 MPI processes
+
+Non-default thread affinity set, disabling internal thread affinity
+
+Using 1 OpenMP thread per MPI process
+
+starting mdrun 'Argon'
+20 steps,      0.0 ps.
+step 0
+vol 0.81  imb F 288% 
+Writing final coordinates.
+step 20, remaining wall clock time:     0 s          
+
+
+Dynamic load balancing report:
+ DLB was turned on during the run due to measured imbalance.
+ Average load imbalance: 273.6%.
+ The balanceable part of the MD step is 1%, load imbalance is computed from this.
+ Part of the total run time spent waiting due to load imbalance: 2.0%.
+ Steps where the load balancing was limited by -rdd, -rcon and/or -dds: X 0 % Y 0 % Z 0 %
+
+
+NOTE: 37 % of the run time was spent in domain decomposition,
+      0 % of the run time was spent in pair search,
+      you might want to increase nstlist (this has no effect on accuracy)
+
+NOTE: 57 % of the run time was spent communicating energies,
+      you might want to increase some nst* mdp options
+
+               Core t (s)   Wall t (s)        (%)
+       Time:      575.912        0.211   272449.3
+                 (ns/day)    (hour/ns)
+Performance:       17.167        1.398
+
+GROMACS reminds you: "May the Force Be With You" (Star Wars)
+
+FLUX-RUN END gromacs-iter-1
+FLUX-RUN START gromacs-iter-2
+                      :-) GROMACS - gmx mdrun, 2024.2 (-:
+
+Executable:   /usr/bin/gmx_mpi
+Data prefix:  /usr
+Working dir:  /opt/gromacs-2024.2/build/tests/regressiontests-2024.2/complex/argon
+Command line:
+  gmx_mpi mdrun -v -deffnm system -s reference_s.tpr -ntomp 1
+
+
+Back Off! I just backed up system.log to ./#system.log.1#
+Reading file reference_s.tpr, VERSION 2019-dev-20180518-7d5382b-local (single precision)
+Note: file tpx version 113, software tpx version 133
+Using 2816 MPI processes
+
+Non-default thread affinity set, disabling internal thread affinity
+
+Using 1 OpenMP thread per MPI process
+
+
+Back Off! I just backed up system.trr to ./#system.trr.1#
+
+Back Off! I just backed up system.edr to ./#system.edr.1#
+starting mdrun 'Argon'
+20 steps,      0.0 ps.
+step 0
+vol 0.83  imb F 370% 
+Writing final coordinates.
+
+Back Off! I just backed up system.gro to ./#system.gro.1#
+step 20, remaining wall clock time:     0 s          
+
+
+Dynamic load balancing report:
+ DLB was turned on during the run due to measured imbalance.
+ Average load imbalance: 239.7%.
+ The balanceable part of the MD step is 1%, load imbalance is computed from this.
+ Part of the total run time spent waiting due to load imbalance: 1.7%.
+ Steps where the load balancing was limited by -rdd, -rcon and/or -dds: X 0 % Y 0 % Z 0 %
+
+
+NOTE: 41 % of the run time was spent in domain decomposition,
+      0 % of the run time was spent in pair search,
+      you might want to increase nstlist (this has no effect on accuracy)
+
+NOTE: 52 % of the run time was spent communicating energies,
+      you might want to increase some nst* mdp options
+
+               Core t (s)   Wall t (s)        (%)
+       Time:      583.941        0.212   275257.0
+                 (ns/day)    (hour/ns)
+Performance:       17.105        1.403
+
+GROMACS reminds you: "It is now quite lawful for a Catholic woman to avoid pregnancy by a resort to mathematics, though she is still forbidden to resort to physics and chemistry." (Henry Louis Mencken)
+
+FLUX-RUN END gromacs-iter-2
+FLUX-RUN START gromacs-iter-3
+                      :-) GROMACS - gmx mdrun, 2024.2 (-:
+
+Executable:   /usr/bin/gmx_mpi
+Data prefix:  /usr
+Working dir:  /opt/gromacs-2024.2/build/tests/regressiontests-2024.2/complex/argon
+Command line:
+  gmx_mpi mdrun -v -deffnm system -s reference_s.tpr -ntomp 1
+
+
+Back Off! I just backed up system.log to ./#system.log.2#
+Compiled SIMD is AVX_512, but AVX2_256 might be faster (see log).
+Reading file reference_s.tpr, VERSION 2019-dev-20180518-7d5382b-local (single precision)
+Note: file tpx version 113, software tpx version 133
+Using 2816 MPI processes
+
+Non-default thread affinity set, disabling internal thread affinity
+
+Using 1 OpenMP thread per MPI process
+
+
+Back Off! I just backed up system.trr to ./#system.trr.2#
+
+Back Off! I just backed up system.edr to ./#system.edr.2#
+starting mdrun 'Argon'
+20 steps,      0.0 ps.
+step 0
+vol 0.80  imb F 575% 
+Writing final coordinates.
+
+Back Off! I just backed up system.gro to ./#system.gro.2#
+step 20, remaining wall clock time:     0 s          
+
+
+Dynamic load balancing report:
+ DLB was turned on during the run due to measured imbalance.
+ Average load imbalance: 3296.5%.
+ The balanceable part of the MD step is 0%, load imbalance is computed from this.
+ Part of the total run time spent waiting due to load imbalance: 4.6%.
+ Steps where the load balancing was limited by -rdd, -rcon and/or -dds: X 0 % Y 0 % Z 0 %
+
+
+NOTE: 57 % of the run time was spent in domain decomposition,
+      0 % of the run time was spent in pair search,
+      you might want to increase nstlist (this has no effect on accuracy)
+
+NOTE: 37 % of the run time was spent communicating energies,
+      you might want to increase some nst* mdp options
+
+               Core t (s)   Wall t (s)        (%)
+       Time:     1064.679        0.418   254801.1
+                 (ns/day)    (hour/ns)
+Performance:        8.685        2.764
+
+GROMACS reminds you: "It's hard to ignore 12 orders of magnitude" (John Urbanic)
+
+FLUX-RUN END gromacs-iter-3
+FLUX-RUN START gromacs-iter-4
+                      :-) GROMACS - gmx mdrun, 2024.2 (-:
+
+Executable:   /usr/bin/gmx_mpi
+Data prefix:  /usr
+Working dir:  /opt/gromacs-2024.2/build/tests/regressiontests-2024.2/complex/argon
+Command line:
+  gmx_mpi mdrun -v -deffnm system -s reference_s.tpr -ntomp 1
+
+
+Back Off! I just backed up system.log to ./#system.log.3#
+Reading file reference_s.tpr, VERSION 2019-dev-20180518-7d5382b-local (single precision)
+Note: file tpx version 113, software tpx version 133
+Using 2816 MPI processes
+
+Non-default thread affinity set, disabling internal thread affinity
+
+Using 1 OpenMP thread per MPI process
+
+
+Back Off! I just backed up system.trr to ./#system.trr.3#
+
+Back Off! I just backed up system.edr to ./#system.edr.3#
+starting mdrun 'Argon'
+20 steps,      0.0 ps.
+step 0
+vol 0.83! imb F 589% 
+Writing final coordinates.
+
+Back Off! I just backed up system.gro to ./#system.gro.3#
+step 20, remaining wall clock time:     0 s          
+
+
+Dynamic load balancing report:
+ DLB was turned on during the run due to measured imbalance.
+ Average load imbalance: 186.8%.
+ The balanceable part of the MD step is 1%, load imbalance is computed from this.
+ Part of the total run time spent waiting due to load imbalance: 2.4%.
+ Steps where the load balancing was limited by -rdd, -rcon and/or -dds: X 0 % Y 33 % Z 0 %
+
+
+NOTE: 40 % of the run time was spent in domain decomposition,
+      0 % of the run time was spent in pair search,
+      you might want to increase nstlist (this has no effect on accuracy)
+
+NOTE: 56 % of the run time was spent communicating energies,
+      you might want to increase some nst* mdp options
+
+               Core t (s)   Wall t (s)        (%)
+       Time:      427.545        0.157   272195.0
+                 (ns/day)    (hour/ns)
+Performance:       23.103        1.039
+
+GROMACS reminds you: "Here are all the 'gmx' tools... but no gmx writethesis" (Christian Blau)
+
+FLUX-RUN END gromacs-iter-4
+FLUX-RUN START gromacs-iter-5
+                      :-) GROMACS - gmx mdrun, 2024.2 (-:
+
+Executable:   /usr/bin/gmx_mpi
+Data prefix:  /usr
+Working dir:  /opt/gromacs-2024.2/build/tests/regressiontests-2024.2/complex/argon
+Command line:
+  gmx_mpi mdrun -v -deffnm system -s reference_s.tpr -ntomp 1
+
+
+Back Off! I just backed up system.log to ./#system.log.4#
+Reading file reference_s.tpr, VERSION 2019-dev-20180518-7d5382b-local (single precision)
+Note: file tpx version 113, software tpx version 133
+Using 2816 MPI processes
+
+Non-default thread affinity set, disabling internal thread affinity
+
+Using 1 OpenMP thread per MPI process
+
+
+Back Off! I just backed up system.trr to ./#system.trr.4#
+
+Back Off! I just backed up system.edr to ./#system.edr.4#
+starting mdrun 'Argon'
+20 steps,      0.0 ps.
+step 0
+vol 0.85! imb F 638% 
+Writing final coordinates.
+
+Back Off! I just backed up system.gro to ./#system.gro.4#
+step 20, remaining wall clock time:     0 s          
+
+
+Dynamic load balancing report:
+ DLB was turned on during the run due to measured imbalance.
+ Average load imbalance: 2153.2%.
+ The balanceable part of the MD step is 1%, load imbalance is computed from this.
+ Part of the total run time spent waiting due to load imbalance: 13.1%.
+ Steps where the load balancing was limited by -rdd, -rcon and/or -dds: X 0 % Y 33 % Z 0 %
+
+NOTE: 13.1 % of the available CPU time was lost due to load imbalance
+      in the domain decomposition.
+      You can consider manually changing the decomposition (option -dd);
+      e.g. by using fewer domains along the box dimension in which there is
+      considerable inhomogeneity in the simulated system.
+
+NOTE: 47 % of the run time was spent in domain decomposition,
+      0 % of the run time was spent in pair search,
+      you might want to increase nstlist (this has no effect on accuracy)
+
+NOTE: 49 % of the run time was spent communicating energies,
+      you might want to increase some nst* mdp options
+
+               Core t (s)   Wall t (s)        (%)
+       Time:      519.477        0.191   271850.3
+                 (ns/day)    (hour/ns)
+Performance:       18.990        1.264
+
+GROMACS reminds you: "Humans are allergic to change. They love to say, 'We've always done it this way.' I try to fight that. That's why I have a clock on my wall that runs counter-clockwise." (Grace Hopper)
+
+FLUX-RUN END gromacs-iter-5
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Connecting to archive.ubuntu.com] [1 InRelease 5484 B/129 kB 4%]                                                                    0% [Connecting to archive.ubuntu.com (185.125.190.81)]                                                      0% [Waiting for headers]                        Get:2 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+0% [Waiting for headers] [2 Packages 2655 B/1244 kB 0%]                                                       Hit:3 http://archive.ubuntu.com/ubuntu jammy InRelease
+                                                       0% [2 Packages 156 kB/1244 kB 13%]0% [Waiting for headers] [2 Packages 634 kB/1244 kB 51%]                                                        Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [4 InRelease 9827 B/128 kB 8%] [2 Packages 835 kB/1244 kB 67%]                                                                 0% [4 InRelease 15.6 kB/128 kB 12%]0% [2 Packages store 0 B] [4 InRelease 15.6 kB/128 kB 12%]                                                          0% [4 InRelease 15.6 kB/128 kB 12%]                                   0% [Working]0% [Waiting for headers]                        Get:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [5 InRelease 2588 B/127 kB 2%]                                 0% [Working]30% [Waiting for headers]                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+30% [6 Packages 2655 B/4420 kB 0%]52% [6 Packages 2975 kB/4420 kB 67%]                                    62% [Waiting for headers]                         Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+62% [7 Packages 687 B/55.7 kB 1%]62% [6 Packages store 0 B] [7 Packages 687 B/55.7 kB 1%]                                                        63% [6 Packages store 0 B] [Waiting for headers]                                                Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+63% [6 Packages store 0 B] [8 Packages 9923 B/3200 kB 0%]                                                         86% [6 Packages store 0 B] [Waiting for headers]                                                Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+87% [6 Packages store 0 B] [9 Packages 49.2 kB/1544 kB 3%]                                                          98% [6 Packages store 0 B]                          98% [Working]98% [7 Packages store 0 B]                          99% [Working]99% [8 Packages store 0 B]                          99% [Working]99% [9 Packages store 0 B]                          100% [Working]              Fetched 10.8 MB in 2s (5232 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 3%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
+
+FLUX-JOB START 629699248128 gromacs-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["gmx_mpi", "mdrun", "-v", "-deffnm", "system", "-s", "reference_s.tpr", "-ntomp", "1"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/gromacs-2024.2/build/tests/regressiontests-2024.2/complex/argon", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "gromacs-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["gromacs-[0-31]"], "starttime": 1746414320, "expiration": 4900014282}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746414320.2286096,"name":"init"}
+{"timestamp":1746414320.2293499,"name":"starting"}
+{"timestamp":1746414320.2481775,"name":"shell.init","context":{"service":"0-shell-fHYPNF5R","leader-rank":0,"size":32}}
+{"timestamp":1746414320.4615042,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1746414328.3085673,"name":"shell.task-exit","context":{"localid":86,"rank":86,"state":"Exited","pid":994,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746414328.4560466,"name":"complete","context":{"status":0}}
+{"timestamp":1746414328.4560831,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 629699248128 gromacs-iter-5
+
+FLUX-JOB START 482177187840 gromacs-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["gmx_mpi", "mdrun", "-v", "-deffnm", "system", "-s", "reference_s.tpr", "-ntomp", "1"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/gromacs-2024.2/build/tests/regressiontests-2024.2/complex/argon", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "gromacs-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["gromacs-[0-31]"], "starttime": 1746414311, "expiration": 4900014282}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746414311.4358311,"name":"init"}
+{"timestamp":1746414311.4364891,"name":"starting"}
+{"timestamp":1746414311.5374916,"name":"shell.init","context":{"service":"0-shell-fDfdM89M","leader-rank":0,"size":32}}
+{"timestamp":1746414311.753536,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1746414319.7605863,"name":"shell.task-exit","context":{"localid":48,"rank":224,"state":"Exited","pid":688,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746414319.9129994,"name":"complete","context":{"status":0}}
+{"timestamp":1746414319.9130328,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 482177187840 gromacs-iter-4
+
+FLUX-JOB START 309153759232 gromacs-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["gmx_mpi", "mdrun", "-v", "-deffnm", "system", "-s", "reference_s.tpr", "-ntomp", "1"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/gromacs-2024.2/build/tests/regressiontests-2024.2/complex/argon", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "gromacs-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["gromacs-[0-31]"], "starttime": 1746414301, "expiration": 4900014282}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746414301.1231272,"name":"init"}
+{"timestamp":1746414301.1238513,"name":"starting"}
+{"timestamp":1746414301.1428471,"name":"shell.init","context":{"service":"0-shell-f981rps9","leader-rank":0,"size":32}}
+{"timestamp":1746414301.3584042,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1746414311.0016794,"name":"shell.task-exit","context":{"localid":52,"rank":52,"state":"Exited","pid":563,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746414311.1515622,"name":"complete","context":{"status":0}}
+{"timestamp":1746414311.1515875,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 309153759232 gromacs-iter-3
+
+FLUX-JOB START 155038253056 gromacs-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["gmx_mpi", "mdrun", "-v", "-deffnm", "system", "-s", "reference_s.tpr", "-ntomp", "1"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/gromacs-2024.2/build/tests/regressiontests-2024.2/complex/argon", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "gromacs-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["gromacs-[0-31]"], "starttime": 1746414291, "expiration": 4900014282}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746414291.9367311,"name":"init"}
+{"timestamp":1746414291.9372487,"name":"starting"}
+{"timestamp":1746414291.9553609,"name":"shell.init","context":{"service":"0-shell-f55DCaBZ","leader-rank":0,"size":32}}
+{"timestamp":1746414292.1692877,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1746414300.6389894,"name":"shell.task-exit","context":{"localid":84,"rank":84,"state":"Exited","pid":447,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746414300.7973001,"name":"complete","context":{"status":0}}
+{"timestamp":1746414300.7973323,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 155038253056 gromacs-iter-2
+
+FLUX-JOB START 11123294208 gromacs-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["gmx_mpi", "mdrun", "-v", "-deffnm", "system", "-s", "reference_s.tpr", "-ntomp", "1"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/gromacs-2024.2/build/tests/regressiontests-2024.2/complex/argon", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "gromacs-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["gromacs-[0-31]"], "starttime": 1746414283, "expiration": 4900014282}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746414283.3589683,"name":"init"}
+{"timestamp":1746414283.3595948,"name":"starting"}
+{"timestamp":1746414283.3786898,"name":"shell.init","context":{"service":"0-shell-fHwvnqd","leader-rank":0,"size":32}}
+{"timestamp":1746414283.5910232,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1746414291.4965713,"name":"shell.task-exit","context":{"localid":87,"rank":87,"state":"Exited","pid":272,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746414291.6358273,"name":"complete","context":{"status":0}}
+{"timestamp":1746414291.6358547,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 11123294208 gromacs-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

@@ -1,0 +1,512 @@
+Defaulted container "hpl" out of: hpl, flux-view (init)
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START hpl-iter-$i"
+  flux run --setattr=user.study_id=hpl-iter-$i -N32 -n 2816 -o cpu-affinity=per-task -o gpu-affinity=off     xhpl |& tee /tmp/hpl.out
+  
+   echo "FLUX-RUN END hpl-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     32     2816        0 hpl-[0-31]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START hpl-iter-1
+================================================================================
+HPLinpack 2.3  --  High-Performance Linpack benchmark  --   December 2, 2018
+Written by A. Petitet and R. Clint Whaley,  Innovative Computing Laboratory, UTK
+Modified by Piotr Luszczek, Innovative Computing Laboratory, UTK
+Modified by Julien Langou, University of Colorado Denver
+================================================================================
+
+An explanation of the input/output parameters follows:
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+P      : The number of process rows.
+Q      : The number of process columns.
+Time   : Time in seconds to solve the linear system.
+Gflops : Rate of execution for solving the linear system.
+
+The following parameter values will be used:
+
+N      :   10080 
+NB     :     128 
+PMAP   : Row-major process mapping
+P      :       1 
+Q      :       1 
+PFACT  :   Right 
+NBMIN  :       4 
+NDIV   :       2 
+RFACT  :   Crout 
+BCAST  :  1ringM 
+DEPTH  :       1 
+SWAP   : Mix (threshold = 64)
+L1     : transposed form
+U      : transposed form
+EQUIL  : yes
+ALIGN  : 8 double precision words
+
+--------------------------------------------------------------------------------
+
+- The matrix A is randomly generated for each test.
+- The following scaled residual check will be computed:
+      ||Ax-b||_oo / ( eps * ( || x ||_oo * || A ||_oo + || b ||_oo ) * N )
+- The relative machine precision (eps) is taken to be               1.110223e-16
+- Computational tests pass if scaled residuals are less than                16.0
+
+================================================================================
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WR11C2R4       10080   128     1     1              10.93             6.2507e+01
+HPL_pdgesv() start time Mon May  5 02:39:48 2025
+
+HPL_pdgesv() end time   Mon May  5 02:39:59 2025
+
+--------------------------------------------------------------------------------
+||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=   2.11723091e-03 ...... PASSED
+================================================================================
+
+Finished      1 tests with the following results:
+              1 tests completed and passed residual checks,
+              0 tests completed and failed residual checks,
+              0 tests skipped because of illegal input values.
+--------------------------------------------------------------------------------
+
+End of Tests.
+================================================================================
+FLUX-RUN END hpl-iter-1
+FLUX-RUN START hpl-iter-2
+================================================================================
+HPLinpack 2.3  --  High-Performance Linpack benchmark  --   December 2, 2018
+Written by A. Petitet and R. Clint Whaley,  Innovative Computing Laboratory, UTK
+Modified by Piotr Luszczek, Innovative Computing Laboratory, UTK
+Modified by Julien Langou, University of Colorado Denver
+================================================================================
+
+An explanation of the input/output parameters follows:
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+P      : The number of process rows.
+Q      : The number of process columns.
+Time   : Time in seconds to solve the linear system.
+Gflops : Rate of execution for solving the linear system.
+
+The following parameter values will be used:
+
+N      :   10080 
+NB     :     128 
+PMAP   : Row-major process mapping
+P      :       1 
+Q      :       1 
+PFACT  :   Right 
+NBMIN  :       4 
+NDIV   :       2 
+RFACT  :   Crout 
+BCAST  :  1ringM 
+DEPTH  :       1 
+SWAP   : Mix (threshold = 64)
+L1     : transposed form
+U      : transposed form
+EQUIL  : yes
+ALIGN  : 8 double precision words
+
+--------------------------------------------------------------------------------
+
+- The matrix A is randomly generated for each test.
+- The following scaled residual check will be computed:
+      ||Ax-b||_oo / ( eps * ( || x ||_oo * || A ||_oo + || b ||_oo ) * N )
+- The relative machine precision (eps) is taken to be               1.110223e-16
+- Computational tests pass if scaled residuals are less than                16.0
+
+================================================================================
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WR11C2R4       10080   128     1     1              10.96             6.2329e+01
+HPL_pdgesv() start time Mon May  5 02:40:09 2025
+
+HPL_pdgesv() end time   Mon May  5 02:40:20 2025
+
+--------------------------------------------------------------------------------
+||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=   2.11723091e-03 ...... PASSED
+================================================================================
+
+Finished      1 tests with the following results:
+              1 tests completed and passed residual checks,
+              0 tests completed and failed residual checks,
+              0 tests skipped because of illegal input values.
+--------------------------------------------------------------------------------
+
+End of Tests.
+================================================================================
+FLUX-RUN END hpl-iter-2
+FLUX-RUN START hpl-iter-3
+================================================================================
+HPLinpack 2.3  --  High-Performance Linpack benchmark  --   December 2, 2018
+Written by A. Petitet and R. Clint Whaley,  Innovative Computing Laboratory, UTK
+Modified by Piotr Luszczek, Innovative Computing Laboratory, UTK
+Modified by Julien Langou, University of Colorado Denver
+================================================================================
+
+An explanation of the input/output parameters follows:
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+P      : The number of process rows.
+Q      : The number of process columns.
+Time   : Time in seconds to solve the linear system.
+Gflops : Rate of execution for solving the linear system.
+
+The following parameter values will be used:
+
+N      :   10080 
+NB     :     128 
+PMAP   : Row-major process mapping
+P      :       1 
+Q      :       1 
+PFACT  :   Right 
+NBMIN  :       4 
+NDIV   :       2 
+RFACT  :   Crout 
+BCAST  :  1ringM 
+DEPTH  :       1 
+SWAP   : Mix (threshold = 64)
+L1     : transposed form
+U      : transposed form
+EQUIL  : yes
+ALIGN  : 8 double precision words
+
+--------------------------------------------------------------------------------
+
+- The matrix A is randomly generated for each test.
+- The following scaled residual check will be computed:
+      ||Ax-b||_oo / ( eps * ( || x ||_oo * || A ||_oo + || b ||_oo ) * N )
+- The relative machine precision (eps) is taken to be               1.110223e-16
+- Computational tests pass if scaled residuals are less than                16.0
+
+================================================================================
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WR11C2R4       10080   128     1     1              10.94             6.2423e+01
+HPL_pdgesv() start time Mon May  5 02:40:30 2025
+
+HPL_pdgesv() end time   Mon May  5 02:40:40 2025
+
+--------------------------------------------------------------------------------
+||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=   2.11723091e-03 ...... PASSED
+================================================================================
+
+Finished      1 tests with the following results:
+              1 tests completed and passed residual checks,
+              0 tests completed and failed residual checks,
+              0 tests skipped because of illegal input values.
+--------------------------------------------------------------------------------
+
+End of Tests.
+================================================================================
+FLUX-RUN END hpl-iter-3
+FLUX-RUN START hpl-iter-4
+================================================================================
+HPLinpack 2.3  --  High-Performance Linpack benchmark  --   December 2, 2018
+Written by A. Petitet and R. Clint Whaley,  Innovative Computing Laboratory, UTK
+Modified by Piotr Luszczek, Innovative Computing Laboratory, UTK
+Modified by Julien Langou, University of Colorado Denver
+================================================================================
+
+An explanation of the input/output parameters follows:
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+P      : The number of process rows.
+Q      : The number of process columns.
+Time   : Time in seconds to solve the linear system.
+Gflops : Rate of execution for solving the linear system.
+
+The following parameter values will be used:
+
+N      :   10080 
+NB     :     128 
+PMAP   : Row-major process mapping
+P      :       1 
+Q      :       1 
+PFACT  :   Right 
+NBMIN  :       4 
+NDIV   :       2 
+RFACT  :   Crout 
+BCAST  :  1ringM 
+DEPTH  :       1 
+SWAP   : Mix (threshold = 64)
+L1     : transposed form
+U      : transposed form
+EQUIL  : yes
+ALIGN  : 8 double precision words
+
+--------------------------------------------------------------------------------
+
+- The matrix A is randomly generated for each test.
+- The following scaled residual check will be computed:
+      ||Ax-b||_oo / ( eps * ( || x ||_oo * || A ||_oo + || b ||_oo ) * N )
+- The relative machine precision (eps) is taken to be               1.110223e-16
+- Computational tests pass if scaled residuals are less than                16.0
+
+================================================================================
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WR11C2R4       10080   128     1     1              10.94             6.2452e+01
+HPL_pdgesv() start time Mon May  5 02:40:50 2025
+
+HPL_pdgesv() end time   Mon May  5 02:41:01 2025
+
+--------------------------------------------------------------------------------
+||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=   2.11723091e-03 ...... PASSED
+================================================================================
+
+Finished      1 tests with the following results:
+              1 tests completed and passed residual checks,
+              0 tests completed and failed residual checks,
+              0 tests skipped because of illegal input values.
+--------------------------------------------------------------------------------
+
+End of Tests.
+================================================================================
+FLUX-RUN END hpl-iter-4
+FLUX-RUN START hpl-iter-5
+================================================================================
+HPLinpack 2.3  --  High-Performance Linpack benchmark  --   December 2, 2018
+Written by A. Petitet and R. Clint Whaley,  Innovative Computing Laboratory, UTK
+Modified by Piotr Luszczek, Innovative Computing Laboratory, UTK
+Modified by Julien Langou, University of Colorado Denver
+================================================================================
+
+An explanation of the input/output parameters follows:
+T/V    : Wall time / encoded variant.
+N      : The order of the coefficient matrix A.
+NB     : The partitioning blocking factor.
+P      : The number of process rows.
+Q      : The number of process columns.
+Time   : Time in seconds to solve the linear system.
+Gflops : Rate of execution for solving the linear system.
+
+The following parameter values will be used:
+
+N      :   10080 
+NB     :     128 
+PMAP   : Row-major process mapping
+P      :       1 
+Q      :       1 
+PFACT  :   Right 
+NBMIN  :       4 
+NDIV   :       2 
+RFACT  :   Crout 
+BCAST  :  1ringM 
+DEPTH  :       1 
+SWAP   : Mix (threshold = 64)
+L1     : transposed form
+U      : transposed form
+EQUIL  : yes
+ALIGN  : 8 double precision words
+
+--------------------------------------------------------------------------------
+
+- The matrix A is randomly generated for each test.
+- The following scaled residual check will be computed:
+      ||Ax-b||_oo / ( eps * ( || x ||_oo * || A ||_oo + || b ||_oo ) * N )
+- The relative machine precision (eps) is taken to be               1.110223e-16
+- Computational tests pass if scaled residuals are less than                16.0
+
+================================================================================
+T/V                N    NB     P     Q               Time                 Gflops
+--------------------------------------------------------------------------------
+WR11C2R4       10080   128     1     1              10.94             6.2424e+01
+HPL_pdgesv() start time Mon May  5 02:41:11 2025
+
+HPL_pdgesv() end time   Mon May  5 02:41:22 2025
+
+--------------------------------------------------------------------------------
+||Ax-b||_oo/(eps*(||A||_oo*||x||_oo+||b||_oo)*N)=   2.11723091e-03 ...... PASSED
+================================================================================
+
+Finished      1 tests with the following results:
+              1 tests completed and passed residual checks,
+              0 tests completed and failed residual checks,
+              0 tests skipped because of illegal input values.
+--------------------------------------------------------------------------------
+
+End of Tests.
+================================================================================
+FLUX-RUN END hpl-iter-5
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Waiting for headers] [1 InRelease 2588 B/129 kB 2%]                                                       Get:2 http://archive.ubuntu.com/ubuntu jammy InRelease [270 kB]
+0% [2 InRelease 4036 B/270 kB 1%] [1 InRelease 14.2 kB/129 kB 11%]                                                                  0% [2 InRelease 113 kB/270 kB 42%]0% [2 InRelease 147 kB/270 kB 55%]                                  Get:3 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+0% [2 InRelease 249 kB/270 kB 92%] [3 Packages 2655 B/1244 kB 0%]                                                                 0% [3 Packages 21.5 kB/1244 kB 2%]0% [Waiting for headers] [3 Packages 83.7 kB/1244 kB 7%]                                                        Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [4 InRelease 2588 B/128 kB 2%] [3 Packages 136 kB/1244 kB 11%]                                                                 0% [3 Packages 184 kB/1244 kB 15%]0% [Waiting for headers] [3 Packages 260 kB/1244 kB 21%]                                                        Get:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [5 InRelease 2588 B/127 kB 2%] [3 Packages 428 kB/1244 kB 34%]                                                                 0% [3 Packages 554 kB/1244 kB 45%]15% [Waiting for headers] [3 Packages 795 kB/1244 kB 64%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy/restricted amd64 Packages [164 kB]
+16% [6 Packages 2657 B/164 kB 2%] [3 Packages 1171 kB/1244 kB 94%]                                                                  16% [6 Packages 43.2 kB/164 kB 26%]16% [3 Packages store 0 B] [6 Packages 46.1 kB/164 kB 28%] [Waiting for headers                                                                               17% [3 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:7 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [266 kB]
+17% [3 Packages store 0 B] [7 Packages 356 B/266 kB 0%] [Waiting for headers]                                                                             17% [7 Packages 23.5 kB/266 kB 9%] [Waiting for headers]17% [6 Packages store 0 B] [7 Packages 23.5 kB/266 kB 9%] [Waiting for headers]                                                                               18% [7 Packages 44.4 kB/266 kB 17%] [Waiting for headers]                                                         Get:8 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4118 kB]
+18% [7 Packages 183 kB/266 kB 69%] [8 Packages 6999 B/4118 kB 0%]                                                                 19% [Waiting for headers] [8 Packages 525 kB/4118 kB 13%]19% [7 Packages store 0 B] [Waiting for headers] [8 Packages 525 kB/4118 kB 13%                                                                               Get:9 http://archive.ubuntu.com/ubuntu jammy/main amd64 Packages [1792 kB]
+19% [7 Packages store 0 B] [9 Packages 2859 B/1792 kB 0%] [8 Packages 525 kB/41                                                                               20% [9 Packages 26.0 kB/1792 kB 1%] [8 Packages 686 kB/4118 kB 17%]                                                                   30% [9 Packages 1425 kB/1792 kB 80%] [Waiting for headers]                                                          Get:10 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+30% [9 Packages 1425 kB/1792 kB 80%] [10 Packages 4096 B/47.7 kB 9%]31% [8 Packages store 0 B] [9 Packages 1425 kB/1792 kB 80%] [10 Packages 31.8 k31% [8 Packages store 0 B] [9 Packages 1425 kB/1792 kB 80%] [Waiting for header                                                                               Get:11 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+31% [8 Packages store 0 B] [9 Packages 1425 kB/1792 kB 80%] [11 Packages 4096 B33% [8 Packages store 0 B] [Waiting for headers] [11 Packages 860 kB/2844 kB 30                                                                               Get:12 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [17.5 MB]
+33% [8 Packages store 0 B] [12 Packages 3162 B/17.5 MB 0%] [11 Packages 860 kB/                                                                               39% [8 Packages store 0 B] [12 Packages 957 kB/17.5 MB 5%]                                                          45% [12 Packages 3279 kB/17.5 MB 19%]45% [10 Packages store 0 B] [12 Packages 3311 kB/17.5 MB 19%]                                                             46% [12 Packages 3378 kB/17.5 MB 19%]46% [9 Packages store 0 B] [12 Packages 3378 kB/17.5 MB 19%]                                                            53% [12 Packages 6449 kB/17.5 MB 37%]53% [11 Packages store 0 B] [12 Packages 6449 kB/17.5 MB 37%]                                                             69% [12 Packages 14.0 MB/17.5 MB 80%]                                     76% [Waiting for headers]                         Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+76% [13 Packages 29.6 kB/4420 kB 1%]76% [12 Packages store 0 B] [13 Packages 29.6 kB/4420 kB 1%]                                                            86% [12 Packages store 0 B] [Waiting for headers]                                                 Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+86% [12 Packages store 0 B] [14 Packages 2292 B/1544 kB 0%]                                                           89% [12 Packages store 0 B] [Waiting for headers]                                                 Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+89% [12 Packages store 0 B] [15 Packages 7370 B/3200 kB 0%]                                                           96% [12 Packages store 0 B] [Waiting for headers]                                                 Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+96% [12 Packages store 0 B] [16 Packages 4107 B/55.7 kB 7%]                                                           96% [12 Packages store 0 B] [Waiting for headers]                                                 Get:17 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+96% [12 Packages store 0 B] [17 Packages 4096 B/35.2 kB 12%]                                                            96% [12 Packages store 0 B] [Waiting for headers]                                                 Get:18 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+96% [12 Packages store 0 B] [18 Packages 12.3 kB/82.7 kB 15%]                                                             96% [12 Packages store 0 B]                           97% [Working]97% [13 Packages store 0 B]                           97% [Working]97% [14 Packages store 0 B]                           98% [Working]98% [15 Packages store 0 B]                           98% [Working]98% [16 Packages store 0 B]                           99% [Working]99% [17 Packages store 0 B]                           99% [Working]99% [18 Packages store 0 B]                           100% [Working]              Fetched 37.9 MB in 3s (12.6 MB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 1%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 1 not upgraded.
+Need to get 357 kB of archives.
+After this operation, 1087 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libonig5 amd64 6.9.7.1-2build1 [172 kB]
+3% [1 libonig5 14.2 kB/172 kB 8%]                                 45% [Working]             Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjq1 amd64 1.6-2.1ubuntu3 [133 kB]
+46% [2 libjq1 2604 B/133 kB 2%]                               82% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 jq amd64 1.6-2.1ubuntu3 [52.5 kB]
+82% [3 jq 2872 B/52.5 kB 5%]                            100% [Working]              Fetched 357 kB in 1s (377 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 8293 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.7.1-2build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.7.1-2build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-2.1ubuntu3) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking jq (1.6-2.1ubuntu3) ...
+Setting up libonig5:amd64 (6.9.7.1-2build1) ...
+Setting up libjq1:amd64 (1.6-2.1ubuntu3) ...
+Setting up jq (1.6-2.1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.9) ...
+
+FLUX-JOB START 1426281463808 hpl-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["xhpl"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/hpl", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "hpl-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["hpl-[0-31]"], "starttime": 1746412864, "expiration": 4900012779}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746412864.1948433,"name":"init"}
+{"timestamp":1746412864.1957078,"name":"starting"}
+{"timestamp":1746412864.2174599,"name":"shell.init","context":{"service":"0-shell-feU2cKHq","leader-rank":0,"size":32}}
+{"timestamp":1746412864.3989611,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1746412884.5124898,"name":"shell.task-exit","context":{"localid":79,"rank":79,"state":"Exited","pid":1038,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746412884.6782677,"name":"complete","context":{"status":0}}
+{"timestamp":1746412884.6783035,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1426281463808 hpl-iter-5
+
+FLUX-JOB START 1076845608960 hpl-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["xhpl"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/hpl", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "hpl-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["hpl-[0-31]"], "starttime": 1746412843, "expiration": 4900012779}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746412843.3658161,"name":"init"}
+{"timestamp":1746412843.366498,"name":"starting"}
+{"timestamp":1746412843.3872545,"name":"shell.init","context":{"service":"0-shell-fVHeADom","leader-rank":0,"size":32}}
+{"timestamp":1746412843.5684609,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1746412863.6601586,"name":"shell.task-exit","context":{"localid":74,"rank":74,"state":"Exited","pid":847,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746412863.8290746,"name":"complete","context":{"status":0}}
+{"timestamp":1746412863.8291063,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1076845608960 hpl-iter-4
+
+FLUX-JOB START 727963402240 hpl-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["xhpl"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/hpl", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "hpl-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["hpl-[0-31]"], "starttime": 1746412822, "expiration": 4900012779}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746412822.5714202,"name":"init"}
+{"timestamp":1746412822.5722115,"name":"starting"}
+{"timestamp":1746412822.5955062,"name":"shell.init","context":{"service":"0-shell-fL86did5","leader-rank":0,"size":32}}
+{"timestamp":1746412822.7745106,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1746412842.8347833,"name":"shell.task-exit","context":{"localid":82,"rank":82,"state":"Exited","pid":682,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746412843.004355,"name":"complete","context":{"status":0}}
+{"timestamp":1746412843.0043848,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 727963402240 hpl-iter-3
+
+FLUX-JOB START 378175225856 hpl-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["xhpl"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/hpl", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "hpl-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["hpl-[0-31]"], "starttime": 1746412801, "expiration": 4900012779}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746412801.7222462,"name":"init"}
+{"timestamp":1746412801.7229471,"name":"starting"}
+{"timestamp":1746412801.7435338,"name":"shell.init","context":{"service":"0-shell-fAwB3tDm","leader-rank":0,"size":32}}
+{"timestamp":1746412801.925139,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1746412822.0426025,"name":"shell.task-exit","context":{"localid":76,"rank":76,"state":"Exited","pid":489,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746412822.2187226,"name":"complete","context":{"status":0}}
+{"timestamp":1746412822.2187576,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 378175225856 hpl-iter-2
+
+FLUX-JOB START 25820135424 hpl-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 32, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["xhpl"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/hpl", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "hpl-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-31", "children": {"core": "0-87"}}], "nodelist": ["hpl-[0-31]"], "starttime": 1746412780, "expiration": 4900012779}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746412780.7219355,"name":"init"}
+{"timestamp":1746412780.7227745,"name":"starting"}
+{"timestamp":1746412780.750294,"name":"shell.init","context":{"service":"0-shell-fgLdwhh","leader-rank":0,"size":32}}
+{"timestamp":1746412780.9311054,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,32,88,1]]}}}
+{"timestamp":1746412801.1540375,"name":"shell.task-exit","context":{"localid":78,"rank":78,"state":"Exited","pid":312,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746412801.3469157,"name":"complete","context":{"status":0}}
+{"timestamp":1746412801.3469453,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 25820135424 hpl-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

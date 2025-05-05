@@ -1,0 +1,126 @@
+Defaulted container "gpcnet" out of: gpcnet, flux-view (init)
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..3}
+do
+  echo "FLUX-RUN START gpcnet-iter-$i"
+  flux run --setattr=user.study_id=gpcnet-iter-$i -N32 -n 2816 -o cpu-affinity=per-task -o gpu-affinity=off     network_test |& tee /tmp/gpcnet.out
+  
+   echo "FLUX-RUN END gpcnet-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     32     2816        0 gpcnet-[0-31]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START gpcnet-iter-1
+Network Tests v1.3
+  Test with 2816 MPI ranks (32 nodes)
+
+  Legend
+   RR = random ring communication pattern
+   Nat = natural ring communication pattern
+   Lat = latency
+   BW = bandwidth
+   BW+Sync = bandwidth with barrier
++------------------------------------------------------------------------------+
+|                            Isolated Network Tests                            |
++---------------------------------+--------------+--------------+--------------+
+|                            Name |          Avg |          99% |        Units |
++---------------------------------+--------------+--------------+--------------+
+|          RR Two-sided Lat (8 B) |         37.4 |        113.3 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|                RR Get Lat (8 B) |        104.0 |        164.6 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      RR Two-sided BW (131072 B) |        172.7 |          9.8 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|            RR Put BW (131072 B) |        299.5 |         65.3 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+| RR Two-sided BW+Sync (131072 B) |        310.6 |          9.6 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|     Nat Two-sided BW (131072 B) |        163.1 |          9.6 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|        Multiple Allreduce (8 B) |        284.2 |       1406.7 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      Multiple Alltoall (4096 B) |        101.5 |         31.4 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+FLUX-RUN END gpcnet-iter-1
+FLUX-RUN START gpcnet-iter-2
+Network Tests v1.3
+  Test with 2816 MPI ranks (32 nodes)
+
+  Legend
+   RR = random ring communication pattern
+   Nat = natural ring communication pattern
+   Lat = latency
+   BW = bandwidth
+   BW+Sync = bandwidth with barrier
++------------------------------------------------------------------------------+
+|                            Isolated Network Tests                            |
++---------------------------------+--------------+--------------+--------------+
+|                            Name |          Avg |          99% |        Units |
++---------------------------------+--------------+--------------+--------------+
+|          RR Two-sided Lat (8 B) |         37.7 |        112.9 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|                RR Get Lat (8 B) |        104.3 |        164.9 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      RR Two-sided BW (131072 B) |        166.6 |          9.8 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|            RR Put BW (131072 B) |        309.8 |         67.7 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+| RR Two-sided BW+Sync (131072 B) |        319.5 |          9.7 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|     Nat Two-sided BW (131072 B) |        162.4 |          9.6 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+|        Multiple Allreduce (8 B) |        271.2 |       1002.8 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|      Multiple Alltoall (4096 B) |         91.8 |         27.9 |   MiB/s/rank |
++---------------------------------+--------------+--------------+--------------+
+FLUX-RUN END gpcnet-iter-2
+FLUX-RUN START gpcnet-iter-3
+Network Tests v1.3
+  Test with 2816 MPI ranks (32 nodes)
+
+  Legend
+   RR = random ring communication pattern
+   Nat = natural ring communication pattern
+   Lat = latency
+   BW = bandwidth
+   BW+Sync = bandwidth with barrier
++------------------------------------------------------------------------------+
+|                            Isolated Network Tests                            |
++---------------------------------+--------------+--------------+--------------+
+|                            Name |          Avg |          99% |        Units |
++---------------------------------+--------------+--------------+--------------+
+|          RR Two-sided Lat (8 B) |         37.2 |        108.9 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|                RR Get Lat (8 B) |        104.2 |        165.1 |         usec |
++---------------------------------+--------------+--------------+--------------+
+1090.713s: job.exception type=cancel severity=0 
+flux-job: task(s) exited with exit code 143
