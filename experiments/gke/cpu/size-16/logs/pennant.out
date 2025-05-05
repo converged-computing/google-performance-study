@@ -1,0 +1,1597 @@
+Defaulted container "pennant" out of: pennant, flux-view (init)
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START pennant-iter-$i"
+  flux run --setattr=user.study_id=pennant-iter-$i -N16 -n 1408 -o cpu-affinity=per-task -o gpu-affinity=off     pennant /opt/pennant/test/sedovflatx4/sedovflatx4.pnt |& tee /tmp/pennant.out
+  
+   echo "FLUX-RUN END pennant-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     16     1408        0 pennant-[0-15]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START pennant-iter-1
+********************
+Running PENNANT v0.9
+********************
+
+Running on 1408 MPI PE(s)
+Running on 1 thread(s)
+--- Mesh Information ---
+Points:  4151281
+Zones:  4147200
+Sides:  16588800
+Edges:  8448000
+Side chunks:  16896
+Point chunks:  4352
+Zone chunks:  4224
+Chunk size:  1024
+------------------------
+Energy check:  total energy  =   9.871670e-01
+(internal =   9.871670e-01, kinetic =   0.000000e+00)
+End cycle      1, time = 5.00000e-07, dt = 5.00000e-07, wall = 7.61700e-03
+dt limiter: Initial timestep
+End cycle    100, time = 2.89168e-03, dt = 3.43343e-05, wall = 2.87450e-01
+dt limiter: PE 56, Hydro dV/V limit for z = 617
+End cycle    200, time = 6.44082e-03, dt = 3.76534e-05, wall = 1.57096e-01
+dt limiter: PE 45, Hydro dV/V limit for z = 1539
+End cycle    300, time = 9.99188e-03, dt = 3.70058e-05, wall = 2.06706e-01
+dt limiter: PE 58, Hydro dV/V limit for z = 2509
+End cycle    400, time = 1.35388e-02, dt = 3.45705e-05, wall = 1.59476e-01
+dt limiter: PE 87, Hydro dV/V limit for z = 449
+End cycle    500, time = 1.70841e-02, dt = 3.36478e-05, wall = 1.82743e-01
+dt limiter: PE 86, Hydro dV/V limit for z = 1354
+End cycle    600, time = 2.06308e-02, dt = 3.43027e-05, wall = 1.48252e-01
+dt limiter: PE 86, Hydro dV/V limit for z = 2239
+End cycle    700, time = 2.41808e-02, dt = 3.76128e-05, wall = 2.66341e-01
+dt limiter: PE 118, Hydro dV/V limit for z = 231
+End cycle    800, time = 2.77318e-02, dt = 3.70350e-05, wall = 2.04820e-01
+dt limiter: PE 119, Hydro dV/V limit for z = 1175
+End cycle    900, time = 3.12796e-02, dt = 3.46260e-05, wall = 1.95497e-01
+dt limiter: PE 107, Hydro dV/V limit for z = 2064
+End cycle   1000, time = 3.48599e-02, dt = 3.44093e-05, wall = 1.80851e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 34
+End cycle   1100, time = 3.85526e-02, dt = 3.69613e-05, wall = 2.16297e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 950
+End cycle   1200, time = 4.23848e-02, dt = 4.25767e-05, wall = 2.13962e-01
+dt limiter: PE 151, Hydro dV/V limit for z = 1870
+End cycle   1300, time = 4.63472e-02, dt = 4.00476e-05, wall = 1.79251e-01
+dt limiter: PE 155, Hydro dV/V limit for z = 2770
+End cycle   1400, time = 5.04381e-02, dt = 3.95276e-05, wall = 1.86880e-01
+dt limiter: PE 165, Hydro dV/V limit for z = 722
+End cycle   1500, time = 5.46587e-02, dt = 4.13375e-05, wall = 1.73478e-01
+dt limiter: PE 166, Hydro dV/V limit for z = 1638
+End cycle   1600, time = 5.90129e-02, dt = 4.74986e-05, wall = 2.22442e-01
+dt limiter: PE 185, Hydro dV/V limit for z = 2541
+End cycle   1700, time = 6.34921e-02, dt = 4.64536e-05, wall = 2.65774e-01
+dt limiter: PE 213, Hydro dV/V limit for z = 574
+End cycle   1800, time = 6.80899e-02, dt = 4.47623e-05, wall = 2.16291e-01
+dt limiter: PE 192, Hydro dV/V limit for z = 1451
+End cycle   1900, time = 7.28083e-02, dt = 4.54671e-05, wall = 1.58918e-01
+dt limiter: PE 199, Hydro dV/V limit for z = 2378
+End cycle   2000, time = 7.76495e-02, dt = 4.95603e-05, wall = 1.96682e-01
+dt limiter: PE 230, Hydro dV/V limit for z = 354
+End cycle   2100, time = 8.26155e-02, dt = 5.34615e-05, wall = 2.58688e-01
+dt limiter: PE 247, Hydro dV/V limit for z = 1310
+End cycle   2200, time = 8.76927e-02, dt = 5.03823e-05, wall = 1.79568e-01
+dt limiter: PE 246, Hydro dV/V limit for z = 2179
+End cycle   2300, time = 9.28805e-02, dt = 4.97920e-05, wall = 2.51168e-01
+dt limiter: PE 272, Hydro dV/V limit for z = 142
+End cycle   2400, time = 9.81843e-02, dt = 5.20556e-05, wall = 2.37812e-01
+dt limiter: PE 278, Hydro dV/V limit for z = 1027
+End cycle   2500, time = 1.03607e-01, dt = 5.96991e-05, wall = 1.90868e-01
+dt limiter: PE 269, Hydro dV/V limit for z = 1969
+End cycle   2600, time = 1.09140e-01, dt = 5.69468e-05, wall = 1.70115e-01
+dt limiter: PE 267, Hydro dV/V limit for z = 2919
+End cycle   2700, time = 1.14776e-01, dt = 5.46635e-05, wall = 2.56975e-01
+dt limiter: PE 289, Hydro dV/V limit for z = 898
+End cycle   2800, time = 1.20520e-01, dt = 5.51431e-05, wall = 1.78861e-01
+dt limiter: PE 308, Hydro dV/V limit for z = 1773
+End cycle   2900, time = 1.26375e-01, dt = 5.94019e-05, wall = 2.54787e-01
+dt limiter: PE 288, Hydro dV/V limit for z = 2659
+End cycle   3000, time = 1.32344e-01, dt = 6.45662e-05, wall = 3.63759e-01
+dt limiter: PE 344, Hydro dV/V limit for z = 679
+End cycle   3100, time = 1.38411e-01, dt = 6.04408e-05, wall = 2.38199e-01
+dt limiter: PE 334, Hydro dV/V limit for z = 1614
+End cycle   3200, time = 1.44578e-01, dt = 5.91285e-05, wall = 2.70098e-01
+dt limiter: PE 340, Hydro dV/V limit for z = 2463
+End cycle   3300, time = 1.50849e-01, dt = 6.08629e-05, wall = 3.39504e-01
+dt limiter: PE 358, Hydro dV/V limit for z = 360
+End cycle   3400, time = 1.57229e-01, dt = 6.79963e-05, wall = 2.20598e-01
+dt limiter: PE 356, Hydro dV/V limit for z = 1299
+End cycle   3500, time = 1.63713e-01, dt = 6.77993e-05, wall = 2.01593e-01
+dt limiter: PE 378, Hydro dV/V limit for z = 2235
+End cycle   3600, time = 1.70289e-01, dt = 6.41832e-05, wall = 2.52155e-01
+dt limiter: PE 409, Hydro dV/V limit for z = 193
+End cycle   3700, time = 1.76963e-01, dt = 6.37841e-05, wall = 2.42948e-01
+dt limiter: PE 384, Hydro dV/V limit for z = 1083
+End cycle   3800, time = 1.83737e-01, dt = 6.71446e-05, wall = 2.60427e-01
+dt limiter: PE 403, Hydro dV/V limit for z = 2020
+End cycle   3900, time = 1.90619e-01, dt = 7.64811e-05, wall = 2.34045e-01
+dt limiter: PE 427, Hydro dV/V limit for z = 52
+End cycle   4000, time = 1.97592e-01, dt = 7.07887e-05, wall = 1.96002e-01
+dt limiter: PE 417, Hydro dV/V limit for z = 950
+End cycle   4100, time = 2.04656e-01, dt = 6.80643e-05, wall = 2.16941e-01
+dt limiter: PE 429, Hydro dV/V limit for z = 1806
+End cycle   4200, time = 2.11813e-01, dt = 6.86323e-05, wall = 2.09037e-01
+dt limiter: PE 436, Hydro dV/V limit for z = 2701
+End cycle   4300, time = 2.19070e-01, dt = 7.39352e-05, wall = 2.01982e-01
+dt limiter: PE 474, Hydro dV/V limit for z = 661
+End cycle   4400, time = 2.26429e-01, dt = 7.91534e-05, wall = 1.68260e-01
+dt limiter: PE 448, Hydro dV/V limit for z = 1621
+End cycle   4500, time = 2.33873e-01, dt = 7.39101e-05, wall = 1.84432e-01
+dt limiter: PE 448, Hydro dV/V limit for z = 2562
+End cycle   4600, time = 2.41402e-01, dt = 7.20303e-05, wall = 2.25804e-01
+dt limiter: PE 488, Hydro dV/V limit for z = 507
+End cycle   4700, time = 2.49023e-01, dt = 7.36968e-05, wall = 2.36300e-01
+dt limiter: PE 506, Hydro dV/V limit for z = 1433
+End cycle   4800, time = 2.56741e-01, dt = 8.14398e-05, wall = 1.88831e-01
+dt limiter: PE 493, Hydro dV/V limit for z = 2310
+End cycle   4900, time = 2.64491e-01, dt = 8.09164e-05, wall = 2.94078e-01
+dt limiter: PE 512, Hydro dV/V limit for z = 346
+End cycle   5000, time = 2.72151e-01, dt = 7.51300e-05, wall = 1.87958e-01
+dt limiter: PE 534, Hydro dV/V limit for z = 1243
+End cycle   5100, time = 2.79801e-01, dt = 7.26873e-05, wall = 1.81591e-01
+dt limiter: PE 512, Hydro dV/V limit for z = 2100
+End cycle   5200, time = 2.87450e-01, dt = 7.34660e-05, wall = 2.42393e-01
+dt limiter: PE 570, Hydro dV/V limit for z = 84
+End cycle   5300, time = 2.95109e-01, dt = 7.95713e-05, wall = 2.33625e-01
+dt limiter: PE 545, Hydro dV/V limit for z = 968
+End cycle   5400, time = 3.02774e-01, dt = 8.09388e-05, wall = 2.58476e-01
+dt limiter: PE 548, Hydro dV/V limit for z = 1961
+End cycle   5500, time = 3.10451e-01, dt = 7.55083e-05, wall = 1.91990e-01
+dt limiter: PE 544, Hydro dV/V limit for z = 2826
+End cycle   5600, time = 3.18168e-01, dt = 7.35677e-05, wall = 2.63362e-01
+dt limiter: PE 596, Hydro dV/V limit for z = 800
+End cycle   5700, time = 3.25947e-01, dt = 7.53224e-05, wall = 1.81058e-01
+dt limiter: PE 601, Hydro dV/V limit for z = 1721
+End cycle   5800, time = 3.33797e-01, dt = 8.33176e-05, wall = 1.80167e-01
+dt limiter: PE 581, Hydro dV/V limit for z = 2639
+End cycle   5900, time = 3.41719e-01, dt = 8.27925e-05, wall = 2.06825e-01
+dt limiter: PE 621, Hydro dV/V limit for z = 637
+End cycle   6000, time = 3.49698e-01, dt = 7.78834e-05, wall = 1.86240e-01
+dt limiter: PE 616, Hydro dV/V limit for z = 1525
+End cycle   6100, time = 3.57740e-01, dt = 7.66074e-05, wall = 2.31689e-01
+dt limiter: PE 629, Hydro dV/V limit for z = 2405
+End cycle   6200, time = 3.65853e-01, dt = 7.94228e-05, wall = 2.37186e-01
+dt limiter: PE 659, Hydro dV/V limit for z = 418
+End cycle   6300, time = 3.74043e-01, dt = 8.96668e-05, wall = 2.36616e-01
+dt limiter: PE 663, Hydro dV/V limit for z = 1265
+End cycle   6400, time = 3.82293e-01, dt = 8.48614e-05, wall = 1.80619e-01
+dt limiter: PE 670, Hydro dV/V limit for z = 2258
+End cycle   6500, time = 3.90601e-01, dt = 8.04717e-05, wall = 1.84833e-01
+dt limiter: PE 697, Hydro dV/V limit for z = 225
+End cycle   6600, time = 3.98975e-01, dt = 7.97846e-05, wall = 2.54740e-01
+dt limiter: PE 700, Hydro dV/V limit for z = 1137
+End cycle   6700, time = 4.07413e-01, dt = 8.35618e-05, wall = 2.20885e-01
+dt limiter: PE 682, Hydro dV/V limit for z = 2026
+End cycle   6800, time = 4.15928e-01, dt = 9.42896e-05, wall = 2.86139e-01
+dt limiter: PE 688, Hydro dV/V limit for z = 2977
+End cycle   6900, time = 4.24500e-01, dt = 8.69236e-05, wall = 1.98442e-01
+dt limiter: PE 704, Hydro dV/V limit for z = 840
+End cycle   7000, time = 4.33131e-01, dt = 8.30350e-05, wall = 1.94626e-01
+dt limiter: PE 734, Hydro dV/V limit for z = 1751
+End cycle   7100, time = 4.41821e-01, dt = 8.29513e-05, wall = 2.37617e-01
+dt limiter: PE 734, Hydro dV/V limit for z = 2643
+End cycle   7200, time = 4.50579e-01, dt = 8.79246e-05, wall = 3.08873e-01
+dt limiter: PE 754, Hydro dV/V limit for z = 605
+End cycle   7300, time = 4.59414e-01, dt = 9.60809e-05, wall = 2.53602e-01
+dt limiter: PE 765, Hydro dV/V limit for z = 1568
+End cycle   7400, time = 4.68301e-01, dt = 8.90305e-05, wall = 2.26871e-01
+dt limiter: PE 748, Hydro dV/V limit for z = 2479
+End cycle   7500, time = 4.77244e-01, dt = 8.56544e-05, wall = 2.50634e-01
+dt limiter: PE 798, Hydro dV/V limit for z = 420
+End cycle   7600, time = 4.86247e-01, dt = 8.62171e-05, wall = 2.20875e-01
+dt limiter: PE 785, Hydro dV/V limit for z = 1363
+End cycle   7700, time = 4.95319e-01, dt = 9.25507e-05, wall = 2.29773e-01
+dt limiter: PE 792, Hydro dV/V limit for z = 2263
+End cycle   7800, time = 5.04463e-01, dt = 9.79807e-05, wall = 2.47759e-01
+dt limiter: PE 826, Hydro dV/V limit for z = 275
+End cycle   7900, time = 5.13657e-01, dt = 9.11460e-05, wall = 3.65817e-01
+dt limiter: PE 811, Hydro dV/V limit for z = 1165
+End cycle   8000, time = 5.22905e-01, dt = 8.83027e-05, wall = 3.19157e-01
+dt limiter: PE 831, Hydro dV/V limit for z = 2051
+End cycle   8100, time = 5.32215e-01, dt = 8.95277e-05, wall = 2.75470e-01
+dt limiter: PE 832, Hydro dV/V limit for z = 36
+End cycle   8200, time = 5.41596e-01, dt = 9.74795e-05, wall = 3.50283e-01
+dt limiter: PE 856, Hydro dV/V limit for z = 918
+End cycle   8300, time = 5.51040e-01, dt = 9.99288e-05, wall = 2.37077e-01
+dt limiter: PE 858, Hydro dV/V limit for z = 1910
+End cycle   8400, time = 5.60535e-01, dt = 9.33573e-05, wall = 2.49671e-01
+dt limiter: PE 851, Hydro dV/V limit for z = 2796
+End cycle   8500, time = 5.70083e-01, dt = 9.09745e-05, wall = 2.86032e-01
+dt limiter: PE 874, Hydro dV/V limit for z = 752
+End cycle   8600, time = 5.79694e-01, dt = 9.29656e-05, wall = 2.40476e-01
+dt limiter: PE 864, Hydro dV/V limit for z = 1640
+End cycle   8700, time = 5.89373e-01, dt = 1.02410e-04, wall = 2.49119e-01
+dt limiter: PE 871, Hydro dV/V limit for z = 2553
+End cycle   8800, time = 5.99115e-01, dt = 1.01905e-04, wall = 2.55065e-01
+dt limiter: PE 927, Hydro dV/V limit for z = 579
+End cycle   8900, time = 6.08903e-01, dt = 9.56043e-05, wall = 2.28813e-01
+dt limiter: PE 919, Hydro dV/V limit for z = 1466
+End cycle   9000, time = 6.18746e-01, dt = 9.36710e-05, wall = 2.19524e-01
+dt limiter: PE 912, Hydro dV/V limit for z = 2392
+End cycle   9100, time = 6.28652e-01, dt = 9.64965e-05, wall = 2.59783e-01
+dt limiter: PE 953, Hydro dV/V limit for z = 353
+End cycle   9200, time = 6.38625e-01, dt = 1.07625e-04, wall = 3.30465e-01
+dt limiter: PE 928, Hydro dV/V limit for z = 1200
+End cycle   9300, time = 6.48655e-01, dt = 1.03842e-04, wall = 2.10179e-01
+dt limiter: PE 930, Hydro dV/V limit for z = 2210
+End cycle   9400, time = 6.58733e-01, dt = 9.78685e-05, wall = 1.98212e-01
+dt limiter: PE 980, Hydro dV/V limit for z = 137
+End cycle   9500, time = 6.68866e-01, dt = 9.63927e-05, wall = 2.53195e-01
+dt limiter: PE 976, Hydro dV/V limit for z = 1077
+End cycle   9600, time = 6.79059e-01, dt = 9.99912e-05, wall = 3.06643e-01
+dt limiter: PE 960, Hydro dV/V limit for z = 1926
+End cycle   9700, time = 6.89322e-01, dt = 1.13048e-04, wall = 2.53690e-01
+dt limiter: PE 991, Hydro dV/V limit for z = 2879
+End cycle   9800, time = 6.99636e-01, dt = 1.05675e-04, wall = 3.48631e-01
+dt limiter: PE 992, Hydro dV/V limit for z = 840
+End cycle   9900, time = 7.09997e-01, dt = 1.00164e-04, wall = 2.24139e-01
+dt limiter: PE 1016, Hydro dV/V limit for z = 1792
+End cycle  10000, time = 7.20415e-01, dt = 9.91510e-05, wall = 2.27322e-01
+dt limiter: PE 998, Hydro dV/V limit for z = 2697
+End cycle  10100, time = 7.30891e-01, dt = 1.03580e-04, wall = 2.92009e-01
+dt limiter: PE 1030, Hydro dV/V limit for z = 613
+End cycle  10200, time = 7.41437e-01, dt = 1.16926e-04, wall = 2.43728e-01
+dt limiter: PE 1025, Hydro dV/V limit for z = 1579
+End cycle  10300, time = 7.52030e-01, dt = 1.07536e-04, wall = 2.90952e-01
+dt limiter: PE 1024, Hydro dV/V limit for z = 2462
+End cycle  10400, time = 7.62671e-01, dt = 1.02432e-04, wall = 3.36142e-01
+dt limiter: PE 1078, Hydro dV/V limit for z = 364
+End cycle  10500, time = 7.73367e-01, dt = 1.01904e-04, wall = 2.93991e-01
+dt limiter: PE 1060, Hydro dV/V limit for z = 1267
+End cycle  10600, time = 7.84122e-01, dt = 1.07250e-04, wall = 3.56666e-01
+dt limiter: PE 1056, Hydro dV/V limit for z = 2160
+End cycle  10700, time = 7.94946e-01, dt = 1.18592e-04, wall = 3.16342e-01
+dt limiter: PE 1111, Hydro dV/V limit for z = 222
+End cycle  10800, time = 8.05814e-01, dt = 1.09488e-04, wall = 3.53094e-01
+dt limiter: PE 1105, Hydro dV/V limit for z = 1091
+End cycle  10900, time = 8.16731e-01, dt = 1.04716e-04, wall = 3.70937e-01
+dt limiter: PE 1092, Hydro dV/V limit for z = 2010
+End cycle  11000, time = 8.27699e-01, dt = 1.04671e-04, wall = 2.49265e-01
+dt limiter: PE 1088, Hydro dV/V limit for z = 2925
+End cycle  11100, time = 8.38728e-01, dt = 1.10946e-04, wall = 3.45504e-01
+dt limiter: PE 1147, Hydro dV/V limit for z = 884
+End cycle  11200, time = 8.49827e-01, dt = 1.20289e-04, wall = 2.60650e-01
+dt limiter: PE 1120, Hydro dV/V limit for z = 1800
+End cycle  11300, time = 8.60966e-01, dt = 1.11389e-04, wall = 2.61913e-01
+dt limiter: PE 1120, Hydro dV/V limit for z = 2706
+End cycle  11400, time = 8.72153e-01, dt = 1.07025e-04, wall = 3.28264e-01
+dt limiter: PE 1158, Hydro dV/V limit for z = 680
+End cycle  11500, time = 8.83391e-01, dt = 1.07465e-04, wall = 2.32444e-01
+dt limiter: PE 1164, Hydro dV/V limit for z = 1586
+End cycle  11600, time = 8.94690e-01, dt = 1.14846e-04, wall = 2.05347e-01
+dt limiter: PE 1168, Hydro dV/V limit for z = 2488
+End cycle  11700, time = 9.06056e-01, dt = 1.22071e-04, wall = 3.08093e-01
+dt limiter: PE 1184, Hydro dV/V limit for z = 480
+End cycle  11800, time = 9.17464e-01, dt = 1.13298e-04, wall = 2.84944e-01
+dt limiter: PE 1211, Hydro dV/V limit for z = 1416
+End cycle  11900, time = 9.28915e-01, dt = 1.09340e-04, wall = 2.73419e-01
+dt limiter: PE 1188, Hydro dV/V limit for z = 2308
+End cycle  12000, time = 9.40419e-01, dt = 1.10266e-04, wall = 2.48098e-01
+dt limiter: PE 1238, Hydro dV/V limit for z = 297
+End cycle  12100, time = 9.51987e-01, dt = 1.18883e-04, wall = 2.99927e-01
+dt limiter: PE 1224, Hydro dV/V limit for z = 1195
+End cycle  12200, time = 9.63615e-01, dt = 1.23911e-04, wall = 2.32503e-01
+dt limiter: PE 1216, Hydro dV/V limit for z = 2115
+End cycle  12300, time = 9.75286e-01, dt = 1.15255e-04, wall = 2.51241e-01
+dt limiter: PE 1264, Hydro dV/V limit for z = 102
+End cycle  12400, time = 9.87000e-01, dt = 1.11651e-04, wall = 3.11396e-01
+dt limiter: PE 1259, Hydro dV/V limit for z = 998
+End cycle  12500, time = 9.98765e-01, dt = 1.13099e-04, wall = 2.59334e-01
+dt limiter: PE 1270, Hydro dV/V limit for z = 1893
+
+Run complete
+cycle =  12511,         cstop = 999999
+time  =   1.000000e+00, tstop =   1.000000e+00
+
+************************************
+hydro cycle run time=   3.038485e+01
+************************************
+Energy check:  total energy  =   9.871670e-01
+(internal =   7.630405e-01, kinetic =   2.241264e-01)
+FLUX-RUN END pennant-iter-1
+FLUX-RUN START pennant-iter-2
+********************
+Running PENNANT v0.9
+********************
+
+Running on 1408 MPI PE(s)
+Running on 1 thread(s)
+--- Mesh Information ---
+Points:  4151281
+Zones:  4147200
+Sides:  16588800
+Edges:  8448000
+Side chunks:  16896
+Point chunks:  4352
+Zone chunks:  4224
+Chunk size:  1024
+------------------------
+Energy check:  total energy  =   9.871670e-01
+(internal =   9.871670e-01, kinetic =   0.000000e+00)
+End cycle      1, time = 5.00000e-07, dt = 5.00000e-07, wall = 7.79891e-03
+dt limiter: Initial timestep
+End cycle    100, time = 2.89168e-03, dt = 3.43343e-05, wall = 1.79857e-01
+dt limiter: PE 56, Hydro dV/V limit for z = 617
+End cycle    200, time = 6.44082e-03, dt = 3.76534e-05, wall = 2.52180e-01
+dt limiter: PE 45, Hydro dV/V limit for z = 1539
+End cycle    300, time = 9.99188e-03, dt = 3.70058e-05, wall = 2.04892e-01
+dt limiter: PE 58, Hydro dV/V limit for z = 2509
+End cycle    400, time = 1.35388e-02, dt = 3.45705e-05, wall = 2.22339e-01
+dt limiter: PE 87, Hydro dV/V limit for z = 449
+End cycle    500, time = 1.70841e-02, dt = 3.36478e-05, wall = 2.25066e-01
+dt limiter: PE 86, Hydro dV/V limit for z = 1354
+End cycle    600, time = 2.06308e-02, dt = 3.43027e-05, wall = 2.02871e-01
+dt limiter: PE 86, Hydro dV/V limit for z = 2239
+End cycle    700, time = 2.41808e-02, dt = 3.76128e-05, wall = 2.21494e-01
+dt limiter: PE 118, Hydro dV/V limit for z = 231
+End cycle    800, time = 2.77318e-02, dt = 3.70350e-05, wall = 1.94826e-01
+dt limiter: PE 119, Hydro dV/V limit for z = 1175
+End cycle    900, time = 3.12796e-02, dt = 3.46260e-05, wall = 2.26930e-01
+dt limiter: PE 107, Hydro dV/V limit for z = 2064
+End cycle   1000, time = 3.48599e-02, dt = 3.44093e-05, wall = 2.82047e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 34
+End cycle   1100, time = 3.85526e-02, dt = 3.69613e-05, wall = 2.90614e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 950
+End cycle   1200, time = 4.23848e-02, dt = 4.25767e-05, wall = 2.47715e-01
+dt limiter: PE 151, Hydro dV/V limit for z = 1870
+End cycle   1300, time = 4.63472e-02, dt = 4.00476e-05, wall = 2.59987e-01
+dt limiter: PE 155, Hydro dV/V limit for z = 2770
+End cycle   1400, time = 5.04381e-02, dt = 3.95276e-05, wall = 2.97588e-01
+dt limiter: PE 165, Hydro dV/V limit for z = 722
+End cycle   1500, time = 5.46587e-02, dt = 4.13375e-05, wall = 2.93036e-01
+dt limiter: PE 166, Hydro dV/V limit for z = 1638
+End cycle   1600, time = 5.90129e-02, dt = 4.74986e-05, wall = 2.33740e-01
+dt limiter: PE 185, Hydro dV/V limit for z = 2541
+End cycle   1700, time = 6.34921e-02, dt = 4.64536e-05, wall = 2.76165e-01
+dt limiter: PE 213, Hydro dV/V limit for z = 574
+End cycle   1800, time = 6.80899e-02, dt = 4.47623e-05, wall = 2.70482e-01
+dt limiter: PE 192, Hydro dV/V limit for z = 1451
+End cycle   1900, time = 7.28083e-02, dt = 4.54671e-05, wall = 1.99996e-01
+dt limiter: PE 199, Hydro dV/V limit for z = 2378
+End cycle   2000, time = 7.76495e-02, dt = 4.95603e-05, wall = 2.78347e-01
+dt limiter: PE 230, Hydro dV/V limit for z = 354
+End cycle   2100, time = 8.26155e-02, dt = 5.34615e-05, wall = 2.49931e-01
+dt limiter: PE 247, Hydro dV/V limit for z = 1310
+End cycle   2200, time = 8.76927e-02, dt = 5.03823e-05, wall = 3.05441e-01
+dt limiter: PE 246, Hydro dV/V limit for z = 2179
+End cycle   2300, time = 9.28805e-02, dt = 4.97920e-05, wall = 2.34748e-01
+dt limiter: PE 272, Hydro dV/V limit for z = 142
+End cycle   2400, time = 9.81843e-02, dt = 5.20556e-05, wall = 1.75961e-01
+dt limiter: PE 278, Hydro dV/V limit for z = 1027
+End cycle   2500, time = 1.03607e-01, dt = 5.96991e-05, wall = 2.26287e-01
+dt limiter: PE 269, Hydro dV/V limit for z = 1969
+End cycle   2600, time = 1.09140e-01, dt = 5.69468e-05, wall = 1.52067e-01
+dt limiter: PE 267, Hydro dV/V limit for z = 2919
+End cycle   2700, time = 1.14776e-01, dt = 5.46635e-05, wall = 2.94846e-01
+dt limiter: PE 289, Hydro dV/V limit for z = 898
+End cycle   2800, time = 1.20520e-01, dt = 5.51431e-05, wall = 1.74332e-01
+dt limiter: PE 308, Hydro dV/V limit for z = 1773
+End cycle   2900, time = 1.26375e-01, dt = 5.94019e-05, wall = 2.38495e-01
+dt limiter: PE 288, Hydro dV/V limit for z = 2659
+End cycle   3000, time = 1.32344e-01, dt = 6.45662e-05, wall = 3.33095e-01
+dt limiter: PE 344, Hydro dV/V limit for z = 679
+End cycle   3100, time = 1.38411e-01, dt = 6.04408e-05, wall = 2.91659e-01
+dt limiter: PE 334, Hydro dV/V limit for z = 1614
+End cycle   3200, time = 1.44578e-01, dt = 5.91285e-05, wall = 2.37069e-01
+dt limiter: PE 340, Hydro dV/V limit for z = 2463
+End cycle   3300, time = 1.50849e-01, dt = 6.08629e-05, wall = 2.62187e-01
+dt limiter: PE 358, Hydro dV/V limit for z = 360
+End cycle   3400, time = 1.57229e-01, dt = 6.79963e-05, wall = 2.22945e-01
+dt limiter: PE 356, Hydro dV/V limit for z = 1299
+End cycle   3500, time = 1.63713e-01, dt = 6.77993e-05, wall = 2.03470e-01
+dt limiter: PE 378, Hydro dV/V limit for z = 2235
+End cycle   3600, time = 1.70289e-01, dt = 6.41832e-05, wall = 1.70729e-01
+dt limiter: PE 409, Hydro dV/V limit for z = 193
+End cycle   3700, time = 1.76963e-01, dt = 6.37841e-05, wall = 3.38126e-01
+dt limiter: PE 384, Hydro dV/V limit for z = 1083
+End cycle   3800, time = 1.83737e-01, dt = 6.71446e-05, wall = 1.67199e-01
+dt limiter: PE 403, Hydro dV/V limit for z = 2020
+End cycle   3900, time = 1.90619e-01, dt = 7.64811e-05, wall = 2.19130e-01
+dt limiter: PE 427, Hydro dV/V limit for z = 52
+End cycle   4000, time = 1.97592e-01, dt = 7.07887e-05, wall = 1.78639e-01
+dt limiter: PE 417, Hydro dV/V limit for z = 950
+End cycle   4100, time = 2.04656e-01, dt = 6.80643e-05, wall = 1.80385e-01
+dt limiter: PE 429, Hydro dV/V limit for z = 1806
+End cycle   4200, time = 2.11813e-01, dt = 6.86323e-05, wall = 1.68993e-01
+dt limiter: PE 436, Hydro dV/V limit for z = 2701
+End cycle   4300, time = 2.19070e-01, dt = 7.39352e-05, wall = 2.16479e-01
+dt limiter: PE 474, Hydro dV/V limit for z = 661
+End cycle   4400, time = 2.26429e-01, dt = 7.91534e-05, wall = 2.45197e-01
+dt limiter: PE 448, Hydro dV/V limit for z = 1621
+End cycle   4500, time = 2.33873e-01, dt = 7.39101e-05, wall = 1.68538e-01
+dt limiter: PE 448, Hydro dV/V limit for z = 2562
+End cycle   4600, time = 2.41402e-01, dt = 7.20303e-05, wall = 3.05333e-01
+dt limiter: PE 488, Hydro dV/V limit for z = 507
+End cycle   4700, time = 2.49023e-01, dt = 7.36968e-05, wall = 2.41344e-01
+dt limiter: PE 506, Hydro dV/V limit for z = 1433
+End cycle   4800, time = 2.56741e-01, dt = 8.14398e-05, wall = 1.89275e-01
+dt limiter: PE 493, Hydro dV/V limit for z = 2310
+End cycle   4900, time = 2.64491e-01, dt = 8.09164e-05, wall = 1.95328e-01
+dt limiter: PE 512, Hydro dV/V limit for z = 346
+End cycle   5000, time = 2.72151e-01, dt = 7.51300e-05, wall = 1.90135e-01
+dt limiter: PE 534, Hydro dV/V limit for z = 1243
+End cycle   5100, time = 2.79801e-01, dt = 7.26873e-05, wall = 1.75677e-01
+dt limiter: PE 512, Hydro dV/V limit for z = 2100
+End cycle   5200, time = 2.87450e-01, dt = 7.34660e-05, wall = 2.54272e-01
+dt limiter: PE 570, Hydro dV/V limit for z = 84
+End cycle   5300, time = 2.95109e-01, dt = 7.95713e-05, wall = 2.78636e-01
+dt limiter: PE 545, Hydro dV/V limit for z = 968
+End cycle   5400, time = 3.02774e-01, dt = 8.09388e-05, wall = 3.02874e-01
+dt limiter: PE 548, Hydro dV/V limit for z = 1961
+End cycle   5500, time = 3.10451e-01, dt = 7.55083e-05, wall = 2.93968e-01
+dt limiter: PE 544, Hydro dV/V limit for z = 2826
+End cycle   5600, time = 3.18168e-01, dt = 7.35677e-05, wall = 2.90760e-01
+dt limiter: PE 596, Hydro dV/V limit for z = 800
+End cycle   5700, time = 3.25947e-01, dt = 7.53224e-05, wall = 2.58617e-01
+dt limiter: PE 601, Hydro dV/V limit for z = 1721
+End cycle   5800, time = 3.33797e-01, dt = 8.33176e-05, wall = 2.08937e-01
+dt limiter: PE 581, Hydro dV/V limit for z = 2639
+End cycle   5900, time = 3.41719e-01, dt = 8.27925e-05, wall = 2.94223e-01
+dt limiter: PE 621, Hydro dV/V limit for z = 637
+End cycle   6000, time = 3.49698e-01, dt = 7.78834e-05, wall = 3.13359e-01
+dt limiter: PE 616, Hydro dV/V limit for z = 1525
+End cycle   6100, time = 3.57740e-01, dt = 7.66074e-05, wall = 2.65828e-01
+dt limiter: PE 629, Hydro dV/V limit for z = 2405
+End cycle   6200, time = 3.65853e-01, dt = 7.94228e-05, wall = 3.62433e-01
+dt limiter: PE 659, Hydro dV/V limit for z = 418
+End cycle   6300, time = 3.74043e-01, dt = 8.96668e-05, wall = 3.52365e-01
+dt limiter: PE 663, Hydro dV/V limit for z = 1265
+End cycle   6400, time = 3.82293e-01, dt = 8.48614e-05, wall = 3.47737e-01
+dt limiter: PE 670, Hydro dV/V limit for z = 2258
+End cycle   6500, time = 3.90601e-01, dt = 8.04717e-05, wall = 3.28310e-01
+dt limiter: PE 697, Hydro dV/V limit for z = 225
+End cycle   6600, time = 3.98975e-01, dt = 7.97846e-05, wall = 2.53604e-01
+dt limiter: PE 700, Hydro dV/V limit for z = 1137
+End cycle   6700, time = 4.07413e-01, dt = 8.35618e-05, wall = 2.55254e-01
+dt limiter: PE 682, Hydro dV/V limit for z = 2026
+End cycle   6800, time = 4.15928e-01, dt = 9.42896e-05, wall = 2.34139e-01
+dt limiter: PE 688, Hydro dV/V limit for z = 2977
+End cycle   6900, time = 4.24500e-01, dt = 8.69236e-05, wall = 3.23467e-01
+dt limiter: PE 704, Hydro dV/V limit for z = 840
+End cycle   7000, time = 4.33131e-01, dt = 8.30350e-05, wall = 2.31839e-01
+dt limiter: PE 734, Hydro dV/V limit for z = 1751
+End cycle   7100, time = 4.41821e-01, dt = 8.29513e-05, wall = 2.37157e-01
+dt limiter: PE 734, Hydro dV/V limit for z = 2643
+End cycle   7200, time = 4.50579e-01, dt = 8.79246e-05, wall = 3.38711e-01
+dt limiter: PE 754, Hydro dV/V limit for z = 605
+End cycle   7300, time = 4.59414e-01, dt = 9.60809e-05, wall = 2.48169e-01
+dt limiter: PE 765, Hydro dV/V limit for z = 1568
+End cycle   7400, time = 4.68301e-01, dt = 8.90305e-05, wall = 2.34939e-01
+dt limiter: PE 748, Hydro dV/V limit for z = 2479
+End cycle   7500, time = 4.77244e-01, dt = 8.56544e-05, wall = 2.53986e-01
+dt limiter: PE 798, Hydro dV/V limit for z = 420
+End cycle   7600, time = 4.86247e-01, dt = 8.62171e-05, wall = 2.21315e-01
+dt limiter: PE 785, Hydro dV/V limit for z = 1363
+End cycle   7700, time = 4.95319e-01, dt = 9.25507e-05, wall = 2.04546e-01
+dt limiter: PE 792, Hydro dV/V limit for z = 2263
+End cycle   7800, time = 5.04463e-01, dt = 9.79807e-05, wall = 2.96552e-01
+dt limiter: PE 826, Hydro dV/V limit for z = 275
+End cycle   7900, time = 5.13657e-01, dt = 9.11460e-05, wall = 3.94075e-01
+dt limiter: PE 811, Hydro dV/V limit for z = 1165
+End cycle   8000, time = 5.22905e-01, dt = 8.83027e-05, wall = 2.23218e-01
+dt limiter: PE 831, Hydro dV/V limit for z = 2051
+End cycle   8100, time = 5.32215e-01, dt = 8.95277e-05, wall = 2.07846e-01
+dt limiter: PE 832, Hydro dV/V limit for z = 36
+End cycle   8200, time = 5.41596e-01, dt = 9.74795e-05, wall = 3.55999e-01
+dt limiter: PE 856, Hydro dV/V limit for z = 918
+End cycle   8300, time = 5.51040e-01, dt = 9.99288e-05, wall = 3.07842e-01
+dt limiter: PE 858, Hydro dV/V limit for z = 1910
+End cycle   8400, time = 5.60535e-01, dt = 9.33573e-05, wall = 2.75904e-01
+dt limiter: PE 851, Hydro dV/V limit for z = 2796
+End cycle   8500, time = 5.70083e-01, dt = 9.09745e-05, wall = 2.29231e-01
+dt limiter: PE 874, Hydro dV/V limit for z = 752
+End cycle   8600, time = 5.79694e-01, dt = 9.29656e-05, wall = 2.33022e-01
+dt limiter: PE 864, Hydro dV/V limit for z = 1640
+End cycle   8700, time = 5.89373e-01, dt = 1.02410e-04, wall = 2.32869e-01
+dt limiter: PE 871, Hydro dV/V limit for z = 2553
+End cycle   8800, time = 5.99115e-01, dt = 1.01905e-04, wall = 3.13430e-01
+dt limiter: PE 927, Hydro dV/V limit for z = 579
+End cycle   8900, time = 6.08903e-01, dt = 9.56043e-05, wall = 2.96919e-01
+dt limiter: PE 919, Hydro dV/V limit for z = 1466
+End cycle   9000, time = 6.18746e-01, dt = 9.36710e-05, wall = 2.72648e-01
+dt limiter: PE 912, Hydro dV/V limit for z = 2392
+End cycle   9100, time = 6.28652e-01, dt = 9.64965e-05, wall = 2.75008e-01
+dt limiter: PE 953, Hydro dV/V limit for z = 353
+End cycle   9200, time = 6.38625e-01, dt = 1.07625e-04, wall = 2.87255e-01
+dt limiter: PE 928, Hydro dV/V limit for z = 1200
+End cycle   9300, time = 6.48655e-01, dt = 1.03842e-04, wall = 2.46761e-01
+dt limiter: PE 930, Hydro dV/V limit for z = 2210
+End cycle   9400, time = 6.58733e-01, dt = 9.78685e-05, wall = 2.19114e-01
+dt limiter: PE 980, Hydro dV/V limit for z = 137
+End cycle   9500, time = 6.68866e-01, dt = 9.63927e-05, wall = 2.11566e-01
+dt limiter: PE 976, Hydro dV/V limit for z = 1077
+End cycle   9600, time = 6.79059e-01, dt = 9.99912e-05, wall = 2.05744e-01
+dt limiter: PE 960, Hydro dV/V limit for z = 1926
+End cycle   9700, time = 6.89322e-01, dt = 1.13048e-04, wall = 2.52309e-01
+dt limiter: PE 991, Hydro dV/V limit for z = 2879
+End cycle   9800, time = 6.99636e-01, dt = 1.05675e-04, wall = 3.27050e-01
+dt limiter: PE 992, Hydro dV/V limit for z = 840
+End cycle   9900, time = 7.09997e-01, dt = 1.00164e-04, wall = 2.86758e-01
+dt limiter: PE 1016, Hydro dV/V limit for z = 1792
+End cycle  10000, time = 7.20415e-01, dt = 9.91510e-05, wall = 2.03128e-01
+dt limiter: PE 998, Hydro dV/V limit for z = 2697
+End cycle  10100, time = 7.30891e-01, dt = 1.03580e-04, wall = 2.92688e-01
+dt limiter: PE 1030, Hydro dV/V limit for z = 613
+End cycle  10200, time = 7.41437e-01, dt = 1.16926e-04, wall = 1.99672e-01
+dt limiter: PE 1025, Hydro dV/V limit for z = 1579
+End cycle  10300, time = 7.52030e-01, dt = 1.07536e-04, wall = 2.12545e-01
+dt limiter: PE 1024, Hydro dV/V limit for z = 2462
+End cycle  10400, time = 7.62671e-01, dt = 1.02432e-04, wall = 2.19062e-01
+dt limiter: PE 1078, Hydro dV/V limit for z = 364
+End cycle  10500, time = 7.73367e-01, dt = 1.01904e-04, wall = 2.30279e-01
+dt limiter: PE 1060, Hydro dV/V limit for z = 1267
+End cycle  10600, time = 7.84122e-01, dt = 1.07250e-04, wall = 2.33258e-01
+dt limiter: PE 1056, Hydro dV/V limit for z = 2160
+End cycle  10700, time = 7.94946e-01, dt = 1.18592e-04, wall = 2.73586e-01
+dt limiter: PE 1111, Hydro dV/V limit for z = 222
+End cycle  10800, time = 8.05814e-01, dt = 1.09488e-04, wall = 2.88715e-01
+dt limiter: PE 1105, Hydro dV/V limit for z = 1091
+End cycle  10900, time = 8.16731e-01, dt = 1.04716e-04, wall = 2.39120e-01
+dt limiter: PE 1092, Hydro dV/V limit for z = 2010
+End cycle  11000, time = 8.27699e-01, dt = 1.04671e-04, wall = 2.19846e-01
+dt limiter: PE 1088, Hydro dV/V limit for z = 2925
+End cycle  11100, time = 8.38728e-01, dt = 1.10946e-04, wall = 2.79820e-01
+dt limiter: PE 1147, Hydro dV/V limit for z = 884
+End cycle  11200, time = 8.49827e-01, dt = 1.20289e-04, wall = 3.44081e-01
+dt limiter: PE 1120, Hydro dV/V limit for z = 1800
+End cycle  11300, time = 8.60966e-01, dt = 1.11389e-04, wall = 2.43139e-01
+dt limiter: PE 1120, Hydro dV/V limit for z = 2706
+End cycle  11400, time = 8.72153e-01, dt = 1.07025e-04, wall = 2.76750e-01
+dt limiter: PE 1158, Hydro dV/V limit for z = 680
+End cycle  11500, time = 8.83391e-01, dt = 1.07465e-04, wall = 2.20317e-01
+dt limiter: PE 1164, Hydro dV/V limit for z = 1586
+End cycle  11600, time = 8.94690e-01, dt = 1.14846e-04, wall = 2.29622e-01
+dt limiter: PE 1168, Hydro dV/V limit for z = 2488
+End cycle  11700, time = 9.06056e-01, dt = 1.22071e-04, wall = 3.33146e-01
+dt limiter: PE 1184, Hydro dV/V limit for z = 480
+End cycle  11800, time = 9.17464e-01, dt = 1.13298e-04, wall = 2.92479e-01
+dt limiter: PE 1211, Hydro dV/V limit for z = 1416
+End cycle  11900, time = 9.28915e-01, dt = 1.09340e-04, wall = 2.38514e-01
+dt limiter: PE 1188, Hydro dV/V limit for z = 2308
+End cycle  12000, time = 9.40419e-01, dt = 1.10266e-04, wall = 2.93137e-01
+dt limiter: PE 1238, Hydro dV/V limit for z = 297
+End cycle  12100, time = 9.51987e-01, dt = 1.18883e-04, wall = 2.70262e-01
+dt limiter: PE 1224, Hydro dV/V limit for z = 1195
+End cycle  12200, time = 9.63615e-01, dt = 1.23911e-04, wall = 2.78832e-01
+dt limiter: PE 1216, Hydro dV/V limit for z = 2115
+End cycle  12300, time = 9.75286e-01, dt = 1.15255e-04, wall = 3.73940e-01
+dt limiter: PE 1264, Hydro dV/V limit for z = 102
+End cycle  12400, time = 9.87000e-01, dt = 1.11651e-04, wall = 2.88403e-01
+dt limiter: PE 1259, Hydro dV/V limit for z = 998
+End cycle  12500, time = 9.98765e-01, dt = 1.13099e-04, wall = 2.43522e-01
+dt limiter: PE 1270, Hydro dV/V limit for z = 1893
+
+Run complete
+cycle =  12511,         cstop = 999999
+time  =   1.000000e+00, tstop =   1.000000e+00
+
+************************************
+hydro cycle run time=   3.180784e+01
+************************************
+Energy check:  total energy  =   9.871670e-01
+(internal =   7.630405e-01, kinetic =   2.241264e-01)
+FLUX-RUN END pennant-iter-2
+FLUX-RUN START pennant-iter-3
+********************
+Running PENNANT v0.9
+********************
+
+Running on 1408 MPI PE(s)
+Running on 1 thread(s)
+--- Mesh Information ---
+Points:  4151281
+Zones:  4147200
+Sides:  16588800
+Edges:  8448000
+Side chunks:  16896
+Point chunks:  4352
+Zone chunks:  4224
+Chunk size:  1024
+------------------------
+Energy check:  total energy  =   9.871670e-01
+(internal =   9.871670e-01, kinetic =   0.000000e+00)
+End cycle      1, time = 5.00000e-07, dt = 5.00000e-07, wall = 8.71301e-03
+dt limiter: Initial timestep
+End cycle    100, time = 2.89168e-03, dt = 3.43343e-05, wall = 2.69578e-01
+dt limiter: PE 56, Hydro dV/V limit for z = 617
+End cycle    200, time = 6.44082e-03, dt = 3.76534e-05, wall = 1.68151e-01
+dt limiter: PE 45, Hydro dV/V limit for z = 1539
+End cycle    300, time = 9.99188e-03, dt = 3.70058e-05, wall = 2.01843e-01
+dt limiter: PE 58, Hydro dV/V limit for z = 2509
+End cycle    400, time = 1.35388e-02, dt = 3.45705e-05, wall = 2.20834e-01
+dt limiter: PE 87, Hydro dV/V limit for z = 449
+End cycle    500, time = 1.70841e-02, dt = 3.36478e-05, wall = 2.08785e-01
+dt limiter: PE 86, Hydro dV/V limit for z = 1354
+End cycle    600, time = 2.06308e-02, dt = 3.43027e-05, wall = 1.97638e-01
+dt limiter: PE 86, Hydro dV/V limit for z = 2239
+End cycle    700, time = 2.41808e-02, dt = 3.76128e-05, wall = 1.78487e-01
+dt limiter: PE 118, Hydro dV/V limit for z = 231
+End cycle    800, time = 2.77318e-02, dt = 3.70350e-05, wall = 1.85099e-01
+dt limiter: PE 119, Hydro dV/V limit for z = 1175
+End cycle    900, time = 3.12796e-02, dt = 3.46260e-05, wall = 1.73792e-01
+dt limiter: PE 107, Hydro dV/V limit for z = 2064
+End cycle   1000, time = 3.48599e-02, dt = 3.44093e-05, wall = 1.86160e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 34
+End cycle   1100, time = 3.85526e-02, dt = 3.69613e-05, wall = 2.52570e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 950
+End cycle   1200, time = 4.23848e-02, dt = 4.25767e-05, wall = 2.28683e-01
+dt limiter: PE 151, Hydro dV/V limit for z = 1870
+End cycle   1300, time = 4.63472e-02, dt = 4.00476e-05, wall = 2.93750e-01
+dt limiter: PE 155, Hydro dV/V limit for z = 2770
+End cycle   1400, time = 5.04381e-02, dt = 3.95276e-05, wall = 3.29309e-01
+dt limiter: PE 165, Hydro dV/V limit for z = 722
+End cycle   1500, time = 5.46587e-02, dt = 4.13375e-05, wall = 2.10464e-01
+dt limiter: PE 166, Hydro dV/V limit for z = 1638
+End cycle   1600, time = 5.90129e-02, dt = 4.74986e-05, wall = 2.06897e-01
+dt limiter: PE 185, Hydro dV/V limit for z = 2541
+End cycle   1700, time = 6.34921e-02, dt = 4.64536e-05, wall = 3.04159e-01
+dt limiter: PE 213, Hydro dV/V limit for z = 574
+End cycle   1800, time = 6.80899e-02, dt = 4.47623e-05, wall = 2.44374e-01
+dt limiter: PE 192, Hydro dV/V limit for z = 1451
+End cycle   1900, time = 7.28083e-02, dt = 4.54671e-05, wall = 1.57069e-01
+dt limiter: PE 199, Hydro dV/V limit for z = 2378
+End cycle   2000, time = 7.76495e-02, dt = 4.95603e-05, wall = 2.09911e-01
+dt limiter: PE 230, Hydro dV/V limit for z = 354
+End cycle   2100, time = 8.26155e-02, dt = 5.34615e-05, wall = 2.15949e-01
+dt limiter: PE 247, Hydro dV/V limit for z = 1310
+End cycle   2200, time = 8.76927e-02, dt = 5.03823e-05, wall = 2.03726e-01
+dt limiter: PE 246, Hydro dV/V limit for z = 2179
+End cycle   2300, time = 9.28805e-02, dt = 4.97920e-05, wall = 2.53930e-01
+dt limiter: PE 272, Hydro dV/V limit for z = 142
+End cycle   2400, time = 9.81843e-02, dt = 5.20556e-05, wall = 2.06948e-01
+dt limiter: PE 278, Hydro dV/V limit for z = 1027
+End cycle   2500, time = 1.03607e-01, dt = 5.96991e-05, wall = 2.44790e-01
+dt limiter: PE 269, Hydro dV/V limit for z = 1969
+End cycle   2600, time = 1.09140e-01, dt = 5.69468e-05, wall = 2.32587e-01
+dt limiter: PE 267, Hydro dV/V limit for z = 2919
+End cycle   2700, time = 1.14776e-01, dt = 5.46635e-05, wall = 3.07160e-01
+dt limiter: PE 289, Hydro dV/V limit for z = 898
+End cycle   2800, time = 1.20520e-01, dt = 5.51431e-05, wall = 2.04182e-01
+dt limiter: PE 308, Hydro dV/V limit for z = 1773
+End cycle   2900, time = 1.26375e-01, dt = 5.94019e-05, wall = 1.83387e-01
+dt limiter: PE 288, Hydro dV/V limit for z = 2659
+End cycle   3000, time = 1.32344e-01, dt = 6.45662e-05, wall = 2.57696e-01
+dt limiter: PE 344, Hydro dV/V limit for z = 679
+End cycle   3100, time = 1.38411e-01, dt = 6.04408e-05, wall = 2.15150e-01
+dt limiter: PE 334, Hydro dV/V limit for z = 1614
+End cycle   3200, time = 1.44578e-01, dt = 5.91285e-05, wall = 2.50484e-01
+dt limiter: PE 340, Hydro dV/V limit for z = 2463
+End cycle   3300, time = 1.50849e-01, dt = 6.08629e-05, wall = 2.39591e-01
+dt limiter: PE 358, Hydro dV/V limit for z = 360
+End cycle   3400, time = 1.57229e-01, dt = 6.79963e-05, wall = 2.27737e-01
+dt limiter: PE 356, Hydro dV/V limit for z = 1299
+End cycle   3500, time = 1.63713e-01, dt = 6.77993e-05, wall = 2.55491e-01
+dt limiter: PE 378, Hydro dV/V limit for z = 2235
+End cycle   3600, time = 1.70289e-01, dt = 6.41832e-05, wall = 2.73954e-01
+dt limiter: PE 409, Hydro dV/V limit for z = 193
+End cycle   3700, time = 1.76963e-01, dt = 6.37841e-05, wall = 2.32822e-01
+dt limiter: PE 384, Hydro dV/V limit for z = 1083
+End cycle   3800, time = 1.83737e-01, dt = 6.71446e-05, wall = 2.38992e-01
+dt limiter: PE 403, Hydro dV/V limit for z = 2020
+End cycle   3900, time = 1.90619e-01, dt = 7.64811e-05, wall = 3.10939e-01
+dt limiter: PE 427, Hydro dV/V limit for z = 52
+End cycle   4000, time = 1.97592e-01, dt = 7.07887e-05, wall = 2.10267e-01
+dt limiter: PE 417, Hydro dV/V limit for z = 950
+End cycle   4100, time = 2.04656e-01, dt = 6.80643e-05, wall = 2.26179e-01
+dt limiter: PE 429, Hydro dV/V limit for z = 1806
+End cycle   4200, time = 2.11813e-01, dt = 6.86323e-05, wall = 2.24246e-01
+dt limiter: PE 436, Hydro dV/V limit for z = 2701
+End cycle   4300, time = 2.19070e-01, dt = 7.39352e-05, wall = 2.18277e-01
+dt limiter: PE 474, Hydro dV/V limit for z = 661
+End cycle   4400, time = 2.26429e-01, dt = 7.91534e-05, wall = 2.61894e-01
+dt limiter: PE 448, Hydro dV/V limit for z = 1621
+End cycle   4500, time = 2.33873e-01, dt = 7.39101e-05, wall = 2.46428e-01
+dt limiter: PE 448, Hydro dV/V limit for z = 2562
+End cycle   4600, time = 2.41402e-01, dt = 7.20303e-05, wall = 2.88253e-01
+dt limiter: PE 488, Hydro dV/V limit for z = 507
+End cycle   4700, time = 2.49023e-01, dt = 7.36968e-05, wall = 2.27686e-01
+dt limiter: PE 506, Hydro dV/V limit for z = 1433
+End cycle   4800, time = 2.56741e-01, dt = 8.14398e-05, wall = 1.78713e-01
+dt limiter: PE 493, Hydro dV/V limit for z = 2310
+End cycle   4900, time = 2.64491e-01, dt = 8.09164e-05, wall = 2.40024e-01
+dt limiter: PE 512, Hydro dV/V limit for z = 346
+End cycle   5000, time = 2.72151e-01, dt = 7.51300e-05, wall = 1.69941e-01
+dt limiter: PE 534, Hydro dV/V limit for z = 1243
+End cycle   5100, time = 2.79801e-01, dt = 7.26873e-05, wall = 2.27986e-01
+dt limiter: PE 512, Hydro dV/V limit for z = 2100
+End cycle   5200, time = 2.87450e-01, dt = 7.34660e-05, wall = 2.51910e-01
+dt limiter: PE 570, Hydro dV/V limit for z = 84
+End cycle   5300, time = 2.95109e-01, dt = 7.95713e-05, wall = 2.30101e-01
+dt limiter: PE 545, Hydro dV/V limit for z = 968
+End cycle   5400, time = 3.02774e-01, dt = 8.09388e-05, wall = 2.36722e-01
+dt limiter: PE 548, Hydro dV/V limit for z = 1961
+End cycle   5500, time = 3.10451e-01, dt = 7.55083e-05, wall = 2.12114e-01
+dt limiter: PE 544, Hydro dV/V limit for z = 2826
+End cycle   5600, time = 3.18168e-01, dt = 7.35677e-05, wall = 2.37652e-01
+dt limiter: PE 596, Hydro dV/V limit for z = 800
+End cycle   5700, time = 3.25947e-01, dt = 7.53224e-05, wall = 2.24448e-01
+dt limiter: PE 601, Hydro dV/V limit for z = 1721
+End cycle   5800, time = 3.33797e-01, dt = 8.33176e-05, wall = 2.02440e-01
+dt limiter: PE 581, Hydro dV/V limit for z = 2639
+End cycle   5900, time = 3.41719e-01, dt = 8.27925e-05, wall = 2.11948e-01
+dt limiter: PE 621, Hydro dV/V limit for z = 637
+End cycle   6000, time = 3.49698e-01, dt = 7.78834e-05, wall = 1.62225e-01
+dt limiter: PE 616, Hydro dV/V limit for z = 1525
+End cycle   6100, time = 3.57740e-01, dt = 7.66074e-05, wall = 1.77772e-01
+dt limiter: PE 629, Hydro dV/V limit for z = 2405
+End cycle   6200, time = 3.65853e-01, dt = 7.94228e-05, wall = 3.13071e-01
+dt limiter: PE 659, Hydro dV/V limit for z = 418
+End cycle   6300, time = 3.74043e-01, dt = 8.96668e-05, wall = 2.61533e-01
+dt limiter: PE 663, Hydro dV/V limit for z = 1265
+End cycle   6400, time = 3.82293e-01, dt = 8.48614e-05, wall = 2.74088e-01
+dt limiter: PE 670, Hydro dV/V limit for z = 2258
+End cycle   6500, time = 3.90601e-01, dt = 8.04717e-05, wall = 3.25926e-01
+dt limiter: PE 697, Hydro dV/V limit for z = 225
+End cycle   6600, time = 3.98975e-01, dt = 7.97846e-05, wall = 2.03012e-01
+dt limiter: PE 700, Hydro dV/V limit for z = 1137
+End cycle   6700, time = 4.07413e-01, dt = 8.35618e-05, wall = 3.58397e-01
+dt limiter: PE 682, Hydro dV/V limit for z = 2026
+End cycle   6800, time = 4.15928e-01, dt = 9.42896e-05, wall = 2.61931e-01
+dt limiter: PE 688, Hydro dV/V limit for z = 2977
+End cycle   6900, time = 4.24500e-01, dt = 8.69236e-05, wall = 2.58586e-01
+dt limiter: PE 704, Hydro dV/V limit for z = 840
+End cycle   7000, time = 4.33131e-01, dt = 8.30350e-05, wall = 2.99565e-01
+dt limiter: PE 734, Hydro dV/V limit for z = 1751
+End cycle   7100, time = 4.41821e-01, dt = 8.29513e-05, wall = 3.59164e-01
+dt limiter: PE 734, Hydro dV/V limit for z = 2643
+End cycle   7200, time = 4.50579e-01, dt = 8.79246e-05, wall = 3.33879e-01
+dt limiter: PE 754, Hydro dV/V limit for z = 605
+End cycle   7300, time = 4.59414e-01, dt = 9.60809e-05, wall = 3.29443e-01
+dt limiter: PE 765, Hydro dV/V limit for z = 1568
+End cycle   7400, time = 4.68301e-01, dt = 8.90305e-05, wall = 2.63459e-01
+dt limiter: PE 748, Hydro dV/V limit for z = 2479
+End cycle   7500, time = 4.77244e-01, dt = 8.56544e-05, wall = 2.30933e-01
+dt limiter: PE 798, Hydro dV/V limit for z = 420
+End cycle   7600, time = 4.86247e-01, dt = 8.62171e-05, wall = 3.55222e-01
+dt limiter: PE 785, Hydro dV/V limit for z = 1363
+End cycle   7700, time = 4.95319e-01, dt = 9.25507e-05, wall = 2.75788e-01
+dt limiter: PE 792, Hydro dV/V limit for z = 2263
+End cycle   7800, time = 5.04463e-01, dt = 9.79807e-05, wall = 2.59401e-01
+dt limiter: PE 826, Hydro dV/V limit for z = 275
+End cycle   7900, time = 5.13657e-01, dt = 9.11460e-05, wall = 3.53880e-01
+dt limiter: PE 811, Hydro dV/V limit for z = 1165
+End cycle   8000, time = 5.22905e-01, dt = 8.83027e-05, wall = 2.07661e-01
+dt limiter: PE 831, Hydro dV/V limit for z = 2051
+End cycle   8100, time = 5.32215e-01, dt = 8.95277e-05, wall = 2.29169e-01
+dt limiter: PE 832, Hydro dV/V limit for z = 36
+End cycle   8200, time = 5.41596e-01, dt = 9.74795e-05, wall = 3.05083e-01
+dt limiter: PE 856, Hydro dV/V limit for z = 918
+End cycle   8300, time = 5.51040e-01, dt = 9.99288e-05, wall = 2.46132e-01
+dt limiter: PE 858, Hydro dV/V limit for z = 1910
+End cycle   8400, time = 5.60535e-01, dt = 9.33573e-05, wall = 2.36209e-01
+dt limiter: PE 851, Hydro dV/V limit for z = 2796
+End cycle   8500, time = 5.70083e-01, dt = 9.09745e-05, wall = 3.49226e-01
+dt limiter: PE 874, Hydro dV/V limit for z = 752
+End cycle   8600, time = 5.79694e-01, dt = 9.29656e-05, wall = 2.14392e-01
+dt limiter: PE 864, Hydro dV/V limit for z = 1640
+End cycle   8700, time = 5.89373e-01, dt = 1.02410e-04, wall = 2.51254e-01
+dt limiter: PE 871, Hydro dV/V limit for z = 2553
+End cycle   8800, time = 5.99115e-01, dt = 1.01905e-04, wall = 2.80851e-01
+dt limiter: PE 927, Hydro dV/V limit for z = 579
+End cycle   8900, time = 6.08903e-01, dt = 9.56043e-05, wall = 2.30075e-01
+dt limiter: PE 919, Hydro dV/V limit for z = 1466
+End cycle   9000, time = 6.18746e-01, dt = 9.36710e-05, wall = 1.98633e-01
+dt limiter: PE 912, Hydro dV/V limit for z = 2392
+End cycle   9100, time = 6.28652e-01, dt = 9.64965e-05, wall = 2.59449e-01
+dt limiter: PE 953, Hydro dV/V limit for z = 353
+End cycle   9200, time = 6.38625e-01, dt = 1.07625e-04, wall = 2.16022e-01
+dt limiter: PE 928, Hydro dV/V limit for z = 1200
+End cycle   9300, time = 6.48655e-01, dt = 1.03842e-04, wall = 2.17661e-01
+dt limiter: PE 930, Hydro dV/V limit for z = 2210
+End cycle   9400, time = 6.58733e-01, dt = 9.78685e-05, wall = 2.07548e-01
+dt limiter: PE 980, Hydro dV/V limit for z = 137
+End cycle   9500, time = 6.68866e-01, dt = 9.63927e-05, wall = 2.54127e-01
+dt limiter: PE 976, Hydro dV/V limit for z = 1077
+End cycle   9600, time = 6.79059e-01, dt = 9.99912e-05, wall = 2.05503e-01
+dt limiter: PE 960, Hydro dV/V limit for z = 1926
+End cycle   9700, time = 6.89322e-01, dt = 1.13048e-04, wall = 2.21262e-01
+dt limiter: PE 991, Hydro dV/V limit for z = 2879
+End cycle   9800, time = 6.99636e-01, dt = 1.05675e-04, wall = 3.44082e-01
+dt limiter: PE 992, Hydro dV/V limit for z = 840
+End cycle   9900, time = 7.09997e-01, dt = 1.00164e-04, wall = 3.00759e-01
+dt limiter: PE 1016, Hydro dV/V limit for z = 1792
+End cycle  10000, time = 7.20415e-01, dt = 9.91510e-05, wall = 2.52681e-01
+dt limiter: PE 998, Hydro dV/V limit for z = 2697
+End cycle  10100, time = 7.30891e-01, dt = 1.03580e-04, wall = 2.29547e-01
+dt limiter: PE 1030, Hydro dV/V limit for z = 613
+End cycle  10200, time = 7.41437e-01, dt = 1.16926e-04, wall = 2.65529e-01
+dt limiter: PE 1025, Hydro dV/V limit for z = 1579
+End cycle  10300, time = 7.52030e-01, dt = 1.07536e-04, wall = 3.09426e-01
+dt limiter: PE 1024, Hydro dV/V limit for z = 2462
+End cycle  10400, time = 7.62671e-01, dt = 1.02432e-04, wall = 3.19314e-01
+dt limiter: PE 1078, Hydro dV/V limit for z = 364
+End cycle  10500, time = 7.73367e-01, dt = 1.01904e-04, wall = 3.46679e-01
+dt limiter: PE 1060, Hydro dV/V limit for z = 1267
+End cycle  10600, time = 7.84122e-01, dt = 1.07250e-04, wall = 2.34110e-01
+dt limiter: PE 1056, Hydro dV/V limit for z = 2160
+End cycle  10700, time = 7.94946e-01, dt = 1.18592e-04, wall = 2.90755e-01
+dt limiter: PE 1111, Hydro dV/V limit for z = 222
+End cycle  10800, time = 8.05814e-01, dt = 1.09488e-04, wall = 3.19452e-01
+dt limiter: PE 1105, Hydro dV/V limit for z = 1091
+End cycle  10900, time = 8.16731e-01, dt = 1.04716e-04, wall = 2.40166e-01
+dt limiter: PE 1092, Hydro dV/V limit for z = 2010
+End cycle  11000, time = 8.27699e-01, dt = 1.04671e-04, wall = 2.50312e-01
+dt limiter: PE 1088, Hydro dV/V limit for z = 2925
+End cycle  11100, time = 8.38728e-01, dt = 1.10946e-04, wall = 2.59792e-01
+dt limiter: PE 1147, Hydro dV/V limit for z = 884
+End cycle  11200, time = 8.49827e-01, dt = 1.20289e-04, wall = 3.10069e-01
+dt limiter: PE 1120, Hydro dV/V limit for z = 1800
+End cycle  11300, time = 8.60966e-01, dt = 1.11389e-04, wall = 3.00206e-01
+dt limiter: PE 1120, Hydro dV/V limit for z = 2706
+End cycle  11400, time = 8.72153e-01, dt = 1.07025e-04, wall = 3.27959e-01
+dt limiter: PE 1158, Hydro dV/V limit for z = 680
+End cycle  11500, time = 8.83391e-01, dt = 1.07465e-04, wall = 3.03102e-01
+dt limiter: PE 1164, Hydro dV/V limit for z = 1586
+End cycle  11600, time = 8.94690e-01, dt = 1.14846e-04, wall = 2.92270e-01
+dt limiter: PE 1168, Hydro dV/V limit for z = 2488
+End cycle  11700, time = 9.06056e-01, dt = 1.22071e-04, wall = 3.47962e-01
+dt limiter: PE 1184, Hydro dV/V limit for z = 480
+End cycle  11800, time = 9.17464e-01, dt = 1.13298e-04, wall = 2.89585e-01
+dt limiter: PE 1211, Hydro dV/V limit for z = 1416
+End cycle  11900, time = 9.28915e-01, dt = 1.09340e-04, wall = 2.50966e-01
+dt limiter: PE 1188, Hydro dV/V limit for z = 2308
+End cycle  12000, time = 9.40419e-01, dt = 1.10266e-04, wall = 3.10762e-01
+dt limiter: PE 1238, Hydro dV/V limit for z = 297
+End cycle  12100, time = 9.51987e-01, dt = 1.18883e-04, wall = 2.54083e-01
+dt limiter: PE 1224, Hydro dV/V limit for z = 1195
+End cycle  12200, time = 9.63615e-01, dt = 1.23911e-04, wall = 2.18092e-01
+dt limiter: PE 1216, Hydro dV/V limit for z = 2115
+End cycle  12300, time = 9.75286e-01, dt = 1.15255e-04, wall = 2.36712e-01
+dt limiter: PE 1264, Hydro dV/V limit for z = 102
+End cycle  12400, time = 9.87000e-01, dt = 1.11651e-04, wall = 3.33678e-01
+dt limiter: PE 1259, Hydro dV/V limit for z = 998
+End cycle  12500, time = 9.98765e-01, dt = 1.13099e-04, wall = 2.44902e-01
+dt limiter: PE 1270, Hydro dV/V limit for z = 1893
+
+Run complete
+cycle =  12511,         cstop = 999999
+time  =   1.000000e+00, tstop =   1.000000e+00
+
+************************************
+hydro cycle run time=   3.151554e+01
+************************************
+Energy check:  total energy  =   9.871670e-01
+(internal =   7.630405e-01, kinetic =   2.241264e-01)
+FLUX-RUN END pennant-iter-3
+FLUX-RUN START pennant-iter-4
+********************
+Running PENNANT v0.9
+********************
+
+Running on 1408 MPI PE(s)
+Running on 1 thread(s)
+--- Mesh Information ---
+Points:  4151281
+Zones:  4147200
+Sides:  16588800
+Edges:  8448000
+Side chunks:  16896
+Point chunks:  4352
+Zone chunks:  4224
+Chunk size:  1024
+------------------------
+Energy check:  total energy  =   9.871670e-01
+(internal =   9.871670e-01, kinetic =   0.000000e+00)
+End cycle      1, time = 5.00000e-07, dt = 5.00000e-07, wall = 7.52687e-03
+dt limiter: Initial timestep
+End cycle    100, time = 2.89168e-03, dt = 3.43343e-05, wall = 2.09850e-01
+dt limiter: PE 56, Hydro dV/V limit for z = 617
+End cycle    200, time = 6.44082e-03, dt = 3.76534e-05, wall = 2.47730e-01
+dt limiter: PE 45, Hydro dV/V limit for z = 1539
+End cycle    300, time = 9.99188e-03, dt = 3.70058e-05, wall = 3.28736e-01
+dt limiter: PE 58, Hydro dV/V limit for z = 2509
+End cycle    400, time = 1.35388e-02, dt = 3.45705e-05, wall = 1.93923e-01
+dt limiter: PE 87, Hydro dV/V limit for z = 449
+End cycle    500, time = 1.70841e-02, dt = 3.36478e-05, wall = 1.76349e-01
+dt limiter: PE 86, Hydro dV/V limit for z = 1354
+End cycle    600, time = 2.06308e-02, dt = 3.43027e-05, wall = 1.63645e-01
+dt limiter: PE 86, Hydro dV/V limit for z = 2239
+End cycle    700, time = 2.41808e-02, dt = 3.76128e-05, wall = 1.89260e-01
+dt limiter: PE 118, Hydro dV/V limit for z = 231
+End cycle    800, time = 2.77318e-02, dt = 3.70350e-05, wall = 2.27792e-01
+dt limiter: PE 119, Hydro dV/V limit for z = 1175
+End cycle    900, time = 3.12796e-02, dt = 3.46260e-05, wall = 2.15222e-01
+dt limiter: PE 107, Hydro dV/V limit for z = 2064
+End cycle   1000, time = 3.48599e-02, dt = 3.44093e-05, wall = 4.00826e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 34
+End cycle   1100, time = 3.85526e-02, dt = 3.69613e-05, wall = 2.45855e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 950
+End cycle   1200, time = 4.23848e-02, dt = 4.25767e-05, wall = 2.21603e-01
+dt limiter: PE 151, Hydro dV/V limit for z = 1870
+End cycle   1300, time = 4.63472e-02, dt = 4.00476e-05, wall = 2.27145e-01
+dt limiter: PE 155, Hydro dV/V limit for z = 2770
+End cycle   1400, time = 5.04381e-02, dt = 3.95276e-05, wall = 1.77505e-01
+dt limiter: PE 165, Hydro dV/V limit for z = 722
+End cycle   1500, time = 5.46587e-02, dt = 4.13375e-05, wall = 2.35423e-01
+dt limiter: PE 166, Hydro dV/V limit for z = 1638
+End cycle   1600, time = 5.90129e-02, dt = 4.74986e-05, wall = 2.34671e-01
+dt limiter: PE 185, Hydro dV/V limit for z = 2541
+End cycle   1700, time = 6.34921e-02, dt = 4.64536e-05, wall = 2.40489e-01
+dt limiter: PE 213, Hydro dV/V limit for z = 574
+End cycle   1800, time = 6.80899e-02, dt = 4.47623e-05, wall = 2.27183e-01
+dt limiter: PE 192, Hydro dV/V limit for z = 1451
+End cycle   1900, time = 7.28083e-02, dt = 4.54671e-05, wall = 1.72107e-01
+dt limiter: PE 199, Hydro dV/V limit for z = 2378
+End cycle   2000, time = 7.76495e-02, dt = 4.95603e-05, wall = 2.22950e-01
+dt limiter: PE 230, Hydro dV/V limit for z = 354
+End cycle   2100, time = 8.26155e-02, dt = 5.34615e-05, wall = 2.76316e-01
+dt limiter: PE 247, Hydro dV/V limit for z = 1310
+End cycle   2200, time = 8.76927e-02, dt = 5.03823e-05, wall = 2.18869e-01
+dt limiter: PE 246, Hydro dV/V limit for z = 2179
+End cycle   2300, time = 9.28805e-02, dt = 4.97920e-05, wall = 2.46231e-01
+dt limiter: PE 272, Hydro dV/V limit for z = 142
+End cycle   2400, time = 9.81843e-02, dt = 5.20556e-05, wall = 1.94920e-01
+dt limiter: PE 278, Hydro dV/V limit for z = 1027
+End cycle   2500, time = 1.03607e-01, dt = 5.96991e-05, wall = 2.05230e-01
+dt limiter: PE 269, Hydro dV/V limit for z = 1969
+End cycle   2600, time = 1.09140e-01, dt = 5.69468e-05, wall = 2.14867e-01
+dt limiter: PE 267, Hydro dV/V limit for z = 2919
+End cycle   2700, time = 1.14776e-01, dt = 5.46635e-05, wall = 3.56471e-01
+dt limiter: PE 289, Hydro dV/V limit for z = 898
+End cycle   2800, time = 1.20520e-01, dt = 5.51431e-05, wall = 2.01211e-01
+dt limiter: PE 308, Hydro dV/V limit for z = 1773
+End cycle   2900, time = 1.26375e-01, dt = 5.94019e-05, wall = 1.98409e-01
+dt limiter: PE 288, Hydro dV/V limit for z = 2659
+End cycle   3000, time = 1.32344e-01, dt = 6.45662e-05, wall = 2.48835e-01
+dt limiter: PE 344, Hydro dV/V limit for z = 679
+End cycle   3100, time = 1.38411e-01, dt = 6.04408e-05, wall = 1.82615e-01
+dt limiter: PE 334, Hydro dV/V limit for z = 1614
+End cycle   3200, time = 1.44578e-01, dt = 5.91285e-05, wall = 1.65683e-01
+dt limiter: PE 340, Hydro dV/V limit for z = 2463
+End cycle   3300, time = 1.50849e-01, dt = 6.08629e-05, wall = 1.88871e-01
+dt limiter: PE 358, Hydro dV/V limit for z = 360
+End cycle   3400, time = 1.57229e-01, dt = 6.79963e-05, wall = 2.01072e-01
+dt limiter: PE 356, Hydro dV/V limit for z = 1299
+End cycle   3500, time = 1.63713e-01, dt = 6.77993e-05, wall = 1.64491e-01
+dt limiter: PE 378, Hydro dV/V limit for z = 2235
+End cycle   3600, time = 1.70289e-01, dt = 6.41832e-05, wall = 2.31072e-01
+dt limiter: PE 409, Hydro dV/V limit for z = 193
+End cycle   3700, time = 1.76963e-01, dt = 6.37841e-05, wall = 2.92221e-01
+dt limiter: PE 384, Hydro dV/V limit for z = 1083
+End cycle   3800, time = 1.83737e-01, dt = 6.71446e-05, wall = 1.93394e-01
+dt limiter: PE 403, Hydro dV/V limit for z = 2020
+End cycle   3900, time = 1.90619e-01, dt = 7.64811e-05, wall = 2.07487e-01
+dt limiter: PE 427, Hydro dV/V limit for z = 52
+End cycle   4000, time = 1.97592e-01, dt = 7.07887e-05, wall = 2.65905e-01
+dt limiter: PE 417, Hydro dV/V limit for z = 950
+End cycle   4100, time = 2.04656e-01, dt = 6.80643e-05, wall = 2.17270e-01
+dt limiter: PE 429, Hydro dV/V limit for z = 1806
+End cycle   4200, time = 2.11813e-01, dt = 6.86323e-05, wall = 2.42109e-01
+dt limiter: PE 436, Hydro dV/V limit for z = 2701
+End cycle   4300, time = 2.19070e-01, dt = 7.39352e-05, wall = 2.79041e-01
+dt limiter: PE 474, Hydro dV/V limit for z = 661
+End cycle   4400, time = 2.26429e-01, dt = 7.91534e-05, wall = 2.76319e-01
+dt limiter: PE 448, Hydro dV/V limit for z = 1621
+End cycle   4500, time = 2.33873e-01, dt = 7.39101e-05, wall = 2.59420e-01
+dt limiter: PE 448, Hydro dV/V limit for z = 2562
+End cycle   4600, time = 2.41402e-01, dt = 7.20303e-05, wall = 3.52485e-01
+dt limiter: PE 488, Hydro dV/V limit for z = 507
+End cycle   4700, time = 2.49023e-01, dt = 7.36968e-05, wall = 2.29487e-01
+dt limiter: PE 506, Hydro dV/V limit for z = 1433
+End cycle   4800, time = 2.56741e-01, dt = 8.14398e-05, wall = 2.16102e-01
+dt limiter: PE 493, Hydro dV/V limit for z = 2310
+End cycle   4900, time = 2.64491e-01, dt = 8.09164e-05, wall = 2.35385e-01
+dt limiter: PE 512, Hydro dV/V limit for z = 346
+End cycle   5000, time = 2.72151e-01, dt = 7.51300e-05, wall = 2.26489e-01
+dt limiter: PE 534, Hydro dV/V limit for z = 1243
+End cycle   5100, time = 2.79801e-01, dt = 7.26873e-05, wall = 2.19071e-01
+dt limiter: PE 512, Hydro dV/V limit for z = 2100
+End cycle   5200, time = 2.87450e-01, dt = 7.34660e-05, wall = 2.39121e-01
+dt limiter: PE 570, Hydro dV/V limit for z = 84
+End cycle   5300, time = 2.95109e-01, dt = 7.95713e-05, wall = 2.19280e-01
+dt limiter: PE 545, Hydro dV/V limit for z = 968
+End cycle   5400, time = 3.02774e-01, dt = 8.09388e-05, wall = 2.09644e-01
+dt limiter: PE 548, Hydro dV/V limit for z = 1961
+End cycle   5500, time = 3.10451e-01, dt = 7.55083e-05, wall = 2.23088e-01
+dt limiter: PE 544, Hydro dV/V limit for z = 2826
+End cycle   5600, time = 3.18168e-01, dt = 7.35677e-05, wall = 2.81638e-01
+dt limiter: PE 596, Hydro dV/V limit for z = 800
+End cycle   5700, time = 3.25947e-01, dt = 7.53224e-05, wall = 2.43188e-01
+dt limiter: PE 601, Hydro dV/V limit for z = 1721
+End cycle   5800, time = 3.33797e-01, dt = 8.33176e-05, wall = 1.64699e-01
+dt limiter: PE 581, Hydro dV/V limit for z = 2639
+End cycle   5900, time = 3.41719e-01, dt = 8.27925e-05, wall = 1.88983e-01
+dt limiter: PE 621, Hydro dV/V limit for z = 637
+End cycle   6000, time = 3.49698e-01, dt = 7.78834e-05, wall = 1.82645e-01
+dt limiter: PE 616, Hydro dV/V limit for z = 1525
+End cycle   6100, time = 3.57740e-01, dt = 7.66074e-05, wall = 2.07550e-01
+dt limiter: PE 629, Hydro dV/V limit for z = 2405
+End cycle   6200, time = 3.65853e-01, dt = 7.94228e-05, wall = 2.80243e-01
+dt limiter: PE 659, Hydro dV/V limit for z = 418
+End cycle   6300, time = 3.74043e-01, dt = 8.96668e-05, wall = 2.34390e-01
+dt limiter: PE 663, Hydro dV/V limit for z = 1265
+End cycle   6400, time = 3.82293e-01, dt = 8.48614e-05, wall = 1.66396e-01
+dt limiter: PE 670, Hydro dV/V limit for z = 2258
+End cycle   6500, time = 3.90601e-01, dt = 8.04717e-05, wall = 2.73633e-01
+dt limiter: PE 697, Hydro dV/V limit for z = 225
+End cycle   6600, time = 3.98975e-01, dt = 7.97846e-05, wall = 2.91913e-01
+dt limiter: PE 700, Hydro dV/V limit for z = 1137
+End cycle   6700, time = 4.07413e-01, dt = 8.35618e-05, wall = 2.73208e-01
+dt limiter: PE 682, Hydro dV/V limit for z = 2026
+End cycle   6800, time = 4.15928e-01, dt = 9.42896e-05, wall = 2.31108e-01
+dt limiter: PE 688, Hydro dV/V limit for z = 2977
+End cycle   6900, time = 4.24500e-01, dt = 8.69236e-05, wall = 2.42287e-01
+dt limiter: PE 704, Hydro dV/V limit for z = 840
+End cycle   7000, time = 4.33131e-01, dt = 8.30350e-05, wall = 1.83787e-01
+dt limiter: PE 734, Hydro dV/V limit for z = 1751
+End cycle   7100, time = 4.41821e-01, dt = 8.29513e-05, wall = 2.06602e-01
+dt limiter: PE 734, Hydro dV/V limit for z = 2643
+End cycle   7200, time = 4.50579e-01, dt = 8.79246e-05, wall = 3.07511e-01
+dt limiter: PE 754, Hydro dV/V limit for z = 605
+End cycle   7300, time = 4.59414e-01, dt = 9.60809e-05, wall = 2.52179e-01
+dt limiter: PE 765, Hydro dV/V limit for z = 1568
+End cycle   7400, time = 4.68301e-01, dt = 8.90305e-05, wall = 2.01761e-01
+dt limiter: PE 748, Hydro dV/V limit for z = 2479
+End cycle   7500, time = 4.77244e-01, dt = 8.56544e-05, wall = 1.94485e-01
+dt limiter: PE 798, Hydro dV/V limit for z = 420
+End cycle   7600, time = 4.86247e-01, dt = 8.62171e-05, wall = 2.00004e-01
+dt limiter: PE 785, Hydro dV/V limit for z = 1363
+End cycle   7700, time = 4.95319e-01, dt = 9.25507e-05, wall = 2.04626e-01
+dt limiter: PE 792, Hydro dV/V limit for z = 2263
+End cycle   7800, time = 5.04463e-01, dt = 9.79807e-05, wall = 2.30162e-01
+dt limiter: PE 826, Hydro dV/V limit for z = 275
+End cycle   7900, time = 5.13657e-01, dt = 9.11460e-05, wall = 2.85706e-01
+dt limiter: PE 811, Hydro dV/V limit for z = 1165
+End cycle   8000, time = 5.22905e-01, dt = 8.83027e-05, wall = 3.45500e-01
+dt limiter: PE 831, Hydro dV/V limit for z = 2051
+End cycle   8100, time = 5.32215e-01, dt = 8.95277e-05, wall = 2.04881e-01
+dt limiter: PE 832, Hydro dV/V limit for z = 36
+End cycle   8200, time = 5.41596e-01, dt = 9.74795e-05, wall = 3.59927e-01
+dt limiter: PE 856, Hydro dV/V limit for z = 918
+End cycle   8300, time = 5.51040e-01, dt = 9.99288e-05, wall = 2.32973e-01
+dt limiter: PE 858, Hydro dV/V limit for z = 1910
+End cycle   8400, time = 5.60535e-01, dt = 9.33573e-05, wall = 1.88419e-01
+dt limiter: PE 851, Hydro dV/V limit for z = 2796
+End cycle   8500, time = 5.70083e-01, dt = 9.09745e-05, wall = 2.61959e-01
+dt limiter: PE 874, Hydro dV/V limit for z = 752
+End cycle   8600, time = 5.79694e-01, dt = 9.29656e-05, wall = 2.75260e-01
+dt limiter: PE 864, Hydro dV/V limit for z = 1640
+End cycle   8700, time = 5.89373e-01, dt = 1.02410e-04, wall = 2.47366e-01
+dt limiter: PE 871, Hydro dV/V limit for z = 2553
+End cycle   8800, time = 5.99115e-01, dt = 1.01905e-04, wall = 3.41114e-01
+dt limiter: PE 927, Hydro dV/V limit for z = 579
+End cycle   8900, time = 6.08903e-01, dt = 9.56043e-05, wall = 2.63662e-01
+dt limiter: PE 919, Hydro dV/V limit for z = 1466
+End cycle   9000, time = 6.18746e-01, dt = 9.36710e-05, wall = 2.12098e-01
+dt limiter: PE 912, Hydro dV/V limit for z = 2392
+End cycle   9100, time = 6.28652e-01, dt = 9.64965e-05, wall = 2.41821e-01
+dt limiter: PE 953, Hydro dV/V limit for z = 353
+End cycle   9200, time = 6.38625e-01, dt = 1.07625e-04, wall = 2.34328e-01
+dt limiter: PE 928, Hydro dV/V limit for z = 1200
+End cycle   9300, time = 6.48655e-01, dt = 1.03842e-04, wall = 2.24803e-01
+dt limiter: PE 930, Hydro dV/V limit for z = 2210
+End cycle   9400, time = 6.58733e-01, dt = 9.78685e-05, wall = 2.42894e-01
+dt limiter: PE 980, Hydro dV/V limit for z = 137
+End cycle   9500, time = 6.68866e-01, dt = 9.63927e-05, wall = 2.39872e-01
+dt limiter: PE 976, Hydro dV/V limit for z = 1077
+End cycle   9600, time = 6.79059e-01, dt = 9.99912e-05, wall = 2.81397e-01
+dt limiter: PE 960, Hydro dV/V limit for z = 1926
+End cycle   9700, time = 6.89322e-01, dt = 1.13048e-04, wall = 2.60380e-01
+dt limiter: PE 991, Hydro dV/V limit for z = 2879
+End cycle   9800, time = 6.99636e-01, dt = 1.05675e-04, wall = 3.71351e-01
+dt limiter: PE 992, Hydro dV/V limit for z = 840
+End cycle   9900, time = 7.09997e-01, dt = 1.00164e-04, wall = 2.50337e-01
+dt limiter: PE 1016, Hydro dV/V limit for z = 1792
+End cycle  10000, time = 7.20415e-01, dt = 9.91510e-05, wall = 2.08600e-01
+dt limiter: PE 998, Hydro dV/V limit for z = 2697
+End cycle  10100, time = 7.30891e-01, dt = 1.03580e-04, wall = 2.30049e-01
+dt limiter: PE 1030, Hydro dV/V limit for z = 613
+End cycle  10200, time = 7.41437e-01, dt = 1.16926e-04, wall = 2.71252e-01
+dt limiter: PE 1025, Hydro dV/V limit for z = 1579
+End cycle  10300, time = 7.52030e-01, dt = 1.07536e-04, wall = 2.34676e-01
+dt limiter: PE 1024, Hydro dV/V limit for z = 2462
+End cycle  10400, time = 7.62671e-01, dt = 1.02432e-04, wall = 2.55379e-01
+dt limiter: PE 1078, Hydro dV/V limit for z = 364
+End cycle  10500, time = 7.73367e-01, dt = 1.01904e-04, wall = 2.78775e-01
+dt limiter: PE 1060, Hydro dV/V limit for z = 1267
+End cycle  10600, time = 7.84122e-01, dt = 1.07250e-04, wall = 2.21766e-01
+dt limiter: PE 1056, Hydro dV/V limit for z = 2160
+End cycle  10700, time = 7.94946e-01, dt = 1.18592e-04, wall = 2.92452e-01
+dt limiter: PE 1111, Hydro dV/V limit for z = 222
+End cycle  10800, time = 8.05814e-01, dt = 1.09488e-04, wall = 2.54236e-01
+dt limiter: PE 1105, Hydro dV/V limit for z = 1091
+End cycle  10900, time = 8.16731e-01, dt = 1.04716e-04, wall = 2.07807e-01
+dt limiter: PE 1092, Hydro dV/V limit for z = 2010
+End cycle  11000, time = 8.27699e-01, dt = 1.04671e-04, wall = 2.59777e-01
+dt limiter: PE 1088, Hydro dV/V limit for z = 2925
+End cycle  11100, time = 8.38728e-01, dt = 1.10946e-04, wall = 2.53608e-01
+dt limiter: PE 1147, Hydro dV/V limit for z = 884
+End cycle  11200, time = 8.49827e-01, dt = 1.20289e-04, wall = 2.29356e-01
+dt limiter: PE 1120, Hydro dV/V limit for z = 1800
+End cycle  11300, time = 8.60966e-01, dt = 1.11389e-04, wall = 2.32183e-01
+dt limiter: PE 1120, Hydro dV/V limit for z = 2706
+End cycle  11400, time = 8.72153e-01, dt = 1.07025e-04, wall = 2.80740e-01
+dt limiter: PE 1158, Hydro dV/V limit for z = 680
+End cycle  11500, time = 8.83391e-01, dt = 1.07465e-04, wall = 3.56063e-01
+dt limiter: PE 1164, Hydro dV/V limit for z = 1586
+End cycle  11600, time = 8.94690e-01, dt = 1.14846e-04, wall = 2.56184e-01
+dt limiter: PE 1168, Hydro dV/V limit for z = 2488
+End cycle  11700, time = 9.06056e-01, dt = 1.22071e-04, wall = 3.01512e-01
+dt limiter: PE 1184, Hydro dV/V limit for z = 480
+End cycle  11800, time = 9.17464e-01, dt = 1.13298e-04, wall = 2.72481e-01
+dt limiter: PE 1211, Hydro dV/V limit for z = 1416
+End cycle  11900, time = 9.28915e-01, dt = 1.09340e-04, wall = 2.43836e-01
+dt limiter: PE 1188, Hydro dV/V limit for z = 2308
+End cycle  12000, time = 9.40419e-01, dt = 1.10266e-04, wall = 2.80774e-01
+dt limiter: PE 1238, Hydro dV/V limit for z = 297
+End cycle  12100, time = 9.51987e-01, dt = 1.18883e-04, wall = 3.23446e-01
+dt limiter: PE 1224, Hydro dV/V limit for z = 1195
+End cycle  12200, time = 9.63615e-01, dt = 1.23911e-04, wall = 2.42084e-01
+dt limiter: PE 1216, Hydro dV/V limit for z = 2115
+End cycle  12300, time = 9.75286e-01, dt = 1.15255e-04, wall = 2.45118e-01
+dt limiter: PE 1264, Hydro dV/V limit for z = 102
+End cycle  12400, time = 9.87000e-01, dt = 1.11651e-04, wall = 3.55638e-01
+dt limiter: PE 1259, Hydro dV/V limit for z = 998
+End cycle  12500, time = 9.98765e-01, dt = 1.13099e-04, wall = 3.02001e-01
+dt limiter: PE 1270, Hydro dV/V limit for z = 1893
+
+Run complete
+cycle =  12511,         cstop = 999999
+time  =   1.000000e+00, tstop =   1.000000e+00
+
+************************************
+hydro cycle run time=   3.040283e+01
+************************************
+Energy check:  total energy  =   9.871670e-01
+(internal =   7.630405e-01, kinetic =   2.241264e-01)
+FLUX-RUN END pennant-iter-4
+FLUX-RUN START pennant-iter-5
+********************
+Running PENNANT v0.9
+********************
+
+Running on 1408 MPI PE(s)
+Running on 1 thread(s)
+--- Mesh Information ---
+Points:  4151281
+Zones:  4147200
+Sides:  16588800
+Edges:  8448000
+Side chunks:  16896
+Point chunks:  4352
+Zone chunks:  4224
+Chunk size:  1024
+------------------------
+Energy check:  total energy  =   9.871670e-01
+(internal =   9.871670e-01, kinetic =   0.000000e+00)
+End cycle      1, time = 5.00000e-07, dt = 5.00000e-07, wall = 7.46584e-03
+dt limiter: Initial timestep
+End cycle    100, time = 2.89168e-03, dt = 3.43343e-05, wall = 2.06361e-01
+dt limiter: PE 56, Hydro dV/V limit for z = 617
+End cycle    200, time = 6.44082e-03, dt = 3.76534e-05, wall = 2.69251e-01
+dt limiter: PE 45, Hydro dV/V limit for z = 1539
+End cycle    300, time = 9.99188e-03, dt = 3.70058e-05, wall = 1.64885e-01
+dt limiter: PE 58, Hydro dV/V limit for z = 2509
+End cycle    400, time = 1.35388e-02, dt = 3.45705e-05, wall = 2.05350e-01
+dt limiter: PE 87, Hydro dV/V limit for z = 449
+End cycle    500, time = 1.70841e-02, dt = 3.36478e-05, wall = 2.28202e-01
+dt limiter: PE 86, Hydro dV/V limit for z = 1354
+End cycle    600, time = 2.06308e-02, dt = 3.43027e-05, wall = 1.72450e-01
+dt limiter: PE 86, Hydro dV/V limit for z = 2239
+End cycle    700, time = 2.41808e-02, dt = 3.76128e-05, wall = 2.52396e-01
+dt limiter: PE 118, Hydro dV/V limit for z = 231
+End cycle    800, time = 2.77318e-02, dt = 3.70350e-05, wall = 1.99147e-01
+dt limiter: PE 119, Hydro dV/V limit for z = 1175
+End cycle    900, time = 3.12796e-02, dt = 3.46260e-05, wall = 2.08085e-01
+dt limiter: PE 107, Hydro dV/V limit for z = 2064
+End cycle   1000, time = 3.48599e-02, dt = 3.44093e-05, wall = 1.98676e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 34
+End cycle   1100, time = 3.85526e-02, dt = 3.69613e-05, wall = 2.73747e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 950
+End cycle   1200, time = 4.23848e-02, dt = 4.25767e-05, wall = 2.10231e-01
+dt limiter: PE 151, Hydro dV/V limit for z = 1870
+End cycle   1300, time = 4.63472e-02, dt = 4.00476e-05, wall = 2.49815e-01
+dt limiter: PE 155, Hydro dV/V limit for z = 2770
+End cycle   1400, time = 5.04381e-02, dt = 3.95276e-05, wall = 2.08362e-01
+dt limiter: PE 165, Hydro dV/V limit for z = 722
+End cycle   1500, time = 5.46587e-02, dt = 4.13375e-05, wall = 2.13204e-01
+dt limiter: PE 166, Hydro dV/V limit for z = 1638
+End cycle   1600, time = 5.90129e-02, dt = 4.74986e-05, wall = 1.76920e-01
+dt limiter: PE 185, Hydro dV/V limit for z = 2541
+End cycle   1700, time = 6.34921e-02, dt = 4.64536e-05, wall = 3.22083e-01
+dt limiter: PE 213, Hydro dV/V limit for z = 574
+End cycle   1800, time = 6.80899e-02, dt = 4.47623e-05, wall = 2.14126e-01
+dt limiter: PE 192, Hydro dV/V limit for z = 1451
+End cycle   1900, time = 7.28083e-02, dt = 4.54671e-05, wall = 2.32724e-01
+dt limiter: PE 199, Hydro dV/V limit for z = 2378
+End cycle   2000, time = 7.76495e-02, dt = 4.95603e-05, wall = 2.34079e-01
+dt limiter: PE 230, Hydro dV/V limit for z = 354
+End cycle   2100, time = 8.26155e-02, dt = 5.34615e-05, wall = 1.79502e-01
+dt limiter: PE 247, Hydro dV/V limit for z = 1310
+End cycle   2200, time = 8.76927e-02, dt = 5.03823e-05, wall = 1.99863e-01
+dt limiter: PE 246, Hydro dV/V limit for z = 2179
+End cycle   2300, time = 9.28805e-02, dt = 4.97920e-05, wall = 2.47097e-01
+dt limiter: PE 272, Hydro dV/V limit for z = 142
+End cycle   2400, time = 9.81843e-02, dt = 5.20556e-05, wall = 2.66435e-01
+dt limiter: PE 278, Hydro dV/V limit for z = 1027
+End cycle   2500, time = 1.03607e-01, dt = 5.96991e-05, wall = 2.92633e-01
+dt limiter: PE 269, Hydro dV/V limit for z = 1969
+End cycle   2600, time = 1.09140e-01, dt = 5.69468e-05, wall = 2.77371e-01
+dt limiter: PE 267, Hydro dV/V limit for z = 2919
+End cycle   2700, time = 1.14776e-01, dt = 5.46635e-05, wall = 3.47086e-01
+dt limiter: PE 289, Hydro dV/V limit for z = 898
+End cycle   2800, time = 1.20520e-01, dt = 5.51431e-05, wall = 3.62043e-01
+dt limiter: PE 308, Hydro dV/V limit for z = 1773
+End cycle   2900, time = 1.26375e-01, dt = 5.94019e-05, wall = 2.57144e-01
+dt limiter: PE 288, Hydro dV/V limit for z = 2659
+End cycle   3000, time = 1.32344e-01, dt = 6.45662e-05, wall = 2.39518e-01
+dt limiter: PE 344, Hydro dV/V limit for z = 679
+End cycle   3100, time = 1.38411e-01, dt = 6.04408e-05, wall = 2.66850e-01
+dt limiter: PE 334, Hydro dV/V limit for z = 1614
+End cycle   3200, time = 1.44578e-01, dt = 5.91285e-05, wall = 2.68758e-01
+dt limiter: PE 340, Hydro dV/V limit for z = 2463
+End cycle   3300, time = 1.50849e-01, dt = 6.08629e-05, wall = 3.06121e-01
+dt limiter: PE 358, Hydro dV/V limit for z = 360
+End cycle   3400, time = 1.57229e-01, dt = 6.79963e-05, wall = 1.73342e-01
+dt limiter: PE 356, Hydro dV/V limit for z = 1299
+End cycle   3500, time = 1.63713e-01, dt = 6.77993e-05, wall = 2.70999e-01
+dt limiter: PE 378, Hydro dV/V limit for z = 2235
+End cycle   3600, time = 1.70289e-01, dt = 6.41832e-05, wall = 2.14047e-01
+dt limiter: PE 409, Hydro dV/V limit for z = 193
+End cycle   3700, time = 1.76963e-01, dt = 6.37841e-05, wall = 2.90385e-01
+dt limiter: PE 384, Hydro dV/V limit for z = 1083
+End cycle   3800, time = 1.83737e-01, dt = 6.71446e-05, wall = 2.37129e-01
+dt limiter: PE 403, Hydro dV/V limit for z = 2020
+End cycle   3900, time = 1.90619e-01, dt = 7.64811e-05, wall = 1.83152e-01
+dt limiter: PE 427, Hydro dV/V limit for z = 52
+End cycle   4000, time = 1.97592e-01, dt = 7.07887e-05, wall = 1.99428e-01
+dt limiter: PE 417, Hydro dV/V limit for z = 950
+End cycle   4100, time = 2.04656e-01, dt = 6.80643e-05, wall = 1.60253e-01
+dt limiter: PE 429, Hydro dV/V limit for z = 1806
+End cycle   4200, time = 2.11813e-01, dt = 6.86323e-05, wall = 1.89595e-01
+dt limiter: PE 436, Hydro dV/V limit for z = 2701
+End cycle   4300, time = 2.19070e-01, dt = 7.39352e-05, wall = 2.21843e-01
+dt limiter: PE 474, Hydro dV/V limit for z = 661
+End cycle   4400, time = 2.26429e-01, dt = 7.91534e-05, wall = 2.44345e-01
+dt limiter: PE 448, Hydro dV/V limit for z = 1621
+End cycle   4500, time = 2.33873e-01, dt = 7.39101e-05, wall = 2.16706e-01
+dt limiter: PE 448, Hydro dV/V limit for z = 2562
+End cycle   4600, time = 2.41402e-01, dt = 7.20303e-05, wall = 2.58288e-01
+dt limiter: PE 488, Hydro dV/V limit for z = 507
+End cycle   4700, time = 2.49023e-01, dt = 7.36968e-05, wall = 2.67624e-01
+dt limiter: PE 506, Hydro dV/V limit for z = 1433
+End cycle   4800, time = 2.56741e-01, dt = 8.14398e-05, wall = 1.76729e-01
+dt limiter: PE 493, Hydro dV/V limit for z = 2310
+End cycle   4900, time = 2.64491e-01, dt = 8.09164e-05, wall = 2.01987e-01
+dt limiter: PE 512, Hydro dV/V limit for z = 346
+End cycle   5000, time = 2.72151e-01, dt = 7.51300e-05, wall = 2.09428e-01
+dt limiter: PE 534, Hydro dV/V limit for z = 1243
+End cycle   5100, time = 2.79801e-01, dt = 7.26873e-05, wall = 1.80697e-01
+dt limiter: PE 512, Hydro dV/V limit for z = 2100
+End cycle   5200, time = 2.87450e-01, dt = 7.34660e-05, wall = 1.81641e-01
+dt limiter: PE 570, Hydro dV/V limit for z = 84
+End cycle   5300, time = 2.95109e-01, dt = 7.95713e-05, wall = 2.41488e-01
+dt limiter: PE 545, Hydro dV/V limit for z = 968
+End cycle   5400, time = 3.02774e-01, dt = 8.09388e-05, wall = 2.13738e-01
+dt limiter: PE 548, Hydro dV/V limit for z = 1961
+End cycle   5500, time = 3.10451e-01, dt = 7.55083e-05, wall = 1.91214e-01
+dt limiter: PE 544, Hydro dV/V limit for z = 2826
+End cycle   5600, time = 3.18168e-01, dt = 7.35677e-05, wall = 2.35721e-01
+dt limiter: PE 596, Hydro dV/V limit for z = 800
+End cycle   5700, time = 3.25947e-01, dt = 7.53224e-05, wall = 1.86092e-01
+dt limiter: PE 601, Hydro dV/V limit for z = 1721
+End cycle   5800, time = 3.33797e-01, dt = 8.33176e-05, wall = 1.60901e-01
+dt limiter: PE 581, Hydro dV/V limit for z = 2639
+End cycle   5900, time = 3.41719e-01, dt = 8.27925e-05, wall = 1.93918e-01
+dt limiter: PE 621, Hydro dV/V limit for z = 637
+End cycle   6000, time = 3.49698e-01, dt = 7.78834e-05, wall = 2.49782e-01
+dt limiter: PE 616, Hydro dV/V limit for z = 1525
+End cycle   6100, time = 3.57740e-01, dt = 7.66074e-05, wall = 2.19696e-01
+dt limiter: PE 629, Hydro dV/V limit for z = 2405
+End cycle   6200, time = 3.65853e-01, dt = 7.94228e-05, wall = 2.66899e-01
+dt limiter: PE 659, Hydro dV/V limit for z = 418
+End cycle   6300, time = 3.74043e-01, dt = 8.96668e-05, wall = 2.33534e-01
+dt limiter: PE 663, Hydro dV/V limit for z = 1265
+End cycle   6400, time = 3.82293e-01, dt = 8.48614e-05, wall = 1.59835e-01
+dt limiter: PE 670, Hydro dV/V limit for z = 2258
+End cycle   6500, time = 3.90601e-01, dt = 8.04717e-05, wall = 1.75845e-01
+dt limiter: PE 697, Hydro dV/V limit for z = 225
+End cycle   6600, time = 3.98975e-01, dt = 7.97846e-05, wall = 1.94214e-01
+dt limiter: PE 700, Hydro dV/V limit for z = 1137
+End cycle   6700, time = 4.07413e-01, dt = 8.35618e-05, wall = 2.12546e-01
+dt limiter: PE 682, Hydro dV/V limit for z = 2026
+End cycle   6800, time = 4.15928e-01, dt = 9.42896e-05, wall = 1.91449e-01
+dt limiter: PE 688, Hydro dV/V limit for z = 2977
+End cycle   6900, time = 4.24500e-01, dt = 8.69236e-05, wall = 3.01862e-01
+dt limiter: PE 704, Hydro dV/V limit for z = 840
+End cycle   7000, time = 4.33131e-01, dt = 8.30350e-05, wall = 2.11521e-01
+dt limiter: PE 734, Hydro dV/V limit for z = 1751
+End cycle   7100, time = 4.41821e-01, dt = 8.29513e-05, wall = 2.62670e-01
+dt limiter: PE 734, Hydro dV/V limit for z = 2643
+End cycle   7200, time = 4.50579e-01, dt = 8.79246e-05, wall = 2.92483e-01
+dt limiter: PE 754, Hydro dV/V limit for z = 605
+End cycle   7300, time = 4.59414e-01, dt = 9.60809e-05, wall = 3.01852e-01
+dt limiter: PE 765, Hydro dV/V limit for z = 1568
+End cycle   7400, time = 4.68301e-01, dt = 8.90305e-05, wall = 3.19367e-01
+dt limiter: PE 748, Hydro dV/V limit for z = 2479
+End cycle   7500, time = 4.77244e-01, dt = 8.56544e-05, wall = 2.04242e-01
+dt limiter: PE 798, Hydro dV/V limit for z = 420
+End cycle   7600, time = 4.86247e-01, dt = 8.62171e-05, wall = 2.17950e-01
+dt limiter: PE 785, Hydro dV/V limit for z = 1363
+End cycle   7700, time = 4.95319e-01, dt = 9.25507e-05, wall = 2.67616e-01
+dt limiter: PE 792, Hydro dV/V limit for z = 2263
+End cycle   7800, time = 5.04463e-01, dt = 9.79807e-05, wall = 2.32599e-01
+dt limiter: PE 826, Hydro dV/V limit for z = 275
+End cycle   7900, time = 5.13657e-01, dt = 9.11460e-05, wall = 2.60201e-01
+dt limiter: PE 811, Hydro dV/V limit for z = 1165
+End cycle   8000, time = 5.22905e-01, dt = 8.83027e-05, wall = 2.49307e-01
+dt limiter: PE 831, Hydro dV/V limit for z = 2051
+End cycle   8100, time = 5.32215e-01, dt = 8.95277e-05, wall = 2.71255e-01
+dt limiter: PE 832, Hydro dV/V limit for z = 36
+End cycle   8200, time = 5.41596e-01, dt = 9.74795e-05, wall = 3.08613e-01
+dt limiter: PE 856, Hydro dV/V limit for z = 918
+End cycle   8300, time = 5.51040e-01, dt = 9.99288e-05, wall = 2.57270e-01
+dt limiter: PE 858, Hydro dV/V limit for z = 1910
+End cycle   8400, time = 5.60535e-01, dt = 9.33573e-05, wall = 1.83543e-01
+dt limiter: PE 851, Hydro dV/V limit for z = 2796
+End cycle   8500, time = 5.70083e-01, dt = 9.09745e-05, wall = 2.19865e-01
+dt limiter: PE 874, Hydro dV/V limit for z = 752
+End cycle   8600, time = 5.79694e-01, dt = 9.29656e-05, wall = 1.85532e-01
+dt limiter: PE 864, Hydro dV/V limit for z = 1640
+End cycle   8700, time = 5.89373e-01, dt = 1.02410e-04, wall = 2.38502e-01
+dt limiter: PE 871, Hydro dV/V limit for z = 2553
+End cycle   8800, time = 5.99115e-01, dt = 1.01905e-04, wall = 3.20566e-01
+dt limiter: PE 927, Hydro dV/V limit for z = 579
+End cycle   8900, time = 6.08903e-01, dt = 9.56043e-05, wall = 2.47960e-01
+dt limiter: PE 919, Hydro dV/V limit for z = 1466
+End cycle   9000, time = 6.18746e-01, dt = 9.36710e-05, wall = 3.04767e-01
+dt limiter: PE 912, Hydro dV/V limit for z = 2392
+End cycle   9100, time = 6.28652e-01, dt = 9.64965e-05, wall = 2.12481e-01
+dt limiter: PE 953, Hydro dV/V limit for z = 353
+End cycle   9200, time = 6.38625e-01, dt = 1.07625e-04, wall = 2.20409e-01
+dt limiter: PE 928, Hydro dV/V limit for z = 1200
+End cycle   9300, time = 6.48655e-01, dt = 1.03842e-04, wall = 2.47480e-01
+dt limiter: PE 930, Hydro dV/V limit for z = 2210
+End cycle   9400, time = 6.58733e-01, dt = 9.78685e-05, wall = 1.92689e-01
+dt limiter: PE 980, Hydro dV/V limit for z = 137
+End cycle   9500, time = 6.68866e-01, dt = 9.63927e-05, wall = 2.34179e-01
+dt limiter: PE 976, Hydro dV/V limit for z = 1077
+End cycle   9600, time = 6.79059e-01, dt = 9.99912e-05, wall = 2.08788e-01
+dt limiter: PE 960, Hydro dV/V limit for z = 1926
+End cycle   9700, time = 6.89322e-01, dt = 1.13048e-04, wall = 2.05504e-01
+dt limiter: PE 991, Hydro dV/V limit for z = 2879
+End cycle   9800, time = 6.99636e-01, dt = 1.05675e-04, wall = 3.06324e-01
+dt limiter: PE 992, Hydro dV/V limit for z = 840
+End cycle   9900, time = 7.09997e-01, dt = 1.00164e-04, wall = 2.14905e-01
+dt limiter: PE 1016, Hydro dV/V limit for z = 1792
+End cycle  10000, time = 7.20415e-01, dt = 9.91510e-05, wall = 2.05491e-01
+dt limiter: PE 998, Hydro dV/V limit for z = 2697
+End cycle  10100, time = 7.30891e-01, dt = 1.03580e-04, wall = 2.24479e-01
+dt limiter: PE 1030, Hydro dV/V limit for z = 613
+End cycle  10200, time = 7.41437e-01, dt = 1.16926e-04, wall = 2.62340e-01
+dt limiter: PE 1025, Hydro dV/V limit for z = 1579
+End cycle  10300, time = 7.52030e-01, dt = 1.07536e-04, wall = 2.02104e-01
+dt limiter: PE 1024, Hydro dV/V limit for z = 2462
+End cycle  10400, time = 7.62671e-01, dt = 1.02432e-04, wall = 2.55786e-01
+dt limiter: PE 1078, Hydro dV/V limit for z = 364
+End cycle  10500, time = 7.73367e-01, dt = 1.01904e-04, wall = 2.06980e-01
+dt limiter: PE 1060, Hydro dV/V limit for z = 1267
+End cycle  10600, time = 7.84122e-01, dt = 1.07250e-04, wall = 2.07742e-01
+dt limiter: PE 1056, Hydro dV/V limit for z = 2160
+End cycle  10700, time = 7.94946e-01, dt = 1.18592e-04, wall = 3.09613e-01
+dt limiter: PE 1111, Hydro dV/V limit for z = 222
+End cycle  10800, time = 8.05814e-01, dt = 1.09488e-04, wall = 2.99678e-01
+dt limiter: PE 1105, Hydro dV/V limit for z = 1091
+End cycle  10900, time = 8.16731e-01, dt = 1.04716e-04, wall = 2.16750e-01
+dt limiter: PE 1092, Hydro dV/V limit for z = 2010
+End cycle  11000, time = 8.27699e-01, dt = 1.04671e-04, wall = 2.33368e-01
+dt limiter: PE 1088, Hydro dV/V limit for z = 2925
+End cycle  11100, time = 8.38728e-01, dt = 1.10946e-04, wall = 2.52330e-01
+dt limiter: PE 1147, Hydro dV/V limit for z = 884
+End cycle  11200, time = 8.49827e-01, dt = 1.20289e-04, wall = 2.77954e-01
+dt limiter: PE 1120, Hydro dV/V limit for z = 1800
+End cycle  11300, time = 8.60966e-01, dt = 1.11389e-04, wall = 2.68669e-01
+dt limiter: PE 1120, Hydro dV/V limit for z = 2706
+End cycle  11400, time = 8.72153e-01, dt = 1.07025e-04, wall = 3.05761e-01
+dt limiter: PE 1158, Hydro dV/V limit for z = 680
+End cycle  11500, time = 8.83391e-01, dt = 1.07465e-04, wall = 2.36844e-01
+dt limiter: PE 1164, Hydro dV/V limit for z = 1586
+End cycle  11600, time = 8.94690e-01, dt = 1.14846e-04, wall = 2.17849e-01
+dt limiter: PE 1168, Hydro dV/V limit for z = 2488
+End cycle  11700, time = 9.06056e-01, dt = 1.22071e-04, wall = 3.01997e-01
+dt limiter: PE 1184, Hydro dV/V limit for z = 480
+End cycle  11800, time = 9.17464e-01, dt = 1.13298e-04, wall = 2.97052e-01
+dt limiter: PE 1211, Hydro dV/V limit for z = 1416
+End cycle  11900, time = 9.28915e-01, dt = 1.09340e-04, wall = 2.49594e-01
+dt limiter: PE 1188, Hydro dV/V limit for z = 2308
+End cycle  12000, time = 9.40419e-01, dt = 1.10266e-04, wall = 2.84318e-01
+dt limiter: PE 1238, Hydro dV/V limit for z = 297
+End cycle  12100, time = 9.51987e-01, dt = 1.18883e-04, wall = 2.78070e-01
+dt limiter: PE 1224, Hydro dV/V limit for z = 1195
+End cycle  12200, time = 9.63615e-01, dt = 1.23911e-04, wall = 2.60969e-01
+dt limiter: PE 1216, Hydro dV/V limit for z = 2115
+End cycle  12300, time = 9.75286e-01, dt = 1.15255e-04, wall = 2.56583e-01
+dt limiter: PE 1264, Hydro dV/V limit for z = 102
+End cycle  12400, time = 9.87000e-01, dt = 1.11651e-04, wall = 2.85838e-01
+dt limiter: PE 1259, Hydro dV/V limit for z = 998
+End cycle  12500, time = 9.98765e-01, dt = 1.13099e-04, wall = 2.62781e-01
+dt limiter: PE 1270, Hydro dV/V limit for z = 1893
+
+Run complete
+cycle =  12511,         cstop = 999999
+time  =   1.000000e+00, tstop =   1.000000e+00
+
+************************************
+hydro cycle run time=   2.975285e+01
+************************************
+Energy check:  total energy  =   9.871670e-01
+(internal =   7.630405e-01, kinetic =   2.241264e-01)
+FLUX-RUN END pennant-iter-5
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Waiting for headers] [1 InRelease 4036 B/129 kB 3%]                                                       Get:2 http://archive.ubuntu.com/ubuntu jammy InRelease [270 kB]
+0% [2 InRelease 2588 B/270 kB 1%] [1 InRelease 14.2 kB/129 kB 11%]                                                                  0% [2 InRelease 113 kB/270 kB 42%]0% [2 InRelease 156 kB/270 kB 58%]                                  Get:3 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+0% [2 InRelease 259 kB/270 kB 96%] [3 Packages 2655 B/1244 kB 0%]                                                                 0% [3 Packages 12.8 kB/1244 kB 1%]0% [Waiting for headers] [3 Packages 76.5 kB/1244 kB 6%]                                                        Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [4 InRelease 2588 B/128 kB 2%] [3 Packages 127 kB/1244 kB 10%]                                                                 0% [3 Packages 175 kB/1244 kB 14%]0% [Waiting for headers] [3 Packages 249 kB/1244 kB 20%]                                                        Get:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [5 InRelease 2588 B/127 kB 2%] [3 Packages 405 kB/1244 kB 33%]                                                                 0% [3 Packages 533 kB/1244 kB 43%]15% [Waiting for headers] [3 Packages 759 kB/1244 kB 61%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy/restricted amd64 Packages [164 kB]
+16% [6 Packages 2657 B/164 kB 2%] [3 Packages 1122 kB/1244 kB 90%]                                                                  16% [6 Packages 64.9 kB/164 kB 40%]16% [3 Packages store 0 B] [6 Packages 64.9 kB/164 kB 40%] [Waiting for headers                                                                               17% [3 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:7 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [17.5 MB]
+17% [3 Packages store 0 B] [7 Packages 1800 B/17.5 MB 0%] [Waiting for headers]                                                                               17% [7 Packages 42.3 kB/17.5 MB 0%] [Waiting for headers]17% [6 Packages store 0 B] [7 Packages 42.3 kB/17.5 MB 0%] [Waiting for headers                                                                               18% [7 Packages 65.3 kB/17.5 MB 0%] [Waiting for headers]                                                         Get:8 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+18% [7 Packages 204 kB/17.5 MB 1%] [8 Packages 7003 B/47.7 kB 15%]                                                                  18% [7 Packages 213 kB/17.5 MB 1%] [Waiting for headers]                                                        Get:9 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+18% [7 Packages 213 kB/17.5 MB 1%] [9 Packages 15.5 kB/2844 kB 1%]18% [8 Packages store 0 B] [7 Packages 213 kB/17.5 MB 1%] [9 Packages 15.5 kB/2                                                                               19% [7 Packages 219 kB/17.5 MB 1%] [9 Packages 47.4 kB/2844 kB 2%]                                                                  27% [7 Packages 1272 kB/17.5 MB 7%] [Waiting for headers]                                                         Get:10 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4118 kB]
+27% [7 Packages 1272 kB/17.5 MB 7%] [10 Packages 678 B/4118 kB 0%]27% [9 Packages store 0 B] [7 Packages 1272 kB/17.5 MB 7%] [10 Packages 678 B/4                                                                               38% [7 Packages 2851 kB/17.5 MB 16%] [10 Packages 3551 kB/4118 kB 86%]                                                                      40% [7 Packages 3157 kB/17.5 MB 18%]40% [10 Packages store 0 B] [7 Packages 3157 kB/17.5 MB 18%]                                                            53% [7 Packages 9138 kB/17.5 MB 52%]                                    71% [Waiting for headers]                         Get:11 http://archive.ubuntu.com/ubuntu jammy/main amd64 Packages [1792 kB]
+71% [11 Packages 36.9 kB/1792 kB 2%]71% [7 Packages store 0 B] [11 Packages 36.9 kB/1792 kB 2%]                                                           75% [7 Packages store 0 B] [Waiting for headers]                                                Get:12 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [266 kB]
+75% [7 Packages store 0 B] [12 Packages 0 B/266 kB 0%]                                                      75% [7 Packages store 0 B] [Waiting for headers]                                                Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+75% [7 Packages store 0 B] [13 Packages 4847 B/55.7 kB 9%]                                                          75% [7 Packages store 0 B] [Waiting for headers]                                                Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+75% [7 Packages store 0 B] [14 Packages 16.4 kB/3200 kB 1%]                                                           82% [7 Packages store 0 B] [Waiting for headers]                                                Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+82% [7 Packages store 0 B] [15 Packages 50.2 kB/1544 kB 3%]                                                           85% [7 Packages store 0 B] [Waiting for headers]                                                Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+85% [7 Packages store 0 B] [16 Packages 4096 B/4420 kB 0%]                                                          95% [7 Packages store 0 B]                          Get:17 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+95% [7 Packages store 0 B] [17 Packages 5023 B/82.7 kB 6%]                                                          95% [7 Packages store 0 B] [Waiting for headers]                                                Get:18 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+95% [7 Packages store 0 B] [18 Packages 7525 B/35.2 kB 21%]                                                           95% [7 Packages store 0 B]                          96% [Working]96% [11 Packages store 0 B]                           96% [Working]96% [12 Packages store 0 B]                           97% [Working]97% [13 Packages store 0 B]                           97% [Working]97% [14 Packages store 0 B]                           98% [Working]98% [15 Packages store 0 B]                           98% [Working]98% [16 Packages store 0 B]                           99% [Working]99% [17 Packages store 0 B]                           99% [Working]99% [18 Packages store 0 B]                           100% [Working]              Fetched 37.9 MB in 3s (12.5 MB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 1%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
+Need to get 357 kB of archives.
+After this operation, 1087 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libonig5 amd64 6.9.7.1-2build1 [172 kB]
+2% [1 libonig5 9844 B/172 kB 6%]                                45% [Working]             Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjq1 amd64 1.6-2.1ubuntu3 [133 kB]
+46% [2 libjq1 2604 B/133 kB 2%]                               82% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 jq amd64 1.6-2.1ubuntu3 [52.5 kB]
+82% [3 jq 2872 B/52.5 kB 5%]                            100% [Working]              Fetched 357 kB in 1s (336 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 11275 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.7.1-2build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.7.1-2build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-2.1ubuntu3) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking jq (1.6-2.1ubuntu3) ...
+Setting up libonig5:amd64 (6.9.7.1-2build1) ...
+Setting up libjq1:amd64 (1.6-2.1ubuntu3) ...
+Setting up jq (1.6-2.1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.9) ...
+
+FLUX-JOB START 2348055265280 pennant-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["pennant", "/opt/pennant/test/sedovflatx4/sedovflatx4.pnt"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/pennant", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "pennant-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["pennant-[0-15]"], "starttime": 1746404173, "expiration": 4900004033}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746404173.0997112,"name":"init"}
+{"timestamp":1746404173.1002533,"name":"starting"}
+{"timestamp":1746404173.1146021,"name":"shell.init","context":{"service":"0-shell-f24gQbzMM","leader-rank":0,"size":16}}
+{"timestamp":1746404173.2959003,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1746404205.9865468,"name":"shell.task-exit","context":{"localid":78,"rank":78,"state":"Exited","pid":1038,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746404206.0854249,"name":"complete","context":{"status":0}}
+{"timestamp":1746404206.0854561,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2348055265280 pennant-iter-5
+
+FLUX-JOB START 1778821103616 pennant-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["pennant", "/opt/pennant/test/sedovflatx4/sedovflatx4.pnt"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/pennant", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "pennant-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["pennant-[0-15]"], "starttime": 1746404139, "expiration": 4900004033}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746404139.170141,"name":"init"}
+{"timestamp":1746404139.1707766,"name":"starting"}
+{"timestamp":1746404139.1869147,"name":"shell.init","context":{"service":"0-shell-foj9L7uh","leader-rank":0,"size":16}}
+{"timestamp":1746404139.3679063,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1746404172.7328463,"name":"shell.task-exit","context":{"localid":11,"rank":11,"state":"Exited","pid":722,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746404172.8126452,"name":"complete","context":{"status":0}}
+{"timestamp":1746404172.8126814,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1778821103616 pennant-iter-4
+
+FLUX-JOB START 1191551434752 pennant-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["pennant", "/opt/pennant/test/sedovflatx4/sedovflatx4.pnt"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/pennant", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "pennant-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["pennant-[0-15]"], "starttime": 1746404104, "expiration": 4900004033}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746404104.1663101,"name":"init"}
+{"timestamp":1746404104.166918,"name":"starting"}
+{"timestamp":1746404104.1813717,"name":"shell.init","context":{"service":"0-shell-fYJQKZXM","leader-rank":0,"size":16}}
+{"timestamp":1746404104.3617496,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1746404138.7905364,"name":"shell.task-exit","context":{"localid":59,"rank":59,"state":"Exited","pid":637,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746404138.873225,"name":"complete","context":{"status":0}}
+{"timestamp":1746404138.8732586,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1191551434752 pennant-iter-3
+
+FLUX-JOB START 598896279552 pennant-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["pennant", "/opt/pennant/test/sedovflatx4/sedovflatx4.pnt"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/pennant", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "pennant-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["pennant-[0-15]"], "starttime": 1746404068, "expiration": 4900004033}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746404068.8411703,"name":"init"}
+{"timestamp":1746404068.841758,"name":"starting"}
+{"timestamp":1746404068.8561132,"name":"shell.init","context":{"service":"0-shell-fGjTQygK","leader-rank":0,"size":16}}
+{"timestamp":1746404069.0373025,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1746404103.7952914,"name":"shell.task-exit","context":{"localid":75,"rank":75,"state":"Exited","pid":488,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746404103.8804543,"name":"complete","context":{"status":0}}
+{"timestamp":1746404103.8804855,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 598896279552 pennant-iter-2
+
+FLUX-JOB START 28420603904 pennant-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["pennant", "/opt/pennant/test/sedovflatx4/sedovflatx4.pnt"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/pennant", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "pennant-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["pennant-[0-15]"], "starttime": 1746404034, "expiration": 4900004033}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746404034.8394005,"name":"init"}
+{"timestamp":1746404034.8399584,"name":"starting"}
+{"timestamp":1746404034.8550129,"name":"shell.init","context":{"service":"0-shell-fkJS2P9","leader-rank":0,"size":16}}
+{"timestamp":1746404035.0369959,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1746404068.4447019,"name":"shell.task-exit","context":{"localid":87,"rank":351,"state":"Exited","pid":293,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746404068.5506027,"name":"complete","context":{"status":0}}
+{"timestamp":1746404068.5506301,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 28420603904 pennant-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

@@ -1,8 +1,8 @@
-# GKE CPU Experiment Size 4
+# GKE CPU Experiment Size 16
 
 ```bash
 GOOGLE_PROJECT=llnl-flux
-NODES=4
+NODES=16
 INSTANCE=h3-standard-88
 
 time gcloud container clusters create test-cluster \
@@ -21,7 +21,7 @@ Save nodes:
 
 ```bash
 mkdir -p nodes/
-kubectl get nodes -o json > nodes/nodes-4-batch-2.json 
+kubectl get nodes -o json > nodes/nodes-16-batch-2.json 
 ```
 
 Install the Flux Operator
@@ -38,19 +38,17 @@ Note that you'll need to clone [converged-computing/flux-apps-helm](https://gith
 
 ### smilei
 
-This is immensely arduous to get params right for.
-
 ```bash
 helm dependency update smilei/
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=256 \
-  --set experiment.tasks=256 \
-  --set experiment.iterations=5 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=1024 \
+  --set experiment.tasks=1024 \
+  --set experiment.iterations=3 \
   --set minicluster.save_logs=true \
   --set smilei.example=benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py \
-  --set smilei.number_of_patches="[16\,16]" \
+  --set smilei.number_of_patches="[32\,32]" \
   --set smilei.simulation_time=10000 \
   smilei ./smilei
 
@@ -65,10 +63,10 @@ helm uninstall smilei
 ```bash
 helm dependency update pennant/
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=4 \
-  --set experiment.tasks=352 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=16 \
+  --set experiment.tasks=1408 \
   --set minicluster.cores_per_task=88 \
   --set experiment.iterations=5 \
   --set minicluster.save_logs=true \
@@ -89,12 +87,12 @@ helm dependency update phloem
 for app in mpiGraph mpiBench
   do
   helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=4 \
-  --set experiment.iterations=5 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=16 \
+  --set experiment.iterations=3 \
   --set phloem.ndim=2 \
-  --set phloem.size=352 \
+  --set phloem.size=1408 \
   --set phloem.binary=$app \
   --set minicluster.save_logs=true \
   phloem ./phloem
@@ -110,11 +108,11 @@ done
 ```bash
 helm dependency update gpcnet/
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=352 \
-  --set experiment.tasks=352 \
-  --set experiment.iterations=5 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=1408 \
+  --set experiment.tasks=1408 \
+  --set experiment.iterations=3 \
   --set minicluster.save_logs=true \
   gpcnet ./gpcnet
 
@@ -129,10 +127,10 @@ helm uninstall gpcnet
 ```bash
 helm dependency update hpl/
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=352  \
-  --set experiment.tasks=352 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=1408 \
+  --set experiment.tasks=1408 \
   --set experiment.iterations=5 \
   --set minicluster.save_logs=true \
   hpl ./hpl
@@ -148,10 +146,10 @@ helm uninstall hpl
 ```bash
 helm dependency update hpcg/
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=4  \
-  --set experiment.tasks=352 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=16  \
+  --set experiment.tasks=1408 \
   --set experiment.iterations=3 \
   --set minicluster.save_logs=true \
   hpcg ./hpcg
@@ -167,10 +165,10 @@ helm uninstall hpcg
 ```bash
 helm dependency update rajaperf/
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=352 \
-  --set experiment.tasks=352 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=1408 \
+  --set experiment.tasks=1408 \
   --set experiment.iterations=5 \
   --set rajaperf.kernels="COPY DAXPY REDUCE_SUM" \
   --set minicluster.save_logs=true \
@@ -187,10 +185,10 @@ helm uninstall rajaperf
 ```bash
 helm dependency update gromacs/
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=352 \
-  --set experiment.tasks=352 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=1408 \
+  --set experiment.tasks=1408 \
   --set experiment.iterations=5 \
   --set minicluster.save_logs=true \
   gromacs ./gromacs
@@ -213,10 +211,10 @@ Fatal Error. Aborting at Running on 352 MPI ranks.  The request of 128 global wa
 ```bash
 helm dependency update qmcpack/
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=352 \
-  --set experiment.tasks=352 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=1408 \
+  --set experiment.tasks=1408 \
   --set experiment.iterations=5 \
   --set qmcpack.xml=NiO-fcc-S8-dmc-strongscale.xml \
   --set minicluster.save_logs=true \
@@ -234,10 +232,10 @@ helm uninstall qmcpack
 ```bash
 helm dependency update remhos/
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=352 \
-  --set experiment.tasks=352 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=1408 \
+  --set experiment.tasks=1408 \
   --set experiment.iterations=5 \
   --set remhos.mesh=data/periodic-cube.mesh \
   --set minicluster.save_logs=true \
@@ -252,15 +250,16 @@ helm uninstall remhos
 ### lulesh
 
 Note that "Num processors must be a cube of an integer (1, 8, 27, ...)".
+We might want to decrease this to 3.
 
 ```bash
-# This is 7*7*7
+# This is 11^3
 helm dependency update lulesh/
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
-  --set minicluster.tasks=343 \
-  --set experiment.tasks=343 \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=1331 \
+  --set experiment.tasks=1331 \
   --set experiment.iterations=5 \
   --set minicluster.save_logs=true \
   --set lulesh.iterations=100 \

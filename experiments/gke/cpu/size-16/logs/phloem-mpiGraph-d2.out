@@ -1,0 +1,316 @@
+Defaulted container "phloem" out of: phloem, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..3}
+do
+  echo "FLUX-RUN START phloem-iter-$i"
+  flux run --setattr=user.study_id=phloem-iter-$i -N16  -o cpu-affinity=per-task -o gpu-affinity=off     mpiGraph -d 2 -p 1408 |& tee /tmp/phloem.out
+  
+   echo "FLUX-RUN END phloem-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     16     1408        0 phloem-[0-15]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START phloem-iter-1
+START mpiGraph v1.6
+MsgSize	16384
+Times	100
+Window	50
+Procs	16
+
+1 of 16 (6.2%)
+2 of 16 (12.5%)
+3 of 16 (18.8%)
+4 of 16 (25.0%)
+5 of 16 (31.2%)
+6 of 16 (37.5%)
+7 of 16 (43.8%)
+8 of 16 (50.0%)
+9 of 16 (56.2%)
+10 of 16 (62.5%)
+11 of 16 (68.8%)
+12 of 16 (75.0%)
+13 of 16 (81.2%)
+14 of 16 (87.5%)
+15 of 16 (93.8%)
+Gathering results
+
+Send max	2339.582221
+Send avg	1791.823799
+
+Send	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	phloem-8:8	phloem-9:9	phloem-10:10	phloem-11:11	phloem-12:12	phloem-13:13	phloem-14:14	phloem-15:15	
+phloem-0:0 to	0.000	1718.437	1667.912	1656.942	1677.724	1829.937	1698.648	1644.681	1385.571	1574.671	1677.859	1619.899	1622.782	1809.572	1828.991	1328.326	
+phloem-1:1 to	1624.263	0.000	1636.300	1725.026	1481.339	1588.090	1765.471	1686.692	1781.354	1427.846	1518.249	1918.246	1555.658	1787.037	1562.676	1865.529	
+phloem-2:2 to	2061.948	2120.003	0.000	1984.731	1824.961	2039.705	2032.498	1953.510	1764.714	2084.086	1941.479	2073.782	1784.076	2197.781	1948.034	2139.494	
+phloem-3:3 to	1989.019	2287.338	1928.358	0.000	2141.479	1956.665	1860.909	2115.414	1818.098	1991.412	1999.399	1929.555	2332.716	1936.039	2002.448	2081.398	
+phloem-4:4 to	1737.038	1565.403	1524.214	1493.808	0.000	1834.686	1665.582	1331.462	1629.379	1458.793	1451.961	1612.791	1415.719	1653.631	1594.663	1553.094	
+phloem-5:5 to	2339.582	2018.474	2046.649	2143.279	1956.757	0.000	1763.860	2111.604	2270.850	1999.692	1909.009	2100.594	1842.556	1801.938	1965.067	2194.530	
+phloem-6:6 to	1496.954	1874.606	1572.269	1486.530	1560.482	1689.214	0.000	1428.990	1436.086	1518.865	1443.866	1547.241	1572.561	1649.836	1416.255	1576.064	
+phloem-7:7 to	1855.302	2095.386	1960.307	2158.786	2142.281	2034.720	2177.751	0.000	1940.531	2049.872	1853.875	2047.781	2174.778	2069.801	2082.965	1978.707	
+phloem-8:8 to	1846.911	2204.868	1716.841	1983.229	2134.746	2172.205	1913.397	1766.311	0.000	2104.152	2193.571	2040.140	1895.155	1721.082	2063.561	1841.679	
+phloem-9:9 to	1685.364	1325.050	1459.706	1577.969	1551.912	1556.188	1612.992	1603.124	1830.909	0.000	1426.478	1556.790	1526.274	1508.686	1623.060	1555.894	
+phloem-10:10 to	1989.826	2063.058	2002.313	1950.133	2069.310	2125.251	1962.708	2086.591	2255.712	2013.639	0.000	2061.870	2191.758	1792.464	1991.293	1989.208	
+phloem-11:11 to	1804.297	1933.718	1956.438	1950.732	2063.882	1833.518	1902.104	1989.555	1943.951	1907.724	2142.021	0.000	2172.440	2025.038	1978.633	2068.922	
+phloem-12:12 to	2262.341	2112.534	1588.209	2110.867	1932.808	2198.630	2092.707	1670.322	2065.681	2101.914	1799.665	1956.831	0.000	2209.572	1725.016	2016.455	
+phloem-13:13 to	1592.192	1609.811	1389.312	1874.993	1478.385	1409.345	1541.004	1492.730	1549.771	1558.409	1685.941	1596.560	1625.726	0.000	1386.673	1677.753	
+phloem-14:14 to	1431.336	1706.191	1580.676	1520.702	1688.950	1662.564	1374.533	1513.830	1456.625	1770.190	1660.391	1498.989	1604.761	1733.055	0.000	1564.670	
+phloem-15:15 to	1906.719	1987.332	1884.325	2109.338	2230.234	1874.663	2059.731	2003.940	2019.040	2063.612	1745.750	2257.661	2079.313	2110.955	1934.686	0.000	
+
+Recv max	2369.038922
+Recv avg	1796.490426
+
+Recv	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	phloem-8:8	phloem-9:9	phloem-10:10	phloem-11:11	phloem-12:12	phloem-13:13	phloem-14:14	phloem-15:15	
+phloem-0:0 from	0.000	1330.082	1832.875	1813.344	1625.952	1622.324	1680.571	1576.856	1387.581	1647.209	1701.931	1836.405	1680.605	1659.889	1670.392	1721.559	
+phloem-1:1 from	1639.128	0.000	1626.089	1868.211	1565.003	1791.072	1556.417	1921.546	1520.326	1429.792	1783.408	1689.464	1768.220	1590.014	1482.271	1728.320	
+phloem-2:2 from	1841.857	1988.006	0.000	2126.012	2067.655	2145.354	1953.086	2203.470	1788.085	2078.371	1945.622	2090.348	1769.055	1957.754	2038.060	2044.910	
+phloem-3:3 from	1869.812	1977.124	2147.142	0.000	1932.525	2292.903	1991.932	2086.879	2007.182	1939.999	2338.489	1934.493	2003.667	1995.317	1821.627	2121.140	
+phloem-4:4 from	1645.511	1332.663	1668.568	1837.758	0.000	1496.199	1527.119	1568.465	1740.859	1555.216	1597.482	1656.581	1418.005	1615.873	1453.591	1460.709	
+phloem-5:5 from	1912.816	2023.944	2277.156	2117.287	1765.456	0.000	1960.453	2148.691	2051.672	2023.943	2369.039	2200.838	1969.535	1805.438	1845.975	2105.315	
+phloem-6:6 from	1575.077	1549.087	1453.834	1520.840	1448.981	1431.172	0.000	1691.181	1563.092	1488.096	1574.734	1876.025	1499.193	1578.734	1418.296	1652.615	
+phloem-7:7 from	2094.484	2073.431	2179.668	2076.449	1856.455	2079.648	1945.033	0.000	2184.029	2038.909	2147.431	2163.892	1964.305	2100.200	1858.801	1983.225	
+phloem-8:8 from	1850.495	1844.649	2068.183	1724.449	1898.728	2045.444	2199.381	2109.224	0.000	1769.106	1916.907	2178.103	2141.099	1988.430	1720.079	2211.164	
+phloem-9:9 from	1461.928	1356.301	1687.623	1557.957	1625.025	1511.280	1528.253	1559.575	1428.669	0.000	1833.262	1605.849	1615.257	1559.050	1553.674	1579.895	
+phloem-10:10 from	2073.917	1954.447	2007.263	2067.684	1994.337	1993.691	1995.152	1796.547	2219.341	2066.262	0.000	2018.926	2262.423	2092.133	1967.151	2131.060	
+phloem-11:11 from	1906.077	1838.161	2069.621	1955.544	1959.328	1938.255	1808.042	2075.977	1983.257	2054.266	2176.171	0.000	2147.370	1912.043	1947.624	1993.026	
+phloem-12:12 from	2070.797	1672.494	2098.043	2203.202	1936.643	2115.281	1589.716	2117.189	2268.161	2019.355	1728.160	2212.677	0.000	1959.659	1802.691	2107.213	
+phloem-13:13 from	1689.259	1561.503	1552.526	1495.072	1543.584	1411.259	1480.737	1877.523	1391.232	1622.192	1594.777	1681.117	1388.558	0.000	1627.936	1599.180	
+phloem-14:14 from	1607.161	1501.183	1663.230	1772.878	1459.288	1515.974	1376.726	1665.312	1691.663	1522.106	1597.907	1708.249	1433.626	1567.429	0.000	1745.795	
+phloem-15:15 from	1938.950	2116.859	2084.755	2264.311	1749.136	2068.870	2024.296	2008.505	2064.164	1878.929	2235.939	2138.700	1887.786	2009.107	1910.630	0.000	
+END mpiGraph
+FLUX-RUN END phloem-iter-1
+FLUX-RUN START phloem-iter-2
+START mpiGraph v1.6
+MsgSize	16384
+Times	100
+Window	50
+Procs	16
+
+1 of 16 (6.2%)
+2 of 16 (12.5%)
+3 of 16 (18.8%)
+4 of 16 (25.0%)
+5 of 16 (31.2%)
+6 of 16 (37.5%)
+7 of 16 (43.8%)
+8 of 16 (50.0%)
+9 of 16 (56.2%)
+10 of 16 (62.5%)
+11 of 16 (68.8%)
+12 of 16 (75.0%)
+13 of 16 (81.2%)
+14 of 16 (87.5%)
+15 of 16 (93.8%)
+Gathering results
+
+Send max	2321.126973
+Send avg	2026.303882
+
+Send	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	phloem-8:8	phloem-9:9	phloem-10:10	phloem-11:11	phloem-12:12	phloem-13:13	phloem-14:14	phloem-15:15	
+phloem-0:0 to	0.000	1966.927	2085.809	2084.267	2131.805	2025.766	2064.122	1951.164	1857.587	2050.676	2109.257	2050.440	2087.942	2059.940	2143.428	1680.657	
+phloem-1:1 to	2156.268	0.000	1865.364	2263.235	2129.508	2122.421	2118.655	2127.172	2015.679	1716.370	1824.378	2134.208	2116.121	2084.169	2121.514	2168.637	
+phloem-2:2 to	2232.330	2103.859	0.000	2009.117	2143.036	1966.629	2107.672	1747.709	2246.640	1931.707	1770.054	2178.908	1846.992	1718.669	2135.521	2178.023	
+phloem-3:3 to	1654.953	2118.641	2046.610	0.000	2056.289	2123.548	1798.055	2098.929	2093.156	1888.591	1914.531	2000.055	1628.783	1673.382	2118.849	2163.894	
+phloem-4:4 to	2117.918	2105.928	2100.147	2262.295	0.000	2057.822	2156.916	2077.731	2097.854	1950.548	2124.056	1990.838	1990.875	2000.813	2117.504	2321.127	
+phloem-5:5 to	2180.215	2131.573	2132.111	2001.045	2058.605	0.000	1940.946	2123.247	2118.909	2090.655	2056.728	1993.374	2221.929	1874.993	2051.682	1968.496	
+phloem-6:6 to	2057.525	2040.002	2049.891	1928.764	2165.852	2090.800	0.000	1970.916	2202.549	1483.173	2081.398	1860.661	2075.432	1822.276	2002.370	1739.677	
+phloem-7:7 to	2120.121	1901.662	1916.812	2035.508	2153.832	2299.625	2085.196	0.000	2096.405	2065.679	2034.765	2190.565	2012.078	2040.726	2199.393	2015.514	
+phloem-8:8 to	1811.324	2064.157	1678.519	2039.944	2145.540	1903.480	2169.732	2083.885	0.000	2075.666	2187.316	1609.192	1972.995	2019.141	1907.127	1993.283	
+phloem-9:9 to	2108.823	1967.595	2061.218	2158.905	2121.295	1954.749	2189.306	2160.464	2157.496	0.000	1922.837	2134.333	2069.636	2179.141	2141.374	2120.417	
+phloem-10:10 to	2167.647	1788.201	1640.911	1616.298	1899.358	2048.882	2128.703	2103.543	1907.978	2088.508	0.000	2122.982	2182.013	1886.991	2288.043	2044.339	
+phloem-11:11 to	1795.981	2142.823	2072.608	1947.857	2040.310	2115.072	2212.014	2018.133	1991.164	2110.012	2185.084	0.000	2051.228	2121.278	2114.315	2110.692	
+phloem-12:12 to	2079.901	2110.820	2137.085	2184.810	2021.707	1500.893	2240.851	2158.928	2102.114	2139.002	2089.982	2128.489	0.000	2062.232	2201.531	2147.468	
+phloem-13:13 to	2134.512	2056.568	1699.125	2093.998	2042.552	1957.015	2125.221	1520.075	2024.437	2320.748	2084.327	1668.767	2136.813	0.000	1983.872	2133.331	
+phloem-14:14 to	2070.545	1899.294	2158.035	2122.721	1896.254	1983.047	1970.782	2007.497	2041.108	1969.633	2215.368	2093.725	2298.122	2176.098	0.000	2021.038	
+phloem-15:15 to	2071.325	2039.070	2240.427	2067.970	2176.867	2050.237	2065.364	2002.904	1974.384	2137.818	2096.771	1992.049	2055.536	2075.851	1814.448	0.000	
+
+Recv max	2327.087495
+Recv avg	2031.159989
+
+Recv	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	phloem-8:8	phloem-9:9	phloem-10:10	phloem-11:11	phloem-12:12	phloem-13:13	phloem-14:14	phloem-15:15	
+phloem-0:0 from	0.000	1683.819	2147.197	2065.404	2093.231	2054.607	2113.858	2055.340	1861.720	1956.677	2071.153	2030.658	2137.365	2090.451	2091.353	1969.736	
+phloem-1:1 from	1868.542	0.000	2161.385	2174.281	2125.980	2089.610	2121.070	2139.379	1825.612	1719.448	2021.000	2132.851	2124.206	2127.583	2135.245	2269.699	
+phloem-2:2 from	2148.035	2013.725	0.000	2108.659	2238.030	2183.380	2142.372	1721.266	1849.389	2184.394	1773.268	1935.646	2261.806	1749.817	2112.950	1971.152	
+phloem-3:3 from	1799.352	2128.283	2061.128	0.000	2052.523	2124.604	1656.724	2169.763	2123.165	1675.942	1627.995	2004.762	1917.963	1893.047	2097.789	2104.421	
+phloem-4:4 from	2102.214	2081.073	2163.007	2062.709	0.000	2267.618	2105.184	2110.463	2122.651	2326.059	2122.940	2004.740	1994.864	1994.820	2129.293	1955.180	
+phloem-5:5 from	2060.913	2119.760	2124.055	2128.885	1945.724	0.000	2063.559	2004.786	2137.683	2141.114	2187.025	1974.527	2056.220	1878.904	2227.567	1998.528	
+phloem-6:6 from	2081.093	1863.419	2086.497	1484.815	2208.211	1975.651	0.000	2095.513	2170.998	1930.677	2055.351	2043.999	2062.322	1743.224	2007.514	1825.302	
+phloem-7:7 from	2204.230	2045.956	2016.844	2202.205	2038.060	2079.449	2101.316	0.000	2089.564	2307.672	2158.772	2040.968	1918.887	1905.278	2124.033	2020.064	
+phloem-8:8 from	1814.757	1997.176	1909.400	2023.675	1977.802	1612.253	2192.946	2079.241	0.000	2089.384	2175.442	1908.249	2151.231	2044.665	1681.106	2067.699	
+phloem-9:9 from	2066.259	1971.767	2113.454	2125.901	2146.188	2185.172	2074.750	2140.065	1926.790	0.000	2162.647	2165.435	2194.244	1958.623	2126.226	2163.745	
+phloem-10:10 from	1903.793	1617.210	1643.757	1793.522	2174.488	2049.205	2295.239	1892.320	2193.098	2128.483	0.000	2093.264	1913.432	2109.004	2134.824	2055.038	
+phloem-11:11 from	2217.713	2121.227	2045.381	1952.480	2076.944	2146.947	1799.927	2116.520	2118.456	2127.436	2056.123	0.000	2190.960	2115.397	1995.821	2023.897	
+phloem-12:12 from	2108.333	2164.824	2245.838	1501.862	2027.538	2190.667	2142.467	2115.758	2092.195	2153.222	2207.566	2067.124	0.000	2134.296	2093.473	2144.726	
+phloem-13:13 from	2092.311	2327.087	2029.743	1522.695	2130.528	1961.204	2047.694	2100.147	1701.319	2061.884	2141.678	2138.152	1988.893	0.000	2142.764	1671.110	
+phloem-14:14 from	2303.855	2098.670	2221.216	1973.778	2046.699	2011.377	1975.434	1987.973	1899.620	2127.942	2163.113	1903.853	2075.639	2025.652	0.000	2181.901	
+phloem-15:15 from	1816.698	2077.479	2060.760	1997.010	2101.938	2144.402	1979.037	2007.696	2068.846	2056.172	2182.209	2073.157	2245.833	2043.103	2076.474	0.000	
+END mpiGraph
+FLUX-RUN END phloem-iter-2
+FLUX-RUN START phloem-iter-3
+START mpiGraph v1.6
+MsgSize	16384
+Times	100
+Window	50
+Procs	16
+
+1 of 16 (6.2%)
+2 of 16 (12.5%)
+3 of 16 (18.8%)
+4 of 16 (25.0%)
+5 of 16 (31.2%)
+6 of 16 (37.5%)
+7 of 16 (43.8%)
+8 of 16 (50.0%)
+9 of 16 (56.2%)
+10 of 16 (62.5%)
+11 of 16 (68.8%)
+12 of 16 (75.0%)
+13 of 16 (81.2%)
+14 of 16 (87.5%)
+15 of 16 (93.8%)
+Gathering results
+
+Send max	2418.805760
+Send avg	2035.975880
+
+Send	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	phloem-8:8	phloem-9:9	phloem-10:10	phloem-11:11	phloem-12:12	phloem-13:13	phloem-14:14	phloem-15:15	
+phloem-0:0 to	0.000	2009.108	2087.747	2197.173	2184.063	2003.436	2033.606	2152.932	1920.715	1859.577	1934.356	1784.297	2060.370	2165.128	2070.739	2111.630	
+phloem-1:1 to	2284.944	0.000	2077.619	1832.152	2114.898	2151.438	2148.634	2163.501	2100.055	1933.311	2087.136	2118.390	2151.268	1697.104	2141.757	2161.073	
+phloem-2:2 to	2295.127	2113.486	0.000	2049.473	2107.311	1871.953	2139.648	2093.181	2163.393	1941.447	2030.307	1906.489	2068.407	2201.301	2059.603	1793.695	
+phloem-3:3 to	2160.914	2130.596	2027.077	0.000	2084.408	2161.079	2093.804	2294.723	2075.047	2035.389	2190.353	1904.869	2178.017	1995.315	2037.764	1932.364	
+phloem-4:4 to	2062.972	2115.280	2084.019	2084.715	0.000	2056.711	2165.126	2039.129	1663.395	2095.348	2059.462	2071.686	1921.568	2166.512	2135.745	2032.654	
+phloem-5:5 to	1921.870	1895.561	2023.406	2184.582	1895.269	0.000	1955.364	1921.531	1663.246	1979.105	2035.804	1723.234	1739.142	1943.059	2056.355	1882.109	
+phloem-6:6 to	2026.541	2047.085	2075.500	1820.250	2155.520	1915.144	0.000	2026.476	2173.098	2190.237	2096.588	2204.365	1986.681	2162.220	1876.802	2248.900	
+phloem-7:7 to	1777.548	2131.910	2208.558	2404.418	1921.944	2122.386	2147.727	0.000	2040.581	2075.547	2192.493	2108.119	2072.208	2034.785	2002.562	1818.660	
+phloem-8:8 to	2043.589	2088.540	2095.628	2165.009	2116.652	2055.457	2077.385	1979.311	0.000	2111.900	2173.180	2137.374	1956.511	2087.909	1716.463	1931.624	
+phloem-9:9 to	2128.975	1963.272	2177.592	2158.495	2098.774	2009.731	1778.934	2130.278	2208.134	0.000	2029.396	2079.345	1991.428	2132.804	2112.219	2106.480	
+phloem-10:10 to	2136.396	2004.415	1968.416	1961.037	2091.044	2034.301	2006.741	1993.829	2172.603	2098.834	0.000	1937.468	2217.130	1767.843	1853.718	2039.786	
+phloem-11:11 to	2053.943	1660.087	2141.664	1947.568	1660.966	2047.053	1816.687	1873.694	1990.590	2014.555	2122.241	0.000	1880.288	1727.448	2079.815	2125.496	
+phloem-12:12 to	2228.472	2086.946	2190.732	1993.490	2013.216	1699.207	2105.964	2118.145	2092.660	2108.730	2049.858	2111.677	0.000	2063.298	2062.020	2171.801	
+phloem-13:13 to	1915.361	2029.415	2101.492	2089.060	2053.377	2001.830	2137.753	2160.413	1974.610	2284.869	2175.167	2088.194	2140.282	0.000	2133.554	1946.019	
+phloem-14:14 to	2418.806	2292.589	2239.500	2192.476	1923.181	1909.393	1758.265	2042.390	2187.431	2413.875	2232.782	2264.356	2410.766	2146.847	0.000	2021.605	
+phloem-15:15 to	2219.821	1836.517	2124.891	2062.543	2077.631	1860.922	2119.463	1695.274	2064.082	1927.498	2095.870	1710.436	1655.607	2022.830	2185.082	0.000	
+
+Recv max	2429.955994
+Recv avg	2040.836933
+
+Recv	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	phloem-8:8	phloem-9:9	phloem-10:10	phloem-11:11	phloem-12:12	phloem-13:13	phloem-14:14	phloem-15:15	
+phloem-0:0 from	0.000	2115.418	2074.776	2170.762	2065.504	1786.898	1938.527	1863.089	1924.838	2158.228	2039.071	2008.325	2191.805	2201.708	2091.750	2014.280	
+phloem-1:1 from	2082.817	0.000	2290.979	2171.985	2147.862	1699.953	2156.781	2123.299	2092.123	1938.148	2104.121	2169.209	2154.204	2157.737	2120.932	1835.033	
+phloem-2:2 from	2112.209	2054.076	0.000	2118.624	2301.200	1795.413	2064.373	2205.673	2073.180	1907.948	2034.820	1945.799	2169.856	2099.360	2145.115	1872.986	
+phloem-3:3 from	2099.169	2167.162	2089.547	0.000	2031.634	2136.663	2166.463	1938.210	2042.133	1999.828	2183.379	1909.439	2195.807	2040.834	2080.281	2301.268	
+phloem-4:4 from	1666.876	2044.220	2171.638	2061.071	0.000	2089.367	2090.879	2121.141	2067.915	2037.332	2141.607	2171.253	1925.360	2076.077	2064.378	2101.860	
+phloem-5:5 from	2041.476	1984.144	1665.235	1926.809	1960.335	0.000	1899.293	2189.973	2028.492	1897.544	1926.081	1885.823	2061.419	1947.537	1741.388	1725.853	
+phloem-6:6 from	1991.472	2210.026	2102.355	2196.525	2178.655	2031.458	0.000	1920.110	2161.778	1823.987	2081.414	2052.528	2030.897	2253.643	1880.417	2168.035	
+phloem-7:7 from	2007.620	2040.364	2078.551	2113.783	2198.716	2080.855	2045.605	0.000	2152.710	2127.809	1925.560	2410.721	2215.398	2137.098	1780.278	1822.166	
+phloem-8:8 from	2048.048	1935.403	1719.660	2093.355	1960.459	2141.962	2178.551	2116.656	0.000	1985.269	2082.837	2060.293	2127.263	2169.223	2099.957	2093.582	
+phloem-9:9 from	2183.161	1969.244	2134.451	2111.621	2117.741	2138.389	1997.071	2085.688	2034.896	0.000	2214.190	2136.808	1782.163	2013.556	2104.308	2163.329	
+phloem-10:10 from	2097.088	1967.029	1973.001	2010.323	2141.764	2044.594	1857.923	1770.634	2222.685	1941.877	0.000	2104.205	2178.147	1996.667	2011.925	2036.720	
+phloem-11:11 from	1820.932	2051.436	1663.489	1953.040	2146.787	1663.024	2058.350	2130.823	2084.783	1731.228	1884.641	0.000	2127.538	2019.493	1994.408	1877.794	
+phloem-12:12 from	2098.771	2123.305	2111.657	1702.731	2017.532	1998.108	2196.306	2092.368	2234.888	2177.165	2067.328	2068.260	0.000	2116.459	2055.113	2115.327	
+phloem-13:13 from	2180.103	2291.231	1978.796	2166.039	2143.289	2006.375	2057.823	2093.697	2106.777	2034.298	1918.727	1949.188	2138.995	0.000	2145.522	2101.898	
+phloem-14:14 from	2417.557	2269.163	2239.030	2421.070	2192.224	2047.688	1761.049	1911.203	1927.399	2197.917	2245.686	2299.050	2429.956	2026.304	0.000	2151.233	
+phloem-15:15 from	2191.036	2028.451	1658.354	1713.950	2100.592	1932.652	2068.155	1698.134	2124.593	1862.765	2083.144	2068.479	2130.532	1839.103	2225.664	0.000	
+END mpiGraph
+FLUX-RUN END phloem-iter-3
+0% [Working]            Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+0% [Connecting to security.ubuntu.com (185.125.190.83)]                                                       Get:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [2 InRelease 6932 B/128 kB 5%] [Connecting to security.ubuntu.com (185.125.1                                                                               0% [2 InRelease 64.9 kB/128 kB 51%] [Waiting for headers]                                                         Get:3 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [2 InRelease 117 kB/128 kB 91%] [3 InRelease 9828 B/129 kB 8%]                                                                 0% [3 InRelease 14.2 kB/129 kB 11%]                                   Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 2588 B/127 kB 2%] [3 InRelease 14.2 kB/129 kB 11%]0% [4 InRelease 127 kB/127 kB 100%] [3 InRelease 14.2 kB/129 kB 11%]                                                                    0% [3 InRelease 14.2 kB/129 kB 11%]                                   Get:5 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+0% [5 Packages 5759 B/4420 kB 0%] [3 InRelease 14.2 kB/129 kB 11%]0% [5 Packages 233 kB/4420 kB 5%] [3 InRelease 31.5 kB/129 kB 24%]                                                                  0% [Waiting for headers] [3 InRelease 69.2 kB/129 kB 54%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+                                                         Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+0% [7 Packages 598 kB/3200 kB 19%] [3 InRelease 69.2 kB/129 kB 54%]0% [5 Packages store 0 B] [7 Packages 627 kB/3200 kB 20%] [3 InRelease 69.2 kB/0% [5 Packages store 0 B] [Waiting for headers] [3 InRelease 77.9 kB/129 kB 60%                                                                               Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+0% [5 Packages store 0 B] [8 Packages 28.7 kB/1544 kB 2%] [3 InRelease 77.9 kB/                                                                               0% [5 Packages store 0 B] [3 InRelease 77.9 kB/129 kB 60%]                                                          0% [3 InRelease 121 kB/129 kB 94%]0% [6 Packages store 0 B] [3 InRelease 121 kB/129 kB 94%]                                                         0% [3 InRelease 124 kB/129 kB 96%]0% [7 Packages store 0 B] [3 InRelease 124 kB/129 kB 96%]                                                         0% [7 Packages store 0 B]89% [7 Packages store 0 B]                          90% [Waiting for headers]90% [8 Packages store 0 B] [Waiting for headers]                                                Get:9 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+90% [8 Packages store 0 B] [9 Packages 2655 B/1244 kB 0%]                                                         90% [9 Packages 2655 B/1244 kB 0%]                                  99% [Working]99% [9 Packages store 0 B]                          100% [Working]              Fetched 10.8 MB in 1s (8060 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
+
+FLUX-JOB START 99807657984 phloem-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "exclusive": true, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["mpiGraph", "-d", "2", "-p", "1408"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/phloem", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "phloem-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["phloem-[0-15]"], "starttime": 1746404425, "expiration": 4900004419}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746404425.4927359,"name":"init"}
+{"timestamp":1746404425.4934056,"name":"starting"}
+{"timestamp":1746404425.5102046,"name":"shell.init","context":{"service":"0-shell-f3d4fLUP","leader-rank":0,"size":16}}
+{"timestamp":1746404425.5150707,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,1,1]]}}}
+{"timestamp":1746404427.8423836,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":111,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746404427.8464766,"name":"complete","context":{"status":0}}
+{"timestamp":1746404427.8464968,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 99807657984 phloem-iter-3
+
+FLUX-JOB START 58133053440 phloem-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "exclusive": true, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["mpiGraph", "-d", "2", "-p", "1408"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/phloem", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "phloem-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["phloem-[0-15]"], "starttime": 1746404423, "expiration": 4900004419}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746404423.0083039,"name":"init"}
+{"timestamp":1746404423.0089839,"name":"starting"}
+{"timestamp":1746404423.0242622,"name":"shell.init","context":{"service":"0-shell-f2Xa26Tq","leader-rank":0,"size":16}}
+{"timestamp":1746404423.0269608,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,1,1]]}}}
+{"timestamp":1746404425.365674,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":106,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746404425.3698554,"name":"complete","context":{"status":0}}
+{"timestamp":1746404425.3698766,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 58133053440 phloem-iter-2
+
+FLUX-JOB START 11089739776 phloem-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "exclusive": true, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["mpiGraph", "-d", "2", "-p", "1408"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/phloem", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "phloem-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["phloem-[0-15]"], "starttime": 1746404420, "expiration": 4900004419}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746404420.2048454,"name":"init"}
+{"timestamp":1746404420.2053854,"name":"starting"}
+{"timestamp":1746404420.2269909,"name":"shell.init","context":{"service":"0-shell-fHtxpGw","leader-rank":0,"size":16}}
+{"timestamp":1746404420.2301564,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,1,1]]}}}
+{"timestamp":1746404422.881865,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":101,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746404422.8858216,"name":"complete","context":{"status":0}}
+{"timestamp":1746404422.8858523,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 11089739776 phloem-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":3,"total":3},"successful":3,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}
