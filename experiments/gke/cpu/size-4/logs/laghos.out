@@ -1,4 +1,40 @@
 Defaulted container "laghos" out of: laghos, flux-view (init)
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START laghos-iter-$i"
+  flux run --setattr=user.study_id=laghos-iter-$i -N4 -n 352 -o cpu-affinity=per-task -o gpu-affinity=off     laghos --mesh /opt/laghos/data/cube_311_hex.mesh --max-steps 500 -p 1  -rs 5           --fom |& tee /tmp/laghos.out
+  
+   echo "FLUX-RUN END laghos-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
      STATE NNODES   NCORES    NGPUS NODELIST
       free      4      352        0 laghos-[0-3]
  allocated      0        0        0 
@@ -13,22 +49,22 @@ FLUX-RUN START laghos-iter-1
                /____/                       
 
 Options used:
-   --dimension 2
+   --dimension 3
    --mesh /opt/laghos/data/cube_311_hex.mesh
-   --refine-serial 3
-   --refine-parallel 2
+   --refine-serial 5
+   --refine-parallel 0
    --cartesian-partitioning ''
    --problem 1
-   --order-kinematic 3
-   --order-thermo 2
+   --order-kinematic 2
+   --order-thermo 1
    --order-intrule -1
    --ode-solver 4
-   --t-final 0.8
+   --t-final 0.6
    --cfl 0.5
    --cg-tol 1e-08
    --ftz-tol 0
-   --cg-max-steps 50
-   --max-steps 400
+   --cg-max-steps 300
+   --max-steps 500
    --partial-assembly
    --no-impose-viscosity
    --no-visualization
@@ -36,7 +72,7 @@ Options used:
    --no-visit
    --no-print
    --outputfilename results/Laghos
-   --partition 311
+   --partition 0
    --device cpu
    --no-checks
    --no-mem
@@ -45,119 +81,136 @@ Options used:
    --dev 0
 Device configuration: cpu
 Memory configuration: host-std
-Number of zones in the serial mesh: 1536
-Mesh::GeneratePartitioning(...): METIS returned 41 empty parts! Applying a simple fix ...
+Number of zones in the serial mesh: 98304
 Non-Cartesian partitioning through METIS will be used.
-Mesh::GeneratePartitioning(...): edgecut = 2905
-Zones min/max: 192 384
-Number of kinematic (position, velocity) dofs: 8157603
-Number of specific internal energy dofs: 2654208
-Repeating step 3
-Repeating step 5
-step     5,	t = 0.0000,	dt = 0.000001,	|e| = 3.6648291079e+05
-step    10,	t = 0.0000,	dt = 0.000001,	|e| = 3.4489688507e+05
-step    15,	t = 0.0000,	dt = 0.000001,	|e| = 3.2554776215e+05
-step    20,	t = 0.0000,	dt = 0.000001,	|e| = 3.0877156595e+05
-step    25,	t = 0.0000,	dt = 0.000001,	|e| = 2.9382725016e+05
-step    30,	t = 0.0000,	dt = 0.000001,	|e| = 2.8075814875e+05
-step    35,	t = 0.0000,	dt = 0.000001,	|e| = 2.6861736576e+05
-step    40,	t = 0.0000,	dt = 0.000001,	|e| = 2.5681360501e+05
-step    45,	t = 0.0000,	dt = 0.000001,	|e| = 2.4609706733e+05
-step    50,	t = 0.0001,	dt = 0.000001,	|e| = 2.3637430606e+05
-step    55,	t = 0.0001,	dt = 0.000001,	|e| = 2.2764054534e+05
-step    60,	t = 0.0001,	dt = 0.000001,	|e| = 2.1983167393e+05
-step    65,	t = 0.0001,	dt = 0.000001,	|e| = 2.1284438961e+05
-step    70,	t = 0.0001,	dt = 0.000001,	|e| = 2.0656251820e+05
-step    75,	t = 0.0001,	dt = 0.000001,	|e| = 2.0083971133e+05
-step    80,	t = 0.0001,	dt = 0.000001,	|e| = 1.9535272528e+05
-step    85,	t = 0.0001,	dt = 0.000001,	|e| = 1.9011215806e+05
-step    90,	t = 0.0001,	dt = 0.000001,	|e| = 1.8521440086e+05
-step    95,	t = 0.0001,	dt = 0.000001,	|e| = 1.8063664926e+05
-step   100,	t = 0.0001,	dt = 0.000001,	|e| = 1.7629139000e+05
-step   105,	t = 0.0001,	dt = 0.000001,	|e| = 1.7226653230e+05
-step   110,	t = 0.0001,	dt = 0.000001,	|e| = 1.6852512358e+05
-step   115,	t = 0.0001,	dt = 0.000001,	|e| = 1.6508511500e+05
-step   120,	t = 0.0001,	dt = 0.000001,	|e| = 1.6190226373e+05
-step   125,	t = 0.0002,	dt = 0.000001,	|e| = 1.5893425364e+05
-step   130,	t = 0.0002,	dt = 0.000001,	|e| = 1.5614792669e+05
-step   135,	t = 0.0002,	dt = 0.000001,	|e| = 1.5352146611e+05
-Repeating step 140
-step   140,	t = 0.0002,	dt = 0.000001,	|e| = 1.5107145652e+05
-step   145,	t = 0.0002,	dt = 0.000001,	|e| = 1.4901899353e+05
-step   150,	t = 0.0002,	dt = 0.000001,	|e| = 1.4705656214e+05
-step   155,	t = 0.0002,	dt = 0.000001,	|e| = 1.4517866449e+05
-step   160,	t = 0.0002,	dt = 0.000001,	|e| = 1.4338124070e+05
-Repeating step 162
-step   165,	t = 0.0002,	dt = 0.000001,	|e| = 1.4186210139e+05
-step   170,	t = 0.0002,	dt = 0.000001,	|e| = 1.4044739736e+05
-step   175,	t = 0.0002,	dt = 0.000001,	|e| = 1.3908165963e+05
-step   180,	t = 0.0002,	dt = 0.000001,	|e| = 1.3774704213e+05
-Repeating step 182
-Repeating step 183
-step   185,	t = 0.0002,	dt = 0.000001,	|e| = 1.3666798093e+05
-step   190,	t = 0.0002,	dt = 0.000001,	|e| = 1.3571563055e+05
-step   195,	t = 0.0002,	dt = 0.000001,	|e| = 1.3478786526e+05
-step   200,	t = 0.0002,	dt = 0.000001,	|e| = 1.3388384044e+05
-step   205,	t = 0.0002,	dt = 0.000001,	|e| = 1.3300287589e+05
-step   210,	t = 0.0003,	dt = 0.000001,	|e| = 1.3212016067e+05
-step   215,	t = 0.0003,	dt = 0.000001,	|e| = 1.3123612892e+05
-step   220,	t = 0.0003,	dt = 0.000001,	|e| = 1.3037159149e+05
-step   225,	t = 0.0003,	dt = 0.000001,	|e| = 1.2951264039e+05
-step   230,	t = 0.0003,	dt = 0.000001,	|e| = 1.2866269603e+05
-step   235,	t = 0.0003,	dt = 0.000001,	|e| = 1.2780497514e+05
-step   240,	t = 0.0003,	dt = 0.000001,	|e| = 1.2694659973e+05
-step   245,	t = 0.0003,	dt = 0.000001,	|e| = 1.2611096218e+05
-step   250,	t = 0.0003,	dt = 0.000001,	|e| = 1.2529715242e+05
-step   255,	t = 0.0003,	dt = 0.000001,	|e| = 1.2450111450e+05
-step   260,	t = 0.0003,	dt = 0.000001,	|e| = 1.2370688791e+05
-step   265,	t = 0.0003,	dt = 0.000001,	|e| = 1.2292084749e+05
-step   270,	t = 0.0003,	dt = 0.000001,	|e| = 1.2213362751e+05
-step   275,	t = 0.0003,	dt = 0.000001,	|e| = 1.2135440244e+05
-step   280,	t = 0.0003,	dt = 0.000001,	|e| = 1.2058292429e+05
-step   285,	t = 0.0003,	dt = 0.000001,	|e| = 1.1981898705e+05
-step   290,	t = 0.0003,	dt = 0.000001,	|e| = 1.1907097287e+05
-step   295,	t = 0.0003,	dt = 0.000001,	|e| = 1.1831500436e+05
-step   300,	t = 0.0003,	dt = 0.000001,	|e| = 1.1756307912e+05
-step   305,	t = 0.0003,	dt = 0.000001,	|e| = 1.1681509809e+05
-step   310,	t = 0.0004,	dt = 0.000001,	|e| = 1.1606809418e+05
-Repeating step 315
-step   315,	t = 0.0004,	dt = 0.000001,	|e| = 1.1534979195e+05
-step   320,	t = 0.0004,	dt = 0.000001,	|e| = 1.1473425965e+05
-step   325,	t = 0.0004,	dt = 0.000001,	|e| = 1.1413119284e+05
-step   330,	t = 0.0004,	dt = 0.000001,	|e| = 1.1354012781e+05
-step   335,	t = 0.0004,	dt = 0.000001,	|e| = 1.1296062425e+05
-step   340,	t = 0.0004,	dt = 0.000001,	|e| = 1.1239231259e+05
-step   345,	t = 0.0004,	dt = 0.000001,	|e| = 1.1182822517e+05
-step   350,	t = 0.0004,	dt = 0.000001,	|e| = 1.1126623860e+05
-step   355,	t = 0.0004,	dt = 0.000001,	|e| = 1.1070425663e+05
-step   360,	t = 0.0004,	dt = 0.000001,	|e| = 1.1014017412e+05
-step   365,	t = 0.0004,	dt = 0.000001,	|e| = 1.0957630959e+05
-step   370,	t = 0.0004,	dt = 0.000001,	|e| = 1.0901050228e+05
-step   375,	t = 0.0004,	dt = 0.000001,	|e| = 1.0845383869e+05
-step   380,	t = 0.0004,	dt = 0.000001,	|e| = 1.0790812237e+05
-step   385,	t = 0.0004,	dt = 0.000001,	|e| = 1.0737287115e+05
-step   390,	t = 0.0004,	dt = 0.000001,	|e| = 1.0684752682e+05
-step   394,	t = 0.0005,	dt = 0.000001,	|e| = 1.0643412856e+05
+Zones min/max: 271 287
+Number of kinematic (position, velocity) dofs: 2446275
+Number of specific internal energy dofs: 786432
+Repeating step 2
+Repeating step 4
+step     5,	t = 0.0000,	dt = 0.000003,	|e| = 1.1041050265e+05
+Repeating step 6
+step    10,	t = 0.0000,	dt = 0.000002,	|e| = 1.0587593766e+05
+step    15,	t = 0.0000,	dt = 0.000002,	|e| = 1.0104224294e+05
+step    20,	t = 0.0001,	dt = 0.000002,	|e| = 9.6475784894e+04
+step    25,	t = 0.0001,	dt = 0.000002,	|e| = 9.2279896204e+04
+step    30,	t = 0.0001,	dt = 0.000003,	|e| = 8.8218981925e+04
+step    35,	t = 0.0001,	dt = 0.000003,	|e| = 8.4485124462e+04
+step    40,	t = 0.0001,	dt = 0.000003,	|e| = 8.1135685625e+04
+step    45,	t = 0.0001,	dt = 0.000003,	|e| = 7.8112185650e+04
+step    50,	t = 0.0001,	dt = 0.000003,	|e| = 7.5345950945e+04
+step    55,	t = 0.0001,	dt = 0.000003,	|e| = 7.2790911522e+04
+step    60,	t = 0.0002,	dt = 0.000003,	|e| = 7.0352359109e+04
+step    65,	t = 0.0002,	dt = 0.000003,	|e| = 6.7980877094e+04
+step    70,	t = 0.0002,	dt = 0.000003,	|e| = 6.5688538086e+04
+step    75,	t = 0.0002,	dt = 0.000003,	|e| = 6.3550228744e+04
+step    80,	t = 0.0002,	dt = 0.000004,	|e| = 6.1520716850e+04
+step    85,	t = 0.0002,	dt = 0.000004,	|e| = 5.9632006005e+04
+step    90,	t = 0.0003,	dt = 0.000004,	|e| = 5.7921052408e+04
+step    95,	t = 0.0003,	dt = 0.000004,	|e| = 5.6353686827e+04
+Repeating step 96
+step   100,	t = 0.0003,	dt = 0.000003,	|e| = 5.5127191706e+04
+Repeating step 103
+step   105,	t = 0.0003,	dt = 0.000003,	|e| = 5.4092709423e+04
+step   110,	t = 0.0003,	dt = 0.000003,	|e| = 5.3189544901e+04
+step   115,	t = 0.0003,	dt = 0.000003,	|e| = 5.2341250187e+04
+step   120,	t = 0.0004,	dt = 0.000003,	|e| = 5.1542955181e+04
+step   125,	t = 0.0004,	dt = 0.000003,	|e| = 5.0778557956e+04
+step   130,	t = 0.0004,	dt = 0.000003,	|e| = 5.0041186391e+04
+step   135,	t = 0.0004,	dt = 0.000003,	|e| = 4.9344213293e+04
+step   140,	t = 0.0004,	dt = 0.000003,	|e| = 4.8683760661e+04
+step   145,	t = 0.0004,	dt = 0.000003,	|e| = 4.8056703025e+04
+step   150,	t = 0.0004,	dt = 0.000003,	|e| = 4.7460335514e+04
+step   155,	t = 0.0005,	dt = 0.000003,	|e| = 4.6892317389e+04
+step   160,	t = 0.0005,	dt = 0.000003,	|e| = 4.6350304681e+04
+step   165,	t = 0.0005,	dt = 0.000003,	|e| = 4.5831885336e+04
+step   170,	t = 0.0005,	dt = 0.000003,	|e| = 4.5335103708e+04
+step   175,	t = 0.0005,	dt = 0.000003,	|e| = 4.4858061860e+04
+step   180,	t = 0.0005,	dt = 0.000003,	|e| = 4.4399668434e+04
+step   185,	t = 0.0005,	dt = 0.000003,	|e| = 4.3958766428e+04
+step   190,	t = 0.0005,	dt = 0.000003,	|e| = 4.3534311239e+04
+step   195,	t = 0.0006,	dt = 0.000003,	|e| = 4.3125228110e+04
+step   200,	t = 0.0006,	dt = 0.000003,	|e| = 4.2727258510e+04
+step   205,	t = 0.0006,	dt = 0.000003,	|e| = 4.2335197311e+04
+step   210,	t = 0.0006,	dt = 0.000003,	|e| = 4.1947279217e+04
+step   215,	t = 0.0006,	dt = 0.000003,	|e| = 4.1563513151e+04
+step   220,	t = 0.0006,	dt = 0.000003,	|e| = 4.1191354290e+04
+step   225,	t = 0.0007,	dt = 0.000003,	|e| = 4.0831692594e+04
+step   230,	t = 0.0007,	dt = 0.000003,	|e| = 4.0483884310e+04
+step   235,	t = 0.0007,	dt = 0.000003,	|e| = 4.0147242885e+04
+step   240,	t = 0.0007,	dt = 0.000003,	|e| = 3.9821058024e+04
+step   245,	t = 0.0007,	dt = 0.000003,	|e| = 3.9504681483e+04
+step   250,	t = 0.0007,	dt = 0.000003,	|e| = 3.9197765205e+04
+step   255,	t = 0.0007,	dt = 0.000003,	|e| = 3.8899912596e+04
+step   260,	t = 0.0008,	dt = 0.000003,	|e| = 3.8610607209e+04
+step   265,	t = 0.0008,	dt = 0.000003,	|e| = 3.8329351415e+04
+step   270,	t = 0.0008,	dt = 0.000003,	|e| = 3.8055771358e+04
+step   275,	t = 0.0008,	dt = 0.000003,	|e| = 3.7789482320e+04
+step   280,	t = 0.0008,	dt = 0.000003,	|e| = 3.7530139893e+04
+step   285,	t = 0.0008,	dt = 0.000003,	|e| = 3.7277451697e+04
+step   290,	t = 0.0009,	dt = 0.000003,	|e| = 3.7031021453e+04
+step   295,	t = 0.0009,	dt = 0.000003,	|e| = 3.6790570658e+04
+step   300,	t = 0.0009,	dt = 0.000003,	|e| = 3.6555881706e+04
+step   305,	t = 0.0009,	dt = 0.000003,	|e| = 3.6326684139e+04
+step   310,	t = 0.0009,	dt = 0.000003,	|e| = 3.6102694574e+04
+step   315,	t = 0.0009,	dt = 0.000003,	|e| = 3.5883663868e+04
+step   320,	t = 0.0009,	dt = 0.000003,	|e| = 3.5669364757e+04
+step   325,	t = 0.0010,	dt = 0.000003,	|e| = 3.5459581888e+04
+step   330,	t = 0.0010,	dt = 0.000003,	|e| = 3.5254103205e+04
+step   335,	t = 0.0010,	dt = 0.000003,	|e| = 3.5052718826e+04
+step   340,	t = 0.0010,	dt = 0.000003,	|e| = 3.4855256405e+04
+step   345,	t = 0.0010,	dt = 0.000003,	|e| = 3.4661549303e+04
+step   350,	t = 0.0010,	dt = 0.000003,	|e| = 3.4471432962e+04
+step   355,	t = 0.0011,	dt = 0.000003,	|e| = 3.4284759090e+04
+step   360,	t = 0.0011,	dt = 0.000003,	|e| = 3.4101390930e+04
+step   365,	t = 0.0011,	dt = 0.000003,	|e| = 3.3921182206e+04
+step   370,	t = 0.0011,	dt = 0.000003,	|e| = 3.3744005708e+04
+step   375,	t = 0.0011,	dt = 0.000003,	|e| = 3.3569743320e+04
+step   380,	t = 0.0011,	dt = 0.000003,	|e| = 3.3398278564e+04
+step   385,	t = 0.0011,	dt = 0.000003,	|e| = 3.3229506423e+04
+step   390,	t = 0.0012,	dt = 0.000003,	|e| = 3.3063333951e+04
+step   395,	t = 0.0012,	dt = 0.000003,	|e| = 3.2897061162e+04
+step   400,	t = 0.0012,	dt = 0.000003,	|e| = 3.2730666138e+04
+step   405,	t = 0.0012,	dt = 0.000003,	|e| = 3.2564841729e+04
+step   410,	t = 0.0012,	dt = 0.000003,	|e| = 3.2398973323e+04
+step   415,	t = 0.0012,	dt = 0.000003,	|e| = 3.2232441155e+04
+step   420,	t = 0.0013,	dt = 0.000003,	|e| = 3.2068535868e+04
+step   425,	t = 0.0013,	dt = 0.000003,	|e| = 3.1907217112e+04
+step   430,	t = 0.0013,	dt = 0.000003,	|e| = 3.1748439013e+04
+step   435,	t = 0.0013,	dt = 0.000003,	|e| = 3.1591539745e+04
+step   440,	t = 0.0013,	dt = 0.000003,	|e| = 3.1434667585e+04
+step   445,	t = 0.0013,	dt = 0.000003,	|e| = 3.1279068102e+04
+step   450,	t = 0.0014,	dt = 0.000003,	|e| = 3.1124154632e+04
+step   455,	t = 0.0014,	dt = 0.000003,	|e| = 3.0971742482e+04
+step   460,	t = 0.0014,	dt = 0.000003,	|e| = 3.0821788566e+04
+step   465,	t = 0.0014,	dt = 0.000003,	|e| = 3.0674252779e+04
+step   470,	t = 0.0014,	dt = 0.000003,	|e| = 3.0529089272e+04
+step   475,	t = 0.0014,	dt = 0.000003,	|e| = 3.0386274286e+04
+step   480,	t = 0.0015,	dt = 0.000003,	|e| = 3.0246496427e+04
+step   485,	t = 0.0015,	dt = 0.000003,	|e| = 3.0110535679e+04
+step   490,	t = 0.0015,	dt = 0.000003,	|e| = 2.9977525188e+04
+step   495,	t = 0.0015,	dt = 0.000003,	|e| = 2.9847345731e+04
+step   496,	t = 0.0015,	dt = 0.000003,	|e| = 2.9821636608e+04
 
-CG (H1) total time: 322.1467672220
-CG (H1) rate (megadofs x cg_iterations / second): 865.6793875750
+CG (H1) total time: 100.0563081250
+CG (H1) rate (megadofs x cg_iterations / second): 1244.6977365426
 
-CG (L2) total time: 35.8304853560
-CG (L2) rate (megadofs x cg_iterations / second): -13.4133894985
+CG (L2) total time: 3.3665616460
+CG (L2) rate (megadofs x cg_iterations / second): 596.0717583723
 
-Forces total time: 16.0195365640
-Forces rate (megadofs x timesteps / second): 1082.5622061360
+Forces total time: 1.2669366670
+Forces rate (megadofs x timesteps / second): 5113.3927975580
 
-UpdateQuadData total time: 254.1131977070
-UpdateQuadData rate (megaquads x timesteps / second): 134.6984992392
+UpdateQuadData total time: 31.5383537410
+UpdateQuadData rate (megaquads x timesteps / second): 400.9666028814
 
-Major kernels total time (seconds): 472.2918488120
-Major kernels total rate (megadofs x time steps / second): 699.6661665900
+Major kernels total time (seconds): 120.7253929470
+Major kernels total rate (megadofs x time steps / second): 1190.0067428322
 
 | Ranks | Zones   | H1 dofs | L2 dofs | QP | N dofs   | FOM0   | FOM1   | T1   | FOM2   | T2   | FOM3   | T3   | FOM    | TT   |
-|    352|    98304|  8157603|  2654208| 216|  40203078|  36.719| 865.679| 322.147| 1082.562| 16.020| 134.698| 254.113| 699.666| 472.292| 
+|    352|    98304|  2446275|   786432|  64|  11970438|  53.662| 1244.698| 100.056| 5113.393| 1.267| 400.967| 31.538| 1190.007| 120.725| 
 
-Energy  diff: 8.37e-07
+Energy  diff: 8.39e-07
 FLUX-RUN END laghos-iter-1
 FLUX-RUN START laghos-iter-2
 
@@ -169,22 +222,22 @@ FLUX-RUN START laghos-iter-2
                /____/                       
 
 Options used:
-   --dimension 2
+   --dimension 3
    --mesh /opt/laghos/data/cube_311_hex.mesh
-   --refine-serial 3
-   --refine-parallel 2
+   --refine-serial 5
+   --refine-parallel 0
    --cartesian-partitioning ''
    --problem 1
-   --order-kinematic 3
-   --order-thermo 2
+   --order-kinematic 2
+   --order-thermo 1
    --order-intrule -1
    --ode-solver 4
-   --t-final 0.8
+   --t-final 0.6
    --cfl 0.5
    --cg-tol 1e-08
    --ftz-tol 0
-   --cg-max-steps 50
-   --max-steps 400
+   --cg-max-steps 300
+   --max-steps 500
    --partial-assembly
    --no-impose-viscosity
    --no-visualization
@@ -192,7 +245,7 @@ Options used:
    --no-visit
    --no-print
    --outputfilename results/Laghos
-   --partition 311
+   --partition 0
    --device cpu
    --no-checks
    --no-mem
@@ -201,119 +254,136 @@ Options used:
    --dev 0
 Device configuration: cpu
 Memory configuration: host-std
-Number of zones in the serial mesh: 1536
-Mesh::GeneratePartitioning(...): METIS returned 41 empty parts! Applying a simple fix ...
+Number of zones in the serial mesh: 98304
 Non-Cartesian partitioning through METIS will be used.
-Mesh::GeneratePartitioning(...): edgecut = 2905
-Zones min/max: 192 384
-Number of kinematic (position, velocity) dofs: 8157603
-Number of specific internal energy dofs: 2654208
-Repeating step 3
-Repeating step 5
-step     5,	t = 0.0000,	dt = 0.000001,	|e| = 3.6648291079e+05
-step    10,	t = 0.0000,	dt = 0.000001,	|e| = 3.4489688507e+05
-step    15,	t = 0.0000,	dt = 0.000001,	|e| = 3.2554776215e+05
-step    20,	t = 0.0000,	dt = 0.000001,	|e| = 3.0877156595e+05
-step    25,	t = 0.0000,	dt = 0.000001,	|e| = 2.9382725016e+05
-step    30,	t = 0.0000,	dt = 0.000001,	|e| = 2.8075814875e+05
-step    35,	t = 0.0000,	dt = 0.000001,	|e| = 2.6861736576e+05
-step    40,	t = 0.0000,	dt = 0.000001,	|e| = 2.5681360501e+05
-step    45,	t = 0.0000,	dt = 0.000001,	|e| = 2.4609706733e+05
-step    50,	t = 0.0001,	dt = 0.000001,	|e| = 2.3637430606e+05
-step    55,	t = 0.0001,	dt = 0.000001,	|e| = 2.2764054534e+05
-step    60,	t = 0.0001,	dt = 0.000001,	|e| = 2.1983167393e+05
-step    65,	t = 0.0001,	dt = 0.000001,	|e| = 2.1284438961e+05
-step    70,	t = 0.0001,	dt = 0.000001,	|e| = 2.0656251820e+05
-step    75,	t = 0.0001,	dt = 0.000001,	|e| = 2.0083971133e+05
-step    80,	t = 0.0001,	dt = 0.000001,	|e| = 1.9535272528e+05
-step    85,	t = 0.0001,	dt = 0.000001,	|e| = 1.9011215806e+05
-step    90,	t = 0.0001,	dt = 0.000001,	|e| = 1.8521440086e+05
-step    95,	t = 0.0001,	dt = 0.000001,	|e| = 1.8063664926e+05
-step   100,	t = 0.0001,	dt = 0.000001,	|e| = 1.7629139000e+05
-step   105,	t = 0.0001,	dt = 0.000001,	|e| = 1.7226653230e+05
-step   110,	t = 0.0001,	dt = 0.000001,	|e| = 1.6852512358e+05
-step   115,	t = 0.0001,	dt = 0.000001,	|e| = 1.6508511500e+05
-step   120,	t = 0.0001,	dt = 0.000001,	|e| = 1.6190226373e+05
-step   125,	t = 0.0002,	dt = 0.000001,	|e| = 1.5893425364e+05
-step   130,	t = 0.0002,	dt = 0.000001,	|e| = 1.5614792669e+05
-step   135,	t = 0.0002,	dt = 0.000001,	|e| = 1.5352146611e+05
-Repeating step 140
-step   140,	t = 0.0002,	dt = 0.000001,	|e| = 1.5107145652e+05
-step   145,	t = 0.0002,	dt = 0.000001,	|e| = 1.4901899353e+05
-step   150,	t = 0.0002,	dt = 0.000001,	|e| = 1.4705656214e+05
-step   155,	t = 0.0002,	dt = 0.000001,	|e| = 1.4517866449e+05
-step   160,	t = 0.0002,	dt = 0.000001,	|e| = 1.4338124070e+05
-Repeating step 162
-step   165,	t = 0.0002,	dt = 0.000001,	|e| = 1.4186210139e+05
-step   170,	t = 0.0002,	dt = 0.000001,	|e| = 1.4044739736e+05
-step   175,	t = 0.0002,	dt = 0.000001,	|e| = 1.3908165963e+05
-step   180,	t = 0.0002,	dt = 0.000001,	|e| = 1.3774704213e+05
-Repeating step 182
-Repeating step 183
-step   185,	t = 0.0002,	dt = 0.000001,	|e| = 1.3666798093e+05
-step   190,	t = 0.0002,	dt = 0.000001,	|e| = 1.3571563055e+05
-step   195,	t = 0.0002,	dt = 0.000001,	|e| = 1.3478786526e+05
-step   200,	t = 0.0002,	dt = 0.000001,	|e| = 1.3388384044e+05
-step   205,	t = 0.0002,	dt = 0.000001,	|e| = 1.3300287589e+05
-step   210,	t = 0.0003,	dt = 0.000001,	|e| = 1.3212016067e+05
-step   215,	t = 0.0003,	dt = 0.000001,	|e| = 1.3123612892e+05
-step   220,	t = 0.0003,	dt = 0.000001,	|e| = 1.3037159149e+05
-step   225,	t = 0.0003,	dt = 0.000001,	|e| = 1.2951264039e+05
-step   230,	t = 0.0003,	dt = 0.000001,	|e| = 1.2866269603e+05
-step   235,	t = 0.0003,	dt = 0.000001,	|e| = 1.2780497514e+05
-step   240,	t = 0.0003,	dt = 0.000001,	|e| = 1.2694659973e+05
-step   245,	t = 0.0003,	dt = 0.000001,	|e| = 1.2611096218e+05
-step   250,	t = 0.0003,	dt = 0.000001,	|e| = 1.2529715242e+05
-step   255,	t = 0.0003,	dt = 0.000001,	|e| = 1.2450111450e+05
-step   260,	t = 0.0003,	dt = 0.000001,	|e| = 1.2370688791e+05
-step   265,	t = 0.0003,	dt = 0.000001,	|e| = 1.2292084749e+05
-step   270,	t = 0.0003,	dt = 0.000001,	|e| = 1.2213362751e+05
-step   275,	t = 0.0003,	dt = 0.000001,	|e| = 1.2135440244e+05
-step   280,	t = 0.0003,	dt = 0.000001,	|e| = 1.2058292429e+05
-step   285,	t = 0.0003,	dt = 0.000001,	|e| = 1.1981898705e+05
-step   290,	t = 0.0003,	dt = 0.000001,	|e| = 1.1907097287e+05
-step   295,	t = 0.0003,	dt = 0.000001,	|e| = 1.1831500436e+05
-step   300,	t = 0.0003,	dt = 0.000001,	|e| = 1.1756307912e+05
-step   305,	t = 0.0003,	dt = 0.000001,	|e| = 1.1681509809e+05
-step   310,	t = 0.0004,	dt = 0.000001,	|e| = 1.1606809418e+05
-Repeating step 315
-step   315,	t = 0.0004,	dt = 0.000001,	|e| = 1.1534979195e+05
-step   320,	t = 0.0004,	dt = 0.000001,	|e| = 1.1473425965e+05
-step   325,	t = 0.0004,	dt = 0.000001,	|e| = 1.1413119284e+05
-step   330,	t = 0.0004,	dt = 0.000001,	|e| = 1.1354012781e+05
-step   335,	t = 0.0004,	dt = 0.000001,	|e| = 1.1296062425e+05
-step   340,	t = 0.0004,	dt = 0.000001,	|e| = 1.1239231259e+05
-step   345,	t = 0.0004,	dt = 0.000001,	|e| = 1.1182822517e+05
-step   350,	t = 0.0004,	dt = 0.000001,	|e| = 1.1126623860e+05
-step   355,	t = 0.0004,	dt = 0.000001,	|e| = 1.1070425663e+05
-step   360,	t = 0.0004,	dt = 0.000001,	|e| = 1.1014017412e+05
-step   365,	t = 0.0004,	dt = 0.000001,	|e| = 1.0957630959e+05
-step   370,	t = 0.0004,	dt = 0.000001,	|e| = 1.0901050228e+05
-step   375,	t = 0.0004,	dt = 0.000001,	|e| = 1.0845383869e+05
-step   380,	t = 0.0004,	dt = 0.000001,	|e| = 1.0790812237e+05
-step   385,	t = 0.0004,	dt = 0.000001,	|e| = 1.0737287115e+05
-step   390,	t = 0.0004,	dt = 0.000001,	|e| = 1.0684752682e+05
-step   394,	t = 0.0005,	dt = 0.000001,	|e| = 1.0643412856e+05
+Zones min/max: 271 287
+Number of kinematic (position, velocity) dofs: 2446275
+Number of specific internal energy dofs: 786432
+Repeating step 2
+Repeating step 4
+step     5,	t = 0.0000,	dt = 0.000003,	|e| = 1.1041050265e+05
+Repeating step 6
+step    10,	t = 0.0000,	dt = 0.000002,	|e| = 1.0587593766e+05
+step    15,	t = 0.0000,	dt = 0.000002,	|e| = 1.0104224294e+05
+step    20,	t = 0.0001,	dt = 0.000002,	|e| = 9.6475784894e+04
+step    25,	t = 0.0001,	dt = 0.000002,	|e| = 9.2279896204e+04
+step    30,	t = 0.0001,	dt = 0.000003,	|e| = 8.8218981925e+04
+step    35,	t = 0.0001,	dt = 0.000003,	|e| = 8.4485124462e+04
+step    40,	t = 0.0001,	dt = 0.000003,	|e| = 8.1135685625e+04
+step    45,	t = 0.0001,	dt = 0.000003,	|e| = 7.8112185650e+04
+step    50,	t = 0.0001,	dt = 0.000003,	|e| = 7.5345950945e+04
+step    55,	t = 0.0001,	dt = 0.000003,	|e| = 7.2790911522e+04
+step    60,	t = 0.0002,	dt = 0.000003,	|e| = 7.0352359109e+04
+step    65,	t = 0.0002,	dt = 0.000003,	|e| = 6.7980877094e+04
+step    70,	t = 0.0002,	dt = 0.000003,	|e| = 6.5688538086e+04
+step    75,	t = 0.0002,	dt = 0.000003,	|e| = 6.3550228744e+04
+step    80,	t = 0.0002,	dt = 0.000004,	|e| = 6.1520716850e+04
+step    85,	t = 0.0002,	dt = 0.000004,	|e| = 5.9632006005e+04
+step    90,	t = 0.0003,	dt = 0.000004,	|e| = 5.7921052408e+04
+step    95,	t = 0.0003,	dt = 0.000004,	|e| = 5.6353686827e+04
+Repeating step 96
+step   100,	t = 0.0003,	dt = 0.000003,	|e| = 5.5127191706e+04
+Repeating step 103
+step   105,	t = 0.0003,	dt = 0.000003,	|e| = 5.4092709423e+04
+step   110,	t = 0.0003,	dt = 0.000003,	|e| = 5.3189544901e+04
+step   115,	t = 0.0003,	dt = 0.000003,	|e| = 5.2341250187e+04
+step   120,	t = 0.0004,	dt = 0.000003,	|e| = 5.1542955181e+04
+step   125,	t = 0.0004,	dt = 0.000003,	|e| = 5.0778557956e+04
+step   130,	t = 0.0004,	dt = 0.000003,	|e| = 5.0041186391e+04
+step   135,	t = 0.0004,	dt = 0.000003,	|e| = 4.9344213293e+04
+step   140,	t = 0.0004,	dt = 0.000003,	|e| = 4.8683760661e+04
+step   145,	t = 0.0004,	dt = 0.000003,	|e| = 4.8056703025e+04
+step   150,	t = 0.0004,	dt = 0.000003,	|e| = 4.7460335514e+04
+step   155,	t = 0.0005,	dt = 0.000003,	|e| = 4.6892317389e+04
+step   160,	t = 0.0005,	dt = 0.000003,	|e| = 4.6350304681e+04
+step   165,	t = 0.0005,	dt = 0.000003,	|e| = 4.5831885336e+04
+step   170,	t = 0.0005,	dt = 0.000003,	|e| = 4.5335103708e+04
+step   175,	t = 0.0005,	dt = 0.000003,	|e| = 4.4858061860e+04
+step   180,	t = 0.0005,	dt = 0.000003,	|e| = 4.4399668434e+04
+step   185,	t = 0.0005,	dt = 0.000003,	|e| = 4.3958766428e+04
+step   190,	t = 0.0005,	dt = 0.000003,	|e| = 4.3534311239e+04
+step   195,	t = 0.0006,	dt = 0.000003,	|e| = 4.3125228110e+04
+step   200,	t = 0.0006,	dt = 0.000003,	|e| = 4.2727258510e+04
+step   205,	t = 0.0006,	dt = 0.000003,	|e| = 4.2335197311e+04
+step   210,	t = 0.0006,	dt = 0.000003,	|e| = 4.1947279217e+04
+step   215,	t = 0.0006,	dt = 0.000003,	|e| = 4.1563513151e+04
+step   220,	t = 0.0006,	dt = 0.000003,	|e| = 4.1191354290e+04
+step   225,	t = 0.0007,	dt = 0.000003,	|e| = 4.0831692594e+04
+step   230,	t = 0.0007,	dt = 0.000003,	|e| = 4.0483884310e+04
+step   235,	t = 0.0007,	dt = 0.000003,	|e| = 4.0147242885e+04
+step   240,	t = 0.0007,	dt = 0.000003,	|e| = 3.9821058024e+04
+step   245,	t = 0.0007,	dt = 0.000003,	|e| = 3.9504681483e+04
+step   250,	t = 0.0007,	dt = 0.000003,	|e| = 3.9197765205e+04
+step   255,	t = 0.0007,	dt = 0.000003,	|e| = 3.8899912596e+04
+step   260,	t = 0.0008,	dt = 0.000003,	|e| = 3.8610607209e+04
+step   265,	t = 0.0008,	dt = 0.000003,	|e| = 3.8329351415e+04
+step   270,	t = 0.0008,	dt = 0.000003,	|e| = 3.8055771358e+04
+step   275,	t = 0.0008,	dt = 0.000003,	|e| = 3.7789482320e+04
+step   280,	t = 0.0008,	dt = 0.000003,	|e| = 3.7530139893e+04
+step   285,	t = 0.0008,	dt = 0.000003,	|e| = 3.7277451697e+04
+step   290,	t = 0.0009,	dt = 0.000003,	|e| = 3.7031021453e+04
+step   295,	t = 0.0009,	dt = 0.000003,	|e| = 3.6790570658e+04
+step   300,	t = 0.0009,	dt = 0.000003,	|e| = 3.6555881706e+04
+step   305,	t = 0.0009,	dt = 0.000003,	|e| = 3.6326684139e+04
+step   310,	t = 0.0009,	dt = 0.000003,	|e| = 3.6102694574e+04
+step   315,	t = 0.0009,	dt = 0.000003,	|e| = 3.5883663868e+04
+step   320,	t = 0.0009,	dt = 0.000003,	|e| = 3.5669364757e+04
+step   325,	t = 0.0010,	dt = 0.000003,	|e| = 3.5459581888e+04
+step   330,	t = 0.0010,	dt = 0.000003,	|e| = 3.5254103205e+04
+step   335,	t = 0.0010,	dt = 0.000003,	|e| = 3.5052718826e+04
+step   340,	t = 0.0010,	dt = 0.000003,	|e| = 3.4855256405e+04
+step   345,	t = 0.0010,	dt = 0.000003,	|e| = 3.4661549303e+04
+step   350,	t = 0.0010,	dt = 0.000003,	|e| = 3.4471432962e+04
+step   355,	t = 0.0011,	dt = 0.000003,	|e| = 3.4284759090e+04
+step   360,	t = 0.0011,	dt = 0.000003,	|e| = 3.4101390930e+04
+step   365,	t = 0.0011,	dt = 0.000003,	|e| = 3.3921182206e+04
+step   370,	t = 0.0011,	dt = 0.000003,	|e| = 3.3744005708e+04
+step   375,	t = 0.0011,	dt = 0.000003,	|e| = 3.3569743320e+04
+step   380,	t = 0.0011,	dt = 0.000003,	|e| = 3.3398278564e+04
+step   385,	t = 0.0011,	dt = 0.000003,	|e| = 3.3229506423e+04
+step   390,	t = 0.0012,	dt = 0.000003,	|e| = 3.3063333951e+04
+step   395,	t = 0.0012,	dt = 0.000003,	|e| = 3.2897061162e+04
+step   400,	t = 0.0012,	dt = 0.000003,	|e| = 3.2730666138e+04
+step   405,	t = 0.0012,	dt = 0.000003,	|e| = 3.2564841729e+04
+step   410,	t = 0.0012,	dt = 0.000003,	|e| = 3.2398973323e+04
+step   415,	t = 0.0012,	dt = 0.000003,	|e| = 3.2232441155e+04
+step   420,	t = 0.0013,	dt = 0.000003,	|e| = 3.2068535868e+04
+step   425,	t = 0.0013,	dt = 0.000003,	|e| = 3.1907217112e+04
+step   430,	t = 0.0013,	dt = 0.000003,	|e| = 3.1748439013e+04
+step   435,	t = 0.0013,	dt = 0.000003,	|e| = 3.1591539745e+04
+step   440,	t = 0.0013,	dt = 0.000003,	|e| = 3.1434667585e+04
+step   445,	t = 0.0013,	dt = 0.000003,	|e| = 3.1279068102e+04
+step   450,	t = 0.0014,	dt = 0.000003,	|e| = 3.1124154632e+04
+step   455,	t = 0.0014,	dt = 0.000003,	|e| = 3.0971742482e+04
+step   460,	t = 0.0014,	dt = 0.000003,	|e| = 3.0821788566e+04
+step   465,	t = 0.0014,	dt = 0.000003,	|e| = 3.0674252779e+04
+step   470,	t = 0.0014,	dt = 0.000003,	|e| = 3.0529089272e+04
+step   475,	t = 0.0014,	dt = 0.000003,	|e| = 3.0386274286e+04
+step   480,	t = 0.0015,	dt = 0.000003,	|e| = 3.0246496427e+04
+step   485,	t = 0.0015,	dt = 0.000003,	|e| = 3.0110535679e+04
+step   490,	t = 0.0015,	dt = 0.000003,	|e| = 2.9977525188e+04
+step   495,	t = 0.0015,	dt = 0.000003,	|e| = 2.9847345731e+04
+step   496,	t = 0.0015,	dt = 0.000003,	|e| = 2.9821636608e+04
 
-CG (H1) total time: 320.9522221050
-CG (H1) rate (megadofs x cg_iterations / second): 868.9013409191
+CG (H1) total time: 101.1920926640
+CG (H1) rate (megadofs x cg_iterations / second): 1230.7271939076
 
-CG (L2) total time: 35.9713775240
-CG (L2) rate (megadofs x cg_iterations / second): -13.3608521297
+CG (L2) total time: 3.4128459600
+CG (L2) rate (megadofs x cg_iterations / second): 587.9879559522
 
-Forces total time: 15.9547474270
-Forces rate (megadofs x timesteps / second): 1086.9582814362
+Forces total time: 1.2723799830
+Forces rate (megadofs x timesteps / second): 5091.5174040427
 
-UpdateQuadData total time: 253.6445285840
-UpdateQuadData rate (megaquads x timesteps / second): 134.9473870345
+UpdateQuadData total time: 31.9008432820
+UpdateQuadData rate (megaquads x timesteps / second): 396.4104161201
 
-Major kernels total time (seconds): 470.7633281450
-Major kernels total rate (megadofs x time steps / second): 701.9379115024
+Major kernels total time (seconds): 121.7141151810
+Major kernels total rate (megadofs x time steps / second): 1180.3399418741
 
 | Ranks | Zones   | H1 dofs | L2 dofs | QP | N dofs   | FOM0   | FOM1   | T1   | FOM2   | T2   | FOM3   | T3   | FOM    | TT   |
-|    352|    98304|  8157603|  2654208| 216|  40203078|  36.838| 868.901| 320.952| 1086.958| 15.955| 134.947| 253.645| 701.938| 470.763| 
+|    352|    98304|  2446275|   786432|  64|  11970438|  53.226| 1230.727| 101.192| 5091.517| 1.272| 396.410| 31.901| 1180.340| 121.714| 
 
-Energy  diff: 8.37e-07
+Energy  diff: 8.39e-07
 FLUX-RUN END laghos-iter-2
 FLUX-RUN START laghos-iter-3
 
@@ -325,22 +395,22 @@ FLUX-RUN START laghos-iter-3
                /____/                       
 
 Options used:
-   --dimension 2
+   --dimension 3
    --mesh /opt/laghos/data/cube_311_hex.mesh
-   --refine-serial 3
-   --refine-parallel 2
+   --refine-serial 5
+   --refine-parallel 0
    --cartesian-partitioning ''
    --problem 1
-   --order-kinematic 3
-   --order-thermo 2
+   --order-kinematic 2
+   --order-thermo 1
    --order-intrule -1
    --ode-solver 4
-   --t-final 0.8
+   --t-final 0.6
    --cfl 0.5
    --cg-tol 1e-08
    --ftz-tol 0
-   --cg-max-steps 50
-   --max-steps 400
+   --cg-max-steps 300
+   --max-steps 500
    --partial-assembly
    --no-impose-viscosity
    --no-visualization
@@ -348,7 +418,7 @@ Options used:
    --no-visit
    --no-print
    --outputfilename results/Laghos
-   --partition 311
+   --partition 0
    --device cpu
    --no-checks
    --no-mem
@@ -357,119 +427,136 @@ Options used:
    --dev 0
 Device configuration: cpu
 Memory configuration: host-std
-Number of zones in the serial mesh: 1536
-Mesh::GeneratePartitioning(...): METIS returned 41 empty parts! Applying a simple fix ...
+Number of zones in the serial mesh: 98304
 Non-Cartesian partitioning through METIS will be used.
-Mesh::GeneratePartitioning(...): edgecut = 2905
-Zones min/max: 192 384
-Number of kinematic (position, velocity) dofs: 8157603
-Number of specific internal energy dofs: 2654208
-Repeating step 3
-Repeating step 5
-step     5,	t = 0.0000,	dt = 0.000001,	|e| = 3.6648291079e+05
-step    10,	t = 0.0000,	dt = 0.000001,	|e| = 3.4489688507e+05
-step    15,	t = 0.0000,	dt = 0.000001,	|e| = 3.2554776215e+05
-step    20,	t = 0.0000,	dt = 0.000001,	|e| = 3.0877156595e+05
-step    25,	t = 0.0000,	dt = 0.000001,	|e| = 2.9382725016e+05
-step    30,	t = 0.0000,	dt = 0.000001,	|e| = 2.8075814875e+05
-step    35,	t = 0.0000,	dt = 0.000001,	|e| = 2.6861736576e+05
-step    40,	t = 0.0000,	dt = 0.000001,	|e| = 2.5681360501e+05
-step    45,	t = 0.0000,	dt = 0.000001,	|e| = 2.4609706733e+05
-step    50,	t = 0.0001,	dt = 0.000001,	|e| = 2.3637430606e+05
-step    55,	t = 0.0001,	dt = 0.000001,	|e| = 2.2764054534e+05
-step    60,	t = 0.0001,	dt = 0.000001,	|e| = 2.1983167393e+05
-step    65,	t = 0.0001,	dt = 0.000001,	|e| = 2.1284438961e+05
-step    70,	t = 0.0001,	dt = 0.000001,	|e| = 2.0656251820e+05
-step    75,	t = 0.0001,	dt = 0.000001,	|e| = 2.0083971133e+05
-step    80,	t = 0.0001,	dt = 0.000001,	|e| = 1.9535272528e+05
-step    85,	t = 0.0001,	dt = 0.000001,	|e| = 1.9011215806e+05
-step    90,	t = 0.0001,	dt = 0.000001,	|e| = 1.8521440086e+05
-step    95,	t = 0.0001,	dt = 0.000001,	|e| = 1.8063664926e+05
-step   100,	t = 0.0001,	dt = 0.000001,	|e| = 1.7629139000e+05
-step   105,	t = 0.0001,	dt = 0.000001,	|e| = 1.7226653230e+05
-step   110,	t = 0.0001,	dt = 0.000001,	|e| = 1.6852512358e+05
-step   115,	t = 0.0001,	dt = 0.000001,	|e| = 1.6508511500e+05
-step   120,	t = 0.0001,	dt = 0.000001,	|e| = 1.6190226373e+05
-step   125,	t = 0.0002,	dt = 0.000001,	|e| = 1.5893425364e+05
-step   130,	t = 0.0002,	dt = 0.000001,	|e| = 1.5614792669e+05
-step   135,	t = 0.0002,	dt = 0.000001,	|e| = 1.5352146611e+05
-Repeating step 140
-step   140,	t = 0.0002,	dt = 0.000001,	|e| = 1.5107145652e+05
-step   145,	t = 0.0002,	dt = 0.000001,	|e| = 1.4901899353e+05
-step   150,	t = 0.0002,	dt = 0.000001,	|e| = 1.4705656214e+05
-step   155,	t = 0.0002,	dt = 0.000001,	|e| = 1.4517866449e+05
-step   160,	t = 0.0002,	dt = 0.000001,	|e| = 1.4338124070e+05
-Repeating step 162
-step   165,	t = 0.0002,	dt = 0.000001,	|e| = 1.4186210139e+05
-step   170,	t = 0.0002,	dt = 0.000001,	|e| = 1.4044739736e+05
-step   175,	t = 0.0002,	dt = 0.000001,	|e| = 1.3908165963e+05
-step   180,	t = 0.0002,	dt = 0.000001,	|e| = 1.3774704213e+05
-Repeating step 182
-Repeating step 183
-step   185,	t = 0.0002,	dt = 0.000001,	|e| = 1.3666798093e+05
-step   190,	t = 0.0002,	dt = 0.000001,	|e| = 1.3571563055e+05
-step   195,	t = 0.0002,	dt = 0.000001,	|e| = 1.3478786526e+05
-step   200,	t = 0.0002,	dt = 0.000001,	|e| = 1.3388384044e+05
-step   205,	t = 0.0002,	dt = 0.000001,	|e| = 1.3300287589e+05
-step   210,	t = 0.0003,	dt = 0.000001,	|e| = 1.3212016067e+05
-step   215,	t = 0.0003,	dt = 0.000001,	|e| = 1.3123612892e+05
-step   220,	t = 0.0003,	dt = 0.000001,	|e| = 1.3037159149e+05
-step   225,	t = 0.0003,	dt = 0.000001,	|e| = 1.2951264039e+05
-step   230,	t = 0.0003,	dt = 0.000001,	|e| = 1.2866269603e+05
-step   235,	t = 0.0003,	dt = 0.000001,	|e| = 1.2780497514e+05
-step   240,	t = 0.0003,	dt = 0.000001,	|e| = 1.2694659973e+05
-step   245,	t = 0.0003,	dt = 0.000001,	|e| = 1.2611096218e+05
-step   250,	t = 0.0003,	dt = 0.000001,	|e| = 1.2529715242e+05
-step   255,	t = 0.0003,	dt = 0.000001,	|e| = 1.2450111450e+05
-step   260,	t = 0.0003,	dt = 0.000001,	|e| = 1.2370688791e+05
-step   265,	t = 0.0003,	dt = 0.000001,	|e| = 1.2292084749e+05
-step   270,	t = 0.0003,	dt = 0.000001,	|e| = 1.2213362751e+05
-step   275,	t = 0.0003,	dt = 0.000001,	|e| = 1.2135440244e+05
-step   280,	t = 0.0003,	dt = 0.000001,	|e| = 1.2058292429e+05
-step   285,	t = 0.0003,	dt = 0.000001,	|e| = 1.1981898705e+05
-step   290,	t = 0.0003,	dt = 0.000001,	|e| = 1.1907097287e+05
-step   295,	t = 0.0003,	dt = 0.000001,	|e| = 1.1831500436e+05
-step   300,	t = 0.0003,	dt = 0.000001,	|e| = 1.1756307912e+05
-step   305,	t = 0.0003,	dt = 0.000001,	|e| = 1.1681509809e+05
-step   310,	t = 0.0004,	dt = 0.000001,	|e| = 1.1606809418e+05
-Repeating step 315
-step   315,	t = 0.0004,	dt = 0.000001,	|e| = 1.1534979195e+05
-step   320,	t = 0.0004,	dt = 0.000001,	|e| = 1.1473425965e+05
-step   325,	t = 0.0004,	dt = 0.000001,	|e| = 1.1413119284e+05
-step   330,	t = 0.0004,	dt = 0.000001,	|e| = 1.1354012781e+05
-step   335,	t = 0.0004,	dt = 0.000001,	|e| = 1.1296062425e+05
-step   340,	t = 0.0004,	dt = 0.000001,	|e| = 1.1239231259e+05
-step   345,	t = 0.0004,	dt = 0.000001,	|e| = 1.1182822517e+05
-step   350,	t = 0.0004,	dt = 0.000001,	|e| = 1.1126623860e+05
-step   355,	t = 0.0004,	dt = 0.000001,	|e| = 1.1070425663e+05
-step   360,	t = 0.0004,	dt = 0.000001,	|e| = 1.1014017412e+05
-step   365,	t = 0.0004,	dt = 0.000001,	|e| = 1.0957630959e+05
-step   370,	t = 0.0004,	dt = 0.000001,	|e| = 1.0901050228e+05
-step   375,	t = 0.0004,	dt = 0.000001,	|e| = 1.0845383869e+05
-step   380,	t = 0.0004,	dt = 0.000001,	|e| = 1.0790812237e+05
-step   385,	t = 0.0004,	dt = 0.000001,	|e| = 1.0737287115e+05
-step   390,	t = 0.0004,	dt = 0.000001,	|e| = 1.0684752682e+05
-step   394,	t = 0.0005,	dt = 0.000001,	|e| = 1.0643412856e+05
+Zones min/max: 271 287
+Number of kinematic (position, velocity) dofs: 2446275
+Number of specific internal energy dofs: 786432
+Repeating step 2
+Repeating step 4
+step     5,	t = 0.0000,	dt = 0.000003,	|e| = 1.1041050265e+05
+Repeating step 6
+step    10,	t = 0.0000,	dt = 0.000002,	|e| = 1.0587593766e+05
+step    15,	t = 0.0000,	dt = 0.000002,	|e| = 1.0104224294e+05
+step    20,	t = 0.0001,	dt = 0.000002,	|e| = 9.6475784894e+04
+step    25,	t = 0.0001,	dt = 0.000002,	|e| = 9.2279896204e+04
+step    30,	t = 0.0001,	dt = 0.000003,	|e| = 8.8218981925e+04
+step    35,	t = 0.0001,	dt = 0.000003,	|e| = 8.4485124462e+04
+step    40,	t = 0.0001,	dt = 0.000003,	|e| = 8.1135685625e+04
+step    45,	t = 0.0001,	dt = 0.000003,	|e| = 7.8112185650e+04
+step    50,	t = 0.0001,	dt = 0.000003,	|e| = 7.5345950945e+04
+step    55,	t = 0.0001,	dt = 0.000003,	|e| = 7.2790911522e+04
+step    60,	t = 0.0002,	dt = 0.000003,	|e| = 7.0352359109e+04
+step    65,	t = 0.0002,	dt = 0.000003,	|e| = 6.7980877094e+04
+step    70,	t = 0.0002,	dt = 0.000003,	|e| = 6.5688538086e+04
+step    75,	t = 0.0002,	dt = 0.000003,	|e| = 6.3550228744e+04
+step    80,	t = 0.0002,	dt = 0.000004,	|e| = 6.1520716850e+04
+step    85,	t = 0.0002,	dt = 0.000004,	|e| = 5.9632006005e+04
+step    90,	t = 0.0003,	dt = 0.000004,	|e| = 5.7921052408e+04
+step    95,	t = 0.0003,	dt = 0.000004,	|e| = 5.6353686827e+04
+Repeating step 96
+step   100,	t = 0.0003,	dt = 0.000003,	|e| = 5.5127191706e+04
+Repeating step 103
+step   105,	t = 0.0003,	dt = 0.000003,	|e| = 5.4092709423e+04
+step   110,	t = 0.0003,	dt = 0.000003,	|e| = 5.3189544901e+04
+step   115,	t = 0.0003,	dt = 0.000003,	|e| = 5.2341250187e+04
+step   120,	t = 0.0004,	dt = 0.000003,	|e| = 5.1542955181e+04
+step   125,	t = 0.0004,	dt = 0.000003,	|e| = 5.0778557956e+04
+step   130,	t = 0.0004,	dt = 0.000003,	|e| = 5.0041186391e+04
+step   135,	t = 0.0004,	dt = 0.000003,	|e| = 4.9344213293e+04
+step   140,	t = 0.0004,	dt = 0.000003,	|e| = 4.8683760661e+04
+step   145,	t = 0.0004,	dt = 0.000003,	|e| = 4.8056703025e+04
+step   150,	t = 0.0004,	dt = 0.000003,	|e| = 4.7460335514e+04
+step   155,	t = 0.0005,	dt = 0.000003,	|e| = 4.6892317389e+04
+step   160,	t = 0.0005,	dt = 0.000003,	|e| = 4.6350304681e+04
+step   165,	t = 0.0005,	dt = 0.000003,	|e| = 4.5831885336e+04
+step   170,	t = 0.0005,	dt = 0.000003,	|e| = 4.5335103708e+04
+step   175,	t = 0.0005,	dt = 0.000003,	|e| = 4.4858061860e+04
+step   180,	t = 0.0005,	dt = 0.000003,	|e| = 4.4399668434e+04
+step   185,	t = 0.0005,	dt = 0.000003,	|e| = 4.3958766428e+04
+step   190,	t = 0.0005,	dt = 0.000003,	|e| = 4.3534311239e+04
+step   195,	t = 0.0006,	dt = 0.000003,	|e| = 4.3125228110e+04
+step   200,	t = 0.0006,	dt = 0.000003,	|e| = 4.2727258510e+04
+step   205,	t = 0.0006,	dt = 0.000003,	|e| = 4.2335197311e+04
+step   210,	t = 0.0006,	dt = 0.000003,	|e| = 4.1947279217e+04
+step   215,	t = 0.0006,	dt = 0.000003,	|e| = 4.1563513151e+04
+step   220,	t = 0.0006,	dt = 0.000003,	|e| = 4.1191354290e+04
+step   225,	t = 0.0007,	dt = 0.000003,	|e| = 4.0831692594e+04
+step   230,	t = 0.0007,	dt = 0.000003,	|e| = 4.0483884310e+04
+step   235,	t = 0.0007,	dt = 0.000003,	|e| = 4.0147242885e+04
+step   240,	t = 0.0007,	dt = 0.000003,	|e| = 3.9821058024e+04
+step   245,	t = 0.0007,	dt = 0.000003,	|e| = 3.9504681483e+04
+step   250,	t = 0.0007,	dt = 0.000003,	|e| = 3.9197765205e+04
+step   255,	t = 0.0007,	dt = 0.000003,	|e| = 3.8899912596e+04
+step   260,	t = 0.0008,	dt = 0.000003,	|e| = 3.8610607209e+04
+step   265,	t = 0.0008,	dt = 0.000003,	|e| = 3.8329351415e+04
+step   270,	t = 0.0008,	dt = 0.000003,	|e| = 3.8055771358e+04
+step   275,	t = 0.0008,	dt = 0.000003,	|e| = 3.7789482320e+04
+step   280,	t = 0.0008,	dt = 0.000003,	|e| = 3.7530139893e+04
+step   285,	t = 0.0008,	dt = 0.000003,	|e| = 3.7277451697e+04
+step   290,	t = 0.0009,	dt = 0.000003,	|e| = 3.7031021453e+04
+step   295,	t = 0.0009,	dt = 0.000003,	|e| = 3.6790570658e+04
+step   300,	t = 0.0009,	dt = 0.000003,	|e| = 3.6555881706e+04
+step   305,	t = 0.0009,	dt = 0.000003,	|e| = 3.6326684139e+04
+step   310,	t = 0.0009,	dt = 0.000003,	|e| = 3.6102694574e+04
+step   315,	t = 0.0009,	dt = 0.000003,	|e| = 3.5883663868e+04
+step   320,	t = 0.0009,	dt = 0.000003,	|e| = 3.5669364757e+04
+step   325,	t = 0.0010,	dt = 0.000003,	|e| = 3.5459581888e+04
+step   330,	t = 0.0010,	dt = 0.000003,	|e| = 3.5254103205e+04
+step   335,	t = 0.0010,	dt = 0.000003,	|e| = 3.5052718826e+04
+step   340,	t = 0.0010,	dt = 0.000003,	|e| = 3.4855256405e+04
+step   345,	t = 0.0010,	dt = 0.000003,	|e| = 3.4661549303e+04
+step   350,	t = 0.0010,	dt = 0.000003,	|e| = 3.4471432962e+04
+step   355,	t = 0.0011,	dt = 0.000003,	|e| = 3.4284759090e+04
+step   360,	t = 0.0011,	dt = 0.000003,	|e| = 3.4101390930e+04
+step   365,	t = 0.0011,	dt = 0.000003,	|e| = 3.3921182206e+04
+step   370,	t = 0.0011,	dt = 0.000003,	|e| = 3.3744005708e+04
+step   375,	t = 0.0011,	dt = 0.000003,	|e| = 3.3569743320e+04
+step   380,	t = 0.0011,	dt = 0.000003,	|e| = 3.3398278564e+04
+step   385,	t = 0.0011,	dt = 0.000003,	|e| = 3.3229506423e+04
+step   390,	t = 0.0012,	dt = 0.000003,	|e| = 3.3063333951e+04
+step   395,	t = 0.0012,	dt = 0.000003,	|e| = 3.2897061162e+04
+step   400,	t = 0.0012,	dt = 0.000003,	|e| = 3.2730666138e+04
+step   405,	t = 0.0012,	dt = 0.000003,	|e| = 3.2564841729e+04
+step   410,	t = 0.0012,	dt = 0.000003,	|e| = 3.2398973323e+04
+step   415,	t = 0.0012,	dt = 0.000003,	|e| = 3.2232441155e+04
+step   420,	t = 0.0013,	dt = 0.000003,	|e| = 3.2068535868e+04
+step   425,	t = 0.0013,	dt = 0.000003,	|e| = 3.1907217112e+04
+step   430,	t = 0.0013,	dt = 0.000003,	|e| = 3.1748439013e+04
+step   435,	t = 0.0013,	dt = 0.000003,	|e| = 3.1591539745e+04
+step   440,	t = 0.0013,	dt = 0.000003,	|e| = 3.1434667585e+04
+step   445,	t = 0.0013,	dt = 0.000003,	|e| = 3.1279068102e+04
+step   450,	t = 0.0014,	dt = 0.000003,	|e| = 3.1124154632e+04
+step   455,	t = 0.0014,	dt = 0.000003,	|e| = 3.0971742482e+04
+step   460,	t = 0.0014,	dt = 0.000003,	|e| = 3.0821788566e+04
+step   465,	t = 0.0014,	dt = 0.000003,	|e| = 3.0674252779e+04
+step   470,	t = 0.0014,	dt = 0.000003,	|e| = 3.0529089272e+04
+step   475,	t = 0.0014,	dt = 0.000003,	|e| = 3.0386274286e+04
+step   480,	t = 0.0015,	dt = 0.000003,	|e| = 3.0246496427e+04
+step   485,	t = 0.0015,	dt = 0.000003,	|e| = 3.0110535679e+04
+step   490,	t = 0.0015,	dt = 0.000003,	|e| = 2.9977525188e+04
+step   495,	t = 0.0015,	dt = 0.000003,	|e| = 2.9847345731e+04
+step   496,	t = 0.0015,	dt = 0.000003,	|e| = 2.9821636608e+04
 
-CG (H1) total time: 319.6243503680
-CG (H1) rate (megadofs x cg_iterations / second): 872.5111708070
+CG (H1) total time: 99.8107491910
+CG (H1) rate (megadofs x cg_iterations / second): 1247.7599983913
 
-CG (L2) total time: 35.9452640190
-CG (L2) rate (megadofs x cg_iterations / second): -13.3705585177
+CG (L2) total time: 3.3758075270
+CG (L2) rate (megadofs x cg_iterations / second): 594.4391983104
 
-Forces total time: 16.1098594790
-Forces rate (megadofs x timesteps / second): 1076.4926203488
+Forces total time: 1.2246543890
+Forces rate (megadofs x timesteps / second): 5289.9372150946
 
-UpdateQuadData total time: 254.3269897610
-UpdateQuadData rate (megaquads x timesteps / second): 134.5852691457
+UpdateQuadData total time: 31.6470201820
+UpdateQuadData rate (megaquads x timesteps / second): 399.5898029980
 
-Major kernels total time (seconds): 469.5673515630
-Major kernels total rate (megadofs x time steps / second): 703.7257302282
+Major kernels total time (seconds): 120.3563316870
+Major kernels total rate (megadofs x time steps / second): 1193.6557854855
 
 | Ranks | Zones   | H1 dofs | L2 dofs | QP | N dofs   | FOM0   | FOM1   | T1   | FOM2   | T2   | FOM3   | T3   | FOM    | TT   |
-|    352|    98304|  8157603|  2654208| 216|  40203078|  36.932| 872.511| 319.624| 1076.493| 16.110| 134.585| 254.327| 703.726| 469.567| 
+|    352|    98304|  2446275|   786432|  64|  11970438|  53.826| 1247.760| 99.811| 5289.937| 1.225| 399.590| 31.647| 1193.656| 120.356| 
 
-Energy  diff: 8.37e-07
+Energy  diff: 8.39e-07
 FLUX-RUN END laghos-iter-3
 FLUX-RUN START laghos-iter-4
 
@@ -481,22 +568,22 @@ FLUX-RUN START laghos-iter-4
                /____/                       
 
 Options used:
-   --dimension 2
+   --dimension 3
    --mesh /opt/laghos/data/cube_311_hex.mesh
-   --refine-serial 3
-   --refine-parallel 2
+   --refine-serial 5
+   --refine-parallel 0
    --cartesian-partitioning ''
    --problem 1
-   --order-kinematic 3
-   --order-thermo 2
+   --order-kinematic 2
+   --order-thermo 1
    --order-intrule -1
    --ode-solver 4
-   --t-final 0.8
+   --t-final 0.6
    --cfl 0.5
    --cg-tol 1e-08
    --ftz-tol 0
-   --cg-max-steps 50
-   --max-steps 400
+   --cg-max-steps 300
+   --max-steps 500
    --partial-assembly
    --no-impose-viscosity
    --no-visualization
@@ -504,7 +591,7 @@ Options used:
    --no-visit
    --no-print
    --outputfilename results/Laghos
-   --partition 311
+   --partition 0
    --device cpu
    --no-checks
    --no-mem
@@ -513,119 +600,136 @@ Options used:
    --dev 0
 Device configuration: cpu
 Memory configuration: host-std
-Number of zones in the serial mesh: 1536
-Mesh::GeneratePartitioning(...): METIS returned 41 empty parts! Applying a simple fix ...
+Number of zones in the serial mesh: 98304
 Non-Cartesian partitioning through METIS will be used.
-Mesh::GeneratePartitioning(...): edgecut = 2905
-Zones min/max: 192 384
-Number of kinematic (position, velocity) dofs: 8157603
-Number of specific internal energy dofs: 2654208
-Repeating step 3
-Repeating step 5
-step     5,	t = 0.0000,	dt = 0.000001,	|e| = 3.6648291079e+05
-step    10,	t = 0.0000,	dt = 0.000001,	|e| = 3.4489688507e+05
-step    15,	t = 0.0000,	dt = 0.000001,	|e| = 3.2554776215e+05
-step    20,	t = 0.0000,	dt = 0.000001,	|e| = 3.0877156595e+05
-step    25,	t = 0.0000,	dt = 0.000001,	|e| = 2.9382725016e+05
-step    30,	t = 0.0000,	dt = 0.000001,	|e| = 2.8075814875e+05
-step    35,	t = 0.0000,	dt = 0.000001,	|e| = 2.6861736576e+05
-step    40,	t = 0.0000,	dt = 0.000001,	|e| = 2.5681360501e+05
-step    45,	t = 0.0000,	dt = 0.000001,	|e| = 2.4609706733e+05
-step    50,	t = 0.0001,	dt = 0.000001,	|e| = 2.3637430606e+05
-step    55,	t = 0.0001,	dt = 0.000001,	|e| = 2.2764054534e+05
-step    60,	t = 0.0001,	dt = 0.000001,	|e| = 2.1983167393e+05
-step    65,	t = 0.0001,	dt = 0.000001,	|e| = 2.1284438961e+05
-step    70,	t = 0.0001,	dt = 0.000001,	|e| = 2.0656251820e+05
-step    75,	t = 0.0001,	dt = 0.000001,	|e| = 2.0083971133e+05
-step    80,	t = 0.0001,	dt = 0.000001,	|e| = 1.9535272528e+05
-step    85,	t = 0.0001,	dt = 0.000001,	|e| = 1.9011215806e+05
-step    90,	t = 0.0001,	dt = 0.000001,	|e| = 1.8521440086e+05
-step    95,	t = 0.0001,	dt = 0.000001,	|e| = 1.8063664926e+05
-step   100,	t = 0.0001,	dt = 0.000001,	|e| = 1.7629139000e+05
-step   105,	t = 0.0001,	dt = 0.000001,	|e| = 1.7226653230e+05
-step   110,	t = 0.0001,	dt = 0.000001,	|e| = 1.6852512358e+05
-step   115,	t = 0.0001,	dt = 0.000001,	|e| = 1.6508511500e+05
-step   120,	t = 0.0001,	dt = 0.000001,	|e| = 1.6190226373e+05
-step   125,	t = 0.0002,	dt = 0.000001,	|e| = 1.5893425364e+05
-step   130,	t = 0.0002,	dt = 0.000001,	|e| = 1.5614792669e+05
-step   135,	t = 0.0002,	dt = 0.000001,	|e| = 1.5352146611e+05
-Repeating step 140
-step   140,	t = 0.0002,	dt = 0.000001,	|e| = 1.5107145652e+05
-step   145,	t = 0.0002,	dt = 0.000001,	|e| = 1.4901899353e+05
-step   150,	t = 0.0002,	dt = 0.000001,	|e| = 1.4705656214e+05
-step   155,	t = 0.0002,	dt = 0.000001,	|e| = 1.4517866449e+05
-step   160,	t = 0.0002,	dt = 0.000001,	|e| = 1.4338124070e+05
-Repeating step 162
-step   165,	t = 0.0002,	dt = 0.000001,	|e| = 1.4186210139e+05
-step   170,	t = 0.0002,	dt = 0.000001,	|e| = 1.4044739736e+05
-step   175,	t = 0.0002,	dt = 0.000001,	|e| = 1.3908165963e+05
-step   180,	t = 0.0002,	dt = 0.000001,	|e| = 1.3774704213e+05
-Repeating step 182
-Repeating step 183
-step   185,	t = 0.0002,	dt = 0.000001,	|e| = 1.3666798093e+05
-step   190,	t = 0.0002,	dt = 0.000001,	|e| = 1.3571563055e+05
-step   195,	t = 0.0002,	dt = 0.000001,	|e| = 1.3478786526e+05
-step   200,	t = 0.0002,	dt = 0.000001,	|e| = 1.3388384044e+05
-step   205,	t = 0.0002,	dt = 0.000001,	|e| = 1.3300287589e+05
-step   210,	t = 0.0003,	dt = 0.000001,	|e| = 1.3212016067e+05
-step   215,	t = 0.0003,	dt = 0.000001,	|e| = 1.3123612892e+05
-step   220,	t = 0.0003,	dt = 0.000001,	|e| = 1.3037159149e+05
-step   225,	t = 0.0003,	dt = 0.000001,	|e| = 1.2951264039e+05
-step   230,	t = 0.0003,	dt = 0.000001,	|e| = 1.2866269603e+05
-step   235,	t = 0.0003,	dt = 0.000001,	|e| = 1.2780497514e+05
-step   240,	t = 0.0003,	dt = 0.000001,	|e| = 1.2694659973e+05
-step   245,	t = 0.0003,	dt = 0.000001,	|e| = 1.2611096218e+05
-step   250,	t = 0.0003,	dt = 0.000001,	|e| = 1.2529715242e+05
-step   255,	t = 0.0003,	dt = 0.000001,	|e| = 1.2450111450e+05
-step   260,	t = 0.0003,	dt = 0.000001,	|e| = 1.2370688791e+05
-step   265,	t = 0.0003,	dt = 0.000001,	|e| = 1.2292084749e+05
-step   270,	t = 0.0003,	dt = 0.000001,	|e| = 1.2213362751e+05
-step   275,	t = 0.0003,	dt = 0.000001,	|e| = 1.2135440244e+05
-step   280,	t = 0.0003,	dt = 0.000001,	|e| = 1.2058292429e+05
-step   285,	t = 0.0003,	dt = 0.000001,	|e| = 1.1981898705e+05
-step   290,	t = 0.0003,	dt = 0.000001,	|e| = 1.1907097287e+05
-step   295,	t = 0.0003,	dt = 0.000001,	|e| = 1.1831500436e+05
-step   300,	t = 0.0003,	dt = 0.000001,	|e| = 1.1756307912e+05
-step   305,	t = 0.0003,	dt = 0.000001,	|e| = 1.1681509809e+05
-step   310,	t = 0.0004,	dt = 0.000001,	|e| = 1.1606809418e+05
-Repeating step 315
-step   315,	t = 0.0004,	dt = 0.000001,	|e| = 1.1534979195e+05
-step   320,	t = 0.0004,	dt = 0.000001,	|e| = 1.1473425965e+05
-step   325,	t = 0.0004,	dt = 0.000001,	|e| = 1.1413119284e+05
-step   330,	t = 0.0004,	dt = 0.000001,	|e| = 1.1354012781e+05
-step   335,	t = 0.0004,	dt = 0.000001,	|e| = 1.1296062425e+05
-step   340,	t = 0.0004,	dt = 0.000001,	|e| = 1.1239231259e+05
-step   345,	t = 0.0004,	dt = 0.000001,	|e| = 1.1182822517e+05
-step   350,	t = 0.0004,	dt = 0.000001,	|e| = 1.1126623860e+05
-step   355,	t = 0.0004,	dt = 0.000001,	|e| = 1.1070425663e+05
-step   360,	t = 0.0004,	dt = 0.000001,	|e| = 1.1014017412e+05
-step   365,	t = 0.0004,	dt = 0.000001,	|e| = 1.0957630959e+05
-step   370,	t = 0.0004,	dt = 0.000001,	|e| = 1.0901050228e+05
-step   375,	t = 0.0004,	dt = 0.000001,	|e| = 1.0845383869e+05
-step   380,	t = 0.0004,	dt = 0.000001,	|e| = 1.0790812237e+05
-step   385,	t = 0.0004,	dt = 0.000001,	|e| = 1.0737287115e+05
-step   390,	t = 0.0004,	dt = 0.000001,	|e| = 1.0684752682e+05
-step   394,	t = 0.0005,	dt = 0.000001,	|e| = 1.0643412856e+05
+Zones min/max: 271 287
+Number of kinematic (position, velocity) dofs: 2446275
+Number of specific internal energy dofs: 786432
+Repeating step 2
+Repeating step 4
+step     5,	t = 0.0000,	dt = 0.000003,	|e| = 1.1041050265e+05
+Repeating step 6
+step    10,	t = 0.0000,	dt = 0.000002,	|e| = 1.0587593766e+05
+step    15,	t = 0.0000,	dt = 0.000002,	|e| = 1.0104224294e+05
+step    20,	t = 0.0001,	dt = 0.000002,	|e| = 9.6475784894e+04
+step    25,	t = 0.0001,	dt = 0.000002,	|e| = 9.2279896204e+04
+step    30,	t = 0.0001,	dt = 0.000003,	|e| = 8.8218981925e+04
+step    35,	t = 0.0001,	dt = 0.000003,	|e| = 8.4485124462e+04
+step    40,	t = 0.0001,	dt = 0.000003,	|e| = 8.1135685625e+04
+step    45,	t = 0.0001,	dt = 0.000003,	|e| = 7.8112185650e+04
+step    50,	t = 0.0001,	dt = 0.000003,	|e| = 7.5345950945e+04
+step    55,	t = 0.0001,	dt = 0.000003,	|e| = 7.2790911522e+04
+step    60,	t = 0.0002,	dt = 0.000003,	|e| = 7.0352359109e+04
+step    65,	t = 0.0002,	dt = 0.000003,	|e| = 6.7980877094e+04
+step    70,	t = 0.0002,	dt = 0.000003,	|e| = 6.5688538086e+04
+step    75,	t = 0.0002,	dt = 0.000003,	|e| = 6.3550228744e+04
+step    80,	t = 0.0002,	dt = 0.000004,	|e| = 6.1520716850e+04
+step    85,	t = 0.0002,	dt = 0.000004,	|e| = 5.9632006005e+04
+step    90,	t = 0.0003,	dt = 0.000004,	|e| = 5.7921052408e+04
+step    95,	t = 0.0003,	dt = 0.000004,	|e| = 5.6353686827e+04
+Repeating step 96
+step   100,	t = 0.0003,	dt = 0.000003,	|e| = 5.5127191706e+04
+Repeating step 103
+step   105,	t = 0.0003,	dt = 0.000003,	|e| = 5.4092709423e+04
+step   110,	t = 0.0003,	dt = 0.000003,	|e| = 5.3189544901e+04
+step   115,	t = 0.0003,	dt = 0.000003,	|e| = 5.2341250187e+04
+step   120,	t = 0.0004,	dt = 0.000003,	|e| = 5.1542955181e+04
+step   125,	t = 0.0004,	dt = 0.000003,	|e| = 5.0778557956e+04
+step   130,	t = 0.0004,	dt = 0.000003,	|e| = 5.0041186391e+04
+step   135,	t = 0.0004,	dt = 0.000003,	|e| = 4.9344213293e+04
+step   140,	t = 0.0004,	dt = 0.000003,	|e| = 4.8683760661e+04
+step   145,	t = 0.0004,	dt = 0.000003,	|e| = 4.8056703025e+04
+step   150,	t = 0.0004,	dt = 0.000003,	|e| = 4.7460335514e+04
+step   155,	t = 0.0005,	dt = 0.000003,	|e| = 4.6892317389e+04
+step   160,	t = 0.0005,	dt = 0.000003,	|e| = 4.6350304681e+04
+step   165,	t = 0.0005,	dt = 0.000003,	|e| = 4.5831885336e+04
+step   170,	t = 0.0005,	dt = 0.000003,	|e| = 4.5335103708e+04
+step   175,	t = 0.0005,	dt = 0.000003,	|e| = 4.4858061860e+04
+step   180,	t = 0.0005,	dt = 0.000003,	|e| = 4.4399668434e+04
+step   185,	t = 0.0005,	dt = 0.000003,	|e| = 4.3958766428e+04
+step   190,	t = 0.0005,	dt = 0.000003,	|e| = 4.3534311239e+04
+step   195,	t = 0.0006,	dt = 0.000003,	|e| = 4.3125228110e+04
+step   200,	t = 0.0006,	dt = 0.000003,	|e| = 4.2727258510e+04
+step   205,	t = 0.0006,	dt = 0.000003,	|e| = 4.2335197311e+04
+step   210,	t = 0.0006,	dt = 0.000003,	|e| = 4.1947279217e+04
+step   215,	t = 0.0006,	dt = 0.000003,	|e| = 4.1563513151e+04
+step   220,	t = 0.0006,	dt = 0.000003,	|e| = 4.1191354290e+04
+step   225,	t = 0.0007,	dt = 0.000003,	|e| = 4.0831692594e+04
+step   230,	t = 0.0007,	dt = 0.000003,	|e| = 4.0483884310e+04
+step   235,	t = 0.0007,	dt = 0.000003,	|e| = 4.0147242885e+04
+step   240,	t = 0.0007,	dt = 0.000003,	|e| = 3.9821058024e+04
+step   245,	t = 0.0007,	dt = 0.000003,	|e| = 3.9504681483e+04
+step   250,	t = 0.0007,	dt = 0.000003,	|e| = 3.9197765205e+04
+step   255,	t = 0.0007,	dt = 0.000003,	|e| = 3.8899912596e+04
+step   260,	t = 0.0008,	dt = 0.000003,	|e| = 3.8610607209e+04
+step   265,	t = 0.0008,	dt = 0.000003,	|e| = 3.8329351415e+04
+step   270,	t = 0.0008,	dt = 0.000003,	|e| = 3.8055771358e+04
+step   275,	t = 0.0008,	dt = 0.000003,	|e| = 3.7789482320e+04
+step   280,	t = 0.0008,	dt = 0.000003,	|e| = 3.7530139893e+04
+step   285,	t = 0.0008,	dt = 0.000003,	|e| = 3.7277451697e+04
+step   290,	t = 0.0009,	dt = 0.000003,	|e| = 3.7031021453e+04
+step   295,	t = 0.0009,	dt = 0.000003,	|e| = 3.6790570658e+04
+step   300,	t = 0.0009,	dt = 0.000003,	|e| = 3.6555881706e+04
+step   305,	t = 0.0009,	dt = 0.000003,	|e| = 3.6326684139e+04
+step   310,	t = 0.0009,	dt = 0.000003,	|e| = 3.6102694574e+04
+step   315,	t = 0.0009,	dt = 0.000003,	|e| = 3.5883663868e+04
+step   320,	t = 0.0009,	dt = 0.000003,	|e| = 3.5669364757e+04
+step   325,	t = 0.0010,	dt = 0.000003,	|e| = 3.5459581888e+04
+step   330,	t = 0.0010,	dt = 0.000003,	|e| = 3.5254103205e+04
+step   335,	t = 0.0010,	dt = 0.000003,	|e| = 3.5052718826e+04
+step   340,	t = 0.0010,	dt = 0.000003,	|e| = 3.4855256405e+04
+step   345,	t = 0.0010,	dt = 0.000003,	|e| = 3.4661549303e+04
+step   350,	t = 0.0010,	dt = 0.000003,	|e| = 3.4471432962e+04
+step   355,	t = 0.0011,	dt = 0.000003,	|e| = 3.4284759090e+04
+step   360,	t = 0.0011,	dt = 0.000003,	|e| = 3.4101390930e+04
+step   365,	t = 0.0011,	dt = 0.000003,	|e| = 3.3921182206e+04
+step   370,	t = 0.0011,	dt = 0.000003,	|e| = 3.3744005708e+04
+step   375,	t = 0.0011,	dt = 0.000003,	|e| = 3.3569743320e+04
+step   380,	t = 0.0011,	dt = 0.000003,	|e| = 3.3398278564e+04
+step   385,	t = 0.0011,	dt = 0.000003,	|e| = 3.3229506423e+04
+step   390,	t = 0.0012,	dt = 0.000003,	|e| = 3.3063333951e+04
+step   395,	t = 0.0012,	dt = 0.000003,	|e| = 3.2897061162e+04
+step   400,	t = 0.0012,	dt = 0.000003,	|e| = 3.2730666138e+04
+step   405,	t = 0.0012,	dt = 0.000003,	|e| = 3.2564841729e+04
+step   410,	t = 0.0012,	dt = 0.000003,	|e| = 3.2398973323e+04
+step   415,	t = 0.0012,	dt = 0.000003,	|e| = 3.2232441155e+04
+step   420,	t = 0.0013,	dt = 0.000003,	|e| = 3.2068535868e+04
+step   425,	t = 0.0013,	dt = 0.000003,	|e| = 3.1907217112e+04
+step   430,	t = 0.0013,	dt = 0.000003,	|e| = 3.1748439013e+04
+step   435,	t = 0.0013,	dt = 0.000003,	|e| = 3.1591539745e+04
+step   440,	t = 0.0013,	dt = 0.000003,	|e| = 3.1434667585e+04
+step   445,	t = 0.0013,	dt = 0.000003,	|e| = 3.1279068102e+04
+step   450,	t = 0.0014,	dt = 0.000003,	|e| = 3.1124154632e+04
+step   455,	t = 0.0014,	dt = 0.000003,	|e| = 3.0971742482e+04
+step   460,	t = 0.0014,	dt = 0.000003,	|e| = 3.0821788566e+04
+step   465,	t = 0.0014,	dt = 0.000003,	|e| = 3.0674252779e+04
+step   470,	t = 0.0014,	dt = 0.000003,	|e| = 3.0529089272e+04
+step   475,	t = 0.0014,	dt = 0.000003,	|e| = 3.0386274286e+04
+step   480,	t = 0.0015,	dt = 0.000003,	|e| = 3.0246496427e+04
+step   485,	t = 0.0015,	dt = 0.000003,	|e| = 3.0110535679e+04
+step   490,	t = 0.0015,	dt = 0.000003,	|e| = 2.9977525188e+04
+step   495,	t = 0.0015,	dt = 0.000003,	|e| = 2.9847345731e+04
+step   496,	t = 0.0015,	dt = 0.000003,	|e| = 2.9821636608e+04
 
-CG (H1) total time: 380.4816615440
-CG (H1) rate (megadofs x cg_iterations / second): 732.9546844027
+CG (H1) total time: 97.0313443610
+CG (H1) rate (megadofs x cg_iterations / second): 1283.5013373272
 
-CG (L2) total time: 35.5846563350
-CG (L2) rate (megadofs x cg_iterations / second): -13.5060530436
+CG (L2) total time: 3.2721259200
+CG (L2) rate (megadofs x cg_iterations / second): 613.2747849753
 
-Forces total time: 15.9293448110
-Forces rate (megadofs x timesteps / second): 1088.6916599372
+Forces total time: 1.1948779040
+Forces rate (megadofs x timesteps / second): 5421.7630155457
 
-UpdateQuadData total time: 254.5285181390
-UpdateQuadData rate (megaquads x timesteps / second): 134.4787083910
+UpdateQuadData total time: 31.6146898540
+UpdateQuadData rate (megaquads x timesteps / second): 399.9984380173
 
-Major kernels total time (seconds): 530.8735898440
-Major kernels total rate (megadofs x time steps / second): 622.4582154616
+Major kernels total time (seconds): 117.5259699500
+Major kernels total rate (megadofs x time steps / second): 1222.4024332590
 
 | Ranks | Zones   | H1 dofs | L2 dofs | QP | N dofs   | FOM0   | FOM1   | T1   | FOM2   | T2   | FOM3   | T3   | FOM    | TT   |
-|    352|    98304|  8157603|  2654208| 216|  40203078|  32.667| 732.955| 380.482| 1088.692| 15.929| 134.479| 254.529| 622.458| 530.874| 
+|    352|    98304|  2446275|   786432|  64|  11970438|  55.123| 1283.501| 97.031| 5421.763| 1.195| 399.998| 31.615| 1222.402| 117.526| 
 
-Energy  diff: 8.37e-07
+Energy  diff: 8.39e-07
 FLUX-RUN END laghos-iter-4
 FLUX-RUN START laghos-iter-5
 
@@ -637,22 +741,22 @@ FLUX-RUN START laghos-iter-5
                /____/                       
 
 Options used:
-   --dimension 2
+   --dimension 3
    --mesh /opt/laghos/data/cube_311_hex.mesh
-   --refine-serial 3
-   --refine-parallel 2
+   --refine-serial 5
+   --refine-parallel 0
    --cartesian-partitioning ''
    --problem 1
-   --order-kinematic 3
-   --order-thermo 2
+   --order-kinematic 2
+   --order-thermo 1
    --order-intrule -1
    --ode-solver 4
-   --t-final 0.8
+   --t-final 0.6
    --cfl 0.5
    --cg-tol 1e-08
    --ftz-tol 0
-   --cg-max-steps 50
-   --max-steps 400
+   --cg-max-steps 300
+   --max-steps 500
    --partial-assembly
    --no-impose-viscosity
    --no-visualization
@@ -660,7 +764,7 @@ Options used:
    --no-visit
    --no-print
    --outputfilename results/Laghos
-   --partition 311
+   --partition 0
    --device cpu
    --no-checks
    --no-mem
@@ -669,235 +773,280 @@ Options used:
    --dev 0
 Device configuration: cpu
 Memory configuration: host-std
-Number of zones in the serial mesh: 1536
-Mesh::GeneratePartitioning(...): METIS returned 41 empty parts! Applying a simple fix ...
+Number of zones in the serial mesh: 98304
 Non-Cartesian partitioning through METIS will be used.
-Mesh::GeneratePartitioning(...): edgecut = 2905
-Zones min/max: 192 384
-Number of kinematic (position, velocity) dofs: 8157603
-Number of specific internal energy dofs: 2654208
-Repeating step 3
-Repeating step 5
-step     5,	t = 0.0000,	dt = 0.000001,	|e| = 3.6648291079e+05
-step    10,	t = 0.0000,	dt = 0.000001,	|e| = 3.4489688507e+05
-step    15,	t = 0.0000,	dt = 0.000001,	|e| = 3.2554776215e+05
-step    20,	t = 0.0000,	dt = 0.000001,	|e| = 3.0877156595e+05
-step    25,	t = 0.0000,	dt = 0.000001,	|e| = 2.9382725016e+05
-step    30,	t = 0.0000,	dt = 0.000001,	|e| = 2.8075814875e+05
-step    35,	t = 0.0000,	dt = 0.000001,	|e| = 2.6861736576e+05
-step    40,	t = 0.0000,	dt = 0.000001,	|e| = 2.5681360501e+05
-step    45,	t = 0.0000,	dt = 0.000001,	|e| = 2.4609706733e+05
-step    50,	t = 0.0001,	dt = 0.000001,	|e| = 2.3637430606e+05
-step    55,	t = 0.0001,	dt = 0.000001,	|e| = 2.2764054534e+05
-step    60,	t = 0.0001,	dt = 0.000001,	|e| = 2.1983167393e+05
-step    65,	t = 0.0001,	dt = 0.000001,	|e| = 2.1284438961e+05
-step    70,	t = 0.0001,	dt = 0.000001,	|e| = 2.0656251820e+05
-step    75,	t = 0.0001,	dt = 0.000001,	|e| = 2.0083971133e+05
-step    80,	t = 0.0001,	dt = 0.000001,	|e| = 1.9535272528e+05
-step    85,	t = 0.0001,	dt = 0.000001,	|e| = 1.9011215806e+05
-step    90,	t = 0.0001,	dt = 0.000001,	|e| = 1.8521440086e+05
-step    95,	t = 0.0001,	dt = 0.000001,	|e| = 1.8063664926e+05
-step   100,	t = 0.0001,	dt = 0.000001,	|e| = 1.7629139000e+05
-step   105,	t = 0.0001,	dt = 0.000001,	|e| = 1.7226653230e+05
-step   110,	t = 0.0001,	dt = 0.000001,	|e| = 1.6852512358e+05
-step   115,	t = 0.0001,	dt = 0.000001,	|e| = 1.6508511500e+05
-step   120,	t = 0.0001,	dt = 0.000001,	|e| = 1.6190226373e+05
-step   125,	t = 0.0002,	dt = 0.000001,	|e| = 1.5893425364e+05
-step   130,	t = 0.0002,	dt = 0.000001,	|e| = 1.5614792669e+05
-step   135,	t = 0.0002,	dt = 0.000001,	|e| = 1.5352146611e+05
-Repeating step 140
-step   140,	t = 0.0002,	dt = 0.000001,	|e| = 1.5107145652e+05
-step   145,	t = 0.0002,	dt = 0.000001,	|e| = 1.4901899353e+05
-step   150,	t = 0.0002,	dt = 0.000001,	|e| = 1.4705656214e+05
-step   155,	t = 0.0002,	dt = 0.000001,	|e| = 1.4517866449e+05
-step   160,	t = 0.0002,	dt = 0.000001,	|e| = 1.4338124070e+05
-Repeating step 162
-step   165,	t = 0.0002,	dt = 0.000001,	|e| = 1.4186210139e+05
-step   170,	t = 0.0002,	dt = 0.000001,	|e| = 1.4044739736e+05
-step   175,	t = 0.0002,	dt = 0.000001,	|e| = 1.3908165963e+05
-step   180,	t = 0.0002,	dt = 0.000001,	|e| = 1.3774704213e+05
-Repeating step 182
-Repeating step 183
-step   185,	t = 0.0002,	dt = 0.000001,	|e| = 1.3666798093e+05
-step   190,	t = 0.0002,	dt = 0.000001,	|e| = 1.3571563055e+05
-step   195,	t = 0.0002,	dt = 0.000001,	|e| = 1.3478786526e+05
-step   200,	t = 0.0002,	dt = 0.000001,	|e| = 1.3388384044e+05
-step   205,	t = 0.0002,	dt = 0.000001,	|e| = 1.3300287589e+05
-step   210,	t = 0.0003,	dt = 0.000001,	|e| = 1.3212016067e+05
-step   215,	t = 0.0003,	dt = 0.000001,	|e| = 1.3123612892e+05
-step   220,	t = 0.0003,	dt = 0.000001,	|e| = 1.3037159149e+05
-step   225,	t = 0.0003,	dt = 0.000001,	|e| = 1.2951264039e+05
-step   230,	t = 0.0003,	dt = 0.000001,	|e| = 1.2866269603e+05
-step   235,	t = 0.0003,	dt = 0.000001,	|e| = 1.2780497514e+05
-step   240,	t = 0.0003,	dt = 0.000001,	|e| = 1.2694659973e+05
-step   245,	t = 0.0003,	dt = 0.000001,	|e| = 1.2611096218e+05
-step   250,	t = 0.0003,	dt = 0.000001,	|e| = 1.2529715242e+05
-step   255,	t = 0.0003,	dt = 0.000001,	|e| = 1.2450111450e+05
-step   260,	t = 0.0003,	dt = 0.000001,	|e| = 1.2370688791e+05
-step   265,	t = 0.0003,	dt = 0.000001,	|e| = 1.2292084749e+05
-step   270,	t = 0.0003,	dt = 0.000001,	|e| = 1.2213362751e+05
-step   275,	t = 0.0003,	dt = 0.000001,	|e| = 1.2135440244e+05
-step   280,	t = 0.0003,	dt = 0.000001,	|e| = 1.2058292429e+05
-step   285,	t = 0.0003,	dt = 0.000001,	|e| = 1.1981898705e+05
-step   290,	t = 0.0003,	dt = 0.000001,	|e| = 1.1907097287e+05
-step   295,	t = 0.0003,	dt = 0.000001,	|e| = 1.1831500436e+05
-step   300,	t = 0.0003,	dt = 0.000001,	|e| = 1.1756307912e+05
-step   305,	t = 0.0003,	dt = 0.000001,	|e| = 1.1681509809e+05
-step   310,	t = 0.0004,	dt = 0.000001,	|e| = 1.1606809418e+05
-Repeating step 315
-step   315,	t = 0.0004,	dt = 0.000001,	|e| = 1.1534979195e+05
-step   320,	t = 0.0004,	dt = 0.000001,	|e| = 1.1473425965e+05
-step   325,	t = 0.0004,	dt = 0.000001,	|e| = 1.1413119284e+05
-step   330,	t = 0.0004,	dt = 0.000001,	|e| = 1.1354012781e+05
-step   335,	t = 0.0004,	dt = 0.000001,	|e| = 1.1296062425e+05
-step   340,	t = 0.0004,	dt = 0.000001,	|e| = 1.1239231259e+05
-step   345,	t = 0.0004,	dt = 0.000001,	|e| = 1.1182822517e+05
-step   350,	t = 0.0004,	dt = 0.000001,	|e| = 1.1126623860e+05
-step   355,	t = 0.0004,	dt = 0.000001,	|e| = 1.1070425663e+05
-step   360,	t = 0.0004,	dt = 0.000001,	|e| = 1.1014017412e+05
-step   365,	t = 0.0004,	dt = 0.000001,	|e| = 1.0957630959e+05
-step   370,	t = 0.0004,	dt = 0.000001,	|e| = 1.0901050228e+05
-step   375,	t = 0.0004,	dt = 0.000001,	|e| = 1.0845383869e+05
-step   380,	t = 0.0004,	dt = 0.000001,	|e| = 1.0790812237e+05
-step   385,	t = 0.0004,	dt = 0.000001,	|e| = 1.0737287115e+05
-step   390,	t = 0.0004,	dt = 0.000001,	|e| = 1.0684752682e+05
-step   394,	t = 0.0005,	dt = 0.000001,	|e| = 1.0643412856e+05
+Zones min/max: 271 287
+Number of kinematic (position, velocity) dofs: 2446275
+Number of specific internal energy dofs: 786432
+Repeating step 2
+Repeating step 4
+step     5,	t = 0.0000,	dt = 0.000003,	|e| = 1.1041050265e+05
+Repeating step 6
+step    10,	t = 0.0000,	dt = 0.000002,	|e| = 1.0587593766e+05
+step    15,	t = 0.0000,	dt = 0.000002,	|e| = 1.0104224294e+05
+step    20,	t = 0.0001,	dt = 0.000002,	|e| = 9.6475784894e+04
+step    25,	t = 0.0001,	dt = 0.000002,	|e| = 9.2279896204e+04
+step    30,	t = 0.0001,	dt = 0.000003,	|e| = 8.8218981925e+04
+step    35,	t = 0.0001,	dt = 0.000003,	|e| = 8.4485124462e+04
+step    40,	t = 0.0001,	dt = 0.000003,	|e| = 8.1135685625e+04
+step    45,	t = 0.0001,	dt = 0.000003,	|e| = 7.8112185650e+04
+step    50,	t = 0.0001,	dt = 0.000003,	|e| = 7.5345950945e+04
+step    55,	t = 0.0001,	dt = 0.000003,	|e| = 7.2790911522e+04
+step    60,	t = 0.0002,	dt = 0.000003,	|e| = 7.0352359109e+04
+step    65,	t = 0.0002,	dt = 0.000003,	|e| = 6.7980877094e+04
+step    70,	t = 0.0002,	dt = 0.000003,	|e| = 6.5688538086e+04
+step    75,	t = 0.0002,	dt = 0.000003,	|e| = 6.3550228744e+04
+step    80,	t = 0.0002,	dt = 0.000004,	|e| = 6.1520716850e+04
+step    85,	t = 0.0002,	dt = 0.000004,	|e| = 5.9632006005e+04
+step    90,	t = 0.0003,	dt = 0.000004,	|e| = 5.7921052408e+04
+step    95,	t = 0.0003,	dt = 0.000004,	|e| = 5.6353686827e+04
+Repeating step 96
+step   100,	t = 0.0003,	dt = 0.000003,	|e| = 5.5127191706e+04
+Repeating step 103
+step   105,	t = 0.0003,	dt = 0.000003,	|e| = 5.4092709423e+04
+step   110,	t = 0.0003,	dt = 0.000003,	|e| = 5.3189544901e+04
+step   115,	t = 0.0003,	dt = 0.000003,	|e| = 5.2341250187e+04
+step   120,	t = 0.0004,	dt = 0.000003,	|e| = 5.1542955181e+04
+step   125,	t = 0.0004,	dt = 0.000003,	|e| = 5.0778557956e+04
+step   130,	t = 0.0004,	dt = 0.000003,	|e| = 5.0041186391e+04
+step   135,	t = 0.0004,	dt = 0.000003,	|e| = 4.9344213293e+04
+step   140,	t = 0.0004,	dt = 0.000003,	|e| = 4.8683760661e+04
+step   145,	t = 0.0004,	dt = 0.000003,	|e| = 4.8056703025e+04
+step   150,	t = 0.0004,	dt = 0.000003,	|e| = 4.7460335514e+04
+step   155,	t = 0.0005,	dt = 0.000003,	|e| = 4.6892317389e+04
+step   160,	t = 0.0005,	dt = 0.000003,	|e| = 4.6350304681e+04
+step   165,	t = 0.0005,	dt = 0.000003,	|e| = 4.5831885336e+04
+step   170,	t = 0.0005,	dt = 0.000003,	|e| = 4.5335103708e+04
+step   175,	t = 0.0005,	dt = 0.000003,	|e| = 4.4858061860e+04
+step   180,	t = 0.0005,	dt = 0.000003,	|e| = 4.4399668434e+04
+step   185,	t = 0.0005,	dt = 0.000003,	|e| = 4.3958766428e+04
+step   190,	t = 0.0005,	dt = 0.000003,	|e| = 4.3534311239e+04
+step   195,	t = 0.0006,	dt = 0.000003,	|e| = 4.3125228110e+04
+step   200,	t = 0.0006,	dt = 0.000003,	|e| = 4.2727258510e+04
+step   205,	t = 0.0006,	dt = 0.000003,	|e| = 4.2335197311e+04
+step   210,	t = 0.0006,	dt = 0.000003,	|e| = 4.1947279217e+04
+step   215,	t = 0.0006,	dt = 0.000003,	|e| = 4.1563513151e+04
+step   220,	t = 0.0006,	dt = 0.000003,	|e| = 4.1191354290e+04
+step   225,	t = 0.0007,	dt = 0.000003,	|e| = 4.0831692594e+04
+step   230,	t = 0.0007,	dt = 0.000003,	|e| = 4.0483884310e+04
+step   235,	t = 0.0007,	dt = 0.000003,	|e| = 4.0147242885e+04
+step   240,	t = 0.0007,	dt = 0.000003,	|e| = 3.9821058024e+04
+step   245,	t = 0.0007,	dt = 0.000003,	|e| = 3.9504681483e+04
+step   250,	t = 0.0007,	dt = 0.000003,	|e| = 3.9197765205e+04
+step   255,	t = 0.0007,	dt = 0.000003,	|e| = 3.8899912596e+04
+step   260,	t = 0.0008,	dt = 0.000003,	|e| = 3.8610607209e+04
+step   265,	t = 0.0008,	dt = 0.000003,	|e| = 3.8329351415e+04
+step   270,	t = 0.0008,	dt = 0.000003,	|e| = 3.8055771358e+04
+step   275,	t = 0.0008,	dt = 0.000003,	|e| = 3.7789482320e+04
+step   280,	t = 0.0008,	dt = 0.000003,	|e| = 3.7530139893e+04
+step   285,	t = 0.0008,	dt = 0.000003,	|e| = 3.7277451697e+04
+step   290,	t = 0.0009,	dt = 0.000003,	|e| = 3.7031021453e+04
+step   295,	t = 0.0009,	dt = 0.000003,	|e| = 3.6790570658e+04
+step   300,	t = 0.0009,	dt = 0.000003,	|e| = 3.6555881706e+04
+step   305,	t = 0.0009,	dt = 0.000003,	|e| = 3.6326684139e+04
+step   310,	t = 0.0009,	dt = 0.000003,	|e| = 3.6102694574e+04
+step   315,	t = 0.0009,	dt = 0.000003,	|e| = 3.5883663868e+04
+step   320,	t = 0.0009,	dt = 0.000003,	|e| = 3.5669364757e+04
+step   325,	t = 0.0010,	dt = 0.000003,	|e| = 3.5459581888e+04
+step   330,	t = 0.0010,	dt = 0.000003,	|e| = 3.5254103205e+04
+step   335,	t = 0.0010,	dt = 0.000003,	|e| = 3.5052718826e+04
+step   340,	t = 0.0010,	dt = 0.000003,	|e| = 3.4855256405e+04
+step   345,	t = 0.0010,	dt = 0.000003,	|e| = 3.4661549303e+04
+step   350,	t = 0.0010,	dt = 0.000003,	|e| = 3.4471432962e+04
+step   355,	t = 0.0011,	dt = 0.000003,	|e| = 3.4284759090e+04
+step   360,	t = 0.0011,	dt = 0.000003,	|e| = 3.4101390930e+04
+step   365,	t = 0.0011,	dt = 0.000003,	|e| = 3.3921182206e+04
+step   370,	t = 0.0011,	dt = 0.000003,	|e| = 3.3744005708e+04
+step   375,	t = 0.0011,	dt = 0.000003,	|e| = 3.3569743320e+04
+step   380,	t = 0.0011,	dt = 0.000003,	|e| = 3.3398278564e+04
+step   385,	t = 0.0011,	dt = 0.000003,	|e| = 3.3229506423e+04
+step   390,	t = 0.0012,	dt = 0.000003,	|e| = 3.3063333951e+04
+step   395,	t = 0.0012,	dt = 0.000003,	|e| = 3.2897061162e+04
+step   400,	t = 0.0012,	dt = 0.000003,	|e| = 3.2730666138e+04
+step   405,	t = 0.0012,	dt = 0.000003,	|e| = 3.2564841729e+04
+step   410,	t = 0.0012,	dt = 0.000003,	|e| = 3.2398973323e+04
+step   415,	t = 0.0012,	dt = 0.000003,	|e| = 3.2232441155e+04
+step   420,	t = 0.0013,	dt = 0.000003,	|e| = 3.2068535868e+04
+step   425,	t = 0.0013,	dt = 0.000003,	|e| = 3.1907217112e+04
+step   430,	t = 0.0013,	dt = 0.000003,	|e| = 3.1748439013e+04
+step   435,	t = 0.0013,	dt = 0.000003,	|e| = 3.1591539745e+04
+step   440,	t = 0.0013,	dt = 0.000003,	|e| = 3.1434667585e+04
+step   445,	t = 0.0013,	dt = 0.000003,	|e| = 3.1279068102e+04
+step   450,	t = 0.0014,	dt = 0.000003,	|e| = 3.1124154632e+04
+step   455,	t = 0.0014,	dt = 0.000003,	|e| = 3.0971742482e+04
+step   460,	t = 0.0014,	dt = 0.000003,	|e| = 3.0821788566e+04
+step   465,	t = 0.0014,	dt = 0.000003,	|e| = 3.0674252779e+04
+step   470,	t = 0.0014,	dt = 0.000003,	|e| = 3.0529089272e+04
+step   475,	t = 0.0014,	dt = 0.000003,	|e| = 3.0386274286e+04
+step   480,	t = 0.0015,	dt = 0.000003,	|e| = 3.0246496427e+04
+step   485,	t = 0.0015,	dt = 0.000003,	|e| = 3.0110535679e+04
+step   490,	t = 0.0015,	dt = 0.000003,	|e| = 2.9977525188e+04
+step   495,	t = 0.0015,	dt = 0.000003,	|e| = 2.9847345731e+04
+step   496,	t = 0.0015,	dt = 0.000003,	|e| = 2.9821636608e+04
 
-CG (H1) total time: 317.7480709460
-CG (H1) rate (megadofs x cg_iterations / second): 877.6632862876
+CG (H1) total time: 98.8834780270
+CG (H1) rate (megadofs x cg_iterations / second): 1259.4607586112
 
-CG (L2) total time: 35.4513751020
-CG (L2) rate (megadofs x cg_iterations / second): -13.5568297313
+CG (L2) total time: 3.2153782960
+CG (L2) rate (megadofs x cg_iterations / second): 624.0983595916
 
-Forces total time: 15.9981722370
-Forces rate (megadofs x timesteps / second): 1084.0078845939
+Forces total time: 1.2437017150
+Forces rate (megadofs x timesteps / second): 5208.9216810319
 
-UpdateQuadData total time: 254.6787242630
-UpdateQuadData rate (megaquads x timesteps / second): 134.3993946375
+UpdateQuadData total time: 31.6023852690
+UpdateQuadData rate (megaquads x timesteps / second): 400.1541798937
 
-Major kernels total time (seconds): 467.9198983760
-Major kernels total rate (megadofs x time steps / second): 706.2034089956
+Major kernels total time (seconds): 119.3961657850
+Major kernels total rate (megadofs x time steps / second): 1203.2549847262
 
 | Ranks | Zones   | H1 dofs | L2 dofs | QP | N dofs   | FOM0   | FOM1   | T1   | FOM2   | T2   | FOM3   | T3   | FOM    | TT   |
-|    352|    98304|  8157603|  2654208| 216|  40203078|  37.062| 877.663| 317.748| 1084.008| 15.998| 134.399| 254.679| 706.203| 467.920| 
+|    352|    98304|  2446275|   786432|  64|  11970438|  54.259| 1259.461| 98.883| 5208.922| 1.244| 400.154| 31.602| 1203.255| 119.396| 
 
-Energy  diff: 8.37e-07
+Energy  diff: 8.39e-07
 FLUX-RUN END laghos-iter-5
-0% [Working]            Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
-0% [Connecting to security.ubuntu.com (185.125.190.83)]                                                       Get:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
-0% [2 InRelease 11.3 kB/128 kB 9%] [Waiting for headers]0% [2 InRelease 24.3 kB/128 kB 19%] [Waiting for headers]                                                         Get:3 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
-0% [2 InRelease 51.8 kB/128 kB 40%] [3 InRelease 5484 B/129 kB 4%]                                                                  0% [3 InRelease 14.2 kB/129 kB 11%]                                   Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
-0% [4 InRelease 2588 B/127 kB 2%] [3 InRelease 24.3 kB/129 kB 19%]0% [4 InRelease 48.9 kB/127 kB 38%] [3 InRelease 30.1 kB/129 kB 23%]                                                                    0% [3 InRelease 43.1 kB/129 kB 33%]                                   Get:5 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
-0% [5 Packages 5555 B/55.7 kB 10%] [3 InRelease 46.0 kB/129 kB 36%]                                                                   0% [Waiting for headers] [3 InRelease 51.8 kB/129 kB 40%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4246 kB]
-0% [6 Packages 40.3 kB/4246 kB 1%] [3 InRelease 51.8 kB/129 kB 40%]0% [5 Packages store 0 B] [6 Packages 40.3 kB/4246 kB 1%] [3 InRelease 51.8 kB/0% [5 Packages store 93.4 kB] [6 Packages 69.2 kB/4246 kB 2%] [3 InRelease 54.7                                                                               0% [6 Packages 69.2 kB/4246 kB 2%] [3 InRelease 54.7 kB/129 kB 42%]                                                                   0% [Waiting for headers] [3 InRelease 111 kB/129 kB 86%]                                                        Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1542 kB]
-0% [7 Packages 29.0 kB/1542 kB 2%] [3 InRelease 111 kB/129 kB 86%]0% [6 Packages store 0 B] [7 Packages 45.1 kB/1542 kB 3%] [3 InRelease 111 kB/10% [6 Packages store 0 B] [Waiting for headers] [3 InRelease 123 kB/129 kB 95%]                                                                               Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3140 kB]
-0% [6 Packages store 0 B] [8 Packages 2655 B/3140 kB 0%] [3 InRelease 123 kB/12                                                                               0% [6 Packages store 0 B] [8 Packages 789 kB/3140 kB 25%]                                                         0% [6 Packages store 0 B] [Waiting for headers]                                               Get:9 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
-0% [6 Packages store 0 B] [9 Packages 12.3 kB/82.7 kB 15%]                                                          0% [6 Packages store 0 B] [Waiting for headers]                                               Get:10 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
-0% [6 Packages store 0 B] [10 Packages 35.2 kB/35.2 kB 100%]                                                            0% [6 Packages store 0 B]58% [6 Packages store 0 B]                          59% [Waiting for headers]59% [7 Packages store 0 B] [Waiting for headers]                                                Get:11 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2788 kB]
-59% [7 Packages store 0 B] [11 Packages 2655 B/2788 kB 0%]                                                          59% [11 Packages 24.4 kB/2788 kB 1%]59% [8 Packages store 0 B] [11 Packages 24.4 kB/2788 kB 1%]                                                           61% [11 Packages 142 kB/2788 kB 5%]61% [9 Packages store 0 B] [11 Packages 142 kB/2788 kB 5%]                                                          61% [11 Packages 145 kB/2788 kB 5%]61% [10 Packages store 0 B] [11 Packages 145 kB/2788 kB 5%]                                                           62% [11 Packages 147 kB/2788 kB 5%]                                   74% [Working]74% [11 Packages store 0 B]                           74% [Waiting for headers]                         Get:12 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
-74% [12 Packages 4107 B/47.7 kB 9%]                                   74% [Waiting for headers]74% [12 Packages store 0 B] [Waiting for headers]                                                 Get:13 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4000 kB]
-74% [12 Packages store 0 B] [13 Packages 4096 B/4000 kB 0%]                                                           75% [13 Packages 75.1 kB/4000 kB 2%]                                    93% [Waiting for headers]                         Get:14 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1243 kB]
-93% [14 Packages 8192 B/1243 kB 1%]93% [13 Packages store 0 B] [14 Packages 20.5 kB/1243 kB 2%]                                                            99% [13 Packages store 0 B]                           99% [Working]99% [14 Packages store 0 B]                           100% [Working]              Fetched 17.6 MB in 2s (8925 kB/s)
-Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 57%Reading package lists... 57%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
-Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 57%Reading package lists... 57%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy InRelease [270 kB]
+0% [1 InRelease 4036 B/270 kB 1%] [Waiting for headers]                                                       Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [1 InRelease 37.3 kB/270 kB 14%] [2 InRelease 2588 B/129 kB 2%]                                                                  0% [2 InRelease 34.4 kB/129 kB 27%]                                   Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [3 InRelease 5484 B/128 kB 4%] [2 InRelease 43.1 kB/129 kB 33%]                                                                  0% [2 InRelease 43.1 kB/129 kB 33%]0% [Waiting for headers] [2 InRelease 46.0 kB/129 kB 36%]                                                         Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 8380 B/127 kB 7%] [2 InRelease 48.9 kB/129 kB 38%]                                                                  0% [2 InRelease 54.7 kB/129 kB 42%]                                   Get:5 http://archive.ubuntu.com/ubuntu jammy/restricted amd64 Packages [164 kB]
+0% [5 Packages 7001 B/164 kB 4%] [2 InRelease 69.2 kB/129 kB 54%]0% [5 Packages 51.9 kB/164 kB 32%] [2 InRelease 72.1 kB/129 kB 56%]                                                                   0% [Waiting for headers] [2 InRelease 77.9 kB/129 kB 60%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [266 kB]
+0% [6 Packages 61.2 kB/266 kB 23%] [2 InRelease 77.9 kB/129 kB 60%]0% [5 Packages store 0 B] [6 Packages 61.2 kB/266 kB 23%] [2 InRelease 77.9 kB/                                                                               0% [6 Packages 135 kB/266 kB 51%] [2 InRelease 77.9 kB/129 kB 60%]                                                                  0% [Waiting for headers] [2 InRelease 77.9 kB/129 kB 60%]                                                         Get:7 http://archive.ubuntu.com/ubuntu jammy/main amd64 Packages [1792 kB]
+0% [7 Packages 5199 B/1792 kB 0%] [2 InRelease 77.9 kB/129 kB 60%]0% [6 Packages store 0 B] [7 Packages 5199 B/1792 kB 0%] [2 InRelease 77.9 kB/1                                                                               0% [7 Packages 97.4 kB/1792 kB 5%] [2 InRelease 77.9 kB/129 kB 60%]0% [7 Packages 189 kB/1792 kB 11%] [2 InRelease 83.7 kB/129 kB 65%]                                                                   0% [Waiting for headers] [2 InRelease 107 kB/129 kB 83%]                                                        Get:8 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [17.5 MB]
+0% [8 Packages 20.9 kB/17.5 MB 0%] [2 InRelease 107 kB/129 kB 83%]0% [7 Packages store 0 B] [8 Packages 20.9 kB/17.5 MB 0%] [2 InRelease 107 kB/1                                                                               0% [8 Packages 7630 kB/17.5 MB 44%] [2 InRelease 121 kB/129 kB 94%]                                                                   0% [8 Packages 9335 kB/17.5 MB 53%]                                   0% [Waiting for headers]                        Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+0% [9 Packages 15.8 kB/1544 kB 1%]0% [8 Packages store 0 B] [9 Packages 28.7 kB/1544 kB 2%]                                                         0% [8 Packages store 0 B] [Waiting for headers]                                               Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+0% [8 Packages store 0 B] [10 Packages 44.4 kB/4420 kB 1%]66% [8 Packages store 0 B] [10 Packages 3073 kB/4420 kB 70%]69% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+69% [8 Packages store 0 B] [11 Packages 29.3 kB/3200 kB 1%] [Waiting for header                                                                               76% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+76% [8 Packages store 0 B] [12 Packages 40.2 kB/55.7 kB 72%] [Waiting for heade                                                                               76% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:13 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+76% [8 Packages store 0 B] [13 Packages 18.2 kB/82.7 kB 22%] [Waiting for heade                                                                               76% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:14 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+76% [8 Packages store 0 B] [14 Packages 32.4 kB/35.2 kB 92%] [Waiting for heade                                                                               76% [8 Packages store 0 B] [Waiting for headers]                                                Get:15 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+76% [8 Packages store 0 B] [15 Packages 2659 B/47.7 kB 6%]                                                          76% [8 Packages store 0 B]                          Get:16 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4266 kB]
+76% [8 Packages store 0 B] [16 Packages 2655 B/4266 kB 0%]                                                          78% [16 Packages 580 kB/4266 kB 14%]78% [9 Packages store 0 B] [16 Packages 582 kB/4266 kB 14%]                                                           79% [16 Packages 883 kB/4266 kB 21%]79% [10 Packages store 0 B] [16 Packages 883 kB/4266 kB 21%]                                                            84% [16 Packages 2761 kB/4266 kB 65%]84% [11 Packages store 0 B] [16 Packages 2761 kB/4266 kB 65%]                                                             87% [11 Packages store 0 B] [Waiting for headers]                                                 Get:17 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2893 kB]
+87% [11 Packages store 0 B] [17 Packages 16.4 kB/2893 kB 1%]                                                            91% [17 Packages 1821 kB/2893 kB 63%]91% [12 Packages store 0 B] [17 Packages 1821 kB/2893 kB 63%]                                                             92% [17 Packages 1912 kB/2893 kB 66%]92% [13 Packages store 0 B] [17 Packages 1912 kB/2893 kB 66%]                                                             93% [17 Packages 2085 kB/2893 kB 72%]93% [14 Packages store 0 B] [17 Packages 2085 kB/2893 kB 72%]                                                             94% [17 Packages 2150 kB/2893 kB 74%]94% [15 Packages store 0 B] [17 Packages 2150 kB/2893 kB 74%]                                                             94% [17 Packages 2238 kB/2893 kB 77%]94% [16 Packages store 0 B] [17 Packages 2238 kB/2893 kB 77%]                                                             96% [16 Packages store 0 B] [Waiting for headers]                                                 Get:18 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1245 kB]
+96% [16 Packages store 0 B] [18 Packages 2053 B/1245 kB 0%]                                                           98% [16 Packages store 0 B]                           99% [Working]99% [17 Packages store 0 B]                           99% [Working]99% [18 Packages store 0 B]                           100% [Working]              Fetched 38.1 MB in 2s (18.9 MB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
 Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
-Reading state information... 0% Reading state information... 0%Reading state information... Done
-jq is already the newest version (1.6-2.1ubuntu3).
-0 upgraded, 0 newly installed, 0 to remove and 95 not upgraded.
+Reading state information... 0% Reading state information... 1%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
+Need to get 357 kB of archives.
+After this operation, 1087 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libonig5 amd64 6.9.7.1-2build1 [172 kB]
+1% [1 libonig5 2604 B/172 kB 2%]                                45% [Working]             Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjq1 amd64 1.6-2.1ubuntu3 [133 kB]
+46% [2 libjq1 4052 B/133 kB 3%]                               82% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 jq amd64 1.6-2.1ubuntu3 [52.5 kB]
+82% [3 jq 4096 B/52.5 kB 8%]                            100% [Working]              Fetched 357 kB in 0s (1240 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 11275 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.7.1-2build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.7.1-2build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-2.1ubuntu3) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking jq (1.6-2.1ubuntu3) ...
+Setting up libonig5:amd64 (6.9.7.1-2build1) ...
+Setting up libjq1:amd64 (1.6-2.1ubuntu3) ...
+Setting up jq (1.6-2.1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.9) ...
 
-FLUX-JOB START 35294732615680 laghos-iter-5
+FLUX-JOB START 8614664208384 laghos-iter-5
 FLUX-JOB-JOBSPEC START
-{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/laghos/laghos", "-p", "1", "-dim", "2", "-rs", "3", "-tf", "0.8", "-pa", "-pt", "311", "--mesh", "/opt/laghos/data/cube_311_hex.mesh", "--max-steps", "400", "-cgm", "50", "-ok", "3", "-ot", "2", "-rp", "2", "--fom"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "laghos-iter-5"}}, "version": 1}
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["laghos", "--mesh", "/opt/laghos/data/cube_311_hex.mesh", "--max-steps", "500", "-p", "1", "-rs", "5", "--fom"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/laghos", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "laghos-iter-5"}}, "version": 1}
 FLUX-JOB-JOBSPEC END
 FLUX-JOB-RESOURCES START
-{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["laghos-[0-3]"], "starttime": 1744858935, "expiration": 4898456831}}
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["laghos-[0-3]"], "starttime": 1746470774, "expiration": 4900070260}}
 FLUX-JOB-RESOURCES END
 FLUX-JOB-EVENTLOG START
-{"timestamp":1744858935.1874099,"name":"init"}
-{"timestamp":1744858935.1975615,"name":"shell.init","context":{"service":"0-shell-fGz8hfHd9","leader-rank":0,"size":4}}
-{"timestamp":1744858935.1879435,"name":"starting"}
-{"timestamp":1744858935.3577545,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
-{"timestamp":1744859442.530556,"name":"shell.task-exit","context":{"localid":49,"rank":225,"state":"Exited","pid":867,"wait_status":0,"signaled":0,"exitcode":0}}
-{"timestamp":1744859442.5947061,"name":"complete","context":{"status":0}}
-{"timestamp":1744859442.5947278,"name":"done"}
+{"timestamp":1746470774.2048774,"name":"init"}
+{"timestamp":1746470774.2055216,"name":"starting"}
+{"timestamp":1746470774.2181108,"name":"shell.init","context":{"service":"0-shell-f4uHyNqm1","leader-rank":0,"size":4}}
+{"timestamp":1746470774.3978276,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746470901.1969957,"name":"shell.task-exit","context":{"localid":80,"rank":168,"state":"Exited","pid":985,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746470901.2571306,"name":"complete","context":{"status":0}}
+{"timestamp":1746470901.2571621,"name":"done"}
 
 FLUX-JOB-EVENTLOG END
-FLUX-JOB END 35294732615680 laghos-iter-5
+FLUX-JOB END 8614664208384 laghos-iter-5
 
-FLUX-JOB START 25724572401664 laghos-iter-4
+FLUX-JOB START 6508922273792 laghos-iter-4
 FLUX-JOB-JOBSPEC START
-{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/laghos/laghos", "-p", "1", "-dim", "2", "-rs", "3", "-tf", "0.8", "-pa", "-pt", "311", "--mesh", "/opt/laghos/data/cube_311_hex.mesh", "--max-steps", "400", "-cgm", "50", "-ok", "3", "-ot", "2", "-rp", "2", "--fom"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "laghos-iter-4"}}, "version": 1}
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["laghos", "--mesh", "/opt/laghos/data/cube_311_hex.mesh", "--max-steps", "500", "-p", "1", "-rs", "5", "--fom"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/laghos", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "laghos-iter-4"}}, "version": 1}
 FLUX-JOB-JOBSPEC END
 FLUX-JOB-RESOURCES START
-{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["laghos-[0-3]"], "starttime": 1744858364, "expiration": 4898456831}}
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["laghos-[0-3]"], "starttime": 1746470648, "expiration": 4900070260}}
 FLUX-JOB-RESOURCES END
 FLUX-JOB-EVENTLOG START
-{"timestamp":1744858364.7612433,"name":"init"}
-{"timestamp":1744858364.7718372,"name":"shell.init","context":{"service":"0-shell-fCejyNfNX","leader-rank":0,"size":4}}
-{"timestamp":1744858364.761847,"name":"starting"}
-{"timestamp":1744858364.9334257,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
-{"timestamp":1744858934.9313385,"name":"shell.task-exit","context":{"localid":49,"rank":225,"state":"Exited","pid":690,"wait_status":0,"signaled":0,"exitcode":0}}
-{"timestamp":1744858934.9869707,"name":"complete","context":{"status":0}}
-{"timestamp":1744858934.9870064,"name":"done"}
+{"timestamp":1746470648.6928494,"name":"init"}
+{"timestamp":1746470648.6934223,"name":"starting"}
+{"timestamp":1746470648.7064054,"name":"shell.init","context":{"service":"0-shell-f3wykB1Z1","leader-rank":0,"size":4}}
+{"timestamp":1746470648.8845508,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746470773.9073174,"name":"shell.task-exit","context":{"localid":84,"rank":84,"state":"Exited","pid":867,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746470773.9728732,"name":"complete","context":{"status":0}}
+{"timestamp":1746470773.9729047,"name":"done"}
 
 FLUX-JOB-EVENTLOG END
-FLUX-JOB END 25724572401664 laghos-iter-4
+FLUX-JOB END 6508922273792 laghos-iter-4
 
-FLUX-JOB START 17176463409152 laghos-iter-3
+FLUX-JOB START 4354140536832 laghos-iter-3
 FLUX-JOB-JOBSPEC START
-{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/laghos/laghos", "-p", "1", "-dim", "2", "-rs", "3", "-tf", "0.8", "-pa", "-pt", "311", "--mesh", "/opt/laghos/data/cube_311_hex.mesh", "--max-steps", "400", "-cgm", "50", "-ok", "3", "-ot", "2", "-rp", "2", "--fom"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "laghos-iter-3"}}, "version": 1}
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["laghos", "--mesh", "/opt/laghos/data/cube_311_hex.mesh", "--max-steps", "500", "-p", "1", "-rs", "5", "--fom"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/laghos", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "laghos-iter-3"}}, "version": 1}
 FLUX-JOB-JOBSPEC END
 FLUX-JOB-RESOURCES START
-{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["laghos-[0-3]"], "starttime": 1744857855, "expiration": 4898456831}}
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["laghos-[0-3]"], "starttime": 1746470520, "expiration": 4900070260}}
 FLUX-JOB-RESOURCES END
 FLUX-JOB-EVENTLOG START
-{"timestamp":1744857855.2538664,"name":"init"}
-{"timestamp":1744857855.2641144,"name":"shell.init","context":{"service":"0-shell-f8nCQFhYT","leader-rank":0,"size":4}}
-{"timestamp":1744857855.2543514,"name":"starting"}
-{"timestamp":1744857855.4245625,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
-{"timestamp":1744858364.5067797,"name":"shell.task-exit","context":{"localid":72,"rank":160,"state":"Exited","pid":559,"wait_status":0,"signaled":0,"exitcode":0}}
-{"timestamp":1744858364.5607553,"name":"complete","context":{"status":0}}
-{"timestamp":1744858364.5607803,"name":"done"}
+{"timestamp":1746470520.2574735,"name":"init"}
+{"timestamp":1746470520.2580502,"name":"starting"}
+{"timestamp":1746470520.2709436,"name":"shell.init","context":{"service":"0-shell-f2yNoVNd5","leader-rank":0,"size":4}}
+{"timestamp":1746470520.4543619,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746470648.4088521,"name":"shell.task-exit","context":{"localid":30,"rank":206,"state":"Exited","pid":531,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746470648.4623072,"name":"complete","context":{"status":0}}
+{"timestamp":1746470648.462337,"name":"done"}
 
 FLUX-JOB-EVENTLOG END
-FLUX-JOB END 17176463409152 laghos-iter-3
+FLUX-JOB END 4354140536832 laghos-iter-3
 
-FLUX-JOB START 8609614266368 laghos-iter-2
+FLUX-JOB START 2173689659392 laghos-iter-2
 FLUX-JOB-JOBSPEC START
-{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/laghos/laghos", "-p", "1", "-dim", "2", "-rs", "3", "-tf", "0.8", "-pa", "-pt", "311", "--mesh", "/opt/laghos/data/cube_311_hex.mesh", "--max-steps", "400", "-cgm", "50", "-ok", "3", "-ot", "2", "-rp", "2", "--fom"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "laghos-iter-2"}}, "version": 1}
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["laghos", "--mesh", "/opt/laghos/data/cube_311_hex.mesh", "--max-steps", "500", "-p", "1", "-rs", "5", "--fom"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/laghos", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "laghos-iter-2"}}, "version": 1}
 FLUX-JOB-JOBSPEC END
 FLUX-JOB-RESOURCES START
-{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["laghos-[0-3]"], "starttime": 1744857344, "expiration": 4898456831}}
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["laghos-[0-3]"], "starttime": 1746470390, "expiration": 4900070260}}
 FLUX-JOB-RESOURCES END
 FLUX-JOB-EVENTLOG START
-{"timestamp":1744857344.6301744,"name":"init"}
-{"timestamp":1744857344.6405799,"name":"shell.init","context":{"service":"0-shell-f4uAH8ZwD","leader-rank":0,"size":4}}
-{"timestamp":1744857344.6306863,"name":"starting"}
-{"timestamp":1744857344.8011608,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
-{"timestamp":1744857854.9914138,"name":"shell.task-exit","context":{"localid":51,"rank":51,"state":"Exited","pid":380,"wait_status":0,"signaled":0,"exitcode":0}}
-{"timestamp":1744857855.0554595,"name":"complete","context":{"status":0}}
-{"timestamp":1744857855.055485,"name":"done"}
+{"timestamp":1746470390.2923007,"name":"init"}
+{"timestamp":1746470390.2929149,"name":"starting"}
+{"timestamp":1746470390.3055456,"name":"shell.init","context":{"service":"0-shell-fz6kWgXZ","leader-rank":0,"size":4}}
+{"timestamp":1746470390.4833887,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746470519.9672995,"name":"shell.task-exit","context":{"localid":84,"rank":84,"state":"Exited","pid":505,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746470520.0241318,"name":"complete","context":{"status":0}}
+{"timestamp":1746470520.0241613,"name":"done"}
 
 FLUX-JOB-EVENTLOG END
-FLUX-JOB END 8609614266368 laghos-iter-2
+FLUX-JOB END 2173689659392 laghos-iter-2
 
-FLUX-JOB START 16793993216 laghos-iter-1
+FLUX-JOB START 12465471488 laghos-iter-1
 FLUX-JOB-JOBSPEC START
-{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/laghos/laghos", "-p", "1", "-dim", "2", "-rs", "3", "-tf", "0.8", "-pa", "-pt", "311", "--mesh", "/opt/laghos/data/cube_311_hex.mesh", "--max-steps", "400", "-cgm", "50", "-ok", "3", "-ot", "2", "-rp", "2", "--fom"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "laghos-iter-1"}}, "version": 1}
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["laghos", "--mesh", "/opt/laghos/data/cube_311_hex.mesh", "--max-steps", "500", "-p", "1", "-rs", "5", "--fom"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/laghos", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "laghos-iter-1"}}, "version": 1}
 FLUX-JOB-JOBSPEC END
 FLUX-JOB-RESOURCES START
-{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["laghos-[0-3]"], "starttime": 1744856832, "expiration": 4898456831}}
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["laghos-[0-3]"], "starttime": 1746470261, "expiration": 4900070260}}
 FLUX-JOB-RESOURCES END
 FLUX-JOB-EVENTLOG START
-{"timestamp":1744856832.458451,"name":"init"}
-{"timestamp":1744856832.4682522,"name":"shell.init","context":{"service":"0-shell-fSb2c6B","leader-rank":0,"size":4}}
-{"timestamp":1744856832.4589477,"name":"starting"}
-{"timestamp":1744856832.6287959,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
-{"timestamp":1744857344.375138,"name":"shell.task-exit","context":{"localid":69,"rank":69,"state":"Exited","pid":235,"wait_status":0,"signaled":0,"exitcode":0}}
-{"timestamp":1744857344.4305744,"name":"complete","context":{"status":0}}
-{"timestamp":1744857344.4305971,"name":"done"}
+{"timestamp":1746470261.4740257,"name":"init"}
+{"timestamp":1746470261.4745605,"name":"starting"}
+{"timestamp":1746470261.4869118,"name":"shell.init","context":{"service":"0-shell-fKzXoPD","leader-rank":0,"size":4}}
+{"timestamp":1746470261.6672986,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746470389.9989247,"name":"shell.task-exit","context":{"localid":84,"rank":84,"state":"Exited","pid":323,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746470390.0641761,"name":"complete","context":{"status":0}}
+{"timestamp":1746470390.064204,"name":"done"}
 
 FLUX-JOB-EVENTLOG END
-FLUX-JOB END 16793993216 laghos-iter-1
+FLUX-JOB END 12465471488 laghos-iter-1
 FLUX JOB STATS
 {"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

@@ -7,9 +7,6 @@ GOOGLE_PROJECT=llnl-flux
 NODES=32
 INSTANCE=h3-standard-88
 
-# gcloud compute networks create mtu9k --mtu=8896 
-# gcloud compute firewall-rules create mtu9k-firewall --network mtu9k --allow tcp,udp,icmp --source-ranges 0.0.0.0/0
-
 time gcloud container clusters create test-cluster \
     --threads-per-core=1 \
     --num-nodes=$NODES \
@@ -20,9 +17,6 @@ time gcloud container clusters create test-cluster \
     --system-config-from-file=./system-config.yaml \
     --region=us-central1-a \
     --project=${GOOGLE_PROJECT}
-
-    # h3 doesn't support this
-    --network-performance-configs=total-egress-bandwidth-tier=TIER_1 \
 ```
 
 Save nodes:
@@ -185,6 +179,8 @@ helm uninstall kripke
 
 **Did not work**
 
+This was the perforance study setup.
+
 ```bash
 helm dependency update laghos
 helm install \
@@ -217,6 +213,30 @@ kubectl logs ${pod} -f |& tee ./logs/laghos.out
 helm uninstall laghos
 ```
 
+### Laghos Redo
+
+This was a simpler attempt
+
+```
+helm dependency update laghos
+helm install \
+  --set experiment.nodes=32 \
+  --set minicluster.size=32 \
+  --set minicluster.tasks=2816 \
+  --set experiment.tasks=2816 \
+  --set minicluster.save_logs=true \
+  --set laghos.p=1 \
+  --set laghos.rs=5 \
+  --set laghos.fom=true \
+  --set laghos.max_steps=500 \
+  --set experiment.iterations=3 \
+  laghos ./laghos
+
+time kubectl wait --for=condition=ready pod -l job-name=laghos --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/laghos.out
+helm uninstall laghos
+```
 
 ### Minife
 

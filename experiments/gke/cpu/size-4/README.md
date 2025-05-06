@@ -5,12 +5,6 @@ Note that while not all variables are required for each app (there are defaults)
 
 Need to run/ prototype:
 
-- [ ] amg2023 with intel mpi
-- [ ] ior  (sharefs)
-- [ ] fio (single node
-- [ ] nek5000  (sharefs)
-- [ ] bdas
-
 ## Setup
 
 ```bash
@@ -292,7 +286,9 @@ Notes from discussion.
 
 ### Laghos
 
-```
+This was the original performance study
+
+```console
 helm dependency update laghos
 helm install \
   --set experiment.nodes=4 \
@@ -325,6 +321,31 @@ helm uninstall laghos
 ```
 
 Sometimes mesh tangling at different task numbers.
+
+### Laghos Redo
+
+This was a simpler attempt
+
+```
+helm dependency update laghos
+helm install \
+  --set experiment.nodes=4 \
+  --set minicluster.size=4 \
+  --set minicluster.tasks=352 \
+  --set minicluster.save_logs=true \
+  --set laghos.p=1 \
+  --set laghos.rs=5 \
+  --set laghos.fom=true \
+  --set laghos.max_steps=500 \
+  --set experiment.iterations=5 \
+  --set experiment.tasks=352 \
+  laghos ./laghos
+
+time kubectl wait --for=condition=ready pod -l job-name=laghos --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/laghos.out
+helm uninstall laghos
+```
 
 ### Minife
 
