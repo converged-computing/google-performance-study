@@ -194,6 +194,8 @@ helm uninstall kripke
 
 ### Laghos
 
+This was the original performance study.
+
 ```
 helm dependency update laghos
 helm install \
@@ -226,6 +228,30 @@ kubectl logs ${pod} -f |& tee ./logs/laghos-0.out
 helm uninstall laghos
 ```
 
+### Laghos Redo
+
+This was a simpler attempt
+
+```
+helm dependency update laghos
+helm install \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set experiment.tasks=704 \
+  --set minicluster.tasks=704 \
+  --set minicluster.save_logs=true \
+  --set laghos.p=1 \
+  --set laghos.rs=5 \
+  --set laghos.fom=true \
+  --set laghos.max_steps=500 \
+  --set experiment.iterations=5 \
+  laghos ./laghos
+
+time kubectl wait --for=condition=ready pod -l job-name=laghos --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/laghos.out
+helm uninstall laghos
+```
 
 ### Minife
 

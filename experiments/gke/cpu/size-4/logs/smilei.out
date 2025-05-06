@@ -1,0 +1,1439 @@
+Defaulted container "smilei" out of: smilei, flux-view (init)
+chmod: cannot access './wait-fs': No such file or directory
+mv: cannot stat './wait-fs': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START smilei-iter-$i"
+  flux run --setattr=user.study_id=smilei-iter-$i -N4 -n 256 -o cpu-affinity=per-task -o gpu-affinity=off     smilei benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py "Main.number_of_patches=[16,16]" "Main.simulation_time=10000" |& tee /tmp/smilei.out
+    echo "FLUX-RUN END smilei-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      4      352        0 smilei-[0-3]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START smilei-iter-1
+                    _            _
+  ___           _  | |        _  \ \   Version : 5.1-231-gd06ccf95d-master
+ / __|  _ __   (_) | |  ___  (_)  | |   
+ \__ \ | '  \   _  | | / -_)  _   | |
+ |___/ |_|_|_| |_| |_| \___| |_|  | |  
+                                 /_/    
+ 
+ 
+
+ Reading the simulation parameters
+ -------------------------------------------------------------------------------
+ HDF5 version 1.10.10
+ Python version 3.12.3
+[;33m
+[WARNING](0) src/Params/Params.cpp:111 (Params) Numpy not found. Some options will not be available[0m
+	 Parsing pyinit.py
+	 Parsing 5.1-231-gd06ccf95d-master
+	 Parsing pyprofiles.py
+	 Parsing benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py
+	 Parsing Main.number_of_patches=[16,16]
+	 Parsing Main.simulation_time=10000
+	 Parsing pycontrol.py
+	 Check for function preprocess()
+	 python preprocess function does not exist
+	 Calling python _smilei_check
+	 Calling python _prepare_checkpoint_dir
+	 Calling python _keep_python_running() :
+[1;36mCAREFUL: Patches distribution: hilbertian
+[0m
+	 Smilei will run on CPU devices
+[;33m
+[WARNING](0) src/Params/Params.cpp:1160 (compute) simulation_time has been redefined from 10000.000000 to 9999.967208 to match timestep.[0m
+ 
+
+ Geometry: 2Dcartesian
+ -------------------------------------------------------------------------------
+	 Interpolation order : 2
+	 Maxwell solver : Yee
+	 simulation duration = 9999.967208,   total number of iterations = 247547
+	 timestep = 0.040396 = 0.900000 x CFL,   time resolution = 24.754781
+	 Grid length: 16.25, 16.25
+	 Cell length: 0.0634766, 0.0634766, 0
+	 Number of cells: 256, 256
+	 Spatial resolution: 15.7538, 15.7538
+	 Cell sorting: activated
+ 
+
+ Electromagnetic boundary conditions
+ -------------------------------------------------------------------------------
+	 xmin periodic
+	 xmax periodic
+	 ymin periodic
+	 ymax periodic
+ 
+
+ Vectorization: 
+ -------------------------------------------------------------------------------
+	 Mode: on
+	 Calling python writeInfo
+ 
+
+ Initializing MPI
+ -------------------------------------------------------------------------------
+	 applied topology for periodic BCs in x-direction
+	 applied topology for periodic BCs in y-direction
+	 MPI_THREAD_MULTIPLE enabled
+	 Number of MPI processes: 256
+	 Number of threads per MPI process : 1
+	 Number of patches: 16 x 16
+	 Number of cells in one patch: 16 x 16
+	 Dynamic load balancing: never
+ 
+
+ Initializing the restart environment
+ -------------------------------------------------------------------------------
+ 
+ 
+ 
+
+ Initializing multiphoton Breit-Wheeler
+ -------------------------------------------------------------------------------
+	 Default tables (stored in the code) are used:
+ 
+	 --- Table `integration_dt_dchi`:
+		 Dimension quantum parameter: 256
+		 Minimum photon quantum parameter chi: 0.010000
+		 Maximum photon quantum parameter chi: 100.000000
+ 
+	 --- Table `min_particle_chi_for_xi` and `xi`:
+		 Dimension photon chi: 256
+		 Dimension particle chi: 256
+		 Minimum photon chi: 0.010000
+		 Maximum photon chi: 100.000000
+ 
+
+ Initializing species
+ -------------------------------------------------------------------------------
+	 
+	 Creating Species #0: electron
+		 > Pusher: boris
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+	 
+	 Creating Species #1: positron
+		 > Pusher: boris
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+	 
+	 Creating Species #2: photon
+		 > photon is a photon species (mass==0).
+		 > Pusher set to norm.
+		 > Decay into pair via the multiphoton Breit-Wheeler activated
+			 | Generated electrons and positrons go to species: electron & positron
+			 | Number of emitted macro-particles per MC event: 1 & 1
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+ 
+
+ Initializing External fields
+ -------------------------------------------------------------------------------
+	 External field Bz: 2D built-in profile `constant` (value: 1000.000000)
+	 External field Bz_m: 2D built-in profile `constant` (value: 1000.000000)
+ 
+
+ Initializing Patches
+ -------------------------------------------------------------------------------
+	 First patch created
+	 All patches created
+ 
+
+ Creating Diagnostics, antennas, and external fields
+ -------------------------------------------------------------------------------
+	 Created ParticleBinning #0: species electron
+		 Axis gamma from 1 to 8125 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #1: species positron
+		 Axis gamma from 1 to 8125 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #2: species photon
+		 Axis gamma from 7312.5 to 8937.5 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #3: species photon
+		 Axis chi from 0.001 to 20 in 64 steps [LOGSCALE] 
+ 
+
+ Finalize MPI environment
+ -------------------------------------------------------------------------------
+	 Done creating diagnostics, antennas, and external fields
+ 
+
+ Minimum memory consumption (does not include all temporary buffers)
+ -------------------------------------------------------------------------------
+              Particles: Master 0 MB;   Max 0 MB;   Global 0.00252 GB
+                 Fields: Master 0 MB;   Max 0 MB;   Global 0.0109 GB
+            scalars.txt: Master 0 MB;   Max 0 MB;   Global 0 GB
+    ParticleBinning0.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning1.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning2.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning3.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+ 
+
+ Initial fields setup
+ -------------------------------------------------------------------------------
+	 Applying external fields at time t = 0
+	 Applying prescribed fields at time t = 0
+	 Applying antennas at time t = 0
+ 
+
+ Open files & initialize diagnostics
+ -------------------------------------------------------------------------------
+ 
+
+ Running diags at time t = 0
+ -------------------------------------------------------------------------------
+ 
+
+ Species creation summary
+ -------------------------------------------------------------------------------
+		 Species 0 (electron) created with 0 particles
+		 Species 1 (positron) created with 0 particles
+		 Species 2 (photon) created with 20480 particles
+ 
+
+ Expected disk usage (approximate)
+ -------------------------------------------------------------------------------
+	 WARNING: disk usage by non-uniform particles maybe strongly underestimated,
+	    especially when particles are created at runtime (ionization, pair generation, etc.)
+	 
+	 Expected disk usage for diagnostics:
+		 File scalars.txt: 13.22 M
+		 File ParticleBinning0.h5: 5.44 M
+		 File ParticleBinning1.h5: 5.44 M
+		 File ParticleBinning2.h5: 5.44 M
+		 File ParticleBinning3.h5: 5.44 M
+	 Total disk usage for diagnostics: 34.98 M
+	 
+ 
+
+ Keeping or closing the python runtime environment
+ -------------------------------------------------------------------------------
+	 Checking for cleanup() function:
+	 python cleanup function does not exist
+	 Closing Python
+ 
+
+ Time-Loop started: number of time-steps n_time = 247547
+ -------------------------------------------------------------------------------
+[1;36mCAREFUL: The following `push time` assumes a global number of 256 cores (hyperthreading is unknown)
+[0m
+        timestep       sim time   cpu time [s]   (    diff [s] )   push time [ns]
+    24754/247547     9.9999e+02     1.8938e+01   (  1.8938e+01 )            4781 
+    49508/247547     2.0000e+03     3.9085e+01   (  2.0147e+01 )            5086 
+    74262/247547     2.9999e+03     5.7822e+01   (  1.8737e+01 )            4730 
+    99016/247547     3.9999e+03     7.6197e+01   (  1.8375e+01 )            4639 
+   123770/247547     4.9999e+03     9.4689e+01   (  1.8492e+01 )            4668 
+   148524/247547     5.9998e+03     1.1375e+02   (  1.9064e+01 )            4813 
+   173278/247547     6.9998e+03     1.3228e+02   (  1.8529e+01 )            4678 
+   198032/247547     7.9998e+03     1.5085e+02   (  1.8572e+01 )            4689 
+   222786/247547     8.9997e+03     1.7019e+02   (  1.9341e+01 )            4883 
+   247540/247547     9.9997e+03     1.8891e+02   (  1.8713e+01 )            4724 
+ 
+
+ End time loop, time dual = 1.0000e+04
+ -------------------------------------------------------------------------------
+ 
+
+ Time profiling : (print time > 0.001%)
+ -------------------------------------------------------------------------------
+ Time_in_time_loop	1.8891e+02	9.9021e+01% coverage
+ 	           Particles	2.187444e+01	1.2e+01%
+ 	             Maxwell	1.073849e+00	    <1%
+ 	          Maxwell_BC	5.299805e-01	    <1%
+ 	         Diagnostics	5.216177e+00	2.8e+00%
+ 	          Collisions	2.120198e-01	    <1%
+ 	      Sync Particles	9.215861e+01	4.9e+01%
+ 	         Sync Fields	2.657737e+00	1.4e+00%
+ 	      Sync Densities	6.328543e+01	3.3e+01%
+ 	        Part Merging	1.208958e-01	    <1%
+ 	      Part Injection	1.059514e-01	    <1%
+ 
+	 Printed times are averaged per MPI process
+ 		 See advanced metrics in profil.txt
+ 
+	Diagnostics profile :
+ 		         scalars.txt	3.3e+00
+ 		 ParticleBinning0.h5	2.9e-01
+ 		 ParticleBinning1.h5	2.7e-01
+ 		 ParticleBinning2.h5	2.6e-01
+ 		 ParticleBinning3.h5	2.6e-01
+ 
+
+ END
+ -------------------------------------------------------------------------------
+FLUX-RUN END smilei-iter-1
+FLUX-RUN START smilei-iter-2
+                    _            _
+  ___           _  | |        _  \ \   Version : 5.1-231-gd06ccf95d-master
+ / __|  _ __   (_) | |  ___  (_)  | |   
+ \__ \ | '  \   _  | | / -_)  _   | |
+ |___/ |_|_|_| |_| |_| \___| |_|  | |  
+                                 /_/    
+ 
+ 
+
+ Reading the simulation parameters
+ -------------------------------------------------------------------------------
+ HDF5 version 1.10.10
+ Python version 3.12.3
+[;33m
+[WARNING](0) src/Params/Params.cpp:111 (Params) Numpy not found. Some options will not be available[0m
+	 Parsing pyinit.py
+	 Parsing 5.1-231-gd06ccf95d-master
+	 Parsing pyprofiles.py
+	 Parsing benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py
+	 Parsing Main.number_of_patches=[16,16]
+	 Parsing Main.simulation_time=10000
+	 Parsing pycontrol.py
+	 Check for function preprocess()
+	 python preprocess function does not exist
+	 Calling python _smilei_check
+	 Calling python _prepare_checkpoint_dir
+	 Calling python _keep_python_running() :
+[1;36mCAREFUL: Patches distribution: hilbertian
+[0m
+	 Smilei will run on CPU devices
+[;33m
+[WARNING](0) src/Params/Params.cpp:1160 (compute) simulation_time has been redefined from 10000.000000 to 9999.967208 to match timestep.[0m
+ 
+
+ Geometry: 2Dcartesian
+ -------------------------------------------------------------------------------
+	 Interpolation order : 2
+	 Maxwell solver : Yee
+	 simulation duration = 9999.967208,   total number of iterations = 247547
+	 timestep = 0.040396 = 0.900000 x CFL,   time resolution = 24.754781
+	 Grid length: 16.25, 16.25
+	 Cell length: 0.0634766, 0.0634766, 0
+	 Number of cells: 256, 256
+	 Spatial resolution: 15.7538, 15.7538
+	 Cell sorting: activated
+ 
+
+ Electromagnetic boundary conditions
+ -------------------------------------------------------------------------------
+	 xmin periodic
+	 xmax periodic
+	 ymin periodic
+	 ymax periodic
+ 
+
+ Vectorization: 
+ -------------------------------------------------------------------------------
+	 Mode: on
+	 Calling python writeInfo
+ 
+
+ Initializing MPI
+ -------------------------------------------------------------------------------
+	 applied topology for periodic BCs in x-direction
+	 applied topology for periodic BCs in y-direction
+	 MPI_THREAD_MULTIPLE enabled
+	 Number of MPI processes: 256
+	 Number of threads per MPI process : 1
+	 Number of patches: 16 x 16
+	 Number of cells in one patch: 16 x 16
+	 Dynamic load balancing: never
+ 
+
+ Initializing the restart environment
+ -------------------------------------------------------------------------------
+ 
+ 
+ 
+
+ Initializing multiphoton Breit-Wheeler
+ -------------------------------------------------------------------------------
+	 Default tables (stored in the code) are used:
+ 
+	 --- Table `integration_dt_dchi`:
+		 Dimension quantum parameter: 256
+		 Minimum photon quantum parameter chi: 0.010000
+		 Maximum photon quantum parameter chi: 100.000000
+ 
+	 --- Table `min_particle_chi_for_xi` and `xi`:
+		 Dimension photon chi: 256
+		 Dimension particle chi: 256
+		 Minimum photon chi: 0.010000
+		 Maximum photon chi: 100.000000
+ 
+
+ Initializing species
+ -------------------------------------------------------------------------------
+	 
+	 Creating Species #0: electron
+		 > Pusher: boris
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+	 
+	 Creating Species #1: positron
+		 > Pusher: boris
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+	 
+	 Creating Species #2: photon
+		 > photon is a photon species (mass==0).
+		 > Pusher set to norm.
+		 > Decay into pair via the multiphoton Breit-Wheeler activated
+			 | Generated electrons and positrons go to species: electron & positron
+			 | Number of emitted macro-particles per MC event: 1 & 1
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+ 
+
+ Initializing External fields
+ -------------------------------------------------------------------------------
+	 External field Bz: 2D built-in profile `constant` (value: 1000.000000)
+	 External field Bz_m: 2D built-in profile `constant` (value: 1000.000000)
+ 
+
+ Initializing Patches
+ -------------------------------------------------------------------------------
+	 First patch created
+	 All patches created
+ 
+
+ Creating Diagnostics, antennas, and external fields
+ -------------------------------------------------------------------------------
+	 Created ParticleBinning #0: species electron
+		 Axis gamma from 1 to 8125 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #1: species positron
+		 Axis gamma from 1 to 8125 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #2: species photon
+		 Axis gamma from 7312.5 to 8937.5 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #3: species photon
+		 Axis chi from 0.001 to 20 in 64 steps [LOGSCALE] 
+ 
+
+ Finalize MPI environment
+ -------------------------------------------------------------------------------
+	 Done creating diagnostics, antennas, and external fields
+ 
+
+ Minimum memory consumption (does not include all temporary buffers)
+ -------------------------------------------------------------------------------
+              Particles: Master 0 MB;   Max 0 MB;   Global 0.00252 GB
+                 Fields: Master 0 MB;   Max 0 MB;   Global 0.0109 GB
+            scalars.txt: Master 0 MB;   Max 0 MB;   Global 0 GB
+    ParticleBinning0.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning1.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning2.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning3.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+ 
+
+ Initial fields setup
+ -------------------------------------------------------------------------------
+	 Applying external fields at time t = 0
+	 Applying prescribed fields at time t = 0
+	 Applying antennas at time t = 0
+ 
+
+ Open files & initialize diagnostics
+ -------------------------------------------------------------------------------
+ 
+
+ Running diags at time t = 0
+ -------------------------------------------------------------------------------
+ 
+
+ Species creation summary
+ -------------------------------------------------------------------------------
+		 Species 0 (electron) created with 0 particles
+		 Species 1 (positron) created with 0 particles
+		 Species 2 (photon) created with 20480 particles
+ 
+
+ Expected disk usage (approximate)
+ -------------------------------------------------------------------------------
+	 WARNING: disk usage by non-uniform particles maybe strongly underestimated,
+	    especially when particles are created at runtime (ionization, pair generation, etc.)
+	 
+	 Expected disk usage for diagnostics:
+		 File scalars.txt: 13.22 M
+		 File ParticleBinning0.h5: 5.44 M
+		 File ParticleBinning1.h5: 5.44 M
+		 File ParticleBinning2.h5: 5.44 M
+		 File ParticleBinning3.h5: 5.44 M
+	 Total disk usage for diagnostics: 34.98 M
+	 
+ 
+
+ Keeping or closing the python runtime environment
+ -------------------------------------------------------------------------------
+	 Checking for cleanup() function:
+	 python cleanup function does not exist
+	 Closing Python
+ 
+
+ Time-Loop started: number of time-steps n_time = 247547
+ -------------------------------------------------------------------------------
+[1;36mCAREFUL: The following `push time` assumes a global number of 256 cores (hyperthreading is unknown)
+[0m
+        timestep       sim time   cpu time [s]   (    diff [s] )   push time [ns]
+    24754/247547     9.9999e+02     1.9646e+01   (  1.9646e+01 )            4960 
+    49508/247547     2.0000e+03     3.9624e+01   (  1.9978e+01 )            5044 
+    74262/247547     2.9999e+03     5.9704e+01   (  2.0080e+01 )            5069 
+    99016/247547     3.9999e+03     7.9178e+01   (  1.9474e+01 )            4916 
+   123770/247547     4.9999e+03     9.9458e+01   (  2.0280e+01 )            5120 
+   148524/247547     5.9998e+03     1.1941e+02   (  1.9956e+01 )            5038 
+   173278/247547     6.9998e+03     1.3922e+02   (  1.9803e+01 )            5000 
+   198032/247547     7.9998e+03     1.5940e+02   (  2.0183e+01 )            5095 
+   222786/247547     8.9997e+03     1.7924e+02   (  1.9839e+01 )            5008 
+   247540/247547     9.9997e+03     1.9905e+02   (  1.9813e+01 )            5002 
+ 
+
+ End time loop, time dual = 1.0000e+04
+ -------------------------------------------------------------------------------
+ 
+
+ Time profiling : (print time > 0.001%)
+ -------------------------------------------------------------------------------
+ Time_in_time_loop	1.9906e+02	9.9119e+01% coverage
+ 	           Particles	2.180131e+01	1.1e+01%
+ 	             Maxwell	1.071186e+00	    <1%
+ 	          Maxwell_BC	5.277512e-01	    <1%
+ 	         Diagnostics	5.431295e+00	2.7e+00%
+ 	          Collisions	2.115492e-01	    <1%
+ 	      Sync Particles	9.749784e+01	4.9e+01%
+ 	         Sync Fields	2.644163e+00	1.3e+00%
+ 	      Sync Densities	6.797197e+01	3.4e+01%
+ 	        Part Merging	1.206396e-01	    <1%
+ 	      Part Injection	1.054525e-01	    <1%
+ 
+	 Printed times are averaged per MPI process
+ 		 See advanced metrics in profil.txt
+ 
+	Diagnostics profile :
+ 		         scalars.txt	3.5e+00
+ 		 ParticleBinning0.h5	2.9e-01
+ 		 ParticleBinning1.h5	2.7e-01
+ 		 ParticleBinning2.h5	2.6e-01
+ 		 ParticleBinning3.h5	2.5e-01
+ 
+
+ END
+ -------------------------------------------------------------------------------
+FLUX-RUN END smilei-iter-2
+FLUX-RUN START smilei-iter-3
+                    _            _
+  ___           _  | |        _  \ \   Version : 5.1-231-gd06ccf95d-master
+ / __|  _ __   (_) | |  ___  (_)  | |   
+ \__ \ | '  \   _  | | / -_)  _   | |
+ |___/ |_|_|_| |_| |_| \___| |_|  | |  
+                                 /_/    
+ 
+ 
+
+ Reading the simulation parameters
+ -------------------------------------------------------------------------------
+ HDF5 version 1.10.10
+ Python version 3.12.3
+[;33m
+[WARNING](0) src/Params/Params.cpp:111 (Params) Numpy not found. Some options will not be available[0m
+	 Parsing pyinit.py
+	 Parsing 5.1-231-gd06ccf95d-master
+	 Parsing pyprofiles.py
+	 Parsing benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py
+	 Parsing Main.number_of_patches=[16,16]
+	 Parsing Main.simulation_time=10000
+	 Parsing pycontrol.py
+	 Check for function preprocess()
+	 python preprocess function does not exist
+	 Calling python _smilei_check
+	 Calling python _prepare_checkpoint_dir
+	 Calling python _keep_python_running() :
+[1;36mCAREFUL: Patches distribution: hilbertian
+[0m
+	 Smilei will run on CPU devices
+[;33m
+[WARNING](0) src/Params/Params.cpp:1160 (compute) simulation_time has been redefined from 10000.000000 to 9999.967208 to match timestep.[0m
+ 
+
+ Geometry: 2Dcartesian
+ -------------------------------------------------------------------------------
+	 Interpolation order : 2
+	 Maxwell solver : Yee
+	 simulation duration = 9999.967208,   total number of iterations = 247547
+	 timestep = 0.040396 = 0.900000 x CFL,   time resolution = 24.754781
+	 Grid length: 16.25, 16.25
+	 Cell length: 0.0634766, 0.0634766, 0
+	 Number of cells: 256, 256
+	 Spatial resolution: 15.7538, 15.7538
+	 Cell sorting: activated
+ 
+
+ Electromagnetic boundary conditions
+ -------------------------------------------------------------------------------
+	 xmin periodic
+	 xmax periodic
+	 ymin periodic
+	 ymax periodic
+ 
+
+ Vectorization: 
+ -------------------------------------------------------------------------------
+	 Mode: on
+	 Calling python writeInfo
+ 
+
+ Initializing MPI
+ -------------------------------------------------------------------------------
+	 applied topology for periodic BCs in x-direction
+	 applied topology for periodic BCs in y-direction
+	 MPI_THREAD_MULTIPLE enabled
+	 Number of MPI processes: 256
+	 Number of threads per MPI process : 1
+	 Number of patches: 16 x 16
+	 Number of cells in one patch: 16 x 16
+	 Dynamic load balancing: never
+ 
+
+ Initializing the restart environment
+ -------------------------------------------------------------------------------
+ 
+ 
+ 
+
+ Initializing multiphoton Breit-Wheeler
+ -------------------------------------------------------------------------------
+	 Default tables (stored in the code) are used:
+ 
+	 --- Table `integration_dt_dchi`:
+		 Dimension quantum parameter: 256
+		 Minimum photon quantum parameter chi: 0.010000
+		 Maximum photon quantum parameter chi: 100.000000
+ 
+	 --- Table `min_particle_chi_for_xi` and `xi`:
+		 Dimension photon chi: 256
+		 Dimension particle chi: 256
+		 Minimum photon chi: 0.010000
+		 Maximum photon chi: 100.000000
+ 
+
+ Initializing species
+ -------------------------------------------------------------------------------
+	 
+	 Creating Species #0: electron
+		 > Pusher: boris
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+	 
+	 Creating Species #1: positron
+		 > Pusher: boris
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+	 
+	 Creating Species #2: photon
+		 > photon is a photon species (mass==0).
+		 > Pusher set to norm.
+		 > Decay into pair via the multiphoton Breit-Wheeler activated
+			 | Generated electrons and positrons go to species: electron & positron
+			 | Number of emitted macro-particles per MC event: 1 & 1
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+ 
+
+ Initializing External fields
+ -------------------------------------------------------------------------------
+	 External field Bz: 2D built-in profile `constant` (value: 1000.000000)
+	 External field Bz_m: 2D built-in profile `constant` (value: 1000.000000)
+ 
+
+ Initializing Patches
+ -------------------------------------------------------------------------------
+	 First patch created
+	 All patches created
+ 
+
+ Creating Diagnostics, antennas, and external fields
+ -------------------------------------------------------------------------------
+	 Created ParticleBinning #0: species electron
+		 Axis gamma from 1 to 8125 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #1: species positron
+		 Axis gamma from 1 to 8125 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #2: species photon
+		 Axis gamma from 7312.5 to 8937.5 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #3: species photon
+		 Axis chi from 0.001 to 20 in 64 steps [LOGSCALE] 
+ 
+
+ Finalize MPI environment
+ -------------------------------------------------------------------------------
+	 Done creating diagnostics, antennas, and external fields
+ 
+
+ Minimum memory consumption (does not include all temporary buffers)
+ -------------------------------------------------------------------------------
+              Particles: Master 0 MB;   Max 0 MB;   Global 0.00252 GB
+                 Fields: Master 0 MB;   Max 0 MB;   Global 0.0109 GB
+            scalars.txt: Master 0 MB;   Max 0 MB;   Global 0 GB
+    ParticleBinning0.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning1.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning2.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning3.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+ 
+
+ Initial fields setup
+ -------------------------------------------------------------------------------
+	 Applying external fields at time t = 0
+	 Applying prescribed fields at time t = 0
+	 Applying antennas at time t = 0
+ 
+
+ Open files & initialize diagnostics
+ -------------------------------------------------------------------------------
+ 
+
+ Running diags at time t = 0
+ -------------------------------------------------------------------------------
+ 
+
+ Species creation summary
+ -------------------------------------------------------------------------------
+		 Species 0 (electron) created with 0 particles
+		 Species 1 (positron) created with 0 particles
+		 Species 2 (photon) created with 20480 particles
+ 
+
+ Expected disk usage (approximate)
+ -------------------------------------------------------------------------------
+	 WARNING: disk usage by non-uniform particles maybe strongly underestimated,
+	    especially when particles are created at runtime (ionization, pair generation, etc.)
+	 
+	 Expected disk usage for diagnostics:
+		 File scalars.txt: 13.22 M
+		 File ParticleBinning0.h5: 5.44 M
+		 File ParticleBinning1.h5: 5.44 M
+		 File ParticleBinning2.h5: 5.44 M
+		 File ParticleBinning3.h5: 5.44 M
+	 Total disk usage for diagnostics: 34.98 M
+	 
+ 
+
+ Keeping or closing the python runtime environment
+ -------------------------------------------------------------------------------
+	 Checking for cleanup() function:
+	 python cleanup function does not exist
+	 Closing Python
+ 
+
+ Time-Loop started: number of time-steps n_time = 247547
+ -------------------------------------------------------------------------------
+[1;36mCAREFUL: The following `push time` assumes a global number of 256 cores (hyperthreading is unknown)
+[0m
+        timestep       sim time   cpu time [s]   (    diff [s] )   push time [ns]
+    24754/247547     9.9999e+02     1.8912e+01   (  1.8912e+01 )            4774 
+    49508/247547     2.0000e+03     3.7389e+01   (  1.8477e+01 )            4665 
+    74262/247547     2.9999e+03     5.5785e+01   (  1.8396e+01 )            4644 
+    99016/247547     3.9999e+03     7.4849e+01   (  1.9063e+01 )            4813 
+   123770/247547     4.9999e+03     9.3407e+01   (  1.8558e+01 )            4685 
+   148524/247547     5.9998e+03     1.1205e+02   (  1.8642e+01 )            4706 
+   173278/247547     6.9998e+03     1.3082e+02   (  1.8772e+01 )            4739 
+   198032/247547     7.9998e+03     1.4969e+02   (  1.8864e+01 )            4762 
+   222786/247547     8.9997e+03     1.6863e+02   (  1.8945e+01 )            4783 
+   247540/247547     9.9997e+03     1.8759e+02   (  1.8959e+01 )            4786 
+ 
+
+ End time loop, time dual = 1.0000e+04
+ -------------------------------------------------------------------------------
+ 
+
+ Time profiling : (print time > 0.001%)
+ -------------------------------------------------------------------------------
+ Time_in_time_loop	1.8759e+02	9.8933e+01% coverage
+ 	           Particles	2.185360e+01	1.2e+01%
+ 	             Maxwell	1.076701e+00	    <1%
+ 	          Maxwell_BC	5.289179e-01	    <1%
+ 	         Diagnostics	5.196657e+00	2.8e+00%
+ 	          Collisions	2.119952e-01	    <1%
+ 	      Sync Particles	9.123991e+01	4.9e+01%
+ 	         Sync Fields	2.649356e+00	1.4e+00%
+ 	      Sync Densities	6.293309e+01	3.4e+01%
+ 	        Part Merging	1.207911e-01	    <1%
+ 	      Part Injection	1.057118e-01	    <1%
+ 
+	 Printed times are averaged per MPI process
+ 		 See advanced metrics in profil.txt
+ 
+	Diagnostics profile :
+ 		         scalars.txt	3.3e+00
+ 		 ParticleBinning0.h5	2.9e-01
+ 		 ParticleBinning1.h5	2.7e-01
+ 		 ParticleBinning2.h5	2.6e-01
+ 		 ParticleBinning3.h5	2.6e-01
+ 
+
+ END
+ -------------------------------------------------------------------------------
+FLUX-RUN END smilei-iter-3
+FLUX-RUN START smilei-iter-4
+                    _            _
+  ___           _  | |        _  \ \   Version : 5.1-231-gd06ccf95d-master
+ / __|  _ __   (_) | |  ___  (_)  | |   
+ \__ \ | '  \   _  | | / -_)  _   | |
+ |___/ |_|_|_| |_| |_| \___| |_|  | |  
+                                 /_/    
+ 
+ 
+
+ Reading the simulation parameters
+ -------------------------------------------------------------------------------
+ HDF5 version 1.10.10
+ Python version 3.12.3
+[;33m
+[WARNING](0) src/Params/Params.cpp:111 (Params) Numpy not found. Some options will not be available[0m
+	 Parsing pyinit.py
+	 Parsing 5.1-231-gd06ccf95d-master
+	 Parsing pyprofiles.py
+	 Parsing benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py
+	 Parsing Main.number_of_patches=[16,16]
+	 Parsing Main.simulation_time=10000
+	 Parsing pycontrol.py
+	 Check for function preprocess()
+	 python preprocess function does not exist
+	 Calling python _smilei_check
+	 Calling python _prepare_checkpoint_dir
+	 Calling python _keep_python_running() :
+[1;36mCAREFUL: Patches distribution: hilbertian
+[0m
+	 Smilei will run on CPU devices
+[;33m
+[WARNING](0) src/Params/Params.cpp:1160 (compute) simulation_time has been redefined from 10000.000000 to 9999.967208 to match timestep.[0m
+ 
+
+ Geometry: 2Dcartesian
+ -------------------------------------------------------------------------------
+	 Interpolation order : 2
+	 Maxwell solver : Yee
+	 simulation duration = 9999.967208,   total number of iterations = 247547
+	 timestep = 0.040396 = 0.900000 x CFL,   time resolution = 24.754781
+	 Grid length: 16.25, 16.25
+	 Cell length: 0.0634766, 0.0634766, 0
+	 Number of cells: 256, 256
+	 Spatial resolution: 15.7538, 15.7538
+	 Cell sorting: activated
+ 
+
+ Electromagnetic boundary conditions
+ -------------------------------------------------------------------------------
+	 xmin periodic
+	 xmax periodic
+	 ymin periodic
+	 ymax periodic
+ 
+
+ Vectorization: 
+ -------------------------------------------------------------------------------
+	 Mode: on
+	 Calling python writeInfo
+ 
+
+ Initializing MPI
+ -------------------------------------------------------------------------------
+	 applied topology for periodic BCs in x-direction
+	 applied topology for periodic BCs in y-direction
+	 MPI_THREAD_MULTIPLE enabled
+	 Number of MPI processes: 256
+	 Number of threads per MPI process : 1
+	 Number of patches: 16 x 16
+	 Number of cells in one patch: 16 x 16
+	 Dynamic load balancing: never
+ 
+
+ Initializing the restart environment
+ -------------------------------------------------------------------------------
+ 
+ 
+ 
+
+ Initializing multiphoton Breit-Wheeler
+ -------------------------------------------------------------------------------
+	 Default tables (stored in the code) are used:
+ 
+	 --- Table `integration_dt_dchi`:
+		 Dimension quantum parameter: 256
+		 Minimum photon quantum parameter chi: 0.010000
+		 Maximum photon quantum parameter chi: 100.000000
+ 
+	 --- Table `min_particle_chi_for_xi` and `xi`:
+		 Dimension photon chi: 256
+		 Dimension particle chi: 256
+		 Minimum photon chi: 0.010000
+		 Maximum photon chi: 100.000000
+ 
+
+ Initializing species
+ -------------------------------------------------------------------------------
+	 
+	 Creating Species #0: electron
+		 > Pusher: boris
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+	 
+	 Creating Species #1: positron
+		 > Pusher: boris
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+	 
+	 Creating Species #2: photon
+		 > photon is a photon species (mass==0).
+		 > Pusher set to norm.
+		 > Decay into pair via the multiphoton Breit-Wheeler activated
+			 | Generated electrons and positrons go to species: electron & positron
+			 | Number of emitted macro-particles per MC event: 1 & 1
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+ 
+
+ Initializing External fields
+ -------------------------------------------------------------------------------
+	 External field Bz: 2D built-in profile `constant` (value: 1000.000000)
+	 External field Bz_m: 2D built-in profile `constant` (value: 1000.000000)
+ 
+
+ Initializing Patches
+ -------------------------------------------------------------------------------
+	 First patch created
+	 All patches created
+ 
+
+ Creating Diagnostics, antennas, and external fields
+ -------------------------------------------------------------------------------
+	 Created ParticleBinning #0: species electron
+		 Axis gamma from 1 to 8125 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #1: species positron
+		 Axis gamma from 1 to 8125 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #2: species photon
+		 Axis gamma from 7312.5 to 8937.5 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #3: species photon
+		 Axis chi from 0.001 to 20 in 64 steps [LOGSCALE] 
+ 
+
+ Finalize MPI environment
+ -------------------------------------------------------------------------------
+	 Done creating diagnostics, antennas, and external fields
+ 
+
+ Minimum memory consumption (does not include all temporary buffers)
+ -------------------------------------------------------------------------------
+              Particles: Master 0 MB;   Max 0 MB;   Global 0.00252 GB
+                 Fields: Master 0 MB;   Max 0 MB;   Global 0.0109 GB
+            scalars.txt: Master 0 MB;   Max 0 MB;   Global 0 GB
+    ParticleBinning0.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning1.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning2.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning3.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+ 
+
+ Initial fields setup
+ -------------------------------------------------------------------------------
+	 Applying external fields at time t = 0
+	 Applying prescribed fields at time t = 0
+	 Applying antennas at time t = 0
+ 
+
+ Open files & initialize diagnostics
+ -------------------------------------------------------------------------------
+ 
+
+ Running diags at time t = 0
+ -------------------------------------------------------------------------------
+ 
+
+ Species creation summary
+ -------------------------------------------------------------------------------
+		 Species 0 (electron) created with 0 particles
+		 Species 1 (positron) created with 0 particles
+		 Species 2 (photon) created with 20480 particles
+ 
+
+ Expected disk usage (approximate)
+ -------------------------------------------------------------------------------
+	 WARNING: disk usage by non-uniform particles maybe strongly underestimated,
+	    especially when particles are created at runtime (ionization, pair generation, etc.)
+	 
+	 Expected disk usage for diagnostics:
+		 File scalars.txt: 13.22 M
+		 File ParticleBinning0.h5: 5.44 M
+		 File ParticleBinning1.h5: 5.44 M
+		 File ParticleBinning2.h5: 5.44 M
+		 File ParticleBinning3.h5: 5.44 M
+	 Total disk usage for diagnostics: 34.98 M
+	 
+ 
+
+ Keeping or closing the python runtime environment
+ -------------------------------------------------------------------------------
+	 Checking for cleanup() function:
+	 python cleanup function does not exist
+	 Closing Python
+ 
+
+ Time-Loop started: number of time-steps n_time = 247547
+ -------------------------------------------------------------------------------
+[1;36mCAREFUL: The following `push time` assumes a global number of 256 cores (hyperthreading is unknown)
+[0m
+        timestep       sim time   cpu time [s]   (    diff [s] )   push time [ns]
+    24754/247547     9.9999e+02     1.9314e+01   (  1.9314e+01 )            4876 
+    49508/247547     2.0000e+03     3.8716e+01   (  1.9402e+01 )            4898 
+    74262/247547     2.9999e+03     5.7936e+01   (  1.9219e+01 )            4852 
+    99016/247547     3.9999e+03     7.7274e+01   (  1.9339e+01 )            4882 
+   123770/247547     4.9999e+03     9.6544e+01   (  1.9270e+01 )            4865 
+   148524/247547     5.9998e+03     1.1586e+02   (  1.9315e+01 )            4876 
+   173278/247547     6.9998e+03     1.3566e+02   (  1.9799e+01 )            4998 
+   198032/247547     7.9998e+03     1.5500e+02   (  1.9339e+01 )            4882 
+   222786/247547     8.9997e+03     1.7449e+02   (  1.9492e+01 )            4921 
+   247540/247547     9.9997e+03     1.9447e+02   (  1.9985e+01 )            5046 
+ 
+
+ End time loop, time dual = 1.0000e+04
+ -------------------------------------------------------------------------------
+ 
+
+ Time profiling : (print time > 0.001%)
+ -------------------------------------------------------------------------------
+ Time_in_time_loop	1.9448e+02	9.8986e+01% coverage
+ 	           Particles	2.180172e+01	1.1e+01%
+ 	             Maxwell	1.072543e+00	    <1%
+ 	          Maxwell_BC	5.291937e-01	    <1%
+ 	         Diagnostics	5.333894e+00	2.7e+00%
+ 	          Collisions	2.115819e-01	    <1%
+ 	      Sync Particles	9.545277e+01	4.9e+01%
+ 	         Sync Fields	2.647169e+00	1.4e+00%
+ 	      Sync Densities	6.552019e+01	3.4e+01%
+ 	        Part Merging	1.207545e-01	    <1%
+ 	      Part Injection	1.055594e-01	    <1%
+ 
+	 Printed times are averaged per MPI process
+ 		 See advanced metrics in profil.txt
+ 
+	Diagnostics profile :
+ 		         scalars.txt	3.4e+00
+ 		 ParticleBinning0.h5	2.9e-01
+ 		 ParticleBinning1.h5	2.7e-01
+ 		 ParticleBinning2.h5	2.6e-01
+ 		 ParticleBinning3.h5	2.6e-01
+ 
+
+ END
+ -------------------------------------------------------------------------------
+FLUX-RUN END smilei-iter-4
+FLUX-RUN START smilei-iter-5
+                    _            _
+  ___           _  | |        _  \ \   Version : 5.1-231-gd06ccf95d-master
+ / __|  _ __   (_) | |  ___  (_)  | |   
+ \__ \ | '  \   _  | | / -_)  _   | |
+ |___/ |_|_|_| |_| |_| \___| |_|  | |  
+                                 /_/    
+ 
+ 
+
+ Reading the simulation parameters
+ -------------------------------------------------------------------------------
+ HDF5 version 1.10.10
+ Python version 3.12.3
+[;33m
+[WARNING](0) src/Params/Params.cpp:111 (Params) Numpy not found. Some options will not be available[0m
+	 Parsing pyinit.py
+	 Parsing 5.1-231-gd06ccf95d-master
+	 Parsing pyprofiles.py
+	 Parsing benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py
+	 Parsing Main.number_of_patches=[16,16]
+	 Parsing Main.simulation_time=10000
+	 Parsing pycontrol.py
+	 Check for function preprocess()
+	 python preprocess function does not exist
+	 Calling python _smilei_check
+	 Calling python _prepare_checkpoint_dir
+	 Calling python _keep_python_running() :
+[1;36mCAREFUL: Patches distribution: hilbertian
+[0m
+	 Smilei will run on CPU devices
+[;33m
+[WARNING](0) src/Params/Params.cpp:1160 (compute) simulation_time has been redefined from 10000.000000 to 9999.967208 to match timestep.[0m
+ 
+
+ Geometry: 2Dcartesian
+ -------------------------------------------------------------------------------
+	 Interpolation order : 2
+	 Maxwell solver : Yee
+	 simulation duration = 9999.967208,   total number of iterations = 247547
+	 timestep = 0.040396 = 0.900000 x CFL,   time resolution = 24.754781
+	 Grid length: 16.25, 16.25
+	 Cell length: 0.0634766, 0.0634766, 0
+	 Number of cells: 256, 256
+	 Spatial resolution: 15.7538, 15.7538
+	 Cell sorting: activated
+ 
+
+ Electromagnetic boundary conditions
+ -------------------------------------------------------------------------------
+	 xmin periodic
+	 xmax periodic
+	 ymin periodic
+	 ymax periodic
+ 
+
+ Vectorization: 
+ -------------------------------------------------------------------------------
+	 Mode: on
+	 Calling python writeInfo
+ 
+
+ Initializing MPI
+ -------------------------------------------------------------------------------
+	 applied topology for periodic BCs in x-direction
+	 applied topology for periodic BCs in y-direction
+	 MPI_THREAD_MULTIPLE enabled
+	 Number of MPI processes: 256
+	 Number of threads per MPI process : 1
+	 Number of patches: 16 x 16
+	 Number of cells in one patch: 16 x 16
+	 Dynamic load balancing: never
+ 
+
+ Initializing the restart environment
+ -------------------------------------------------------------------------------
+ 
+ 
+ 
+
+ Initializing multiphoton Breit-Wheeler
+ -------------------------------------------------------------------------------
+	 Default tables (stored in the code) are used:
+ 
+	 --- Table `integration_dt_dchi`:
+		 Dimension quantum parameter: 256
+		 Minimum photon quantum parameter chi: 0.010000
+		 Maximum photon quantum parameter chi: 100.000000
+ 
+	 --- Table `min_particle_chi_for_xi` and `xi`:
+		 Dimension photon chi: 256
+		 Dimension particle chi: 256
+		 Minimum photon chi: 0.010000
+		 Maximum photon chi: 100.000000
+ 
+
+ Initializing species
+ -------------------------------------------------------------------------------
+	 
+	 Creating Species #0: electron
+		 > Pusher: boris
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+	 
+	 Creating Species #1: positron
+		 > Pusher: boris
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+	 
+	 Creating Species #2: photon
+		 > photon is a photon species (mass==0).
+		 > Pusher set to norm.
+		 > Decay into pair via the multiphoton Breit-Wheeler activated
+			 | Generated electrons and positrons go to species: electron & positron
+			 | Number of emitted macro-particles per MC event: 1 & 1
+		 > Boundary conditions: periodic periodic periodic periodic
+		 > Density profile: 2D user-defined function
+ 
+
+ Initializing External fields
+ -------------------------------------------------------------------------------
+	 External field Bz: 2D built-in profile `constant` (value: 1000.000000)
+	 External field Bz_m: 2D built-in profile `constant` (value: 1000.000000)
+ 
+
+ Initializing Patches
+ -------------------------------------------------------------------------------
+	 First patch created
+	 All patches created
+ 
+
+ Creating Diagnostics, antennas, and external fields
+ -------------------------------------------------------------------------------
+	 Created ParticleBinning #0: species electron
+		 Axis gamma from 1 to 8125 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #1: species positron
+		 Axis gamma from 1 to 8125 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #2: species photon
+		 Axis gamma from 7312.5 to 8937.5 in 64 steps [LOGSCALE] 
+	 Created ParticleBinning #3: species photon
+		 Axis chi from 0.001 to 20 in 64 steps [LOGSCALE] 
+ 
+
+ Finalize MPI environment
+ -------------------------------------------------------------------------------
+	 Done creating diagnostics, antennas, and external fields
+ 
+
+ Minimum memory consumption (does not include all temporary buffers)
+ -------------------------------------------------------------------------------
+              Particles: Master 0 MB;   Max 0 MB;   Global 0.00252 GB
+                 Fields: Master 0 MB;   Max 0 MB;   Global 0.0109 GB
+            scalars.txt: Master 0 MB;   Max 0 MB;   Global 0 GB
+    ParticleBinning0.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning1.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning2.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+    ParticleBinning3.h5: Master 0 MB;   Max 0 MB;   Global 0.000122 GB
+ 
+
+ Initial fields setup
+ -------------------------------------------------------------------------------
+	 Applying external fields at time t = 0
+	 Applying prescribed fields at time t = 0
+	 Applying antennas at time t = 0
+ 
+
+ Open files & initialize diagnostics
+ -------------------------------------------------------------------------------
+ 
+
+ Running diags at time t = 0
+ -------------------------------------------------------------------------------
+ 
+
+ Species creation summary
+ -------------------------------------------------------------------------------
+		 Species 0 (electron) created with 0 particles
+		 Species 1 (positron) created with 0 particles
+		 Species 2 (photon) created with 20480 particles
+ 
+
+ Expected disk usage (approximate)
+ -------------------------------------------------------------------------------
+	 WARNING: disk usage by non-uniform particles maybe strongly underestimated,
+	    especially when particles are created at runtime (ionization, pair generation, etc.)
+	 
+	 Expected disk usage for diagnostics:
+		 File scalars.txt: 13.22 M
+		 File ParticleBinning0.h5: 5.44 M
+		 File ParticleBinning1.h5: 5.44 M
+		 File ParticleBinning2.h5: 5.44 M
+		 File ParticleBinning3.h5: 5.44 M
+	 Total disk usage for diagnostics: 34.98 M
+	 
+ 
+
+ Keeping or closing the python runtime environment
+ -------------------------------------------------------------------------------
+	 Checking for cleanup() function:
+	 python cleanup function does not exist
+	 Closing Python
+ 
+
+ Time-Loop started: number of time-steps n_time = 247547
+ -------------------------------------------------------------------------------
+[1;36mCAREFUL: The following `push time` assumes a global number of 256 cores (hyperthreading is unknown)
+[0m
+        timestep       sim time   cpu time [s]   (    diff [s] )   push time [ns]
+    24754/247547     9.9999e+02     1.8730e+01   (  1.8730e+01 )            4728 
+    49508/247547     2.0000e+03     3.7378e+01   (  1.8648e+01 )            4708 
+    74262/247547     2.9999e+03     5.6379e+01   (  1.9001e+01 )            4797 
+    99016/247547     3.9999e+03     7.5407e+01   (  1.9028e+01 )            4804 
+   123770/247547     4.9999e+03     9.4071e+01   (  1.8664e+01 )            4712 
+   148524/247547     5.9998e+03     1.1314e+02   (  1.9069e+01 )            4814 
+   173278/247547     6.9998e+03     1.3190e+02   (  1.8757e+01 )            4735 
+   198032/247547     7.9998e+03     1.5100e+02   (  1.9099e+01 )            4822 
+   222786/247547     8.9997e+03     1.7024e+02   (  1.9244e+01 )            4858 
+   247540/247547     9.9997e+03     1.8922e+02   (  1.8982e+01 )            4792 
+ 
+
+ End time loop, time dual = 1.0000e+04
+ -------------------------------------------------------------------------------
+ 
+
+ Time profiling : (print time > 0.001%)
+ -------------------------------------------------------------------------------
+ Time_in_time_loop	1.8923e+02	9.9150e+01% coverage
+ 	           Particles	2.187515e+01	1.2e+01%
+ 	             Maxwell	1.075775e+00	    <1%
+ 	          Maxwell_BC	5.309858e-01	    <1%
+ 	         Diagnostics	5.234022e+00	2.8e+00%
+ 	          Collisions	2.127118e-01	    <1%
+ 	      Sync Particles	9.192745e+01	4.9e+01%
+ 	         Sync Fields	2.659086e+00	1.4e+00%
+ 	      Sync Densities	6.380190e+01	3.4e+01%
+ 	        Part Merging	1.214220e-01	    <1%
+ 	      Part Injection	1.063645e-01	    <1%
+ 
+	 Printed times are averaged per MPI process
+ 		 See advanced metrics in profil.txt
+ 
+	Diagnostics profile :
+ 		         scalars.txt	3.3e+00
+ 		 ParticleBinning0.h5	2.9e-01
+ 		 ParticleBinning1.h5	2.7e-01
+ 		 ParticleBinning2.h5	2.6e-01
+ 		 ParticleBinning3.h5	2.6e-01
+ 
+
+ END
+ -------------------------------------------------------------------------------
+FLUX-RUN END smilei-iter-5
+0% [Working]            Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+0% [Waiting for headers]                        Get:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+0% [2 InRelease 14.2 kB/126 kB 11%] [Waiting for headers]                                                         Get:3 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+0% [2 InRelease 15.6 kB/126 kB 12%] [3 InRelease 1140 B/126 kB 1%]0% [2 InRelease 31.5 kB/126 kB 25%] [3 InRelease 14.2 kB/126 kB 11%]                                                                    0% [3 InRelease 14.2 kB/126 kB 11%]                                   Get:4 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+0% [4 InRelease 2588 B/126 kB 2%] [3 InRelease 25.8 kB/126 kB 20%]0% [4 InRelease 43.1 kB/126 kB 34%] [3 InRelease 28.7 kB/126 kB 23%]                                                                    0% [3 InRelease 37.3 kB/126 kB 30%]                                   Get:5 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1341 kB]
+0% [5 Packages 5551 B/1341 kB 0%] [3 InRelease 43.1 kB/126 kB 34%]0% [5 Packages 63.5 kB/1341 kB 5%] [3 InRelease 43.1 kB/126 kB 34%]                                                                   0% [Waiting for headers] [3 InRelease 77.9 kB/126 kB 62%]                                                         Get:6 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1377 kB]
+0% [6 Packages 159 kB/1377 kB 12%] [3 InRelease 77.9 kB/126 kB 62%]0% [5 Packages store 0 B] [6 Packages 189 kB/1377 kB 14%] [3 InRelease 77.9 kB/0% [5 Packages store 0 B] [Waiting for headers] [3 InRelease 83.7 kB/126 kB 66%                                                                               Get:7 http://archive.ubuntu.com/ubuntu noble-updates/restricted amd64 Packages [1348 kB]
+0% [5 Packages store 0 B] [7 Packages 12.3 kB/1348 kB 1%] [3 InRelease 83.7 kB/0% [5 Packages store 0 B] [Waiting for headers] [3 InRelease 92.4 kB/126 kB 73%                                                                               Get:8 http://archive.ubuntu.com/ubuntu noble-updates/multiverse amd64 Packages [26.7 kB]
+0% [5 Packages store 0 B] [8 Packages 5650 B/26.7 kB 21%] [3 InRelease 92.4 kB/                                                                               0% [5 Packages store 0 B] [3 InRelease 92.4 kB/126 kB 73%]                                                          0% [3 InRelease 95.3 kB/126 kB 76%]0% [6 Packages store 0 B] [3 InRelease 95.3 kB/126 kB 76%]                                                          0% [3 InRelease 113 kB/126 kB 89%]0% [7 Packages store 0 B] [3 InRelease 113 kB/126 kB 89%]                                                         0% [7 Packages store 0 B]                         0% [Working]0% [8 Packages store 0 B]                         0% [Working]74% [Working]             Get:9 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1077 kB]
+74% [9 Packages 2655 B/1077 kB 0%]                                  87% [Working]87% [9 Packages store 0 B]                          87% [Waiting for headers]                         Get:10 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [986 kB]
+87% [10 Packages 7001 B/986 kB 1%]                                  99% [Working]99% [10 Packages store 0 B]                           100% [Working]              Fetched 6533 kB in 1s (4447 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 6%Reading package lists... 6%Reading package lists... 68%Reading package lists... 68%Reading package lists... 69%Reading package lists... 69%Reading package lists... 70%Reading package lists... 70%Reading package lists... 75%Reading package lists... 75%Reading package lists... 80%Reading package lists... 80%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 90%Reading package lists... 90%Reading package lists... 94%Reading package lists... 94%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 6%Reading package lists... 6%Reading package lists... 68%Reading package lists... 68%Reading package lists... 69%Reading package lists... 69%Reading package lists... 70%Reading package lists... 70%Reading package lists... 75%Reading package lists... 75%Reading package lists... 80%Reading package lists... 80%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 90%Reading package lists... 90%Reading package lists... 94%Reading package lists... 94%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... 97%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 2 not upgraded.
+Need to get 378 kB of archives.
+After this operation, 1125 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu noble/main amd64 libonig5 amd64 6.9.9-1build1 [172 kB]
+1% [1 libonig5 6948 B/172 kB 4%]                                43% [Working]             Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 libjq1 amd64 1.7.1-3build1 [141 kB]
+44% [2 libjq1 4052 B/141 kB 3%]                               79% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu noble/main amd64 jq amd64 1.7.1-3build1 [65.5 kB]
+80% [3 jq 815 B/65.5 kB 1%]                           100% [Working]              Fetched 378 kB in 0s (942 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 30535 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.9-1build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.9-1build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.7.1-3build1_amd64.deb ...
+Unpacking libjq1:amd64 (1.7.1-3build1) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.7.1-3build1_amd64.deb ...
+Unpacking jq (1.7.1-3build1) ...
+Setting up libonig5:amd64 (6.9.9-1build1) ...
+Setting up libjq1:amd64 (1.7.1-3build1) ...
+Setting up jq (1.7.1-3build1) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.4) ...
+
+FLUX-JOB START 13071867183104 smilei-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 64, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["smilei", "benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py", "Main.number_of_patches=[16,16]", "Main.simulation_time=10000"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/smilei", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "smilei-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-63"}}], "starttime": 1746373270.1483099, "expiration": 0.0, "nodelist": ["smilei-[0-3]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746373270.1498604,"name":"init"}
+{"timestamp":1746373270.1504326,"name":"starting"}
+{"timestamp":1746373270.1606104,"name":"shell.init","context":{"service":"0-shell-f6vNo99XM","leader-rank":0,"size":4}}
+{"timestamp":1746373270.2785919,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,64,1]]}}}
+{"timestamp":1746373461.1100519,"name":"shell.task-exit","context":{"localid":62,"rank":62,"state":"Exited","pid":771,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746373461.1331046,"name":"complete","context":{"status":0}}
+{"timestamp":1746373461.1331279,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 13071867183104 smilei-iter-5
+
+FLUX-JOB START 9775546892288 smilei-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 64, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["smilei", "benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py", "Main.number_of_patches=[16,16]", "Main.simulation_time=10000"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/smilei", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "smilei-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-63"}}], "starttime": 1746373073.6720886, "expiration": 0.0, "nodelist": ["smilei-[0-3]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746373073.6735055,"name":"init"}
+{"timestamp":1746373073.674058,"name":"starting"}
+{"timestamp":1746373073.6844301,"name":"shell.init","context":{"service":"0-shell-f5Rnec391","leader-rank":0,"size":4}}
+{"timestamp":1746373073.8033535,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,64,1]]}}}
+{"timestamp":1746373269.9004207,"name":"shell.task-exit","context":{"localid":62,"rank":62,"state":"Exited","pid":639,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746373269.9337749,"name":"complete","context":{"status":0}}
+{"timestamp":1746373269.9337995,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 9775546892288 smilei-iter-4
+
+FLUX-JOB START 6594536407040 smilei-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 64, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["smilei", "benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py", "Main.number_of_patches=[16,16]", "Main.simulation_time=10000"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/smilei", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "smilei-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-63"}}], "starttime": 1746372884.0688972, "expiration": 0.0, "nodelist": ["smilei-[0-3]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746372884.0704331,"name":"init"}
+{"timestamp":1746372884.0710642,"name":"starting"}
+{"timestamp":1746372884.0814199,"name":"shell.init","context":{"service":"0-shell-f3zEBbpcf","leader-rank":0,"size":4}}
+{"timestamp":1746372884.1979852,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,64,1]]}}}
+{"timestamp":1746373073.4232411,"name":"shell.task-exit","context":{"localid":61,"rank":61,"state":"Exited","pid":503,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746373073.4570987,"name":"complete","context":{"status":0}}
+{"timestamp":1746373073.4571221,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 6594536407040 smilei-iter-3
+
+FLUX-JOB START 3221728788480 smilei-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 64, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["smilei", "benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py", "Main.number_of_patches=[16,16]", "Main.simulation_time=10000"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/smilei", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "smilei-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-63"}}], "starttime": 1746372683.0337958, "expiration": 0.0, "nodelist": ["smilei-[0-3]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746372683.0353913,"name":"init"}
+{"timestamp":1746372683.045826,"name":"shell.init","context":{"service":"0-shell-f2TdW9AUF","leader-rank":0,"size":4}}
+{"timestamp":1746372683.0359545,"name":"starting"}
+{"timestamp":1746372683.164377,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,64,1]]}}}
+{"timestamp":1746372883.8158913,"name":"shell.task-exit","context":{"localid":63,"rank":63,"state":"Exited","pid":357,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746372883.8544466,"name":"complete","context":{"status":0}}
+{"timestamp":1746372883.8544772,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 3221728788480 smilei-iter-2
+
+FLUX-JOB START 18505269248 smilei-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 64, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["smilei", "benchmarks/tst2d_v_o2_multiphoton_Breit_Wheeler.py", "Main.number_of_patches=[16,16]", "Main.simulation_time=10000"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/smilei", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "smilei-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-63"}}], "starttime": 1746372492.1069312, "expiration": 0.0, "nodelist": ["smilei-[0-3]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746372492.1085291,"name":"init"}
+{"timestamp":1746372492.1182024,"name":"shell.init","context":{"service":"0-shell-fVCFLqM","leader-rank":0,"size":4}}
+{"timestamp":1746372492.1090198,"name":"starting"}
+{"timestamp":1746372492.2366705,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,64,1]]}}}
+{"timestamp":1746372682.7690423,"name":"shell.task-exit","context":{"localid":19,"rank":83,"state":"Exited","pid":102,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746372682.8181717,"name":"complete","context":{"status":0}}
+{"timestamp":1746372682.818202,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 18505269248 smilei-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

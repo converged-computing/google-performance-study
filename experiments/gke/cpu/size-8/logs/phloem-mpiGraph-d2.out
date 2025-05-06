@@ -1,0 +1,244 @@
+Defaulted container "phloem" out of: phloem, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..3}
+do
+  echo "FLUX-RUN START phloem-iter-$i"
+  flux run --setattr=user.study_id=phloem-iter-$i -N8  -o cpu-affinity=per-task -o gpu-affinity=off     mpiGraph -d 2 -p 704 |& tee /tmp/phloem.out
+  
+   echo "FLUX-RUN END phloem-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      8      704        0 phloem-[0-7]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START phloem-iter-1
+START mpiGraph v1.6
+MsgSize	16384
+Times	100
+Window	50
+Procs	8
+
+1 of 8 (12.5%)
+2 of 8 (25.0%)
+3 of 8 (37.5%)
+4 of 8 (50.0%)
+5 of 8 (62.5%)
+6 of 8 (75.0%)
+7 of 8 (87.5%)
+Gathering results
+
+Send max	2538.975261
+Send avg	1906.011925
+
+Send	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	
+phloem-0:0 to	0.000	2079.483	2046.873	2091.362	1951.683	1963.702	2233.085	2154.488	
+phloem-1:1 to	2079.740	0.000	2006.835	1931.208	2002.980	1911.930	2225.402	2079.105	
+phloem-2:2 to	2137.056	2008.594	0.000	2111.384	2120.930	2075.271	1871.783	2147.995	
+phloem-3:3 to	1589.445	1780.827	1600.018	0.000	1448.626	1741.638	1723.338	1535.250	
+phloem-4:4 to	2033.765	2053.646	2054.865	2212.053	0.000	1916.266	2111.875	2366.156	
+phloem-5:5 to	2132.899	1984.932	2140.205	1688.772	1978.660	0.000	2183.073	1909.574	
+phloem-6:6 to	1502.197	1410.698	1438.942	1450.068	1550.846	1655.883	0.000	1425.401	
+phloem-7:7 to	1839.547	2150.103	2032.655	2058.156	2292.096	2538.975	2150.510	0.000	
+
+Recv max	2542.670982
+Recv avg	1911.271450
+
+Recv	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	
+phloem-0:0 from	0.000	2160.110	2239.559	1967.340	1956.571	2098.178	2052.712	2084.929	
+phloem-1:1 from	2011.984	0.000	2083.909	2082.550	2231.215	1915.935	2007.556	1935.150	
+phloem-2:2 from	2144.464	2116.016	0.000	2012.628	2141.960	2153.997	1875.481	2081.372	
+phloem-3:3 from	1740.417	1761.139	1451.035	0.000	1602.698	1783.522	1592.074	1537.729	
+phloem-4:4 from	2038.221	2370.655	2116.998	1921.148	0.000	2217.960	2059.847	2059.036	
+phloem-5:5 from	2145.802	1989.035	2138.927	1914.426	2188.559	0.000	1982.617	1691.095	
+phloem-6:6 from	1553.092	1452.248	1441.186	1413.292	1504.783	1427.613	0.000	1658.836	
+phloem-7:7 from	2155.814	2542.671	2298.195	2062.678	2036.558	2176.922	1843.149	0.000	
+END mpiGraph
+FLUX-RUN END phloem-iter-1
+FLUX-RUN START phloem-iter-2
+START mpiGraph v1.6
+MsgSize	16384
+Times	100
+Window	50
+Procs	8
+
+1 of 8 (12.5%)
+2 of 8 (25.0%)
+3 of 8 (37.5%)
+4 of 8 (50.0%)
+5 of 8 (62.5%)
+6 of 8 (75.0%)
+7 of 8 (87.5%)
+Gathering results
+
+Send max	2383.772879
+Send avg	2086.482379
+
+Send	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	
+phloem-0:0 to	0.000	2033.080	2203.554	1626.787	1966.784	2161.357	1992.012	2154.840	
+phloem-1:1 to	2175.642	0.000	2211.119	2220.080	2082.001	1966.950	2194.609	2262.113	
+phloem-2:2 to	2054.385	2180.252	0.000	2014.072	2330.213	2185.484	2070.571	2178.486	
+phloem-3:3 to	2072.266	2288.011	2071.104	0.000	2057.533	2097.308	2071.708	2137.161	
+phloem-4:4 to	1995.926	2154.920	2136.127	1940.597	0.000	1939.702	2144.485	2103.061	
+phloem-5:5 to	2020.216	1999.428	2113.902	2085.130	2210.776	0.000	1634.677	2121.251	
+phloem-6:6 to	2177.573	2383.773	1964.255	2124.678	2178.773	2179.961	0.000	1980.139	
+phloem-7:7 to	2077.244	2141.382	2074.535	1931.825	2096.047	2271.793	2123.695	0.000	
+
+Recv max	2390.854106
+Recv avg	2091.631786
+
+Recv	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	
+phloem-0:0 from	0.000	2160.504	1996.415	2166.894	1970.889	1628.678	2209.024	2037.765	
+phloem-1:1 from	2217.534	0.000	2181.471	2267.689	2200.839	1971.726	2089.847	2225.669	
+phloem-2:2 from	2337.335	2019.046	0.000	2186.151	2059.875	2184.450	2075.382	2191.260	
+phloem-3:3 from	2077.647	2106.514	2062.951	0.000	2076.756	2295.222	2078.205	2143.254	
+phloem-4:4 from	2000.275	2108.639	2149.990	1940.331	0.000	1945.983	2140.914	2160.282	
+phloem-5:5 from	2119.326	2004.264	2021.700	2125.540	1636.140	0.000	2216.705	2090.451	
+phloem-6:6 from	2185.030	2130.223	1968.637	2390.854	2182.476	1984.526	0.000	2185.379	
+phloem-7:7 from	2129.462	2276.842	2102.061	1936.022	2080.405	2146.748	2082.325	0.000	
+END mpiGraph
+FLUX-RUN END phloem-iter-2
+FLUX-RUN START phloem-iter-3
+START mpiGraph v1.6
+MsgSize	16384
+Times	100
+Window	50
+Procs	8
+
+1 of 8 (12.5%)
+2 of 8 (25.0%)
+3 of 8 (37.5%)
+4 of 8 (50.0%)
+5 of 8 (62.5%)
+6 of 8 (75.0%)
+7 of 8 (87.5%)
+Gathering results
+
+Send max	2392.439664
+Send avg	2040.514941
+
+Send	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	
+phloem-0:0 to	0.000	1765.248	1864.889	2041.247	1732.347	1791.485	2139.736	1915.683	
+phloem-1:1 to	2173.355	0.000	2070.226	2274.688	2089.580	2058.572	1690.015	2145.837	
+phloem-2:2 to	2161.191	2209.509	0.000	2117.266	2045.358	2082.561	2012.539	2136.644	
+phloem-3:3 to	2151.553	2392.440	2249.459	0.000	2152.019	2225.224	1962.119	2211.981	
+phloem-4:4 to	1812.457	2102.866	2340.293	2177.590	0.000	2148.630	2150.900	2130.814	
+phloem-5:5 to	2121.457	2073.728	1782.986	2103.095	2123.120	0.000	1724.805	2169.968	
+phloem-6:6 to	2211.936	1681.248	2164.252	1935.704	2222.619	2098.512	0.000	1816.019	
+phloem-7:7 to	2069.332	2132.656	2243.378	1856.909	2011.322	2059.090	1785.261	0.000	
+
+Recv max	2399.411451
+Recv avg	2045.179285
+
+Recv	phloem-0:0	phloem-1:1	phloem-2:2	phloem-3:3	phloem-4:4	phloem-5:5	phloem-6:6	phloem-7:7	
+phloem-0:0 from	0.000	1918.102	2145.013	1793.811	1734.464	2046.834	1869.213	1769.816	
+phloem-1:1 from	2075.755	0.000	2179.182	2151.696	1692.802	2063.460	2096.405	2279.997	
+phloem-2:2 from	2050.206	2122.599	0.000	2215.707	2165.434	2142.210	2017.829	2087.103	
+phloem-3:3 from	1963.583	2230.136	2157.515	0.000	2255.553	2399.411	2156.669	2217.529	
+phloem-4:4 from	1815.424	2137.015	2157.412	2154.818	0.000	2183.523	2348.161	2108.810	
+phloem-5:5 from	1786.280	2078.693	2127.789	2175.849	1727.576	0.000	2128.402	2108.064	
+phloem-6:6 from	2228.564	1937.651	2169.440	1683.199	2217.636	1818.594	0.000	2102.950	
+phloem-7:7 from	1785.474	2063.135	2016.309	1861.659	2248.795	2138.357	2078.168	0.000	
+END mpiGraph
+FLUX-RUN END phloem-iter-3
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Connecting to archive.ubuntu.com (185.125.190.82)] [1 InRelease 9828 B/129                                                                                0% [Waiting for headers]                        Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+                        0% [Working]0% [Waiting for headers]                        Get:3 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+0% [Waiting for headers] [3 Packages 2655 B/1244 kB 0%]0% [Waiting for headers] [3 Packages 162 kB/1244 kB 13%]                                                        Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [4 InRelease 14.2 kB/128 kB 11%] [3 Packages 205 kB/1244 kB 17%]                                                                   0% [4 InRelease 15.6 kB/128 kB 12%]0% [3 Packages store 0 B] [4 InRelease 15.6 kB/128 kB 12%]                                                          0% [4 InRelease 28.7 kB/128 kB 22%]                                   0% [Working]0% [Waiting for headers]                        Get:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [5 InRelease 2588 B/127 kB 2%]                                 0% [Working]30% [Waiting for headers]                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+30% [6 Packages 2655 B/3200 kB 0%]                                  53% [Waiting for headers]                         Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+54% [7 Packages 16.4 kB/55.7 kB 29%]54% [6 Packages store 0 B] [7 Packages 16.4 kB/55.7 kB 29%]                                                           54% [6 Packages store 0 B] [Waiting for headers]                                                Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+54% [6 Packages store 0 B] [8 Packages 1004 B/1544 kB 0%]                                                         65% [6 Packages store 0 B] [Waiting for headers]                                                Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+66% [6 Packages store 0 B] [9 Packages 46.4 kB/4420 kB 1%]                                                          90% [9 Packages 3227 kB/4420 kB 73%]90% [7 Packages store 0 B] [9 Packages 3227 kB/4420 kB 73%]                                                           91% [9 Packages 3359 kB/4420 kB 76%]91% [8 Packages store 0 B] [9 Packages 3359 kB/4420 kB 76%]                                                           99% [8 Packages store 0 B]                          99% [Working]99% [9 Packages store 0 B]                          100% [Working]              Fetched 10.8 MB in 2s (5409 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 24%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
+
+FLUX-JOB START 76638322688 phloem-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "exclusive": true, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["mpiGraph", "-d", "2", "-p", "704"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/phloem", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "phloem-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "nodelist": ["phloem-[0-7]"], "starttime": 1746398681, "expiration": 4899998676}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746398681.2015326,"name":"init"}
+{"timestamp":1746398681.2021871,"name":"starting"}
+{"timestamp":1746398681.2143242,"name":"shell.init","context":{"service":"0-shell-f31mGSJB","leader-rank":0,"size":8}}
+{"timestamp":1746398681.2168994,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,1,1]]}}}
+{"timestamp":1746398682.9247553,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":111,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746398682.9279158,"name":"complete","context":{"status":0}}
+{"timestamp":1746398682.9279406,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 76638322688 phloem-iter-3
+
+FLUX-JOB START 46019903488 phloem-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "exclusive": true, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["mpiGraph", "-d", "2", "-p", "704"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/phloem", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "phloem-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "nodelist": ["phloem-[0-7]"], "starttime": 1746398679, "expiration": 4899998676}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746398679.3763912,"name":"init"}
+{"timestamp":1746398679.3770115,"name":"starting"}
+{"timestamp":1746398679.3894374,"name":"shell.init","context":{"service":"0-shell-f2D7d2zs","leader-rank":0,"size":8}}
+{"timestamp":1746398679.3920195,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,1,1]]}}}
+{"timestamp":1746398681.0775652,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":106,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746398681.080802,"name":"complete","context":{"status":0}}
+{"timestamp":1746398681.0808263,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 46019903488 phloem-iter-2
+
+FLUX-JOB START 12733906944 phloem-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "exclusive": true, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["mpiGraph", "-d", "2", "-p", "704"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/phloem", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "phloem-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "nodelist": ["phloem-[0-7]"], "starttime": 1746398677, "expiration": 4899998676}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746398677.3925774,"name":"init"}
+{"timestamp":1746398677.3930988,"name":"starting"}
+{"timestamp":1746398677.4044721,"name":"shell.init","context":{"service":"0-shell-fLQFbtj","leader-rank":0,"size":8}}
+{"timestamp":1746398677.4072411,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,1,1]]}}}
+{"timestamp":1746398679.2520235,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":101,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746398679.2553873,"name":"complete","context":{"status":0}}
+{"timestamp":1746398679.2554107,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 12733906944 phloem-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":3,"total":3},"successful":3,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

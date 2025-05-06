@@ -1,0 +1,437 @@
+Defaulted container "amg" out of: amg, flux-view (init)
+/flux_operator/wait-0.sh: line 22: /etc/flux/system/R: No such file or directory
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START amg2023-iter-$i"
+  flux run --setattr=user.study_id=amg2023-iter-$i -N4 -n 352 -o cpu-affinity=per-task -o gpu-affinity=off    amg -n 256 256 128 -P 4 8 11 -problem 2 |& tee /tmp/amg2023.out
+    echo "FLUX-RUN END amg2023-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      4      352        0 amg-[0-3]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START amg2023-iter-1
+Running with these driver parameters:
+  Problem ID    = 2
+
+=============================================
+Hypre init times:
+=============================================
+Hypre init:
+  wall clock time = 0.000007 seconds
+  Laplacian_7pt:
+    (Nx, Ny, Nz) = (1024, 2048, 1408)
+    (Px, Py, Pz) = (4, 8, 11)
+
+=============================================
+Generate Matrix:
+=============================================
+Spatial Operator:
+  wall clock time = 4.109129 seconds
+  RHS vector has unit components
+  Initial guess is 0
+=============================================
+IJ Vector Setup:
+=============================================
+RHS and Initial Guess:
+  wall clock time = 0.240462 seconds
+=============================================
+Problem 2: AMG Setup Time:
+=============================================
+PCG Setup:
+  wall clock time = 50.072276 seconds
+
+FOM_Setup: nnz_AP / Setup Phase Time: 7.116782e+08
+
+=============================================
+Problem 2: AMG-PCG Solve Time:
+=============================================
+PCG Solve:
+  wall clock time = 62.470273 seconds
+
+Iterations = 28
+Final Relative Residual Norm = 9.575368e-09
+
+
+FOM_Solve: nnz_AP * iterations / Solve Phase Time: 5.704369e+08
+
+
+
+Figure of Merit (FOM): nnz_AP / (Setup Phase Time + 3 * Solve Phase Time) 1.500543e+08
+
+FLUX-RUN END amg2023-iter-1
+FLUX-RUN START amg2023-iter-2
+Running with these driver parameters:
+  Problem ID    = 2
+
+=============================================
+Hypre init times:
+=============================================
+Hypre init:
+  wall clock time = 0.000027 seconds
+  Laplacian_7pt:
+    (Nx, Ny, Nz) = (1024, 2048, 1408)
+    (Px, Py, Pz) = (4, 8, 11)
+
+=============================================
+Generate Matrix:
+=============================================
+Spatial Operator:
+  wall clock time = 4.043328 seconds
+  RHS vector has unit components
+  Initial guess is 0
+=============================================
+IJ Vector Setup:
+=============================================
+RHS and Initial Guess:
+  wall clock time = 0.214883 seconds
+=============================================
+Problem 2: AMG Setup Time:
+=============================================
+PCG Setup:
+  wall clock time = 49.352503 seconds
+
+FOM_Setup: nnz_AP / Setup Phase Time: 7.220576e+08
+
+=============================================
+Problem 2: AMG-PCG Solve Time:
+=============================================
+PCG Solve:
+  wall clock time = 62.516398 seconds
+
+Iterations = 28
+Final Relative Residual Norm = 9.575368e-09
+
+
+FOM_Solve: nnz_AP * iterations / Solve Phase Time: 5.700160e+08
+
+
+
+Figure of Merit (FOM): nnz_AP / (Setup Phase Time + 3 * Solve Phase Time) 1.504225e+08
+
+FLUX-RUN END amg2023-iter-2
+FLUX-RUN START amg2023-iter-3
+Running with these driver parameters:
+  Problem ID    = 2
+
+=============================================
+Hypre init times:
+=============================================
+Hypre init:
+  wall clock time = 0.000006 seconds
+  Laplacian_7pt:
+    (Nx, Ny, Nz) = (1024, 2048, 1408)
+    (Px, Py, Pz) = (4, 8, 11)
+
+=============================================
+Generate Matrix:
+=============================================
+Spatial Operator:
+  wall clock time = 4.044898 seconds
+  RHS vector has unit components
+  Initial guess is 0
+=============================================
+IJ Vector Setup:
+=============================================
+RHS and Initial Guess:
+  wall clock time = 0.199107 seconds
+=============================================
+Problem 2: AMG Setup Time:
+=============================================
+PCG Setup:
+  wall clock time = 48.844034 seconds
+
+FOM_Setup: nnz_AP / Setup Phase Time: 7.295742e+08
+
+=============================================
+Problem 2: AMG-PCG Solve Time:
+=============================================
+PCG Solve:
+  wall clock time = 61.888449 seconds
+
+Iterations = 28
+Final Relative Residual Norm = 9.575368e-09
+
+
+FOM_Solve: nnz_AP * iterations / Solve Phase Time: 5.757997e+08
+
+
+
+Figure of Merit (FOM): nnz_AP / (Setup Phase Time + 3 * Solve Phase Time) 1.519570e+08
+
+FLUX-RUN END amg2023-iter-3
+FLUX-RUN START amg2023-iter-4
+Running with these driver parameters:
+  Problem ID    = 2
+
+=============================================
+Hypre init times:
+=============================================
+Hypre init:
+  wall clock time = 0.000036 seconds
+  Laplacian_7pt:
+    (Nx, Ny, Nz) = (1024, 2048, 1408)
+    (Px, Py, Pz) = (4, 8, 11)
+
+=============================================
+Generate Matrix:
+=============================================
+Spatial Operator:
+  wall clock time = 4.041294 seconds
+  RHS vector has unit components
+  Initial guess is 0
+=============================================
+IJ Vector Setup:
+=============================================
+RHS and Initial Guess:
+  wall clock time = 0.209147 seconds
+=============================================
+Problem 2: AMG Setup Time:
+=============================================
+PCG Setup:
+  wall clock time = 50.209372 seconds
+
+FOM_Setup: nnz_AP / Setup Phase Time: 7.097350e+08
+
+=============================================
+Problem 2: AMG-PCG Solve Time:
+=============================================
+PCG Solve:
+  wall clock time = 62.313380 seconds
+
+Iterations = 28
+Final Relative Residual Norm = 9.575368e-09
+
+
+FOM_Solve: nnz_AP * iterations / Solve Phase Time: 5.718732e+08
+
+
+
+Figure of Merit (FOM): nnz_AP / (Setup Phase Time + 3 * Solve Phase Time) 1.502653e+08
+
+FLUX-RUN END amg2023-iter-4
+FLUX-RUN START amg2023-iter-5
+Running with these driver parameters:
+  Problem ID    = 2
+
+=============================================
+Hypre init times:
+=============================================
+Hypre init:
+  wall clock time = 0.000033 seconds
+  Laplacian_7pt:
+    (Nx, Ny, Nz) = (1024, 2048, 1408)
+    (Px, Py, Pz) = (4, 8, 11)
+
+=============================================
+Generate Matrix:
+=============================================
+Spatial Operator:
+  wall clock time = 4.041672 seconds
+  RHS vector has unit components
+  Initial guess is 0
+=============================================
+IJ Vector Setup:
+=============================================
+RHS and Initial Guess:
+  wall clock time = 0.194798 seconds
+=============================================
+Problem 2: AMG Setup Time:
+=============================================
+PCG Setup:
+  wall clock time = 49.301788 seconds
+
+FOM_Setup: nnz_AP / Setup Phase Time: 7.228003e+08
+
+=============================================
+Problem 2: AMG-PCG Solve Time:
+=============================================
+PCG Solve:
+  wall clock time = 62.131994 seconds
+
+Iterations = 28
+Final Relative Residual Norm = 9.575368e-09
+
+
+FOM_Solve: nnz_AP * iterations / Solve Phase Time: 5.735427e+08
+
+
+
+Figure of Merit (FOM): nnz_AP / (Setup Phase Time + 3 * Solve Phase Time) 1.511909e+08
+
+FLUX-RUN END amg2023-iter-5
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy InRelease [270 kB]
+0% [1 InRelease 14.2 kB/270 kB 5%] [Waiting for headers]                                                        Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [1 InRelease 14.2 kB/270 kB 5%] [2 InRelease 1140 B/129 kB 1%]                                                                 0% [1 InRelease 194 kB/270 kB 72%]                                  0% [Working]            Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [3 InRelease 6932 B/128 kB 5%]                                 0% [Working]0% [Waiting for headers]                        Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 6932 B/127 kB 5%] [Waiting for headers]                                                       Get:5 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4118 kB]
+0% [4 InRelease 41.7 kB/127 kB 33%] [5 Packages 2655 B/4118 kB 0%]                                                                  0% [5 Packages 33.1 kB/4118 kB 1%]                                  0% [5 Packages 133 kB/4118 kB 3%]                                 Get:6 http://archive.ubuntu.com/ubuntu jammy/restricted amd64 Packages [164 kB]
+0% [6 Packages 7001 B/164 kB 4%] [5 Packages 279 kB/4118 kB 7%]                                                               0% [5 Packages 483 kB/4118 kB 12%]0% [6 Packages store 0 B] [Waiting for headers] [5 Packages 483 kB/4118 kB 12%]                                                                               0% [Waiting for headers] [5 Packages 559 kB/4118 kB 14%]0% [Waiting for headers] [5 Packages 617 kB/4118 kB 15%]                                                        Get:7 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [17.5 MB]
+0% [7 Packages 6997 B/17.5 MB 0%] [5 Packages 970 kB/4118 kB 24%]21% [7 Packages 467 kB/17.5 MB 3%] [5 Packages 2399 kB/4118 kB 58%]                                                                   25% [7 Packages 779 kB/17.5 MB 4%]25% [5 Packages store 0 B] [7 Packages 779 kB/17.5 MB 4%]                                                         Get:8 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+27% [5 Packages store 0 B] [7 Packages 1732 kB/17.5 MB 10%] [8 Packages 12.4 kB34% [5 Packages store 0 B] [7 Packages 2293 kB/17.5 MB 13%] [Waiting for header                                                                               Get:9 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+34% [5 Packages store 0 B] [7 Packages 2293 kB/17.5 MB 13%] [9 Packages 12.4 kB38% [5 Packages store 0 B] [7 Packages 2648 kB/17.5 MB 15%] [Waiting for header                                                                               Get:10 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+38% [5 Packages store 0 B] [7 Packages 2648 kB/17.5 MB 15%] [10 Packages 45.1 k                                                                               39% [5 Packages store 0 B] [7 Packages 3307 kB/17.5 MB 19%]                                                           69% [5 Packages store 0 B] [Waiting for headers]                                                Get:11 http://archive.ubuntu.com/ubuntu jammy/main amd64 Packages [1792 kB]
+69% [5 Packages store 0 B] [11 Packages 50.5 kB/1792 kB 3%]                                                           73% [5 Packages store 0 B] [Waiting for headers]                                                Get:12 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [266 kB]
+73% [5 Packages store 0 B] [12 Packages 27.5 kB/266 kB 10%]                                                           73% [5 Packages store 0 B] [Waiting for headers]                                                74% [Waiting for headers]74% [8 Packages store 0 B] [Waiting for headers]                                                Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1543 kB]
+74% [8 Packages store 0 B] [13 Packages 22.9 kB/1543 kB 1%]                                                           77% [8 Packages store 0 B] [Waiting for headers]                                                Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3155 kB]
+77% [8 Packages store 0 B] [14 Packages 46.1 kB/3155 kB 1%]                                                           84% [8 Packages store 0 B] [Waiting for headers]                                                Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+84% [8 Packages store 0 B] [15 Packages 49.5 kB/55.7 kB 89%]                                                            84% [8 Packages store 0 B] [Waiting for headers]                                                Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4272 kB]
+84% [8 Packages store 0 B] [16 Packages 59.1 kB/4272 kB 1%]                                                           93% [8 Packages store 0 B] [Waiting for headers]                                                Get:17 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+93% [8 Packages store 0 B] [17 Packages 35.2 kB/35.2 kB 100%]                                                             93% [8 Packages store 0 B] [Waiting for headers]                                                Get:18 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+93% [8 Packages store 0 B] [18 Packages 10.8 kB/82.7 kB 13%]                                                            93% [8 Packages store 0 B]                          94% [Working]94% [9 Packages store 0 B]                          94% [Working]94% [10 Packages store 0 B]                           95% [Working]95% [7 Packages store 0 B]95% [7 Packages store 0 B]                          96% [Working]96% [11 Packages store 0 B]                           96% [Working]96% [12 Packages store 0 B]                           97% [Working]97% [13 Packages store 0 B]                           97% [Working]97% [14 Packages store 0 B]                           98% [Working]98% [15 Packages store 0 B]                           98% [Working]98% [16 Packages store 0 B]                           99% [Working]99% [17 Packages store 0 B]                           99% [Working]99% [18 Packages store 0 B]                           100% [Working]              Fetched 37.7 MB in 2s (20.4 MB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 2%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 5 not upgraded.
+Need to get 357 kB of archives.
+After this operation, 1087 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libonig5 amd64 6.9.7.1-2build1 [172 kB]
+1% [1 libonig5 4052 B/172 kB 2%]                                45% [Working]             Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjq1 amd64 1.6-2.1ubuntu3 [133 kB]
+46% [2 libjq1 2604 B/133 kB 2%]                               82% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 jq amd64 1.6-2.1ubuntu3 [52.5 kB]
+82% [3 jq 1424 B/52.5 kB 3%]                            100% [Working]              Fetched 357 kB in 1s (360 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 6937 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.7.1-2build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.7.1-2build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-2.1ubuntu3) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking jq (1.6-2.1ubuntu3) ...
+Setting up libonig5:amd64 (6.9.7.1-2build1) ...
+Setting up libjq1:amd64 (1.6-2.1ubuntu3) ...
+Setting up jq (1.6-2.1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.9) ...
+
+FLUX-JOB START 8068196728832 amg2023-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["amg", "-n", "256", "256", "128", "-P", "4", "8", "11", "-problem", "2"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "amg2023-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["amg-[0-3]"], "starttime": 1745970360, "expiration": 4899569879}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745970360.4488075,"name":"init"}
+{"timestamp":1745970360.4493635,"name":"starting"}
+{"timestamp":1745970360.4624074,"name":"shell.init","context":{"service":"0-shell-f4ewPvAjH","leader-rank":0,"size":4}}
+{"timestamp":1745970360.6471705,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1745970478.8130696,"name":"shell.task-exit","context":{"localid":84,"rank":348,"state":"Exited","pid":941,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745970478.9760165,"name":"complete","context":{"status":0}}
+{"timestamp":1745970478.9760444,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 8068196728832 amg2023-iter-5
+
+FLUX-JOB START 6056893743104 amg2023-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["amg", "-n", "256", "256", "128", "-P", "4", "8", "11", "-problem", "2"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "amg2023-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["amg-[0-3]"], "starttime": 1745970240, "expiration": 4899569879}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745970240.566025,"name":"init"}
+{"timestamp":1745970240.5666804,"name":"starting"}
+{"timestamp":1745970240.5796051,"name":"shell.init","context":{"service":"0-shell-f3k73xdpK","leader-rank":0,"size":4}}
+{"timestamp":1745970240.7625852,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1745970360.0744705,"name":"shell.task-exit","context":{"localid":33,"rank":33,"state":"Exited","pid":711,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745970360.2180011,"name":"complete","context":{"status":0}}
+{"timestamp":1745970360.2180252,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 6056893743104 amg2023-iter-4
+
+FLUX-JOB START 4075554865152 amg2023-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["amg", "-n", "256", "256", "128", "-P", "4", "8", "11", "-problem", "2"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "amg2023-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["amg-[0-3]"], "starttime": 1745970122, "expiration": 4899569879}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745970122.4690661,"name":"init"}
+{"timestamp":1745970122.4696496,"name":"starting"}
+{"timestamp":1745970122.4825273,"name":"shell.init","context":{"service":"0-shell-f2r4MpzDD","leader-rank":0,"size":4}}
+{"timestamp":1745970122.6670048,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1745970240.155607,"name":"shell.task-exit","context":{"localid":87,"rank":87,"state":"Exited","pid":639,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745970240.3328385,"name":"complete","context":{"status":0}}
+{"timestamp":1745970240.3328648,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 4075554865152 amg2023-iter-3
+
+FLUX-JOB START 2075073183744 amg2023-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["amg", "-n", "256", "256", "128", "-P", "4", "8", "11", "-problem", "2"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "amg2023-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["amg-[0-3]"], "starttime": 1745970003, "expiration": 4899569879}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745970003.230268,"name":"init"}
+{"timestamp":1745970003.2307899,"name":"starting"}
+{"timestamp":1745970003.2436438,"name":"shell.init","context":{"service":"0-shell-fwWW7U4f","leader-rank":0,"size":4}}
+{"timestamp":1745970003.4265471,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1745970122.0868642,"name":"shell.task-exit","context":{"localid":87,"rank":87,"state":"Exited","pid":458,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745970122.2394679,"name":"complete","context":{"status":0}}
+{"timestamp":1745970122.2394934,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2075073183744 amg2023-iter-2
+
+FLUX-JOB START 61639491584 amg2023-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["amg", "-n", "256", "256", "128", "-P", "4", "8", "11", "-problem", "2"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "amg2023-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["amg-[0-3]"], "starttime": 1745969883, "expiration": 4899569879}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745969883.2207105,"name":"init"}
+{"timestamp":1745969883.2212644,"name":"starting"}
+{"timestamp":1745969883.2334082,"name":"shell.init","context":{"service":"0-shell-f2cusWMu","leader-rank":0,"size":4}}
+{"timestamp":1745969883.4174843,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1745970002.826936,"name":"shell.task-exit","context":{"localid":84,"rank":348,"state":"Exited","pid":233,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745970002.9995866,"name":"complete","context":{"status":0}}
+{"timestamp":1745970002.9996095,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 61639491584 amg2023-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

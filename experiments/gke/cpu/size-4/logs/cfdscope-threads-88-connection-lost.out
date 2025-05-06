@@ -1,0 +1,136 @@
+Defaulted container "cfdscope" out of: cfdscope, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START cfdscope-iter-$i"
+  flux run --setattr=user.study_id=cfdscope-iter-$i -N1 -n 1 -o cpu-affinity=per-task -o gpu-affinity=off  --cores-per-task 88   cfdscope --domain-size 100 --cell-size 1 --end-time 6 --lid-speed 10 --step-size 0.4 --output-prefix fields --output-format csv --preconditioner dic |& tee /tmp/cfdscope.out
+    echo "FLUX-RUN END cfdscope-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      1       88        0 cfdscope-0
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START cfdscope-iter-1
+[2025-05-03 19:46:44.576] [info] Welcome to cfdSCOPE!
+[2025-05-03 19:46:44.592] [info] Using 88 OpenMP threads.
+[2025-05-03 19:46:44.594] [info] Initialization done!
+[2025-05-03 19:46:55.046] [info] Time step complete. t = 0.00000
+[2025-05-03 19:47:04.007] [info] Time step complete. t = 0.40000
+[2025-05-03 19:47:12.705] [info] Time step complete. t = 0.80000
+[2025-05-03 19:47:20.973] [info] Time step complete. t = 1.20000
+[2025-05-03 19:47:29.162] [info] Time step complete. t = 1.60000
+[2025-05-03 19:47:37.333] [info] Time step complete. t = 2.00000
+[2025-05-03 19:47:45.434] [info] Time step complete. t = 2.40000
+[2025-05-03 19:47:53.557] [info] Time step complete. t = 2.80000
+[2025-05-03 19:48:01.609] [info] Time step complete. t = 3.20000
+[2025-05-03 19:48:09.654] [info] Time step complete. t = 3.60000
+[2025-05-03 19:48:17.640] [info] Time step complete. t = 4.00000
+[2025-05-03 19:48:25.627] [info] Time step complete. t = 4.40000
+[2025-05-03 19:48:33.629] [info] Time step complete. t = 4.80000
+[2025-05-03 19:48:41.628] [info] Time step complete. t = 5.20000
+[2025-05-03 19:48:49.685] [info] Time step complete. t = 5.60000
+[2025-05-03 19:48:49.689] [info] Simulation took 125.11 s.
+FLUX-RUN END cfdscope-iter-1
+FLUX-RUN START cfdscope-iter-2
+[2025-05-03 19:48:49.909] [info] Welcome to cfdSCOPE!
+[2025-05-03 19:48:49.925] [info] Using 88 OpenMP threads.
+[2025-05-03 19:48:49.927] [info] Initialization done!
+[2025-05-03 19:49:00.221] [info] Time step complete. t = 0.00000
+[2025-05-03 19:49:09.056] [info] Time step complete. t = 0.40000
+[2025-05-03 19:49:17.601] [info] Time step complete. t = 0.80000
+[2025-05-03 19:49:25.704] [info] Time step complete. t = 1.20000
+[2025-05-03 19:49:33.911] [info] Time step complete. t = 1.60000
+[2025-05-03 19:49:41.934] [info] Time step complete. t = 2.00000
+[2025-05-03 19:49:49.947] [info] Time step complete. t = 2.40000
+[2025-05-03 19:49:57.882] [info] Time step complete. t = 2.80000
+[2025-05-03 19:50:05.765] [info] Time step complete. t = 3.20000
+[2025-05-03 19:50:13.650] [info] Time step complete. t = 3.60000
+[2025-05-03 19:50:21.517] [info] Time step complete. t = 4.00000
+[2025-05-03 19:50:29.383] [info] Time step complete. t = 4.40000
+[2025-05-03 19:50:37.252] [info] Time step complete. t = 4.80000
+[2025-05-03 19:50:45.082] [info] Time step complete. t = 5.20000
+[2025-05-03 19:50:52.949] [info] Time step complete. t = 5.60000
+[2025-05-03 19:50:52.954] [info] Simulation took 123.04 s.
+FLUX-RUN END cfdscope-iter-2
+FLUX-RUN START cfdscope-iter-3
+[2025-05-03 19:50:53.175] [info] Welcome to cfdSCOPE!
+[2025-05-03 19:50:53.191] [info] Using 88 OpenMP threads.
+[2025-05-03 19:50:53.193] [info] Initialization done!
+[2025-05-03 19:51:03.581] [info] Time step complete. t = 0.00000
+[2025-05-03 19:51:12.406] [info] Time step complete. t = 0.40000
+[2025-05-03 19:51:20.982] [info] Time step complete. t = 0.80000
+[2025-05-03 19:51:29.163] [info] Time step complete. t = 1.20000
+[2025-05-03 19:51:37.287] [info] Time step complete. t = 1.60000
+[2025-05-03 19:51:45.362] [info] Time step complete. t = 2.00000
+[2025-05-03 19:51:53.414] [info] Time step complete. t = 2.40000
+[2025-05-03 19:52:01.414] [info] Time step complete. t = 2.80000
+[2025-05-03 19:52:09.590] [info] Time step complete. t = 3.20000
+[2025-05-03 19:52:17.513] [info] Time step complete. t = 3.60000
+[2025-05-03 19:52:25.438] [info] Time step complete. t = 4.00000
+[2025-05-03 19:52:33.357] [info] Time step complete. t = 4.40000
+[2025-05-03 19:52:41.273] [info] Time step complete. t = 4.80000
+[2025-05-03 19:52:49.187] [info] Time step complete. t = 5.20000
+[2025-05-03 19:52:57.315] [info] Time step complete. t = 5.60000
+[2025-05-03 19:52:57.320] [info] Simulation took 124.14 s.
+FLUX-RUN END cfdscope-iter-3
+FLUX-RUN START cfdscope-iter-4
+[2025-05-03 19:52:57.542] [info] Welcome to cfdSCOPE!
+[2025-05-03 19:52:57.559] [info] Using 88 OpenMP threads.
+[2025-05-03 19:52:57.560] [info] Initialization done!
+[2025-05-03 19:53:07.910] [info] Time step complete. t = 0.00000
+[2025-05-03 19:53:16.726] [info] Time step complete. t = 0.40000
+[2025-05-03 19:53:25.240] [info] Time step complete. t = 0.80000
+[2025-05-03 19:53:33.354] [info] Time step complete. t = 1.20000
+[2025-05-03 19:53:41.386] [info] Time step complete. t = 1.60000
+[2025-05-03 19:53:49.503] [info] Time step complete. t = 2.00000
+[2025-05-03 19:53:57.591] [info] Time step complete. t = 2.40000
+[2025-05-03 19:54:05.681] [info] Time step complete. t = 2.80000
+[2025-05-03 19:54:13.647] [info] Time step complete. t = 3.20000
+[2025-05-03 19:54:21.590] [info] Time step complete. t = 3.60000
+[2025-05-03 19:54:29.578] [info] Time step complete. t = 4.00000
+[2025-05-03 19:54:37.579] [info] Time step complete. t = 4.40000
+[2025-05-03 19:54:45.493] [info] Time step complete. t = 4.80000
+[2025-05-03 19:54:53.411] [info] Time step complete. t = 5.20000
+[2025-05-03 19:55:01.413] [info] Time step complete. t = 5.60000
+[2025-05-03 19:55:01.418] [info] Simulation took 123.88 s.
+FLUX-RUN END cfdscope-iter-4
+FLUX-RUN START cfdscope-iter-5
+[2025-05-03 19:55:01.640] [info] Welcome to cfdSCOPE!
+[2025-05-03 19:55:01.656] [info] Using 88 OpenMP threads.
+[2025-05-03 19:55:01.657] [info] Initialization done!
+[2025-05-03 19:55:12.174] [info] Time step complete. t = 0.00000
+[2025-05-03 19:55:21.007] [info] Time step complete. t = 0.40000
+[2025-05-03 19:55:29.585] [info] Time step complete. t = 0.80000
+[2025-05-03 19:55:38.002] [info] Time step complete. t = 1.20000
+[2025-05-03 19:55:46.084] [info] Time step complete. t = 1.60000
+[2025-05-03 19:55:54.138] [info] Time step complete. t = 2.00000
+[2025-05-03 19:56:02.129] [info] Time step complete. t = 2.40000
+[2025-05-03 19:56:10.051] [info] Time step complete. t = 2.80000
+error: http2: client connection lost

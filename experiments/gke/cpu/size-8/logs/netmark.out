@@ -1,0 +1,2918 @@
+Defaulted container "netmark" out of: netmark, flux-view (init)
+chmod: cannot access './wait-fs': No such file or directory
+mv: cannot stat './wait-fs': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START netmark-iter-$i"
+  flux run --setattr=user.study_id=netmark-iter-$i -N8 -n 8 -o cpu-affinity=per-task -o gpu-affinity=off    netmark -w 10 -t 20 -c 100 -b 0 -s |& tee /tmp/netmark.out
+    echo "FLUX-RUN END netmark-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+sleep infinity
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      8      704        0 netmark-[0-7]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START netmark-iter-1
+=========== SETUP ===========
+warmups                  10
+trials                   20
+send_recv_cycles        100
+bytes                     0
+store_per_trial           1
+=============================
+size 8 rank 0 on host netmark-0 ip 10.100.6.19
+Rank 0 sends to rank 1
+Rank 0 sends to rank 2
+Rank 0 sends to rank 3
+Rank 0 sends to rank 4
+Rank 0 sends to rank 5
+Rank 0 sends to rank 6
+Rank 0 sends to rank 7
+Rank 0 sends to rank 1
+Rank 0 sends to rank 2
+Rank 0 sends to rank 3
+Rank 0 sends to rank 4
+Rank 0 sends to rank 5
+Rank 0 sends to rank 6
+Rank 0 sends to rank 7
+Rank 0 sends to rank 1
+Rank 0 sends to rank 2
+Rank 0 sends to rank 3
+Rank 0 sends to rank 4
+Rank 0 sends to rank 5
+Rank 0 sends to rank 6
+Rank 0 sends to rank 7
+Rank 0 sends to rank 1
+Rank 0 sends to rank 2
+Rank 0 sends to rank 3
+Rank 0 sends to rank 4
+Rank 0 sends to rank 5
+Rank 0 sends to rank 6
+Rank 0 sends to rank 7
+Rank 0 sends to rank 1
+Rank 0 sends to rank 2
+Rank 0 sends to rank 3
+Rank 0 sends to rank 4
+Rank 0 sends to rank 5
+Rank 0 sends to rank 6
+Rank 0 sends to rank 7
+Rank 0 sends to rank 1
+Rank 0 sends to rank 2
+Rank 0 sends to rank 3
+Rank 0 sends to rank 4
+Rank 0 sends to rank 5
+Rank 0 sends to rank 6
+Rank 0 sends to rank 7
+Rank 0 sends to rank 1
+Rank 0 sends to rank 2
+Rank 0 sends to rank 3
+Rank 0 sends to rank 4
+Rank 0 sends to rank 5
+Rank 0 sends to rank 6
+Rank 0 sends to rank 7
+Rank 0 sends to rank 1
+Rank 0 sends to rank 2
+Rank 0 sends to rank 3
+Rank 0 sends to rank 4
+Rank 0 sends to rank 5
+Rank 0 sends to rank 6
+Rank 0 sends to rank 7
+Rank 0 sends to rank 1
+Rank 0 sends to rank 2
+Rank 0 sends to rank 3
+Rank 0 sends to rank 4
+Rank 0 sends to rank 5
+Rank 0 sends to rank 6
+Rank 0 sends to rank 7
+Rank 0 sends to rank 1
+Rank 0 sends to rank 2
+Rank 0 sends to rank 3
+Rank 0 sends to rank 4
+Rank 0 sends to rank 5
+Rank 0 sends to rank 6
+Rank 0 sends to rank 7
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.320 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.857 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.608 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.312 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.607 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.009 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.215 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.140 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.785 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.471 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.340 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.947 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.052 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.289 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.217 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.765 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.472 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.326 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.814 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.028 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.243 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.217 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.759 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.493 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.406 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.881 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.073 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.268 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.180 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.733 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.486 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.382 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.923 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.233 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.272 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.176 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.729 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.683 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.358 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.862 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.256 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.287 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.161 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.736 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.650 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.374 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.839 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.249 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.279 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.141 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.734 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.627 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.371 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.807 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.238 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.280 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.129 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.745 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.609 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.373 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.786 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.222 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.274 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.122 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.764 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.583 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.370 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.773 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.232 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.269 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.124 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.757 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.597 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.377 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.763 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.235 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.272 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.106 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.753 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.586 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.363 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.738 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.227 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.280 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.125 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.760 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.576 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.361 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.722 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.202 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.278 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.118 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.752 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.560 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.358 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.727 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.192 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.922 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.257 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.767 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.675 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.357 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.716 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.190 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.879 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.244 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.765 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.660 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.348 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.710 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.179 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.848 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.223 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.762 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.641 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.343 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.703 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.186 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.814 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.209 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.759 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.627 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.343 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.706 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.196 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.790 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.202 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.756 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.612 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.339 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.697 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.191 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.782 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.188 micro-seconds
+Rank 0 sends to rank 2
+RTT between rank 0 and rank 2 is 26.756 micro-seconds
+Rank 0 sends to rank 3
+RTT between rank 0 and rank 3 is 28.617 micro-seconds
+Rank 0 sends to rank 4
+RTT between rank 0 and rank 4 is 28.336 micro-seconds
+Rank 0 sends to rank 5
+RTT between rank 0 and rank 5 is 28.694 micro-seconds
+size 8 rank 1 on host netmark-1 ip 10.100.4.18
+Rank 1 sends to rank 0
+Rank 1 sends to rank 2
+Rank 1 sends to rank 3
+Rank 1 sends to rank 4
+Rank 1 sends to rank 5
+Rank 1 sends to rank 6
+Rank 1 sends to rank 7
+Rank 1 sends to rank 0
+Rank 1 sends to rank 2
+Rank 1 sends to rank 3
+Rank 1 sends to rank 4
+Rank 1 sends to rank 5
+Rank 1 sends to rank 6
+Rank 1 sends to rank 7
+Rank 1 sends to rank 0
+Rank 1 sends to rank 2
+Rank 1 sends to rank 3
+Rank 1 sends to rank 4
+Rank 1 sends to rank 5
+Rank 1 sends to rank 6
+Rank 1 sends to rank 7
+Rank 1 sends to rank 0
+Rank 1 sends to rank 2
+Rank 1 sends to rank 3
+Rank 1 sends to rank 4
+Rank 1 sends to rank 5
+Rank 1 sends to rank 6
+Rank 1 sends to rank 7
+Rank 1 sends to rank 0
+Rank 1 sends to rank 2
+Rank 1 sends to rank 3
+Rank 1 sends to rank 4
+Rank 1 sends to rank 5
+Rank 1 sends to rank 6
+Rank 1 sends to rank 7
+Rank 1 sends to rank 0
+Rank 1 sends to rank 2
+Rank 1 sends to rank 3
+Rank 1 sends to rank 4
+Rank 1 sends to rank 5
+Rank 1 sends to rank 6
+Rank 1 sends to rank 7
+Rank 1 sends to rank 0
+Rank 1 sends to rank 2
+Rank 1 sends to rank 3
+Rank 1 sends to rank 4
+Rank 1 sends to rank 5
+Rank 1 sends to rank 6
+Rank 1 sends to rank 7
+Rank 1 sends to rank 0
+Rank 1 sends to rank 2
+Rank 1 sends to rank 3
+Rank 1 sends to rank 4
+Rank 1 sends to rank 5
+Rank 1 sends to rank 6
+Rank 1 sends to rank 7
+Rank 1 sends to rank 0
+Rank 1 sends to rank 2
+Rank 1 sends to rank 3
+Rank 1 sends to rank 4
+Rank 1 sends to rank 5
+Rank 1 sends to rank 6
+Rank 1 sends to rank 7
+Rank 1 sends to rank 0
+Rank 1 sends to rank 2
+Rank 1 sends to rank 3
+Rank 1 sends to rank 4
+Rank 1 sends to rank 5
+Rank 1 sends to rank 6
+Rank 1 sends to rank 7
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 26.759 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.476 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.135 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.714 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.591 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.447 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.222 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 26.809 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.441 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.440 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.776 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.517 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.460 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.554 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 26.947 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.489 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.313 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.659 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.596 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.534 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.786 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 26.965 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.493 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.219 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.712 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.639 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.466 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.690 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.058 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.539 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.177 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.696 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 29.574 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.421 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.633 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.038 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.549 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.198 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.722 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 29.400 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.437 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.568 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.256 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.551 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.218 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.710 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 29.290 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.445 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.534 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.373 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.541 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.235 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.748 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 29.169 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.432 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.530 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.470 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.522 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.234 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.708 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 29.100 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.413 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.508 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.546 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.530 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.237 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.695 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 29.036 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.417 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.491 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.612 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.528 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.235 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.690 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.993 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.436 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.478 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.666 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.565 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.233 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.677 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.946 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.531 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.462 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.711 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.726 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.517 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.683 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.927 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.505 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.459 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.737 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.714 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.485 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.669 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.896 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.497 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.445 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 28.571 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.740 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.460 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.673 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.876 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.483 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.443 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 28.565 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.722 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.445 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.665 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.854 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.475 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.436 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 28.549 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.721 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.448 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.657 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.840 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.471 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.420 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 28.530 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.704 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.450 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.668 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.846 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.472 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.416 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 28.514 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.689 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.488 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.672 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.848 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.469 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.400 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 28.505 micro-seconds
+Rank 1 sends to rank 2
+RTT between rank 1 and rank 2 is 28.683 micro-seconds
+Rank 1 sends to rank 3
+RTT between rank 1 and rank 3 is 32.485 micro-seconds
+Rank 1 sends to rank 4
+RTT between rank 1 and rank 4 is 28.662 micro-seconds
+Rank 1 sends to rank 5
+RTT between rank 1 and rank 5 is 28.832 micro-seconds
+size 8 rank 2 on host netmark-2 ip 10.100.5.17
+Rank 2 sends to rank 0
+Rank 2 sends to rank 1
+Rank 2 sends to rank 3
+Rank 2 sends to rank 4
+Rank 2 sends to rank 5
+Rank 2 sends to rank 6
+Rank 2 sends to rank 7
+Rank 2 sends to rank 0
+Rank 2 sends to rank 1
+Rank 2 sends to rank 3
+Rank 2 sends to rank 4
+Rank 2 sends to rank 5
+Rank 2 sends to rank 6
+Rank 2 sends to rank 7
+Rank 2 sends to rank 0
+Rank 2 sends to rank 1
+Rank 2 sends to rank 3
+Rank 2 sends to rank 4
+Rank 2 sends to rank 5
+Rank 2 sends to rank 6
+Rank 2 sends to rank 7
+Rank 2 sends to rank 0
+Rank 2 sends to rank 1
+Rank 2 sends to rank 3
+Rank 2 sends to rank 4
+Rank 2 sends to rank 5
+Rank 2 sends to rank 6
+Rank 2 sends to rank 7
+Rank 2 sends to rank 0
+Rank 2 sends to rank 1
+Rank 2 sends to rank 3
+Rank 2 sends to rank 4
+Rank 2 sends to rank 5
+Rank 2 sends to rank 6
+Rank 2 sends to rank 7
+Rank 2 sends to rank 0
+Rank 2 sends to rank 1
+Rank 2 sends to rank 3
+Rank 2 sends to rank 4
+Rank 2 sends to rank 5
+Rank 2 sends to rank 6
+Rank 2 sends to rank 7
+Rank 2 sends to rank 0
+Rank 2 sends to rank 1
+Rank 2 sends to rank 3
+Rank 2 sends to rank 4
+Rank 2 sends to rank 5
+Rank 2 sends to rank 6
+Rank 2 sends to rank 7
+Rank 2 sends to rank 0
+Rank 2 sends to rank 1
+Rank 2 sends to rank 3
+Rank 2 sends to rank 4
+Rank 2 sends to rank 5
+Rank 2 sends to rank 6
+Rank 2 sends to rank 7
+Rank 2 sends to rank 0
+Rank 2 sends to rank 1
+Rank 2 sends to rank 3
+Rank 2 sends to rank 4
+Rank 2 sends to rank 5
+Rank 2 sends to rank 6
+Rank 2 sends to rank 7
+Rank 2 sends to rank 0
+Rank 2 sends to rank 1
+Rank 2 sends to rank 3
+Rank 2 sends to rank 4
+Rank 2 sends to rank 5
+Rank 2 sends to rank 6
+Rank 2 sends to rank 7
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 26.763 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.721 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.092 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.520 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.469 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.428 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.558 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 26.809 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.813 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.042 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.469 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.336 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.409 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.426 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 26.756 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.784 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.039 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.497 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.300 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.367 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.376 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 26.780 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.801 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.087 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.479 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.669 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.398 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.370 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.049 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.862 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.112 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.512 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.599 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 29.275 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.374 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.215 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.819 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.132 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.507 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.721 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 29.117 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.368 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.290 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.799 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.116 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.483 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.697 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 29.000 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.372 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.368 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.833 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.137 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.465 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.641 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.917 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.428 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.408 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.860 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.128 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.451 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.601 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.868 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.438 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.441 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.867 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.138 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.442 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.572 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.896 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.432 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.502 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.849 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.128 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.446 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.575 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.840 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.427 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.545 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 28.860 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.126 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.455 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.498 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.801 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.423 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.560 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 29.147 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.116 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.522 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.471 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.760 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.416 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.582 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 29.121 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.114 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.503 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.397 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.732 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.420 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.608 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 29.094 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.109 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.491 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.360 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.733 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.517 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 27.714 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 29.085 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.160 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.496 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.376 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.753 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.506 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 28.439 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 29.073 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.143 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.483 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.526 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.721 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.500 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 28.395 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 29.076 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.134 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.464 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.645 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.694 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.526 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 28.380 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 29.095 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.127 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.454 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.630 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.672 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.521 micro-seconds
+Rank 2 sends to rank 0
+RTT between rank 2 and rank 0 is 28.369 micro-seconds
+Rank 2 sends to rank 1
+RTT between rank 2 and rank 1 is 29.079 micro-seconds
+Rank 2 sends to rank 3
+RTT between rank 2 and rank 3 is 29.126 micro-seconds
+Rank 2 sends to rank 4
+RTT between rank 2 and rank 4 is 28.443 micro-seconds
+Rank 2 sends to rank 5
+RTT between rank 2 and rank 5 is 28.617 micro-seconds
+size 8 rank 3 on host netmark-3 ip 10.100.3.19
+Rank 3 sends to rank 0
+Rank 3 sends to rank 1
+Rank 3 sends to rank 2
+Rank 3 sends to rank 4
+Rank 3 sends to rank 5
+Rank 3 sends to rank 6
+Rank 3 sends to rank 7
+Rank 3 sends to rank 0
+Rank 3 sends to rank 1
+Rank 3 sends to rank 2
+Rank 3 sends to rank 4
+Rank 3 sends to rank 5
+Rank 3 sends to rank 6
+Rank 3 sends to rank 7
+Rank 3 sends to rank 0
+Rank 3 sends to rank 1
+Rank 3 sends to rank 2
+Rank 3 sends to rank 4
+Rank 3 sends to rank 5
+Rank 3 sends to rank 6
+Rank 3 sends to rank 7
+Rank 3 sends to rank 0
+Rank 3 sends to rank 1
+Rank 3 sends to rank 2
+Rank 3 sends to rank 4
+Rank 3 sends to rank 5
+Rank 3 sends to rank 6
+Rank 3 sends to rank 7
+Rank 3 sends to rank 0
+Rank 3 sends to rank 1
+Rank 3 sends to rank 2
+Rank 3 sends to rank 4
+Rank 3 sends to rank 5
+Rank 3 sends to rank 6
+Rank 3 sends to rank 7
+Rank 3 sends to rank 0
+Rank 3 sends to rank 1
+Rank 3 sends to rank 2
+Rank 3 sends to rank 4
+Rank 3 sends to rank 5
+Rank 3 sends to rank 6
+Rank 3 sends to rank 7
+Rank 3 sends to rank 0
+Rank 3 sends to rank 1
+Rank 3 sends to rank 2
+Rank 3 sends to rank 4
+Rank 3 sends to rank 5
+Rank 3 sends to rank 6
+Rank 3 sends to rank 7
+Rank 3 sends to rank 0
+Rank 3 sends to rank 1
+Rank 3 sends to rank 2
+Rank 3 sends to rank 4
+Rank 3 sends to rank 5
+Rank 3 sends to rank 6
+Rank 3 sends to rank 7
+Rank 3 sends to rank 0
+Rank 3 sends to rank 1
+Rank 3 sends to rank 2
+Rank 3 sends to rank 4
+Rank 3 sends to rank 5
+Rank 3 sends to rank 6
+Rank 3 sends to rank 7
+Rank 3 sends to rank 0
+Rank 3 sends to rank 1
+Rank 3 sends to rank 2
+Rank 3 sends to rank 4
+Rank 3 sends to rank 5
+Rank 3 sends to rank 6
+Rank 3 sends to rank 7
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.195 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.580 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.374 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.654 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.079 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 29.991 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 31.114 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.071 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.403 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.353 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.619 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.063 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 29.876 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 30.043 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.137 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.387 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.295 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.656 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.053 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 29.896 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.599 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.162 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.344 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.304 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.644 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.094 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 29.891 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.383 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.155 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.638 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.295 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.647 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.223 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.414 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.300 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.108 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.811 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.279 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.661 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.999 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.348 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.283 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.230 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 33.025 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.454 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.657 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 30.190 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.320 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.552 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.322 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.988 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.435 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.652 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 30.111 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.278 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.668 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.319 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.933 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.415 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.666 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 30.103 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.246 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.639 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.373 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.932 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.428 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.689 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 30.029 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.214 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.575 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.360 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.908 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.431 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.696 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.970 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.308 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.524 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.356 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 32.884 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.412 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.682 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.938 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.281 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.524 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.350 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 33.168 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.405 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.692 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.882 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.265 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.503 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.362 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 33.141 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 29.398 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.682 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.826 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.272 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.458 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.350 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 33.100 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 30.437 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.696 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.784 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.258 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.415 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.323 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 33.163 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 30.363 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.701 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.754 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.250 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.386 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.421 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 33.122 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 30.302 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.704 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.715 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.240 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.368 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.505 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 33.087 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 30.245 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.702 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.752 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.220 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.343 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.475 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 33.072 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 30.186 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.695 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.723 micro-seconds
+Rank 3 sends to rank 6
+RTT between rank 3 and rank 6 is 30.212 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 3 and rank 7 is 29.302 micro-seconds
+Rank 3 sends to rank 0
+RTT between rank 3 and rank 0 is 29.487 micro-seconds
+Rank 3 sends to rank 1
+RTT between rank 3 and rank 1 is 33.049 micro-seconds
+Rank 3 sends to rank 2
+RTT between rank 3 and rank 2 is 30.149 micro-seconds
+Rank 3 sends to rank 4
+RTT between rank 3 and rank 4 is 28.719 micro-seconds
+Rank 3 sends to rank 5
+RTT between rank 3 and rank 5 is 29.706 micro-seconds
+size 8 rank 4 on host netmark-4 ip 10.100.7.18
+Rank 4 sends to rank 0
+Rank 4 sends to rank 1
+Rank 4 sends to rank 2
+Rank 4 sends to rank 3
+Rank 4 sends to rank 5
+Rank 4 sends to rank 6
+Rank 4 sends to rank 7
+Rank 4 sends to rank 0
+Rank 4 sends to rank 1
+Rank 4 sends to rank 2
+Rank 4 sends to rank 3
+Rank 4 sends to rank 5
+Rank 4 sends to rank 6
+Rank 4 sends to rank 7
+Rank 4 sends to rank 0
+Rank 4 sends to rank 1
+Rank 4 sends to rank 2
+Rank 4 sends to rank 3
+Rank 4 sends to rank 5
+Rank 4 sends to rank 6
+Rank 4 sends to rank 7
+Rank 4 sends to rank 0
+Rank 4 sends to rank 1
+Rank 4 sends to rank 2
+Rank 4 sends to rank 3
+Rank 4 sends to rank 5
+Rank 4 sends to rank 6
+Rank 4 sends to rank 7
+Rank 4 sends to rank 0
+Rank 4 sends to rank 1
+Rank 4 sends to rank 2
+Rank 4 sends to rank 3
+Rank 4 sends to rank 5
+Rank 4 sends to rank 6
+Rank 4 sends to rank 7
+Rank 4 sends to rank 0
+Rank 4 sends to rank 1
+Rank 4 sends to rank 2
+Rank 4 sends to rank 3
+Rank 4 sends to rank 5
+Rank 4 sends to rank 6
+Rank 4 sends to rank 7
+Rank 4 sends to rank 0
+Rank 4 sends to rank 1
+Rank 4 sends to rank 2
+Rank 4 sends to rank 3
+Rank 4 sends to rank 5
+Rank 4 sends to rank 6
+Rank 4 sends to rank 7
+Rank 4 sends to rank 0
+Rank 4 sends to rank 1
+Rank 4 sends to rank 2
+Rank 4 sends to rank 3
+Rank 4 sends to rank 5
+Rank 4 sends to rank 6
+Rank 4 sends to rank 7
+Rank 4 sends to rank 0
+Rank 4 sends to rank 1
+Rank 4 sends to rank 2
+Rank 4 sends to rank 3
+Rank 4 sends to rank 5
+Rank 4 sends to rank 6
+Rank 4 sends to rank 7
+Rank 4 sends to rank 0
+Rank 4 sends to rank 1
+Rank 4 sends to rank 2
+Rank 4 sends to rank 3
+Rank 4 sends to rank 5
+Rank 4 sends to rank 6
+Rank 4 sends to rank 7
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.888 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 28.983 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.404 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.864 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 28.597 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.797 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.176 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 29.453 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 28.953 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.615 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.869 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 28.596 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.776 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.230 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 29.283 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 28.998 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.573 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.875 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 28.601 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.801 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.274 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 29.134 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 28.980 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.515 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.834 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 28.900 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.794 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.692 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 29.250 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.135 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.572 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.876 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.914 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.813 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.578 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 29.130 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.085 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.567 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.899 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.714 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.995 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.501 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 29.055 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.055 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.531 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.906 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.585 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.973 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.444 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.979 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.038 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.659 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.890 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.461 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.943 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.426 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.937 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.123 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.659 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.935 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.383 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.940 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.555 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.909 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.132 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.644 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.982 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.333 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.934 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.527 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.945 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.115 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.620 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.976 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.294 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.945 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.490 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.902 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.099 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.609 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.963 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.248 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.951 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.467 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.876 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.324 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.584 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.953 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.194 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.956 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.443 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.856 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.294 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.572 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.943 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.150 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.971 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.466 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.844 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.261 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.573 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.930 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.118 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.992 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.467 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.856 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.245 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.562 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.931 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.083 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.972 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.449 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.851 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.225 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.660 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 28.977 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.129 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.976 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.446 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.840 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.237 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.658 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 29.030 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.122 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.972 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.430 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.913 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.240 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.653 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 29.015 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.099 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 4 and rank 6 is 28.981 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 4 and rank 7 is 28.410 micro-seconds
+Rank 4 sends to rank 0
+RTT between rank 4 and rank 0 is 28.895 micro-seconds
+Rank 4 sends to rank 1
+RTT between rank 4 and rank 1 is 29.235 micro-seconds
+Rank 4 sends to rank 2
+RTT between rank 4 and rank 2 is 28.640 micro-seconds
+Rank 4 sends to rank 3
+RTT between rank 4 and rank 3 is 29.003 micro-seconds
+Rank 4 sends to rank 5
+RTT between rank 4 and rank 5 is 29.082 micro-seconds
+size 8 rank 5 on host netmark-5 ip 10.100.0.18
+Rank 5 sends to rank 0
+Rank 5 sends to rank 1
+Rank 5 sends to rank 2
+Rank 5 sends to rank 3
+Rank 5 sends to rank 4
+Rank 5 sends to rank 6
+Rank 5 sends to rank 7
+Rank 5 sends to rank 0
+Rank 5 sends to rank 1
+Rank 5 sends to rank 2
+Rank 5 sends to rank 3
+Rank 5 sends to rank 4
+Rank 5 sends to rank 6
+Rank 5 sends to rank 7
+Rank 5 sends to rank 0
+Rank 5 sends to rank 1
+Rank 5 sends to rank 2
+Rank 5 sends to rank 3
+Rank 5 sends to rank 4
+Rank 5 sends to rank 6
+Rank 5 sends to rank 7
+Rank 5 sends to rank 0
+Rank 5 sends to rank 1
+Rank 5 sends to rank 2
+Rank 5 sends to rank 3
+Rank 5 sends to rank 4
+Rank 5 sends to rank 6
+Rank 5 sends to rank 7
+Rank 5 sends to rank 0
+Rank 5 sends to rank 1
+Rank 5 sends to rank 2
+Rank 5 sends to rank 3
+Rank 5 sends to rank 4
+Rank 5 sends to rank 6
+Rank 5 sends to rank 7
+Rank 5 sends to rank 0
+Rank 5 sends to rank 1
+Rank 5 sends to rank 2
+Rank 5 sends to rank 3
+Rank 5 sends to rank 4
+Rank 5 sends to rank 6
+Rank 5 sends to rank 7
+Rank 5 sends to rank 0
+Rank 5 sends to rank 1
+Rank 5 sends to rank 2
+Rank 5 sends to rank 3
+Rank 5 sends to rank 4
+Rank 5 sends to rank 6
+Rank 5 sends to rank 7
+Rank 5 sends to rank 0
+Rank 5 sends to rank 1
+Rank 5 sends to rank 2
+Rank 5 sends to rank 3
+Rank 5 sends to rank 4
+Rank 5 sends to rank 6
+Rank 5 sends to rank 7
+Rank 5 sends to rank 0
+Rank 5 sends to rank 1
+Rank 5 sends to rank 2
+Rank 5 sends to rank 3
+Rank 5 sends to rank 4
+Rank 5 sends to rank 6
+Rank 5 sends to rank 7
+Rank 5 sends to rank 0
+Rank 5 sends to rank 1
+Rank 5 sends to rank 2
+Rank 5 sends to rank 3
+Rank 5 sends to rank 4
+Rank 5 sends to rank 6
+Rank 5 sends to rank 7
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.357 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.722 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.571 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 28.990 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 28.534 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.641 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 28.773 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.236 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.787 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.376 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.001 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 28.496 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.513 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 28.799 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.308 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.754 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.366 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.525 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 28.539 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.481 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 28.843 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.312 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.805 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.626 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.494 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 28.588 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.479 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 28.791 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.379 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.795 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.608 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.452 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.787 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.490 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 28.861 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.330 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.812 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.565 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.378 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.614 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.481 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 28.862 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.301 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.802 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.564 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.312 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.437 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.490 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 28.862 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.311 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.844 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.536 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.289 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.357 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.607 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 28.999 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.299 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.847 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.534 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.255 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.269 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.624 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 29.023 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.279 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.932 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.531 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.233 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.222 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.619 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 29.019 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.285 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.920 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.519 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.197 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.180 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.635 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 29.020 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.287 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 28.946 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.524 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.196 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.152 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.664 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 28.999 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.264 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 29.371 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.500 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.189 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.122 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.675 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 29.001 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.291 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 29.354 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.490 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.186 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.094 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.684 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 29.035 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 30.128 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 29.317 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.486 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.176 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.062 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.676 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 29.006 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 30.123 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 29.318 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.490 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.157 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.050 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.677 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 28.991 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 30.075 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 29.292 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.496 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.146 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.110 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.804 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 29.113 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 30.024 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 29.276 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.549 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.146 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.079 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.799 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 29.095 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.982 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 29.259 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.537 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.150 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.066 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.792 micro-seconds
+Rank 5 sends to rank 7
+RTT between rank 5 and rank 7 is 29.082 micro-seconds
+Rank 5 sends to rank 0
+RTT between rank 5 and rank 0 is 29.948 micro-seconds
+Rank 5 sends to rank 1
+RTT between rank 5 and rank 1 is 29.254 micro-seconds
+Rank 5 sends to rank 2
+RTT between rank 5 and rank 2 is 28.533 micro-seconds
+Rank 5 sends to rank 3
+RTT between rank 5 and rank 3 is 29.144 micro-seconds
+Rank 5 sends to rank 4
+RTT between rank 5 and rank 4 is 29.050 micro-seconds
+size 8 rank 6 on host netmark-6 ip 10.100.2.19
+Rank 6 sends to rank 0
+Rank 6 sends to rank 1
+Rank 6 sends to rank 2
+Rank 6 sends to rank 3
+Rank 6 sends to rank 4
+Rank 6 sends to rank 5
+Rank 6 sends to rank 7
+Rank 6 sends to rank 0
+Rank 6 sends to rank 1
+Rank 6 sends to rank 2
+Rank 6 sends to rank 3
+Rank 6 sends to rank 4
+Rank 6 sends to rank 5
+Rank 6 sends to rank 7
+Rank 6 sends to rank 0
+Rank 6 sends to rank 1
+Rank 6 sends to rank 2
+Rank 6 sends to rank 3
+Rank 6 sends to rank 4
+Rank 6 sends to rank 5
+Rank 6 sends to rank 7
+Rank 6 sends to rank 0
+Rank 6 sends to rank 1
+Rank 6 sends to rank 2
+Rank 6 sends to rank 3
+Rank 6 sends to rank 4
+Rank 6 sends to rank 5
+Rank 6 sends to rank 7
+Rank 6 sends to rank 0
+Rank 6 sends to rank 1
+Rank 6 sends to rank 2
+Rank 6 sends to rank 3
+Rank 6 sends to rank 4
+Rank 6 sends to rank 5
+Rank 6 sends to rank 7
+Rank 6 sends to rank 0
+Rank 6 sends to rank 1
+Rank 6 sends to rank 2
+Rank 6 sends to rank 3
+Rank 6 sends to rank 4
+Rank 6 sends to rank 5
+Rank 6 sends to rank 7
+Rank 6 sends to rank 0
+Rank 6 sends to rank 1
+Rank 6 sends to rank 2
+Rank 6 sends to rank 3
+Rank 6 sends to rank 4
+Rank 6 sends to rank 5
+Rank 6 sends to rank 7
+Rank 6 sends to rank 0
+Rank 6 sends to rank 1
+Rank 6 sends to rank 2
+Rank 6 sends to rank 3
+Rank 6 sends to rank 4
+Rank 6 sends to rank 5
+Rank 6 sends to rank 7
+Rank 6 sends to rank 0
+Rank 6 sends to rank 1
+Rank 6 sends to rank 2
+Rank 6 sends to rank 3
+Rank 6 sends to rank 4
+Rank 6 sends to rank 5
+Rank 6 sends to rank 7
+Rank 6 sends to rank 0
+Rank 6 sends to rank 1
+Rank 6 sends to rank 2
+Rank 6 sends to rank 3
+Rank 6 sends to rank 4
+Rank 6 sends to rank 5
+Rank 6 sends to rank 7
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 28.627 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.309 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.185 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 29.810 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.132 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.348 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 29.672 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 28.721 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.645 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.375 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.511 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.116 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.449 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 29.982 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 28.717 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.563 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.377 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.322 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.158 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.431 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 29.576 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 28.723 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.508 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.355 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.249 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.092 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.830 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 29.348 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 28.951 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.482 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.629 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.384 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.833 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.724 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 29.202 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.363 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.466 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.598 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.488 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.698 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.677 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 29.112 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.475 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.473 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.580 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.594 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.605 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.632 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 29.046 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.547 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.450 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.575 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.744 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.534 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.611 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 29.006 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.627 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.439 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.548 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.772 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.491 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.586 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.972 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.710 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.427 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.549 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.807 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.448 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.558 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.925 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.743 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.428 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.530 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.835 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.409 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.564 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.910 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.749 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.397 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.533 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.851 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.375 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.539 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.899 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.770 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.391 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.821 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.898 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.368 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.518 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.879 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.783 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.379 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.811 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.912 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.348 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.507 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.868 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.778 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.500 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.778 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.920 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.338 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.512 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.864 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.813 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.505 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.766 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.987 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.307 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.513 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.856 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.826 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.486 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.742 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 30.976 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.319 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.514 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.837 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.913 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.480 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.769 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 31.027 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.293 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.502 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.843 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 29.976 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.462 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.759 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 31.020 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.284 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.504 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.832 micro-seconds
+Rank 6 sends to rank 0
+RTT between rank 6 and rank 0 is 30.035 micro-seconds
+Rank 6 sends to rank 1
+RTT between rank 6 and rank 1 is 28.452 micro-seconds
+Rank 6 sends to rank 2
+RTT between rank 6 and rank 2 is 28.762 micro-seconds
+Rank 6 sends to rank 3
+RTT between rank 6 and rank 3 is 31.010 micro-seconds
+Rank 6 sends to rank 4
+RTT between rank 6 and rank 4 is 29.272 micro-seconds
+size 8 rank 7 on host netmark-7 ip 10.100.1.27
+Rank 7 sends to rank 0
+Rank 7 sends to rank 1
+Rank 7 sends to rank 2
+Rank 7 sends to rank 3
+Rank 7 sends to rank 4
+Rank 7 sends to rank 5
+Rank 7 sends to rank 6
+Rank 7 sends to rank 0
+Rank 7 sends to rank 1
+Rank 7 sends to rank 2
+Rank 7 sends to rank 3
+Rank 7 sends to rank 4
+Rank 7 sends to rank 5
+Rank 7 sends to rank 6
+Rank 7 sends to rank 0
+Rank 7 sends to rank 1
+Rank 7 sends to rank 2
+Rank 7 sends to rank 3
+Rank 7 sends to rank 4
+Rank 7 sends to rank 5
+Rank 7 sends to rank 6
+Rank 7 sends to rank 0
+Rank 7 sends to rank 1
+Rank 7 sends to rank 2
+Rank 7 sends to rank 3
+Rank 7 sends to rank 4
+Rank 7 sends to rank 5
+Rank 7 sends to rank 6
+Rank 7 sends to rank 0
+Rank 7 sends to rank 1
+Rank 7 sends to rank 2
+Rank 7 sends to rank 3
+Rank 7 sends to rank 4
+Rank 7 sends to rank 5
+Rank 7 sends to rank 6
+Rank 7 sends to rank 0
+Rank 7 sends to rank 1
+Rank 7 sends to rank 2
+Rank 7 sends to rank 3
+Rank 7 sends to rank 4
+Rank 7 sends to rank 5
+Rank 7 sends to rank 6
+Rank 7 sends to rank 0
+Rank 7 sends to rank 1
+Rank 7 sends to rank 2
+Rank 7 sends to rank 3
+Rank 7 sends to rank 4
+Rank 7 sends to rank 5
+Rank 7 sends to rank 6
+Rank 7 sends to rank 0
+Rank 7 sends to rank 1
+Rank 7 sends to rank 2
+Rank 7 sends to rank 3
+Rank 7 sends to rank 4
+Rank 7 sends to rank 5
+Rank 7 sends to rank 6
+Rank 7 sends to rank 0
+Rank 7 sends to rank 1
+Rank 7 sends to rank 2
+Rank 7 sends to rank 3
+Rank 7 sends to rank 4
+Rank 7 sends to rank 5
+Rank 7 sends to rank 6
+Rank 7 sends to rank 0
+Rank 7 sends to rank 1
+Rank 7 sends to rank 2
+Rank 7 sends to rank 3
+Rank 7 sends to rank 4
+Rank 7 sends to rank 5
+Rank 7 sends to rank 6
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.937 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.260 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.391 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 29.114 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.312 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 28.925 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 32.776 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.737 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.186 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.819 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.954 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.377 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 28.865 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 30.851 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.750 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.178 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.792 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.865 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.436 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 28.903 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 30.194 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.764 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.196 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.754 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.845 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.489 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.009 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.991 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.729 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.216 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.726 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.804 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 29.483 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.056 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.763 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.840 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.217 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.666 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.820 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 29.291 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.030 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.631 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.796 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.223 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.618 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.828 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 29.155 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.064 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.531 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.764 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.233 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.561 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.811 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 29.080 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.065 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.453 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.737 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.325 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.519 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.792 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.992 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.051 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.386 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.732 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.308 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.502 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.805 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.913 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.061 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.393 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.733 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.299 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.543 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.799 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.848 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.056 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.411 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.721 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.297 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.529 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.788 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.802 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.052 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.365 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.709 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.313 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.727 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.792 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.767 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.047 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.345 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.707 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.304 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.704 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.795 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.728 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.050 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.308 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.683 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.305 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.676 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.800 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.688 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.042 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.319 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.677 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.299 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.654 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.814 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.659 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.074 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.286 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.675 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.296 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.636 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.810 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.625 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.076 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.271 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.677 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.295 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.619 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.807 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.595 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.062 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.238 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.665 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.290 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.607 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.815 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.596 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 7 and rank 5 is 29.064 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.212 micro-seconds
+Rank 7 sends to rank 0
+RTT between rank 7 and rank 0 is 28.657 micro-seconds
+Rank 7 sends to rank 1
+RTT between rank 7 and rank 1 is 28.287 micro-seconds
+Rank 7 sends to rank 2
+RTT between rank 7 and rank 2 is 28.594 micro-seconds
+Rank 7 sends to rank 3
+RTT between rank 7 and rank 3 is 28.813 micro-seconds
+Rank 7 sends to rank 4
+RTT between rank 7 and rank 4 is 28.577 micro-seconds
+Rank 0 sends to rank 6
+RTT between rank 0 and rank 6 is 29.669 micro-seconds
+Rank 0 sends to rank 7
+RTT between rank 0 and rank 7 is 28.765 micro-seconds
+Rank 2 sends to rank 6
+RTT between rank 2 and rank 6 is 28.808 micro-seconds
+Rank 2 sends to rank 7
+RTT between rank 2 and rank 7 is 28.520 micro-seconds
+Rank 1 sends to rank 6
+RTT between rank 1 and rank 6 is 28.661 micro-seconds
+Rank 1 sends to rank 7
+RTT between rank 1 and rank 7 is 28.386 micro-seconds
+Rank 5 sends to rank 6
+RTT between rank 5 and rank 6 is 28.779 micro-seconds
+Rank 3 sends to rank 6
+Rank 5 sends to rank 7
+RTT between rank 3 and rank 6 is 30.247 micro-seconds
+Rank 4 sends to rank 6
+RTT between rank 5 and rank 7 is 29.244 micro-seconds
+Rank 3 sends to rank 7
+RTT between rank 4 and rank 6 is 29.113 micro-seconds
+Rank 7 sends to rank 5
+RTT between rank 3 and rank 7 is 29.420 micro-seconds
+Rank 4 sends to rank 7
+RTT between rank 7 and rank 5 is 29.192 micro-seconds
+RTT between rank 4 and rank 7 is 28.438 micro-seconds
+Rank 7 sends to rank 6
+RTT between rank 7 and rank 6 is 29.258 micro-seconds
+Rank 6 sends to rank 5
+RTT between rank 6 and rank 5 is 28.727 micro-seconds
+Rank 6 sends to rank 7
+RTT between rank 6 and rank 7 is 28.894 micro-seconds
+FLUX-RUN END netmark-iter-1
+0% [Working]            Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease
+0% [Waiting for headers]                        Get:2 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]
+0% [Waiting for headers] [2 InRelease 14.2 kB/126 kB 11%]                                                         Get:3 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+0% [3 InRelease 5484 B/126 kB 4%] [2 InRelease 14.2 kB/126 kB 11%]0% [3 InRelease 30.1 kB/126 kB 24%] [2 InRelease 51.8 kB/126 kB 41%]                                                                    0% [3 InRelease 102 kB/126 kB 81%]                                  0% [Working]0% [Waiting for headers]                        Get:4 http://archive.ubuntu.com/ubuntu noble-backports InRelease [126 kB]
+0% [4 InRelease 2588 B/126 kB 2%] [Waiting for headers]                                                       Get:5 http://security.ubuntu.com/ubuntu noble-security/universe amd64 Packages [1077 kB]
+0% [4 InRelease 53.3 kB/126 kB 42%] [5 Packages 2655 B/1077 kB 0%]0% [4 InRelease 89.5 kB/126 kB 71%] [5 Packages 41.8 kB/1077 kB 4%]                                                                   0% [5 Packages 86.6 kB/1077 kB 8%]                                  Get:6 http://archive.ubuntu.com/ubuntu noble-updates/main amd64 Packages [1306 kB]
+0% [6 Packages 5551 B/1306 kB 0%] [5 Packages 201 kB/1077 kB 19%]28% [6 Packages 67.8 kB/1306 kB 5%] [5 Packages 227 kB/1077 kB 21%]                                                                   52% [6 Packages 714 kB/1306 kB 55%]52% [5 Packages store 0 B] [6 Packages 714 kB/1306 kB 55%] [Waiting for headers                                                                               61% [5 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:7 http://archive.ubuntu.com/ubuntu noble-updates/universe amd64 Packages [1375 kB]
+61% [5 Packages store 0 B] [7 Packages 13.6 kB/1375 kB 1%] [Waiting for headers                                                                               Get:8 http://security.ubuntu.com/ubuntu noble-security/main amd64 Packages [986 kB]
+63% [5 Packages store 0 B] [7 Packages 125 kB/1375 kB 9%] [8 Packages 7001 B/98                                                                               80% [7 Packages 579 kB/1375 kB 42%] [8 Packages 622 kB/986 kB 63%]80% [6 Packages store 0 B] [7 Packages 579 kB/1375 kB 42%] [8 Packages 622 kB/9                                                                               91% [6 Packages store 0 B] [7 Packages 901 kB/1375 kB 66%]                                                          98% [6 Packages store 0 B]                          99% [Working]99% [8 Packages store 0 B]                          99% [Working]99% [7 Packages store 0 B]                          100% [Working]              Fetched 5121 kB in 1s (8493 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 6%Reading package lists... 6%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 70%Reading package lists... 70%Reading package lists... 75%Reading package lists... 75%Reading package lists... 81%Reading package lists... 81%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 90%Reading package lists... 90%Reading package lists... 94%Reading package lists... 94%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 6%Reading package lists... 6%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 70%Reading package lists... 70%Reading package lists... 75%Reading package lists... 75%Reading package lists... 81%Reading package lists... 81%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 90%Reading package lists... 90%Reading package lists... 94%Reading package lists... 94%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... 92%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 1 not upgraded.
+Need to get 378 kB of archives.
+After this operation, 1125 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu noble/main amd64 libonig5 amd64 6.9.9-1build1 [172 kB]
+1% [1 libonig5 6948 B/172 kB 4%]                                43% [Working]             Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 libjq1 amd64 1.7.1-3build1 [141 kB]
+44% [2 libjq1 2604 B/141 kB 2%]                               79% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu noble/main amd64 jq amd64 1.7.1-3build1 [65.5 kB]
+79% [3 jq 0 B/65.5 kB 0%]                         100% [Working]              Fetched 378 kB in 1s (390 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 16294 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.9-1build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.9-1build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.7.1-3build1_amd64.deb ...
+Unpacking libjq1:amd64 (1.7.1-3build1) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.7.1-3build1_amd64.deb ...
+Unpacking jq (1.7.1-3build1) ...
+Setting up libonig5:amd64 (6.9.9-1build1) ...
+Setting up libjq1:amd64 (1.7.1-3build1) ...
+Setting up jq (1.7.1-3build1) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.4) ...
+
+FLUX-JOB START 18454937600 netmark-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["netmark", "-w", "10", "-t", "20", "-c", "100", "-b", "0", "-s"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/results/netmark", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "netmark-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0"}}], "starttime": 1745974548.026994, "expiration": 0.0, "nodelist": ["netmark-[0-7]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745974548.0281563,"name":"init"}
+{"timestamp":1745974548.0286682,"name":"starting"}
+{"timestamp":1745974548.0388951,"name":"shell.init","context":{"service":"0-shell-fV7oNzK","leader-rank":0,"size":8}}
+{"timestamp":1745974548.0439827,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,1,1]]}}}
+{"timestamp":1745974553.2295089,"name":"shell.task-exit","context":{"localid":0,"rank":2,"state":"Exited","pid":69,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745974553.2330999,"name":"complete","context":{"status":0}}
+{"timestamp":1745974553.2331295,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 18454937600 netmark-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":1,"total":1},"successful":1,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

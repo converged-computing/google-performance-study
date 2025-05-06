@@ -1,0 +1,392 @@
+Defaulted container "pennant" out of: pennant, flux-view (init)
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START pennant-iter-$i"
+  flux run --setattr=user.study_id=pennant-iter-$i -N4 -n 352 -o cpu-affinity=per-task -o gpu-affinity=off     pennant /opt/pennant/test/sedovflatx4/sedovflatx4.pnt |& tee /tmp/pennant.out
+    echo "FLUX-RUN END pennant-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      4      352        0 pennant-[0-3]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START pennant-iter-1
+********************
+Running PENNANT v0.9
+********************
+
+Running on 352 MPI PE(s)
+Running on 1 thread(s)
+--- Mesh Information ---
+Points:  4151281
+Zones:  4147200
+Sides:  16588800
+Edges:  8371200
+Side chunks:  16256
+Point chunks:  4224
+Zone chunks:  4224
+Chunk size:  1024
+------------------------
+Energy check:  total energy  =   9.871670e-01
+(internal =   9.871670e-01, kinetic =   0.000000e+00)
+End cycle      1, time = 5.00000e-07, dt = 5.00000e-07, wall = 9.10902e-03
+dt limiter: Initial timestep
+End cycle    100, time = 2.89168e-03, dt = 3.43343e-05, wall = 8.15464e-01
+dt limiter: PE 8, Hydro dV/V limit for z = 7135
+End cycle    200, time = 6.44082e-03, dt = 3.76534e-05, wall = 7.81983e-01
+dt limiter: PE 6, Hydro dV/V limit for z = 8950
+End cycle    300, time = 9.99188e-03, dt = 3.70058e-05, wall = 6.80446e-01
+dt limiter: PE 11, Hydro dV/V limit for z = 10909
+End cycle    400, time = 1.35388e-02, dt = 3.45705e-05, wall = 6.53791e-01
+dt limiter: PE 23, Hydro dV/V limit for z = 895
+End cycle    500, time = 1.70841e-02, dt = 3.36478e-05, wall = 6.64514e-01
+dt limiter: PE 27, Hydro dV/V limit for z = 2723
+End cycle    600, time = 2.06308e-02, dt = 3.43027e-05, wall = 6.57780e-01
+dt limiter: PE 24, Hydro dV/V limit for z = 4557
+End cycle    700, time = 2.41808e-02, dt = 3.76128e-05, wall = 6.39817e-01
+dt limiter: PE 27, Hydro dV/V limit for z = 6298
+End cycle    800, time = 2.77318e-02, dt = 3.70350e-05, wall = 6.49899e-01
+dt limiter: PE 26, Hydro dV/V limit for z = 8239
+End cycle    900, time = 3.12796e-02, dt = 3.46260e-05, wall = 6.72114e-01
+dt limiter: PE 26, Hydro dV/V limit for z = 10069
+End cycle   1000, time = 3.48599e-02, dt = 3.44093e-05, wall = 7.16555e-01
+dt limiter: PE 39, Hydro dV/V limit for z = 84
+End cycle   1100, time = 3.85526e-02, dt = 3.69613e-05, wall = 7.36441e-01
+dt limiter: PE 44, Hydro dV/V limit for z = 1895
+End cycle   1200, time = 4.23848e-02, dt = 4.25767e-05, wall = 7.37735e-01
+dt limiter: PE 43, Hydro dV/V limit for z = 3800
+End cycle   1300, time = 4.63472e-02, dt = 4.00476e-05, wall = 6.73769e-01
+dt limiter: PE 39, Hydro dV/V limit for z = 5615
+End cycle   1400, time = 5.04381e-02, dt = 3.95276e-05, wall = 6.55697e-01
+dt limiter: PE 44, Hydro dV/V limit for z = 7339
+End cycle   1500, time = 5.46587e-02, dt = 4.13375e-05, wall = 6.61993e-01
+dt limiter: PE 44, Hydro dV/V limit for z = 9169
+End cycle   1600, time = 5.90129e-02, dt = 4.74986e-05, wall = 6.84404e-01
+dt limiter: PE 45, Hydro dV/V limit for z = 11039
+End cycle   1700, time = 6.34921e-02, dt = 4.64536e-05, wall = 6.95708e-01
+dt limiter: PE 49, Hydro dV/V limit for z = 1101
+End cycle   1800, time = 6.80899e-02, dt = 4.47623e-05, wall = 6.41792e-01
+dt limiter: PE 48, Hydro dV/V limit for z = 2882
+End cycle   1900, time = 7.28083e-02, dt = 4.54671e-05, wall = 6.41255e-01
+dt limiter: PE 51, Hydro dV/V limit for z = 4777
+End cycle   2000, time = 7.76495e-02, dt = 4.95603e-05, wall = 6.64274e-01
+dt limiter: PE 49, Hydro dV/V limit for z = 6521
+End cycle   2100, time = 8.26155e-02, dt = 5.34615e-05, wall = 6.41555e-01
+dt limiter: PE 51, Hydro dV/V limit for z = 8457
+End cycle   2200, time = 8.76927e-02, dt = 5.03823e-05, wall = 6.54797e-01
+dt limiter: PE 59, Hydro dV/V limit for z = 10286
+End cycle   2300, time = 9.28805e-02, dt = 4.97920e-05, wall = 6.70399e-01
+dt limiter: PE 74, Hydro dV/V limit for z = 339
+End cycle   2400, time = 9.81843e-02, dt = 5.20556e-05, wall = 6.95701e-01
+dt limiter: PE 64, Hydro dV/V limit for z = 2041
+End cycle   2500, time = 1.03607e-01, dt = 5.96991e-05, wall = 7.25099e-01
+dt limiter: PE 69, Hydro dV/V limit for z = 3895
+End cycle   2600, time = 1.09140e-01, dt = 5.69468e-05, wall = 6.82390e-01
+dt limiter: PE 71, Hydro dV/V limit for z = 5806
+End cycle   2700, time = 1.14776e-01, dt = 5.46635e-05, wall = 6.65910e-01
+dt limiter: PE 75, Hydro dV/V limit for z = 7619
+End cycle   2800, time = 1.20520e-01, dt = 5.51431e-05, wall = 6.64507e-01
+dt limiter: PE 64, Hydro dV/V limit for z = 9377
+End cycle   2900, time = 1.26375e-01, dt = 5.94019e-05, wall = 6.91435e-01
+dt limiter: PE 69, Hydro dV/V limit for z = 11241
+End cycle   3000, time = 1.32344e-01, dt = 6.45662e-05, wall = 6.60275e-01
+dt limiter: PE 80, Hydro dV/V limit for z = 1400
+End cycle   3100, time = 1.38411e-01, dt = 6.04408e-05, wall = 7.11426e-01
+dt limiter: PE 94, Hydro dV/V limit for z = 3134
+End cycle   3200, time = 1.44578e-01, dt = 5.91285e-05, wall = 7.01337e-01
+dt limiter: PE 92, Hydro dV/V limit for z = 4949
+End cycle   3300, time = 1.50849e-01, dt = 6.08629e-05, wall = 6.62738e-01
+dt limiter: PE 80, Hydro dV/V limit for z = 6756
+End cycle   3400, time = 1.57229e-01, dt = 6.79963e-05, wall = 6.51147e-01
+dt limiter: PE 83, Hydro dV/V limit for z = 8590
+End cycle   3500, time = 1.63713e-01, dt = 6.77993e-05, wall = 7.62762e-01
+dt limiter: PE 87, Hydro dV/V limit for z = 10545
+End cycle   3600, time = 1.70289e-01, dt = 6.41832e-05, wall = 6.59982e-01
+dt limiter: PE 104, Hydro dV/V limit for z = 407
+End cycle   3700, time = 1.76963e-01, dt = 6.37841e-05, wall = 6.76035e-01
+dt limiter: PE 104, Hydro dV/V limit for z = 2269
+End cycle   3800, time = 1.83737e-01, dt = 6.71446e-05, wall = 7.08396e-01
+dt limiter: PE 107, Hydro dV/V limit for z = 4054
+End cycle   3900, time = 1.90619e-01, dt = 7.64811e-05, wall = 7.91252e-01
+dt limiter: PE 104, Hydro dV/V limit for z = 5960
+End cycle   4000, time = 1.97592e-01, dt = 7.07887e-05, wall = 7.76003e-01
+dt limiter: PE 108, Hydro dV/V limit for z = 7775
+End cycle   4100, time = 2.04656e-01, dt = 6.80643e-05, wall = 7.01418e-01
+dt limiter: PE 105, Hydro dV/V limit for z = 9539
+End cycle   4200, time = 2.11813e-01, dt = 6.86323e-05, wall = 6.65661e-01
+dt limiter: PE 106, Hydro dV/V limit for z = 11292
+End cycle   4300, time = 2.19070e-01, dt = 7.39352e-05, wall = 7.42754e-01
+dt limiter: PE 112, Hydro dV/V limit for z = 1402
+End cycle   4400, time = 2.26429e-01, dt = 7.91534e-05, wall = 7.51954e-01
+dt limiter: PE 118, Hydro dV/V limit for z = 3242
+End cycle   4500, time = 2.33873e-01, dt = 7.39101e-05, wall = 6.92180e-01
+dt limiter: PE 114, Hydro dV/V limit for z = 5043
+End cycle   4600, time = 2.41402e-01, dt = 7.20303e-05, wall = 7.63711e-01
+dt limiter: PE 118, Hydro dV/V limit for z = 6875
+End cycle   4700, time = 2.49023e-01, dt = 7.36968e-05, wall = 6.90166e-01
+dt limiter: PE 117, Hydro dV/V limit for z = 8696
+End cycle   4800, time = 2.56741e-01, dt = 8.14398e-05, wall = 6.76835e-01
+dt limiter: PE 127, Hydro dV/V limit for z = 10464
+End cycle   4900, time = 2.64491e-01, dt = 8.09164e-05, wall = 7.15620e-01
+dt limiter: PE 137, Hydro dV/V limit for z = 712
+End cycle   5000, time = 2.72151e-01, dt = 7.51300e-05, wall = 6.58031e-01
+dt limiter: PE 129, Hydro dV/V limit for z = 2461
+End cycle   5100, time = 2.79801e-01, dt = 7.26873e-05, wall = 6.77128e-01
+dt limiter: PE 130, Hydro dV/V limit for z = 4227
+End cycle   5200, time = 2.87450e-01, dt = 7.34660e-05, wall = 6.63027e-01
+dt limiter: PE 128, Hydro dV/V limit for z = 6001
+End cycle   5300, time = 2.95109e-01, dt = 7.95713e-05, wall = 7.38528e-01
+dt limiter: PE 134, Hydro dV/V limit for z = 7811
+End cycle   5400, time = 3.02774e-01, dt = 8.09388e-05, wall = 7.45687e-01
+dt limiter: PE 130, Hydro dV/V limit for z = 9821
+End cycle   5500, time = 3.10451e-01, dt = 7.55083e-05, wall = 7.23612e-01
+dt limiter: PE 137, Hydro dV/V limit for z = 11578
+End cycle   5600, time = 3.18168e-01, dt = 7.35677e-05, wall = 7.27037e-01
+dt limiter: PE 146, Hydro dV/V limit for z = 1648
+End cycle   5700, time = 3.25947e-01, dt = 7.53224e-05, wall = 6.71334e-01
+dt limiter: PE 159, Hydro dV/V limit for z = 3366
+End cycle   5800, time = 3.33797e-01, dt = 8.33176e-05, wall = 6.59754e-01
+dt limiter: PE 156, Hydro dV/V limit for z = 5200
+End cycle   5900, time = 3.41719e-01, dt = 8.27925e-05, wall = 6.72946e-01
+dt limiter: PE 144, Hydro dV/V limit for z = 7152
+End cycle   6000, time = 3.49698e-01, dt = 7.78834e-05, wall = 6.97091e-01
+dt limiter: PE 150, Hydro dV/V limit for z = 8909
+End cycle   6100, time = 3.57740e-01, dt = 7.66074e-05, wall = 6.97566e-01
+dt limiter: PE 146, Hydro dV/V limit for z = 10736
+End cycle   6200, time = 3.65853e-01, dt = 7.94228e-05, wall = 6.55774e-01
+dt limiter: PE 170, Hydro dV/V limit for z = 741
+End cycle   6300, time = 3.74043e-01, dt = 8.96668e-05, wall = 6.88689e-01
+dt limiter: PE 173, Hydro dV/V limit for z = 2605
+End cycle   6400, time = 3.82293e-01, dt = 8.48614e-05, wall = 6.57368e-01
+dt limiter: PE 168, Hydro dV/V limit for z = 4513
+End cycle   6500, time = 3.90601e-01, dt = 8.04717e-05, wall = 6.46743e-01
+dt limiter: PE 160, Hydro dV/V limit for z = 6346
+End cycle   6600, time = 3.98975e-01, dt = 7.97846e-05, wall = 6.78040e-01
+dt limiter: PE 165, Hydro dV/V limit for z = 8117
+End cycle   6700, time = 4.07413e-01, dt = 8.35618e-05, wall = 7.15296e-01
+dt limiter: PE 174, Hydro dV/V limit for z = 9879
+End cycle   6800, time = 4.15928e-01, dt = 9.42896e-05, wall = 7.24553e-01
+dt limiter: PE 162, Hydro dV/V limit for z = 11876
+End cycle   6900, time = 4.24500e-01, dt = 8.69236e-05, wall = 7.29951e-01
+dt limiter: PE 179, Hydro dV/V limit for z = 1682
+End cycle   7000, time = 4.33131e-01, dt = 8.30350e-05, wall = 7.01870e-01
+dt limiter: PE 176, Hydro dV/V limit for z = 3490
+End cycle   7100, time = 4.41821e-01, dt = 8.29513e-05, wall = 6.69946e-01
+dt limiter: PE 184, Hydro dV/V limit for z = 5312
+End cycle   7200, time = 4.50579e-01, dt = 8.79246e-05, wall = 6.84178e-01
+dt limiter: PE 189, Hydro dV/V limit for z = 7151
+End cycle   7300, time = 4.59414e-01, dt = 9.60809e-05, wall = 6.51300e-01
+dt limiter: PE 182, Hydro dV/V limit for z = 9047
+End cycle   7400, time = 4.68301e-01, dt = 8.90305e-05, wall = 6.63956e-01
+dt limiter: PE 187, Hydro dV/V limit for z = 10850
+End cycle   7500, time = 4.77244e-01, dt = 8.56544e-05, wall = 7.83855e-01
+dt limiter: PE 207, Hydro dV/V limit for z = 868
+End cycle   7600, time = 4.86247e-01, dt = 8.62171e-05, wall = 7.10898e-01
+dt limiter: PE 192, Hydro dV/V limit for z = 2640
+End cycle   7700, time = 4.95319e-01, dt = 9.25507e-05, wall = 6.70790e-01
+dt limiter: PE 202, Hydro dV/V limit for z = 4520
+End cycle   7800, time = 5.04463e-01, dt = 9.79807e-05, wall = 7.13366e-01
+dt limiter: PE 205, Hydro dV/V limit for z = 6478
+End cycle   7900, time = 5.13657e-01, dt = 9.11460e-05, wall = 7.28477e-01
+dt limiter: PE 202, Hydro dV/V limit for z = 8173
+End cycle   8000, time = 5.22905e-01, dt = 8.83027e-05, wall = 7.02200e-01
+dt limiter: PE 199, Hydro dV/V limit for z = 9976
+End cycle   8100, time = 5.32215e-01, dt = 8.95277e-05, wall = 7.27576e-01
+dt limiter: PE 214, Hydro dV/V limit for z = 65
+End cycle   8200, time = 5.41596e-01, dt = 9.74795e-05, wall = 8.99001e-01
+dt limiter: PE 208, Hydro dV/V limit for z = 1832
+End cycle   8300, time = 5.51040e-01, dt = 9.99288e-05, wall = 6.99338e-01
+dt limiter: PE 212, Hydro dV/V limit for z = 3740
+End cycle   8400, time = 5.60535e-01, dt = 9.33573e-05, wall = 6.84828e-01
+dt limiter: PE 223, Hydro dV/V limit for z = 5555
+End cycle   8500, time = 5.70083e-01, dt = 9.09745e-05, wall = 6.65155e-01
+dt limiter: PE 222, Hydro dV/V limit for z = 7363
+End cycle   8600, time = 5.79694e-01, dt = 9.29656e-05, wall = 6.93248e-01
+dt limiter: PE 208, Hydro dV/V limit for z = 9120
+End cycle   8700, time = 5.89373e-01, dt = 1.02410e-04, wall = 7.33056e-01
+dt limiter: PE 218, Hydro dV/V limit for z = 10956
+End cycle   8800, time = 5.99115e-01, dt = 1.01905e-04, wall = 7.54869e-01
+dt limiter: PE 237, Hydro dV/V limit for z = 1116
+End cycle   8900, time = 6.08903e-01, dt = 9.56043e-05, wall = 7.88292e-01
+dt limiter: PE 225, Hydro dV/V limit for z = 2964
+End cycle   9000, time = 6.18746e-01, dt = 9.36710e-05, wall = 7.02425e-01
+dt limiter: PE 229, Hydro dV/V limit for z = 4696
+End cycle   9100, time = 6.28652e-01, dt = 9.64965e-05, wall = 6.99646e-01
+dt limiter: PE 231, Hydro dV/V limit for z = 6512
+End cycle   9200, time = 6.38625e-01, dt = 1.07625e-04, wall = 6.51620e-01
+dt limiter: PE 230, Hydro dV/V limit for z = 8386
+End cycle   9300, time = 6.48655e-01, dt = 1.03842e-04, wall = 6.45519e-01
+dt limiter: PE 234, Hydro dV/V limit for z = 10200
+End cycle   9400, time = 6.58733e-01, dt = 9.78685e-05, wall = 6.72819e-01
+dt limiter: PE 254, Hydro dV/V limit for z = 282
+End cycle   9500, time = 6.68866e-01, dt = 9.63927e-05, wall = 7.37681e-01
+dt limiter: PE 252, Hydro dV/V limit for z = 2101
+End cycle   9600, time = 6.79059e-01, dt = 9.99912e-05, wall = 7.68758e-01
+dt limiter: PE 240, Hydro dV/V limit for z = 3894
+End cycle   9700, time = 6.89322e-01, dt = 1.13048e-04, wall = 7.80609e-01
+dt limiter: PE 252, Hydro dV/V limit for z = 5731
+End cycle   9800, time = 6.99636e-01, dt = 1.05675e-04, wall = 7.59669e-01
+dt limiter: PE 240, Hydro dV/V limit for z = 7676
+End cycle   9900, time = 7.09997e-01, dt = 1.00164e-04, wall = 6.72435e-01
+dt limiter: PE 249, Hydro dV/V limit for z = 9419
+End cycle  10000, time = 7.20415e-01, dt = 9.91510e-05, wall = 6.50839e-01
+dt limiter: PE 251, Hydro dV/V limit for z = 11188
+End cycle  10100, time = 7.30891e-01, dt = 1.03580e-04, wall = 6.53863e-01
+dt limiter: PE 265, Hydro dV/V limit for z = 1201
+End cycle  10200, time = 7.41437e-01, dt = 1.16926e-04, wall = 6.65606e-01
+dt limiter: PE 268, Hydro dV/V limit for z = 3199
+End cycle  10300, time = 7.52030e-01, dt = 1.07536e-04, wall = 7.05952e-01
+dt limiter: PE 267, Hydro dV/V limit for z = 5009
+End cycle  10400, time = 7.62671e-01, dt = 1.02432e-04, wall = 7.11096e-01
+dt limiter: PE 256, Hydro dV/V limit for z = 6837
+End cycle  10500, time = 7.73367e-01, dt = 1.01904e-04, wall = 6.80416e-01
+dt limiter: PE 271, Hydro dV/V limit for z = 8617
+End cycle  10600, time = 7.84122e-01, dt = 1.07250e-04, wall = 6.48550e-01
+dt limiter: PE 256, Hydro dV/V limit for z = 10320
+End cycle  10700, time = 7.94946e-01, dt = 1.18592e-04, wall = 6.68345e-01
+dt limiter: PE 272, Hydro dV/V limit for z = 364
+End cycle  10800, time = 8.05814e-01, dt = 1.09488e-04, wall = 6.72754e-01
+dt limiter: PE 277, Hydro dV/V limit for z = 2274
+End cycle  10900, time = 8.16731e-01, dt = 1.04716e-04, wall = 6.93238e-01
+dt limiter: PE 285, Hydro dV/V limit for z = 4044
+End cycle  11000, time = 8.27699e-01, dt = 1.04671e-04, wall = 6.89897e-01
+dt limiter: PE 282, Hydro dV/V limit for z = 5772
+End cycle  11100, time = 8.38728e-01, dt = 1.10946e-04, wall = 7.30921e-01
+dt limiter: PE 275, Hydro dV/V limit for z = 7653
+End cycle  11200, time = 8.49827e-01, dt = 1.20289e-04, wall = 7.09366e-01
+dt limiter: PE 275, Hydro dV/V limit for z = 9483
+End cycle  11300, time = 8.60966e-01, dt = 1.11389e-04, wall = 7.72021e-01
+dt limiter: PE 285, Hydro dV/V limit for z = 11295
+End cycle  11400, time = 8.72153e-01, dt = 1.07025e-04, wall = 8.51758e-01
+dt limiter: PE 289, Hydro dV/V limit for z = 1421
+End cycle  11500, time = 8.83391e-01, dt = 1.07465e-04, wall = 6.77114e-01
+dt limiter: PE 291, Hydro dV/V limit for z = 3229
+End cycle  11600, time = 8.94690e-01, dt = 1.14846e-04, wall = 7.65172e-01
+dt limiter: PE 303, Hydro dV/V limit for z = 4948
+End cycle  11700, time = 9.06056e-01, dt = 1.22071e-04, wall = 8.07669e-01
+dt limiter: PE 288, Hydro dV/V limit for z = 6847
+End cycle  11800, time = 9.17464e-01, dt = 1.13298e-04, wall = 6.98153e-01
+dt limiter: PE 288, Hydro dV/V limit for z = 8648
+End cycle  11900, time = 9.28915e-01, dt = 1.09340e-04, wall = 6.62858e-01
+dt limiter: PE 291, Hydro dV/V limit for z = 10506
+End cycle  12000, time = 9.40419e-01, dt = 1.10266e-04, wall = 7.13100e-01
+dt limiter: PE 317, Hydro dV/V limit for z = 516
+End cycle  12100, time = 9.51987e-01, dt = 1.18883e-04, wall = 6.78802e-01
+dt limiter: PE 317, Hydro dV/V limit for z = 2360
+End cycle  12200, time = 9.63615e-01, dt = 1.23911e-04, wall = 6.52690e-01
+dt limiter: PE 305, Hydro dV/V limit for z = 4277
+End cycle  12300, time = 9.75286e-01, dt = 1.15255e-04, wall = 6.68077e-01
+dt limiter: PE 317, Hydro dV/V limit for z = 6073
+End cycle  12400, time = 9.87000e-01, dt = 1.11651e-04, wall = 7.14299e-01
+dt limiter: PE 316, Hydro dV/V limit for z = 7868
+End cycle  12500, time = 9.98765e-01, dt = 1.13099e-04, wall = 7.83749e-01
+dt limiter: PE 319, Hydro dV/V limit for z = 9626
+
+Run complete
+cycle =  12511,         cstop = 999999
+time  =   1.000000e+00, tstop =   1.000000e+00
+
+************************************
+hydro cycle run time=   8.763109e+01
+************************************
+Energy check:  total energy  =   9.871670e-01
+(internal =   7.630405e-01, kinetic =   2.241264e-01)
+FLUX-RUN END pennant-iter-1
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Connecting to archive.ubuntu.com (185.125.190.83)] [1 InRelease 5484 B/129                                                                                0% [Waiting for headers]                        Get:2 http://archive.ubuntu.com/ubuntu jammy InRelease [270 kB]
+0% [2 InRelease 5484 B/270 kB 2%]0% [2 InRelease 14.2 kB/270 kB 5%]                                  Get:3 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+0% [2 InRelease 14.2 kB/270 kB 5%] [3 Packages 2655 B/1244 kB 0%]                                                                 0% [2 InRelease 43.1 kB/270 kB 16%]0% [3 Packages store 0 B] [2 InRelease 43.1 kB/270 kB 16%] [Waiting for headers                                                                               Get:4 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4118 kB]
+0% [3 Packages store 0 B] [2 InRelease 43.1 kB/270 kB 16%] [4 Packages 6999 B/4                                                                               0% [2 InRelease 51.8 kB/270 kB 19%] [4 Packages 1079 kB/4118 kB 26%]                                                                    0% [2 InRelease 75.0 kB/270 kB 28%] [Waiting for headers]                                                         Get:5 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+0% [2 InRelease 75.0 kB/270 kB 28%] [5 Packages 37.6 kB/47.7 kB 79%]0% [4 Packages store 0 B] [2 InRelease 75.0 kB/270 kB 28%] [5 Packages 37.6 kB/0% [4 Packages store 0 B] [2 InRelease 75.0 kB/270 kB 28%] [Waiting for headers                                                                               Get:6 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+0% [4 Packages store 0 B] [2 InRelease 75.0 kB/270 kB 28%] [6 Packages 30.6 kB/                                                                               0% [4 Packages store 0 B] [2 InRelease 77.9 kB/270 kB 29%]                                                          0% [2 InRelease 121 kB/270 kB 45%]0% [5 Packages store 0 B] [2 InRelease 121 kB/270 kB 45%]                                                         0% [2 InRelease 123 kB/270 kB 45%]0% [6 Packages store 0 B] [2 InRelease 124 kB/270 kB 46%]                                                         0% [2 InRelease 226 kB/270 kB 84%]                                  0% [Working]0% [Waiting for headers]                        Get:7 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [7 InRelease 2588 B/128 kB 2%]                                 0% [Working]0% [Waiting for headers]                        Get:8 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [8 InRelease 2588 B/127 kB 2%]                                 0% [Working]33% [Waiting for headers]                         Get:9 http://archive.ubuntu.com/ubuntu jammy/main amd64 Packages [1792 kB]
+33% [9 Packages 2655 B/1792 kB 0%]                                  37% [Waiting for headers]37% [9 Packages store 0 B] [Waiting for headers]                                                Get:10 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [17.5 MB]
+37% [9 Packages store 0 B] [10 Packages 4096 B/17.5 MB 0%]                                                          40% [10 Packages 1077 kB/17.5 MB 6%]                                    74% [Waiting for headers]                         Get:11 http://archive.ubuntu.com/ubuntu jammy/restricted amd64 Packages [164 kB]
+75% [11 Packages 66.8 kB/164 kB 41%]75% [10 Packages store 0 B] [11 Packages 72.5 kB/164 kB 44%]                                                            75% [10 Packages store 0 B] [Waiting for headers]                                                 Get:12 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [266 kB]
+75% [10 Packages store 0 B] [12 Packages 33.4 kB/266 kB 13%]                                                            75% [10 Packages store 0 B] [Waiting for headers]                                                 Get:13 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+75% [10 Packages store 0 B] [13 Packages 3399 B/55.7 kB 6%]                                                           75% [10 Packages store 0 B] [Waiting for headers]                                                 Get:14 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+75% [10 Packages store 0 B] [14 Packages 4103 B/3200 kB 0%]                                                           82% [10 Packages store 0 B] [Waiting for headers]                                                 Get:15 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+82% [10 Packages store 0 B] [15 Packages 6768 B/1544 kB 0%]                                                           85% [10 Packages store 0 B] [Waiting for headers]                                                 Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+85% [10 Packages store 0 B] [16 Packages 4096 B/4420 kB 0%]                                                           95% [10 Packages store 0 B] [Waiting for headers]                                                 Get:17 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+95% [10 Packages store 0 B] [17 Packages 8192 B/82.7 kB 10%]                                                            95% [10 Packages store 0 B] [Waiting for headers]                                                 Get:18 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+95% [10 Packages store 0 B] [18 Packages 8192 B/35.2 kB 23%]                                                            95% [10 Packages store 0 B]                           96% [Working]96% [11 Packages store 0 B]                           96% [Working]96% [12 Packages store 0 B]                           97% [Working]97% [13 Packages store 0 B]                           97% [Working]97% [14 Packages store 0 B]                           98% [Working]98% [15 Packages store 0 B]                           98% [Working]98% [16 Packages store 0 B]                           99% [Working]99% [17 Packages store 0 B]                           99% [Working]99% [18 Packages store 0 B]                           100% [Working]              Fetched 37.9 MB in 3s (12.7 MB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 1%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
+Need to get 357 kB of archives.
+After this operation, 1087 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libonig5 amd64 6.9.7.1-2build1 [172 kB]
+1% [1 libonig5 5500 B/172 kB 3%]                                45% [Working]             Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjq1 amd64 1.6-2.1ubuntu3 [133 kB]
+46% [2 libjq1 4052 B/133 kB 3%]                               82% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 jq amd64 1.6-2.1ubuntu3 [52.5 kB]
+82% [3 jq 1424 B/52.5 kB 3%]                            100% [Working]              Fetched 357 kB in 0s (1108 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 11275 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.7.1-2build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.7.1-2build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-2.1ubuntu3) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking jq (1.6-2.1ubuntu3) ...
+Setting up libonig5:amd64 (6.9.7.1-2build1) ...
+Setting up libjq1:amd64 (1.6-2.1ubuntu3) ...
+Setting up jq (1.6-2.1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.9) ...
+
+FLUX-JOB START 12348030976 pennant-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 4, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["pennant", "/opt/pennant/test/sedovflatx4/sedovflatx4.pnt"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/pennant", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "pennant-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-3", "children": {"core": "0-87"}}], "nodelist": ["pennant-[0-3]"], "starttime": 1746373557, "expiration": 4899973556}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746373557.0825381,"name":"init"}
+{"timestamp":1746373557.083128,"name":"starting"}
+{"timestamp":1746373557.095547,"name":"shell.init","context":{"service":"0-shell-fKp9tQo","leader-rank":0,"size":4}}
+{"timestamp":1746373557.2742319,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,4,88,1]]}}}
+{"timestamp":1746373646.5968847,"name":"shell.task-exit","context":{"localid":52,"rank":228,"state":"Exited","pid":222,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746373646.6559346,"name":"complete","context":{"status":0}}
+{"timestamp":1746373646.6559687,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 12348030976 pennant-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":1,"total":1},"successful":1,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

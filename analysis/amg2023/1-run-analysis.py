@@ -86,7 +86,7 @@ def parse_data(indir, outdir, files):
     Parse filepaths for environment, etc., and results files for data.
     """
     # metrics here will be figures of merit, and seconds runtime
-    p = ps.ResultParser("amg2023")
+    p = ps.ProblemSizeParser("amg2023")
 
     # For flux we can save jobspecs and other event data
     data = {}
@@ -94,6 +94,11 @@ def parse_data(indir, outdir, files):
     # It's important to just parse raw data once, and then use intermediate
     for filename in files:
         exp = ps.ExperimentNameParser(filename, indir)
+        if "compute-engine" in filename:
+            continue
+        mpi = "openmpi"
+        if "intel" in filename:
+            mpi = "intel"
         if exp.prefix not in data:
             data[exp.prefix] = []
 
@@ -112,13 +117,18 @@ def parse_data(indir, outdir, files):
 
         jobs = ps.parse_flux_jobs(item)
         for job, metadata in jobs.items():
-
+            if "log" not in metadata:
+                print(filename)
+                continue
             # Parse the FOM from the item - I see three.
             # This needs to throw an error if we can't find it - indicates the result file is wonky
             # Figure of Merit (FOM): nnz_AP / (Setup Phase Time + 3 * Solve Phase Time) 1.148604e+09
             fom_overall = get_fom_line(metadata['log'], "Figure of Merit (FOM)")
-            p.add_result("fom_overall", fom_overall)
-            p.add_result("duration", metadata['duration'])
+            p.add_result("fom_overall", fom_overall, mpi)
+            if "duration" in metadata:
+                p.add_result("duration", metadata['duration'], mpi)
+            else:
+                print(filename)
 
     print("Done parsing amg2023 results!")
 
@@ -173,13 +183,13 @@ def plot_results(df, outdir, non_anon=False):
             ax=axes[0],
             x="nodes",
             y="value",
-            hue="experiment",
+            hue="problem_size",
             err_kws={"color": "darkred"},
-            hue_order=[
-                "google/gke/cpu",
+            #hue_order=[
+            #    "google/gke/cpu",
     #            "google/compute-engine/cpu",
-            ],
-            palette=cloud_colors,
+           # ],
+            # palette=cloud_colors,
             order=[4, 8, 16, 32],
         )
         if metric == "duration":        

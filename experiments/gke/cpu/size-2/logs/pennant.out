@@ -1,0 +1,733 @@
+Defaulted container "pennant" out of: pennant, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START pennant-iter-$i"
+  flux run --setattr=user.study_id=pennant-iter-$i -N2 -n 126 -o cpu-affinity=per-task -o gpu-affinity=off    pennant /opt/pennant/test/sedovsmall/sedovsmall.pnt |& tee /tmp/pennant.out
+    echo "FLUX-RUN END pennant-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      2      176        0 pennant-[0-1]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START pennant-iter-1
+********************
+Running PENNANT v0.9
+********************
+
+Running on 126 MPI PE(s)
+Running on 1 thread(s)
+--- Mesh Information ---
+Points:  100
+Zones:  81
+Sides:  324
+Edges:  324
+Side chunks:  81
+Point chunks:  126
+Zone chunks:  81
+Chunk size:  16
+------------------------
+Energy check:  total energy  =   2.467991e-01
+(internal =   2.467991e-01, kinetic =   0.000000e+00)
+[pennant-0:00125] *** Process received signal ***
+[pennant-0:00115] *** Process received signal ***
+[pennant-0:00113] *** Process received signal ***
+[pennant-0:00112] *** Process received signal ***
+[pennant-0:00215] *** Process received signal ***
+[pennant-0:00213] *** Process received signal ***
+[pennant-0:00211] *** Process received signal ***
+[pennant-0:00209] *** Process received signal ***
+[pennant-0:00207] *** Process received signal ***
+[pennant-0:00205] *** Process received signal ***
+[pennant-0:00203] *** Process received signal ***
+[pennant-0:00201] *** Process received signal ***
+[pennant-0:00199] *** Process received signal ***
+[pennant-0:00161] *** Process received signal ***
+[pennant-0:00159] *** Process received signal ***
+[pennant-0:00157] *** Process received signal ***
+[pennant-0:00154] *** Process received signal ***
+[pennant-0:00153] *** Process received signal ***
+[pennant-0:00151] *** Process received signal ***
+[pennant-0:00149] *** Process received signal ***
+[pennant-0:00147] *** Process received signal ***
+[pennant-0:00145] *** Process received signal ***
+[pennant-0:00125] Signal: Segmentation fault (11)
+[pennant-0:00123] *** Process received signal ***
+[pennant-0:00121] *** Process received signal ***
+[pennant-0:00119] *** Process received signal ***
+[pennant-0:00116] *** Process received signal ***
+[pennant-0:00115] Signal: Segmentation fault (11)
+[pennant-0:00114] *** Process received signal ***
+[pennant-0:00113] Signal: Segmentation fault (11)
+[pennant-1:00107] *** Process received signal ***
+[pennant-0:00215] Signal: Segmentation fault (11)
+[pennant-0:00213] Signal: Segmentation fault (11)
+[pennant-0:00211] Signal: Segmentation fault (11)
+[pennant-0:00209] Signal: Segmentation fault (11)
+[pennant-0:00207] Signal: Segmentation fault (11)
+[pennant-0:00205] Signal: Segmentation fault (11)
+[pennant-0:00203] Signal: Segmentation fault (11)
+[pennant-0:00201] Signal: Segmentation fault (11)
+[pennant-0:00199] Signal: Segmentation fault (11)
+[pennant-0:00161] Signal: Segmentation fault (11)
+[pennant-0:00159] Signal: Segmentation fault (11)
+[pennant-0:00157] Signal: Segmentation fault (11)
+[pennant-0:00154] Signal: Segmentation fault (11)
+[pennant-0:00153] Signal: Segmentation fault (11)
+[pennant-0:00151] Signal: Segmentation fault (11)
+[pennant-0:00149] Signal: Segmentation fault (11)
+[pennant-0:00147] Signal: Segmentation fault (11)
+[pennant-0:00145] Signal: Segmentation fault (11)
+[pennant-0:00125] Signal code: Address not mapped (1)
+[pennant-0:00123] Signal: Segmentation fault (11)
+[pennant-0:00121] Signal: Segmentation fault (11)
+[pennant-0:00119] Signal: Segmentation fault (11)
+[pennant-0:00116] Signal: Segmentation fault (11)
+[pennant-0:00115] Signal code: Address not mapped (1)
+[pennant-0:00114] Signal: Segmentation fault (11)
+[pennant-0:00113] Signal code: Address not mapped (1)
+[pennant-1:00105] *** Process received signal ***
+[pennant-0:00215] Signal code: Address not mapped (1)
+[pennant-0:00213] Signal code: Address not mapped (1)
+[pennant-0:00211] Signal code: Address not mapped (1)
+[pennant-0:00209] Signal code: Address not mapped (1)
+[pennant-0:00207] Signal code: Address not mapped (1)
+[pennant-0:00205] Signal code: Address not mapped (1)
+[pennant-0:00203] Signal code: Address not mapped (1)
+[pennant-0:00201] Signal code: Address not mapped (1)
+[pennant-0:00199] Signal code: Address not mapped (1)
+[pennant-0:00161] Signal code: Address not mapped (1)
+[pennant-0:00159] Signal code: Address not mapped (1)
+[pennant-0:00157] Signal code: Address not mapped (1)
+[pennant-0:00154] Signal code: Address not mapped (1)
+[pennant-0:00153] Signal code: Address not mapped (1)
+[pennant-0:00151] Signal code: Address not mapped (1)
+[pennant-0:00149] Signal code: Address not mapped (1)
+[pennant-0:00147] Signal code: Address not mapped (1)
+[pennant-0:00145] Signal code: Address not mapped (1)
+[pennant-0:00125] Failing at address: 0x556cb586b748
+[pennant-0:00123] Signal code: Address not mapped (1)
+[pennant-0:00121] Signal code: Address not mapped (1)
+[pennant-0:00119] Signal code: Address not mapped (1)
+[pennant-0:00116] Signal code: Address not mapped (1)
+[pennant-0:00115] Failing at address: 0x58bdacf6ccd0
+[pennant-0:00114] Signal code: Address not mapped (1)
+[pennant-0:00113] Failing at address: 0x5a6362bc4798
+[pennant-1:00103] *** Process received signal ***
+[pennant-0:00215] Failing at address: 0x58b4f06b8170
+[pennant-0:00213] Failing at address: 0x5a9191775860
+[pennant-0:00211] Failing at address: 0x5a60a368e2a0
+[pennant-0:00209] Failing at address: 0x5d3afa025460
+[pennant-0:00207] Failing at address: 0x59a014d611f8
+[pennant-0:00205] Failing at address: 0x593b3b230390
+[pennant-0:00203] Failing at address: 0x57301ade8620
+[pennant-0:00201] Failing at address: 0x569ddb6caef0
+[pennant-0:00199] Failing at address: 0x577861174040
+[pennant-0:00161] Failing at address: 0x57279ddc3bd8
+[pennant-0:00159] Failing at address: 0x56b34113c508
+[pennant-0:00157] Failing at address: 0x55bbf4d04268
+[pennant-0:00154] Failing at address: 0x56e01d3aab50
+[pennant-0:00153] Failing at address: 0x59b1f5c5eab0
+[pennant-0:00151] Failing at address: 0x55f067cf10c8
+[pennant-0:00149] Failing at address: 0x586543b56ff8
+[pennant-0:00147] Failing at address: 0x57745536b2a0
+[pennant-0:00145] Failing at address: 0x567215f7fab0
+[pennant-0:00125] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7d37baa1f520]
+[pennant-0:00123] Failing at address: 0x5842c3498370
+[pennant-0:00121] Failing at address: 0x56d6cd472490
+[pennant-0:00119] Failing at address: 0x594385611370
+[pennant-0:00116] Failing at address: 0x5c5fd0191490
+[pennant-0:00115] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7c0cdc9fc520]
+[pennant-0:00114] Failing at address: 0x5af896842698
+[pennant-0:00113] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7f65a41d0520]
+[pennant-1:00101] *** Process received signal ***
+[pennant-0:00215] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7ec0d583d520]
+[pennant-0:00213] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x78968a170520]
+[pennant-0:00211] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7b1860735520]
+[pennant-0:00209] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7e16f7e67520]
+[pennant-0:00207] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x78d1de255520]
+[pennant-0:00205] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7bfcc5f77520]
+[pennant-0:00203] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7e3c6ec0d520]
+[pennant-0:00201] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7f68a978a520]
+[pennant-0:00199] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x789ade5e6520]
+[pennant-0:00161] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7b05b147a520]
+[pennant-0:00159] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7f33c0828520]
+[pennant-0:00157] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7dd797885520]
+[pennant-0:00154] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7ff68000e520]
+[pennant-0:00153] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x78f0774ee520]
+[pennant-0:00151] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7aabd394f520]
+[pennant-0:00149] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7989d20bc520]
+[pennant-0:00147] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7da671000520]
+[pennant-0:00145] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7c2f159d4520]
+[pennant-0:00125] [ 1] pennant(+0x16c90)[0x556ca4826c90]
+[pennant-0:00123] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7ee77e5a5520]
+[pennant-0:00121] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7e0c275f7520]
+[pennant-0:00119] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7ba426e51520]
+[pennant-0:00116] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x79a75aa48520]
+[pennant-0:00115] [ 1] pennant(+0x16c90)[0x58bd8d8fac90]
+[pennant-0:00114] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7f21e4443520]
+[pennant-0:00113] [ 1] pennant(+0x16c90)[0x5a6330ef3c90]
+[pennant-1:00099] *** Process received signal ***
+[pennant-0:00215] [ 1] pennant(+0x16c90)[0x58b4b3f58c90]
+[pennant-0:00213] [ 1] pennant(+0x16c90)[0x5a9188fb1c90]
+[pennant-0:00211] [ 1] pennant(+0x16c90)[0x5a5d7e3e8c90]
+[pennant-0:00209] [ 1] pennant(+0x16c90)[0x5d3aeaef9c90]
+[pennant-0:00207] [ 1] pennant(+0x16c90)[0x599ff0c74c90]
+[pennant-0:00205] [ 1] pennant(+0x16c90)[0x593b1c3d7c90]
+[pennant-0:00203] [ 1] pennant(+0x16c90)[0x572c9409ac90]
+[pennant-0:00201] [ 1] pennant(+0x16c90)[0x569db1c66c90]
+[pennant-0:00199] [ 1] pennant(+0x16c90)[0x57783f279c90]
+[pennant-0:00161] [ 1] pennant(+0x16c90)[0x572767219c90]
+[pennant-0:00159] [ 1] pennant(+0x16c90)[0x56b3273d1c90]
+[pennant-0:00157] [ 1] pennant(+0x16c90)[0x55bbc3978c90]
+[pennant-0:00154] [ 1] pennant(+0x16c90)[0x56e0057a1c90]
+[pennant-0:00153] [ 1] pennant(+0x16c90)[0x59ae2b6fcc90]
+[pennant-0:00151] [ 1] pennant(+0x16c90)[0x55f030c75c90]
+[pennant-0:00149] [ 1] pennant(+0x16c90)[0x58650435ac90]
+[pennant-0:00147] [ 1] pennant(+0x16c90)[0x5770c388ac90]
+[pennant-0:00145] [ 1] pennant(+0x16c90)[0x56714e64ac90]
+[pennant-0:00125] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7d37bac3ca16]
+[pennant-0:00123] [ 1] pennant(+0x16c90)[0x583ea5c0ac90]
+[pennant-0:00121] [ 1] pennant(+0x16c90)[0x56d588731c90]
+[pennant-0:00119] [ 1] pennant(+0x16c90)[0x59422f8fbc90]
+[pennant-0:00116] [ 1] pennant(+0x16c90)[0x5c5cee220c90]
+[pennant-0:00115] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7c0cdcc19a16]
+[pennant-0:00114] [ 1] pennant(+0x16c90)[0x5af8672fcc90]
+[pennant-0:00113] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7f65a43eda16]
+[pennant-1:00097] *** Process received signal ***
+[pennant-0:00215] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7ec0d5a5aa16]
+[pennant-0:00213] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x78968a38da16]
+[pennant-0:00211] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7b1860952a16]
+[pennant-0:00209] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7e16f8084a16]
+[pennant-0:00207] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x78d1de472a16]
+[pennant-0:00205] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7bfcc6194a16]
+[pennant-0:00203] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7e3c6ee2aa16]
+[pennant-0:00201] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7f68a99a7a16]
+[pennant-0:00199] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x789ade803a16]
+[pennant-0:00161] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7b05b1697a16]
+[pennant-0:00159] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7f33c0a45a16]
+[pennant-0:00157] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7dd797aa2a16]
+[pennant-0:00154] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7ff68022ba16]
+[pennant-0:00153] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x78f07770ba16]
+[pennant-0:00151] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7aabd3b6ca16]
+[pennant-0:00149] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7989d22d9a16]
+[pennant-0:00147] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7da67121da16]
+[pennant-0:00145] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7c2f15bf1a16]
+[pennant-0:00125] [ 3] pennant(+0x1a8bd)[0x556ca482a8bd]
+[pennant-0:00123] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7ee77e7c2a16]
+[pennant-0:00121] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7e0c27814a16]
+[pennant-0:00119] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7ba42706ea16]
+[pennant-0:00116] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x79a75ac65a16]
+[pennant-0:00115] [ 3] pennant(+0x1a8bd)[0x58bd8d8fe8bd]
+[pennant-0:00114] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7f21e4660a16]
+[pennant-0:00113] [ 3] pennant(+0x1a8bd)[0x5a6330ef78bd]
+[pennant-1:00095] *** Process received signal ***
+[pennant-0:00215] [ 3] pennant(+0x1a8bd)[0x58b4b3f5c8bd]
+[pennant-0:00213] [ 3] pennant(+0x1a8bd)[0x5a9188fb58bd]
+[pennant-0:00211] [ 3] pennant(+0x1a8bd)[0x5a5d7e3ec8bd]
+[pennant-0:00209] [ 3] pennant(+0x1a8bd)[0x5d3aeaefd8bd]
+[pennant-0:00207] [ 3] pennant(+0x1a8bd)[0x599ff0c788bd]
+[pennant-0:00205] [ 3] pennant(+0x1a8bd)[0x593b1c3db8bd]
+[pennant-0:00203] [ 3] pennant(+0x1a8bd)[0x572c9409e8bd]
+[pennant-0:00201] [ 3] pennant(+0x1a8bd)[0x569db1c6a8bd]
+[pennant-0:00199] [ 3] pennant(+0x1a8bd)[0x57783f27d8bd]
+[pennant-0:00161] [ 3] pennant(+0x1a8bd)[0x57276721d8bd]
+[pennant-0:00159] [ 3] pennant(+0x1a8bd)[0x56b3273d58bd]
+[pennant-0:00157] [ 3] pennant(+0x1a8bd)[0x55bbc397c8bd]
+[pennant-0:00154] [ 3] pennant(+0x1a8bd)[0x56e0057a58bd]
+[pennant-0:00153] [ 3] pennant(+0x1a8bd)[0x59ae2b7008bd]
+[pennant-0:00151] [ 3] pennant(+0x1a8bd)[0x55f030c798bd]
+[pennant-0:00149] [ 3] pennant(+0x1a8bd)[0x58650435e8bd]
+[pennant-0:00147] [ 3] pennant(+0x1a8bd)[0x5770c388e8bd]
+[pennant-0:00145] [ 3] pennant(+0x1a8bd)[0x56714e64e8bd]
+[pennant-0:00125] [ 4] pennant(+0x1153d)[0x556ca482153d]
+[pennant-0:00123] [ 3] pennant(+0x1a8bd)[0x583ea5c0e8bd]
+[pennant-0:00121] [ 3] pennant(+0x1a8bd)[0x56d5887358bd]
+[pennant-0:00119] [ 3] pennant(+0x1a8bd)[0x59422f8ff8bd]
+[pennant-0:00116] [ 3] pennant(+0x1a8bd)[0x5c5cee2248bd]
+[pennant-0:00115] [ 4] pennant(+0x1153d)[0x58bd8d8f553d]
+[pennant-0:00114] [ 3] pennant(+0x1a8bd)[0x5af8673008bd]
+[pennant-0:00113] [ 4] pennant(+0x1153d)[0x5a6330eee53d]
+[pennant-1:00093] *** Process received signal ***
+[pennant-0:00215] [ 4] pennant(+0x1153d)[0x58b4b3f5353d]
+[pennant-0:00213] [ 4] pennant(+0x1153d)[0x5a9188fac53d]
+[pennant-0:00211] [ 4] pennant(+0x1153d)[0x5a5d7e3e353d]
+[pennant-0:00209] [ 4] pennant(+0x1153d)[0x5d3aeaef453d]
+[pennant-0:00207] [ 4] pennant(+0x1153d)[0x599ff0c6f53d]
+[pennant-0:00205] [ 4] pennant(+0x1153d)[0x593b1c3d253d]
+[pennant-0:00203] [ 4] pennant(+0x1153d)[0x572c9409553d]
+[pennant-0:00201] [ 4] pennant(+0x1153d)[0x569db1c6153d]
+[pennant-0:00199] [ 4] pennant(+0x1153d)[0x57783f27453d]
+[pennant-0:00161] [ 4] pennant(+0x1153d)[0x57276721453d]
+[pennant-0:00159] [ 4] pennant(+0x1153d)[0x56b3273cc53d]
+[pennant-0:00157] [ 4] pennant(+0x1153d)[0x55bbc397353d]
+[pennant-0:00154] [ 4] pennant(+0x1153d)[0x56e00579c53d]
+[pennant-0:00153] [ 4] pennant(+0x1153d)[0x59ae2b6f753d]
+[pennant-0:00151] [ 4] pennant(+0x1153d)[0x55f030c7053d]
+[pennant-0:00149] [ 4] pennant(+0x1153d)[0x58650435553d]
+[pennant-0:00147] [ 4] pennant(+0x1153d)[0x5770c388553d]
+[pennant-0:00145] [ 4] pennant(+0x1153d)[0x56714e64553d]
+[pennant-0:00125] [ 5] pennant(+0x6886)[0x556ca4816886]
+[pennant-0:00123] [ 4] pennant(+0x1153d)[0x583ea5c0553d]
+[pennant-0:00121] [ 4] pennant(+0x1153d)[0x56d58872c53d]
+[pennant-0:00119] [ 4] pennant(+0x1153d)[0x59422f8f653d]
+[pennant-0:00116] [ 4] pennant(+0x1153d)[0x5c5cee21b53d]
+[pennant-0:00115] [ 5] pennant(+0x6886)[0x58bd8d8ea886]
+[pennant-0:00114] [ 4] pennant(+0x1153d)[0x5af8672f753d]
+[pennant-0:00113] [ 5] pennant(+0x6886)[0x5a6330ee3886]
+[pennant-1:00091] *** Process received signal ***
+[pennant-0:00215] [ 5] pennant(+0x6886)[0x58b4b3f48886]
+[pennant-0:00213] [ 5] pennant(+0x6886)[0x5a9188fa1886]
+[pennant-0:00211] [ 5] pennant(+0x6886)[0x5a5d7e3d8886]
+[pennant-0:00209] [ 5] pennant(+0x6886)[0x5d3aeaee9886]
+[pennant-0:00207] [ 5] pennant(+0x6886)[0x599ff0c64886]
+[pennant-0:00205] [ 5] pennant(+0x6886)[0x593b1c3c7886]
+[pennant-0:00203] [ 5] pennant(+0x6886)[0x572c9408a886]
+[pennant-0:00201] [ 5] pennant(+0x6886)[0x569db1c56886]
+[pennant-0:00199] [ 5] pennant(+0x6886)[0x57783f269886]
+[pennant-0:00161] [ 5] pennant(+0x6886)[0x572767209886]
+[pennant-0:00159] [ 5] pennant(+0x6886)[0x56b3273c1886]
+[pennant-0:00157] [ 5] pennant(+0x6886)[0x55bbc3968886]
+[pennant-0:00154] [ 5] pennant(+0x6886)[0x56e005791886]
+[pennant-0:00153] [ 5] pennant(+0x6886)[0x59ae2b6ec886]
+[pennant-0:00151] [ 5] pennant(+0x6886)[0x55f030c65886]
+[pennant-0:00149] [ 5] pennant(+0x6886)[0x58650434a886]
+[pennant-0:00147] [ 5] pennant(+0x6886)[0x5770c387a886]
+[pennant-0:00145] [ 5] pennant(+0x6886)[0x56714e63a886]
+[pennant-0:00125] [ 6] pennant(+0x4f5b)[0x556ca4814f5b]
+[pennant-0:00123] [ 5] pennant(+0x6886)[0x583ea5bfa886]
+[pennant-0:00121] [ 5] pennant(+0x6886)[0x56d588721886]
+[pennant-0:00119] [ 5] pennant(+0x6886)[0x59422f8eb886]
+[pennant-0:00116] [ 5] pennant(+0x6886)[0x5c5cee210886]
+[pennant-0:00115] [ 6] pennant(+0x4f5b)[0x58bd8d8e8f5b]
+[pennant-0:00114] [ 5] pennant(+0x6886)[0x5af8672ec886]
+[pennant-0:00113] [ 6] pennant(+0x4f5b)[0x5a6330ee1f5b]
+[pennant-0:00112] Signal: Segmentation fault (11)
+[pennant-1:00161] *** Process received signal ***
+[pennant-0:00215] [ 6] pennant(+0x4f5b)[0x58b4b3f46f5b]
+[pennant-0:00213] [ 6] pennant(+0x4f5b)[0x5a9188f9ff5b]
+[pennant-0:00211] [ 6] pennant(+0x4f5b)[0x5a5d7e3d6f5b]
+[pennant-0:00209] [ 6] pennant(+0x4f5b)[0x5d3aeaee7f5b]
+[pennant-0:00207] [ 6] pennant(+0x4f5b)[0x599ff0c62f5b]
+[pennant-0:00205] [ 6] pennant(+0x4f5b)[0x593b1c3c5f5b]
+[pennant-0:00203] [ 6] pennant(+0x4f5b)[0x572c94088f5b]
+[pennant-0:00201] [ 6] pennant(+0x4f5b)[0x569db1c54f5b]
+[pennant-0:00199] [ 6] pennant(+0x4f5b)[0x57783f267f5b]
+[pennant-0:00161] [ 6] pennant(+0x4f5b)[0x572767207f5b]
+[pennant-0:00159] [ 6] pennant(+0x4f5b)[0x56b3273bff5b]
+[pennant-0:00157] [ 6] pennant(+0x4f5b)[0x55bbc3966f5b]
+[pennant-0:00154] [ 6] pennant(+0x4f5b)[0x56e00578ff5b]
+[pennant-0:00153] [ 6] pennant(+0x4f5b)[0x59ae2b6eaf5b]
+[pennant-0:00151] [ 6] pennant(+0x4f5b)[0x55f030c63f5b]
+[pennant-0:00149] [ 6] pennant(+0x4f5b)[0x586504348f5b]
+[pennant-0:00147] [ 6] pennant(+0x4f5b)[0x5770c3878f5b]
+[pennant-0:00145] [ 6] pennant(+0x4f5b)[0x56714e638f5b]
+[pennant-0:00125] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7d37baa06d90]
+[pennant-0:00123] [ 6] pennant(+0x4f5b)[0x583ea5bf8f5b]
+[pennant-0:00121] [ 6] pennant(+0x4f5b)[0x56d58871ff5b]
+[pennant-0:00119] [ 6] pennant(+0x4f5b)[0x59422f8e9f5b]
+[pennant-0:00116] [ 6] pennant(+0x4f5b)[0x5c5cee20ef5b]
+[pennant-0:00115] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7c0cdc9e3d90]
+[pennant-0:00114] [ 6] pennant(+0x4f5b)[0x5af8672eaf5b]
+[pennant-0:00113] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7f65a41b7d90]
+[pennant-0:00112] Signal code: Address not mapped (1)
+[pennant-1:00159] *** Process received signal ***
+[pennant-0:00215] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7ec0d5824d90]
+[pennant-0:00213] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x78968a157d90]
+[pennant-0:00211] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7b186071cd90]
+[pennant-0:00209] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7e16f7e4ed90]
+[pennant-0:00207] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x78d1de23cd90]
+[pennant-0:00205] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7bfcc5f5ed90]
+[pennant-0:00203] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7e3c6ebf4d90]
+[pennant-0:00201] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7f68a9771d90]
+[pennant-0:00199] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x789ade5cdd90]
+[pennant-0:00161] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7b05b1461d90]
+[pennant-0:00159] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7f33c080fd90]
+[pennant-0:00157] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7dd79786cd90]
+[pennant-0:00154] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7ff67fff5d90]
+[pennant-0:00153] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x78f0774d5d90]
+[pennant-0:00151] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7aabd3936d90]
+[pennant-0:00149] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7989d20a3d90]
+[pennant-0:00147] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7da670fe7d90]
+[pennant-0:00145] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7c2f159bbd90]
+[pennant-0:00125] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7d37baa06e40]
+[pennant-0:00123] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7ee77e58cd90]
+[pennant-0:00121] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7e0c275ded90]
+[pennant-0:00119] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7ba426e38d90]
+[pennant-0:00116] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x79a75aa2fd90]
+[pennant-0:00115] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7c0cdc9e3e40]
+[pennant-0:00114] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7f21e442ad90]
+[pennant-0:00113] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7f65a41b7e40]
+[pennant-0:00112] Failing at address: 0x5c6f8cf31d88
+[pennant-1:00157] *** Process received signal ***
+[pennant-0:00215] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7ec0d5824e40]
+[pennant-0:00213] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x78968a157e40]
+[pennant-0:00211] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7b186071ce40]
+[pennant-0:00209] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7e16f7e4ee40]
+[pennant-0:00207] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x78d1de23ce40]
+[pennant-0:00205] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7bfcc5f5ee40]
+[pennant-0:00203] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7e3c6ebf4e40]
+[pennant-0:00201] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7f68a9771e40]
+[pennant-0:00199] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x789ade5cde40]
+[pennant-0:00161] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7b05b1461e40]
+[pennant-0:00159] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7f33c080fe40]
+[pennant-0:00157] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7dd79786ce40]
+[pennant-0:00154] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7ff67fff5e40]
+[pennant-0:00153] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x78f0774d5e40]
+[pennant-0:00151] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7aabd3936e40]
+[pennant-0:00149] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7989d20a3e40]
+[pennant-0:00147] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7da670fe7e40]
+[pennant-0:00145] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7c2f159bbe40]
+[pennant-0:00125] [ 9] pennant(+0x5165)[0x556ca4815165]
+[pennant-0:00123] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7ee77e58ce40]
+[pennant-0:00121] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7e0c275dee40]
+[pennant-0:00119] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7ba426e38e40]
+[pennant-0:00116] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x79a75aa2fe40]
+[pennant-0:00115] [ 9] pennant(+0x5165)[0x58bd8d8e9165]
+[pennant-0:00114] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7f21e442ae40]
+[pennant-0:00113] [ 9] pennant(+0x5165)[0x5a6330ee2165]
+[pennant-0:00112] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7a61a58a9520]
+[pennant-1:00155] *** Process received signal ***
+[pennant-0:00215] [ 9] pennant(+0x5165)[0x58b4b3f47165]
+[pennant-0:00213] [ 9] pennant(+0x5165)[0x5a9188fa0165]
+[pennant-0:00211] [ 9] pennant(+0x5165)[0x5a5d7e3d7165]
+[pennant-0:00209] [ 9] pennant(+0x5165)[0x5d3aeaee8165]
+[pennant-0:00207] [ 9] pennant(+0x5165)[0x599ff0c63165]
+[pennant-0:00205] [ 9] pennant(+0x5165)[0x593b1c3c6165]
+[pennant-0:00203] [ 9] pennant(+0x5165)[0x572c94089165]
+[pennant-0:00201] [ 9] pennant(+0x5165)[0x569db1c55165]
+[pennant-0:00199] [ 9] pennant(+0x5165)[0x57783f268165]
+[pennant-0:00161] [ 9] pennant(+0x5165)[0x572767208165]
+[pennant-0:00159] [ 9] pennant(+0x5165)[0x56b3273c0165]
+[pennant-0:00157] [ 9] pennant(+0x5165)[0x55bbc3967165]
+[pennant-0:00154] [ 9] pennant(+0x5165)[0x56e005790165]
+[pennant-0:00153] [ 9] pennant(+0x5165)[0x59ae2b6eb165]
+[pennant-0:00151] [ 9] pennant(+0x5165)[0x55f030c64165]
+[pennant-0:00149] [ 9] pennant(+0x5165)[0x586504349165]
+[pennant-0:00147] [ 9] pennant(+0x5165)[0x5770c3879165]
+[pennant-0:00145] [ 9] pennant(+0x5165)[0x56714e639165]
+[pennant-0:00125] *** End of error message ***
+[pennant-0:00123] [ 9] pennant(+0x5165)[0x583ea5bf9165]
+[pennant-0:00121] [ 9] pennant(+0x5165)[0x56d588720165]
+[pennant-0:00119] [ 9] pennant(+0x5165)[0x59422f8ea165]
+[pennant-0:00116] [ 9] pennant(+0x5165)[0x5c5cee20f165]
+[pennant-0:00115] *** End of error message ***
+[pennant-0:00114] [ 9] pennant(+0x5165)[0x5af8672eb165]
+[pennant-0:00113] *** End of error message ***
+[pennant-0:00112] [ 1] pennant(+0x16c90)[0x5c6f57810c90]
+[pennant-1:00153] *** Process received signal ***
+[pennant-0:00215] *** End of error message ***
+[pennant-0:00213] *** End of error message ***
+[pennant-0:00211] *** End of error message ***
+[pennant-0:00209] *** End of error message ***
+[pennant-0:00207] *** End of error message ***
+[pennant-0:00205] *** End of error message ***
+[pennant-0:00203] *** End of error message ***
+[pennant-0:00201] *** End of error message ***
+[pennant-0:00199] *** End of error message ***
+[pennant-0:00161] *** End of error message ***
+[pennant-0:00159] *** End of error message ***
+[pennant-0:00157] *** End of error message ***
+[pennant-0:00154] *** End of error message ***
+[pennant-0:00153] *** End of error message ***
+[pennant-0:00151] *** End of error message ***
+[pennant-0:00149] *** End of error message ***
+[pennant-0:00147] *** End of error message ***
+[pennant-0:00145] *** End of error message ***
+[pennant-0:00123] *** End of error message ***
+[pennant-0:00121] *** End of error message ***
+[pennant-0:00119] *** End of error message ***
+[pennant-0:00116] *** End of error message ***
+[pennant-0:00114] *** End of error message ***
+[pennant-0:00112] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7a61a5ac6a16]
+[pennant-1:00151] *** Process received signal ***
+[pennant-0:00112] [ 3] pennant(+0x1a8bd)[0x5c6f578148bd]
+[pennant-1:00149] *** Process received signal ***
+[pennant-0:00112] [ 4] pennant(+0x1153d)[0x5c6f5780b53d]
+[pennant-1:00147] *** Process received signal ***
+[pennant-0:00112] [ 5] pennant(+0x6886)[0x5c6f57800886]
+[pennant-1:00145] *** Process received signal ***
+[pennant-0:00112] [ 6] pennant(+0x4f5b)[0x5c6f577fef5b]
+[pennant-1:00107] Signal: Segmentation fault (11)
+[pennant-0:00112] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7a61a5890d90]
+[pennant-1:00105] Signal: Segmentation fault (11)
+[pennant-0:00112] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7a61a5890e40]
+[pennant-1:00103] Signal: Segmentation fault (11)
+[pennant-0:00112] [ 9] pennant(+0x5165)[0x5c6f577ff165]
+[pennant-1:00101] Signal: Segmentation fault (11)
+[pennant-0:00112] *** End of error message ***
+[pennant-1:00099] Signal: Segmentation fault (11)
+[pennant-1:00097] Signal: Segmentation fault (11)
+[pennant-1:00095] Signal: Segmentation fault (11)
+[pennant-1:00093] Signal: Segmentation fault (11)
+[pennant-1:00091] Signal: Segmentation fault (11)
+[pennant-1:00161] Signal: Segmentation fault (11)
+[pennant-1:00159] Signal: Segmentation fault (11)
+[pennant-1:00157] Signal: Segmentation fault (11)
+[pennant-1:00155] Signal: Segmentation fault (11)
+[pennant-1:00153] Signal: Segmentation fault (11)
+[pennant-1:00151] Signal: Segmentation fault (11)
+[pennant-1:00149] Signal: Segmentation fault (11)
+[pennant-1:00147] Signal: Segmentation fault (11)
+[pennant-1:00145] Signal: Segmentation fault (11)
+[pennant-1:00107] Signal code: Address not mapped (1)
+[pennant-1:00105] Signal code: Address not mapped (1)
+[pennant-1:00103] Signal code: Address not mapped (1)
+[pennant-1:00101] Signal code: Address not mapped (1)
+[pennant-1:00099] Signal code: Address not mapped (1)
+[pennant-1:00097] Signal code: Address not mapped (1)
+[pennant-1:00095] Signal code: Address not mapped (1)
+[pennant-1:00093] Signal code: Address not mapped (1)
+[pennant-1:00091] Signal code: Address not mapped (1)
+[pennant-1:00161] Signal code: Address not mapped (1)
+[pennant-1:00159] Signal code: Address not mapped (1)
+[pennant-1:00157] Signal code: Address not mapped (1)
+[pennant-1:00155] Signal code: Address not mapped (1)
+[pennant-1:00153] Signal code: Address not mapped (1)
+[pennant-1:00151] Signal code: Address not mapped (1)
+[pennant-1:00149] Signal code: Address not mapped (1)
+[pennant-1:00147] Signal code: Address not mapped (1)
+[pennant-1:00145] Signal code: Address not mapped (1)
+[pennant-1:00107] Failing at address: 0x5d29f7a32070
+[pennant-1:00105] Failing at address: 0x5a44d1569380
+[pennant-1:00103] Failing at address: 0x5af445583b90
+[pennant-1:00101] Failing at address: 0x5565e32660e0
+[pennant-1:00099] Failing at address: 0x5736eaca8328
+[pennant-1:00097] Failing at address: 0x5a5ff2ae4380
+[pennant-1:00095] Failing at address: 0x57e078c256d8
+[pennant-1:00093] Failing at address: 0x5b9a72810820
+[pennant-1:00091] Failing at address: 0x5a6be1fc91b0
+[pennant-1:00161] Failing at address: 0x55a0dc26f6d0
+[pennant-1:00159] Failing at address: 0x573a0ef2aa50
+[pennant-1:00157] Failing at address: 0x55bcbbfae6d0
+[pennant-1:00155] Failing at address: 0x5c855f7cdca0
+[pennant-1:00153] Failing at address: 0x5c7fff8dc6d0
+[pennant-1:00151] Failing at address: 0x563451222e10
+[pennant-1:00149] Failing at address: 0x5737cdb9a6d0
+[pennant-1:00147] Failing at address: 0x5613198dc368
+[pennant-1:00145] Failing at address: 0x562a030aa598
+[pennant-1:00107] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7c316695b520]
+[pennant-1:00105] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x78e96b711520]
+[pennant-1:00103] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7ebee8e7f520]
+[pennant-1:00101] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7c8cc4ac8520]
+[pennant-1:00099] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7d37fb141520]
+[pennant-1:00097] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7d9e4adb2520]
+[pennant-1:00095] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7e27fead0520]
+[pennant-1:00093] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x797495b4a520]
+[pennant-1:00091] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7e0f46d76520]
+[pennant-1:00161] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x79ec40883520]
+[pennant-1:00159] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7a883f92c520]
+[pennant-1:00157] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7fdd17c5e520]
+[pennant-1:00155] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7c91209c5520]
+[pennant-1:00153] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7f7c26dc7520]
+[pennant-1:00151] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7d0efa055520]
+[pennant-1:00149] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7d723c451520]
+[pennant-1:00147] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7bb9cc89b520]
+[pennant-1:00145] [ 0] /lib/x86_64-linux-gnu/libc.so.6(+0x42520)[0x7ab9dad6e520]
+[pennant-1:00107] [ 1] pennant(+0x16c90)[0x5d26a8fe6c90]
+[pennant-1:00105] [ 1] pennant(+0x16c90)[0x5a41602bec90]
+[pennant-1:00103] [ 1] pennant(+0x16c90)[0x5af4126cec90]
+[pennant-1:00101] [ 1] pennant(+0x16c90)[0x5565cd0a5c90]
+[pennant-1:00099] [ 1] pennant(+0x16c90)[0x5736aaf93c90]
+[pennant-1:00097] [ 1] pennant(+0x16c90)[0x5a5d8f517c90]
+[pennant-1:00095] [ 1] pennant(+0x16c90)[0x57e04cf44c90]
+[pennant-1:00093] [ 1] pennant(+0x16c90)[0x5b9a5b8f1c90]
+[pennant-1:00091] [ 1] pennant(+0x16c90)[0x5a6995b9dc90]
+[pennant-1:00161] [ 1] pennant(+0x16c90)[0x559e96fbec90]
+[pennant-1:00159] [ 1] pennant(+0x16c90)[0x57380a8c0c90]
+[pennant-1:00157] [ 1] pennant(+0x16c90)[0x55bbe178cc90]
+[pennant-1:00155] [ 1] pennant(+0x16c90)[0x5c842433dc90]
+[pennant-1:00153] [ 1] pennant(+0x16c90)[0x5c7eabc45c90]
+[pennant-1:00151] [ 1] pennant(+0x16c90)[0x56341c953c90]
+[pennant-1:00149] [ 1] pennant(+0x16c90)[0x5735c095bc90]
+[pennant-1:00147] [ 1] pennant(+0x16c90)[0x561315924c90]
+[pennant-1:00145] [ 1] pennant(+0x16c90)[0x5629f737bc90]
+[pennant-1:00107] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7c3166b78a16]
+[pennant-1:00105] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x78e96b92ea16]
+[pennant-1:00103] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7ebee909ca16]
+[pennant-1:00101] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7c8cc4ce5a16]
+[pennant-1:00099] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7d37fb35ea16]
+[pennant-1:00097] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7d9e4afcfa16]
+[pennant-1:00095] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7e27feceda16]
+[pennant-1:00093] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x797495d67a16]
+[pennant-1:00091] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7e0f46f93a16]
+[pennant-1:00161] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x79ec40aa0a16]
+[pennant-1:00159] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7a883fb49a16]
+[pennant-1:00157] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7fdd17e7ba16]
+[pennant-1:00155] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7c9120be2a16]
+[pennant-1:00153] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7f7c26fe4a16]
+[pennant-1:00151] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7d0efa272a16]
+[pennant-1:00149] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7d723c66ea16]
+[pennant-1:00147] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7bb9ccab8a16]
+[pennant-1:00145] [ 2] /lib/x86_64-linux-gnu/libgomp.so.1(GOMP_parallel+0x46)[0x7ab9daf8ba16]
+[pennant-1:00107] [ 3] pennant(+0x1a8bd)[0x5d26a8fea8bd]
+[pennant-1:00105] [ 3] pennant(+0x1a8bd)[0x5a41602c28bd]
+[pennant-1:00103] [ 3] pennant(+0x1a8bd)[0x5af4126d28bd]
+[pennant-1:00101] [ 3] pennant(+0x1a8bd)[0x5565cd0a98bd]
+[pennant-1:00099] [ 3] pennant(+0x1a8bd)[0x5736aaf978bd]
+[pennant-1:00097] [ 3] pennant(+0x1a8bd)[0x5a5d8f51b8bd]
+[pennant-1:00095] [ 3] pennant(+0x1a8bd)[0x57e04cf488bd]
+[pennant-1:00093] [ 3] pennant(+0x1a8bd)[0x5b9a5b8f58bd]
+[pennant-1:00091] [ 3] pennant(+0x1a8bd)[0x5a6995ba18bd]
+[pennant-1:00161] [ 3] pennant(+0x1a8bd)[0x559e96fc28bd]
+[pennant-1:00159] [ 3] pennant(+0x1a8bd)[0x57380a8c48bd]
+[pennant-1:00157] [ 3] pennant(+0x1a8bd)[0x55bbe17908bd]
+[pennant-1:00155] [ 3] pennant(+0x1a8bd)[0x5c84243418bd]
+[pennant-1:00153] [ 3] pennant(+0x1a8bd)[0x5c7eabc498bd]
+[pennant-1:00151] [ 3] pennant(+0x1a8bd)[0x56341c9578bd]
+[pennant-1:00149] [ 3] pennant(+0x1a8bd)[0x5735c095f8bd]
+[pennant-1:00147] [ 3] pennant(+0x1a8bd)[0x5613159288bd]
+[pennant-1:00145] [ 3] pennant(+0x1a8bd)[0x5629f737f8bd]
+[pennant-1:00107] [ 4] pennant(+0x1153d)[0x5d26a8fe153d]
+[pennant-1:00105] [ 4] pennant(+0x1153d)[0x5a41602b953d]
+[pennant-1:00103] [ 4] pennant(+0x1153d)[0x5af4126c953d]
+[pennant-1:00101] [ 4] pennant(+0x1153d)[0x5565cd0a053d]
+[pennant-1:00099] [ 4] pennant(+0x1153d)[0x5736aaf8e53d]
+[pennant-1:00097] [ 4] pennant(+0x1153d)[0x5a5d8f51253d]
+[pennant-1:00095] [ 4] pennant(+0x1153d)[0x57e04cf3f53d]
+[pennant-1:00093] [ 4] pennant(+0x1153d)[0x5b9a5b8ec53d]
+[pennant-1:00091] [ 4] pennant(+0x1153d)[0x5a6995b9853d]
+[pennant-1:00161] [ 4] pennant(+0x1153d)[0x559e96fb953d]
+[pennant-1:00159] [ 4] pennant(+0x1153d)[0x57380a8bb53d]
+[pennant-1:00157] [ 4] pennant(+0x1153d)[0x55bbe178753d]
+[pennant-1:00155] [ 4] pennant(+0x1153d)[0x5c842433853d]
+[pennant-1:00153] [ 4] pennant(+0x1153d)[0x5c7eabc4053d]
+[pennant-1:00151] [ 4] pennant(+0x1153d)[0x56341c94e53d]
+[pennant-1:00149] [ 4] pennant(+0x1153d)[0x5735c095653d]
+[pennant-1:00147] [ 4] pennant(+0x1153d)[0x56131591f53d]
+[pennant-1:00145] [ 4] pennant(+0x1153d)[0x5629f737653d]
+[pennant-1:00107] [ 5] pennant(+0x6886)[0x5d26a8fd6886]
+[pennant-1:00105] [ 5] pennant(+0x6886)[0x5a41602ae886]
+[pennant-1:00103] [ 5] pennant(+0x6886)[0x5af4126be886]
+[pennant-1:00101] [ 5] pennant(+0x6886)[0x5565cd095886]
+[pennant-1:00099] [ 5] pennant(+0x6886)[0x5736aaf83886]
+[pennant-1:00097] [ 5] pennant(+0x6886)[0x5a5d8f507886]
+[pennant-1:00095] [ 5] pennant(+0x6886)[0x57e04cf34886]
+[pennant-1:00093] [ 5] pennant(+0x6886)[0x5b9a5b8e1886]
+[pennant-1:00091] [ 5] pennant(+0x6886)[0x5a6995b8d886]
+[pennant-1:00161] [ 5] pennant(+0x6886)[0x559e96fae886]
+[pennant-1:00159] [ 5] pennant(+0x6886)[0x57380a8b0886]
+[pennant-1:00157] [ 5] pennant(+0x6886)[0x55bbe177c886]
+[pennant-1:00155] [ 5] pennant(+0x6886)[0x5c842432d886]
+[pennant-1:00153] [ 5] pennant(+0x6886)[0x5c7eabc35886]
+[pennant-1:00151] [ 5] pennant(+0x6886)[0x56341c943886]
+[pennant-1:00149] [ 5] pennant(+0x6886)[0x5735c094b886]
+[pennant-1:00147] [ 5] pennant(+0x6886)[0x561315914886]
+[pennant-1:00145] [ 5] pennant(+0x6886)[0x5629f736b886]
+[pennant-1:00107] [ 6] pennant(+0x4f5b)[0x5d26a8fd4f5b]
+[pennant-1:00105] [ 6] pennant(+0x4f5b)[0x5a41602acf5b]
+[pennant-1:00103] [ 6] pennant(+0x4f5b)[0x5af4126bcf5b]
+[pennant-1:00101] [ 6] pennant(+0x4f5b)[0x5565cd093f5b]
+[pennant-1:00099] [ 6] pennant(+0x4f5b)[0x5736aaf81f5b]
+[pennant-1:00097] [ 6] pennant(+0x4f5b)[0x5a5d8f505f5b]
+[pennant-1:00095] [ 6] pennant(+0x4f5b)[0x57e04cf32f5b]
+[pennant-1:00093] [ 6] pennant(+0x4f5b)[0x5b9a5b8dff5b]
+[pennant-1:00091] [ 6] pennant(+0x4f5b)[0x5a6995b8bf5b]
+[pennant-1:00161] [ 6] pennant(+0x4f5b)[0x559e96facf5b]
+[pennant-1:00159] [ 6] pennant(+0x4f5b)[0x57380a8aef5b]
+[pennant-1:00157] [ 6] pennant(+0x4f5b)[0x55bbe177af5b]
+[pennant-1:00155] [ 6] pennant(+0x4f5b)[0x5c842432bf5b]
+[pennant-1:00153] [ 6] pennant(+0x4f5b)[0x5c7eabc33f5b]
+[pennant-1:00151] [ 6] pennant(+0x4f5b)[0x56341c941f5b]
+[pennant-1:00149] [ 6] pennant(+0x4f5b)[0x5735c0949f5b]
+[pennant-1:00147] [ 6] pennant(+0x4f5b)[0x561315912f5b]
+[pennant-1:00145] [ 6] pennant(+0x4f5b)[0x5629f7369f5b]
+[pennant-1:00107] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7c3166942d90]
+[pennant-1:00105] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x78e96b6f8d90]
+[pennant-1:00103] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7ebee8e66d90]
+[pennant-1:00101] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7c8cc4aafd90]
+[pennant-1:00099] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7d37fb128d90]
+[pennant-1:00097] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7d9e4ad99d90]
+[pennant-1:00095] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7e27feab7d90]
+[pennant-1:00093] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x797495b31d90]
+[pennant-1:00091] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7e0f46d5dd90]
+[pennant-1:00161] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x79ec4086ad90]
+[pennant-1:00159] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7a883f913d90]
+[pennant-1:00157] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7fdd17c45d90]
+[pennant-1:00155] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7c91209acd90]
+[pennant-1:00153] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7f7c26daed90]
+[pennant-1:00151] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7d0efa03cd90]
+[pennant-1:00149] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7d723c438d90]
+[pennant-1:00147] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7bb9cc882d90]
+[pennant-1:00145] [ 7] /lib/x86_64-linux-gnu/libc.so.6(+0x29d90)[0x7ab9dad55d90]
+[pennant-1:00107] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7c3166942e40]
+[pennant-1:00105] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x78e96b6f8e40]
+[pennant-1:00103] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7ebee8e66e40]
+[pennant-1:00101] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7c8cc4aafe40]
+[pennant-1:00099] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7d37fb128e40]
+[pennant-1:00097] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7d9e4ad99e40]
+[pennant-1:00095] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7e27feab7e40]
+[pennant-1:00093] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x797495b31e40]
+[pennant-1:00091] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7e0f46d5de40]
+[pennant-1:00161] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x79ec4086ae40]
+[pennant-1:00159] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7a883f913e40]
+[pennant-1:00157] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7fdd17c45e40]
+[pennant-1:00155] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7c91209ace40]
+[pennant-1:00153] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7f7c26daee40]
+[pennant-1:00151] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7d0efa03ce40]
+[pennant-1:00149] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7d723c438e40]
+[pennant-1:00147] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7bb9cc882e40]
+[pennant-1:00145] [ 8] /lib/x86_64-linux-gnu/libc.so.6(__libc_start_main+0x80)[0x7ab9dad55e40]
+[pennant-1:00107] [ 9] pennant(+0x5165)[0x5d26a8fd5165]
+[pennant-1:00105] [ 9] pennant(+0x5165)[0x5a41602ad165]
+[pennant-1:00103] [ 9] pennant(+0x5165)[0x5af4126bd165]
+[pennant-1:00101] [ 9] pennant(+0x5165)[0x5565cd094165]
+[pennant-1:00099] [ 9] pennant(+0x5165)[0x5736aaf82165]
+[pennant-1:00097] [ 9] pennant(+0x5165)[0x5a5d8f506165]
+[pennant-1:00095] [ 9] pennant(+0x5165)[0x57e04cf33165]
+[pennant-1:00093] [ 9] pennant(+0x5165)[0x5b9a5b8e0165]
+[pennant-1:00091] [ 9] pennant(+0x5165)[0x5a6995b8c165]
+[pennant-1:00161] [ 9] pennant(+0x5165)[0x559e96fad165]
+[pennant-1:00159] [ 9] pennant(+0x5165)[0x57380a8af165]
+[pennant-1:00157] [ 9] pennant(+0x5165)[0x55bbe177b165]
+[pennant-1:00155] [ 9] pennant(+0x5165)[0x5c842432c165]
+[pennant-1:00153] [ 9] pennant(+0x5165)[0x5c7eabc34165]
+[pennant-1:00151] [ 9] pennant(+0x5165)[0x56341c942165]
+[pennant-1:00149] [ 9] pennant(+0x5165)[0x5735c094a165]
+[pennant-1:00147] [ 9] pennant(+0x5165)[0x561315913165]
+[pennant-1:00145] [ 9] pennant(+0x5165)[0x5629f736a165]
+[pennant-1:00107] *** End of error message ***
+[pennant-1:00105] *** End of error message ***
+[pennant-1:00103] *** End of error message ***
+[pennant-1:00101] *** End of error message ***
+[pennant-1:00099] *** End of error message ***
+[pennant-1:00097] *** End of error message ***
+[pennant-1:00095] *** End of error message ***
+[pennant-1:00093] *** End of error message ***
+[pennant-1:00091] *** End of error message ***
+[pennant-1:00161] *** End of error message ***
+[pennant-1:00159] *** End of error message ***
+[pennant-1:00157] *** End of error message ***
+[pennant-1:00155] *** End of error message ***
+[pennant-1:00153] *** End of error message ***
+[pennant-1:00151] *** End of error message ***
+[pennant-1:00149] *** End of error message ***
+[pennant-1:00147] *** End of error message ***
+[pennant-1:00145] *** End of error message ***

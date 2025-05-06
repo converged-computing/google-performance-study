@@ -1,0 +1,32 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: data
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Ti
+  storageClassName: "filestore-example"
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: data
+spec:
+  storageClassName: "filestore-example"
+  capacity:
+    storage: 1Ti
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  volumeMode: Filesystem
+  csi:
+    driver: filestore.csi.storage.gke.io
+    volumeHandle: "modeInstance/us-central1-a/test-filestore/filestore"
+    volumeAttributes:
+      ip: 10.251.203.114
+      volume: /filestore
+  claimRef:
+    name: data

@@ -1,0 +1,1866 @@
+Defaulted container "gamess" out of: gamess, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START gamess-iter-$i"
+  flux run --setattr=user.study_id=gamess-iter-$i -N8 -n 704 -o cpu-affinity=per-task -o gpu-affinity=off    rimp2-serial /opt/data/benz.kern |& tee /tmp/gamess.out
+    echo "FLUX-RUN END gamess-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      8      704        0 gamess-[0-7]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START gamess-iter-1
+ You are running the code serially
+ You are running the code serially
+
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+
+ You are running the code serially
+ You are running the code serially
+
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+No PMIx server was reachable, but a PMI1/2 was detected.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+     Error!
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+     Error!
+     Error!
+If srun is being used to launch application,  704 singletons will be started.
+     Error!
+     One of the followings should be used as an input:
+
+     One of the followings should be used as an input:
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+
+     One of the followings should be used as an input:
+
+
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+Backtrace for this error:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     NQVV =-897238956
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+Backtrace for this error:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+Backtrace for this error:
+Backtrace for this error:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x782a51a9f960 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     Memory Footprint:
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7eb31399f960 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x79d00f987960 in ???
+#0  0x782944cbf960 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#1  0x782a51a9eac5 in ???
+          B32(********,*******) = -16853.4954 MB
+#1  0x7eb31399eac5 in ???
+#1  0x79d00f986ac5 in ???
+#1  0x782944cbeac5 in ???
+#2  0x782a5176451f in ???
+          eij(********,*******) =   4788.2477 MB
+#2  0x7eb31366451f in ???
+#2  0x79d00f64c51f in ???
+#2  0x78294497e51f in ???
+#3  0x555fee580b08 in ???
+          eab(********,*******) = -12224.2460 MB
+#3  0x5b8fd436db08 in ???
+#3  0x5603448cbb08 in ???
+#3  0x57fecc3ccb08 in ???
+#4  0x555fee582797 in ???
+          QVV(*****,****,*****) =  -8720.6342 MB
+#4  0x5b8fd436f797 in ???
+#4  0x5603448cd797 in ???
+#4  0x57fecc3ce797 in ???
+#5  0x555fee5830b1 in ???
+ rank skipped wwww           0
+#5  0x5b8fd43700b1 in ???
+#5  0x5603448ce0b1 in ???
+#5  0x57fecc3cf0b1 in ???
+#6  0x782a5174bd8f in ???
+
+#6  0x7eb31364bd8f in ???
+#6  0x79d00f633d8f in ???
+#6  0x782944965d8f in ???
+#7  0x782a5174be3f in ???
+     Results:
+#7  0x7eb31364be3f in ???
+#7  0x79d00f633e3f in ???
+#7  0x782944965e3f in ???
+#8  0x555fee57f254 in ???
+                               Number of MPI ranks   =     1
+#8  0x5b8fd436c254 in ???
+#8  0x5603448ca254 in ???
+#8  0x57fecc3cb254 in ???
+#9  0xffffffffffffffff in ???
+                               Number of OMP threads =     1
+#9  0xffffffffffffffff in ???
+#9  0xffffffffffffffff in ???
+#9  0xffffffffffffffff in ???
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+                               Wall time (minimum)   =    0.000 sec
+                               Wall time (mean)      =    0.000 sec
+                               Wall time (maximum)   =    0.000 sec
+          Failed :-(
+
+ You are running the code serially
+
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+ You are running the code serially
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+ You are running the code serially
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+     Error!
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+ You are running the code serially
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+
+ You are running the code serially
+ You are running the code serially
+In file '../source/rimp2_energy_whole_KERN.f90', around line 474: Error allocating 12126406729039138568 bytes: Cannot allocate memory
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+
+ You are running the code serially
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+     Error!
+     Error!
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+Fortran runtime error: Integer overflow when calculating the amount of memory to allocate
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+ You are running the code serially
+
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+
+
+     Error!
+     Error!
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+ You are running the code serially
+ You are running the code serially
+Fortran runtime error: Integer overflow when calculating the amount of memory to allocate
+     One of the followings should be used as an input:
+     Error!
+     Error!
+In file '../source/rimp2_energy_whole_KERN.f90', around line 474: Error allocating 9141134836029771528 bytes: Cannot allocate memory
+ You are running the code serially
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+ You are running the code serially
+ You are running the code serially
+
+Fortran runtime error: Integer overflow when calculating the amount of memory to allocate
+     Error!
+     Error!
+ You are running the code serially
+ You are running the code serially
+     One of the followings should be used as an input:
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+
+     Error!
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Error!
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     Error!
+
+ You are running the code serially
+ You are running the code serially
+     One of the followings should be used as an input:
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Error!
+ You are running the code serially
+ You are running the code serially
+
+
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+ You are running the code serially
+ You are running the code serially
+     One of the followings should be used as an input:
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     One of the followings should be used as an input:
+
+     One of the followings should be used as an input:
+     Error!
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+Backtrace for this error:
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+     Generating arbitrary input data with the structure of*** water clusters
+
+Backtrace for this error:
+
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+ You are running the code serially
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+     Error!
+In file '../source/rimp2_energy_whole_KERN.f90', around line 474: Error allocating 17585777385527627528 bytes: Cannot allocate memory
+In file '../source/rimp2_energy_whole_KERN.f90', around line 474: Error allocating 7775633840679735048 bytes: Cannot allocate memory
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+ You are running the code serially
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+ You are running the code serially
+     NQVV =-531154860
+ You are running the code serially
+     Memory Footprint:
+ You are running the code serially
+          B32(********,*******) =    917.7706 MB
+Backtrace for this error:
+          eij(********,*******) =  11473.9683 MB
+     One of the followings should be used as an input:
+          eab(********,*******) = -11701.5309 MB
+     One of the followings should be used as an input:
+          QVV(*****,****,*****) =  -6746.1656 MB
+     Generating arbitrary input data with the structure of*** water clusters
+ rank skipped wwww           0
+
+ You are running the code serially
+     Results:
+ You are running the code serially
+                               Number of MPI ranks   =     1
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+                               Number of OMP threads =     1
+     One of the followings should be used as an input:
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+     One of the followings should be used as an input:
+                               Wall time (minimum)   =    0.000 sec
+     Error!
+                               Wall time (mean)      =    0.000 sec
+ You are running the code serially
+                               Wall time (maximum)   =    0.000 sec
+ You are running the code serially
+          Failed :-(
+
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+ You are running the code serially
+ You are running the code serially
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+Backtrace for this error:
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+     Error!
+ You are running the code serially
+ You are running the code serially
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+     NQVV =-555796396
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+#0  0x7ce658aaf960 in ???
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Error!
+
+     Generating arbitrary input data with the structure of*** water clusters
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+
+     NQVV =**********
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+ You are running the code serially
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+#0  0x7ff8591d7960 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+Backtrace for this error:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+     Error!
+     Error!
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+Backtrace for this error:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+
+     Error!
+     Error!
+
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     NQVV =**********
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+#0  0x7b1308527960 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Error!
+     Error!
+     Error!
+     Error!
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+#1  0x7ce658aaeac5 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Memory Footprint:
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+     Error!
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Error!
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+
+#1  0x7ff8591d6ac5 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Memory Footprint:
+     One of the followings should be used as an input:
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Generating arbitrary input data with the structure of*** water clusters
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+Backtrace for this error:
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     Error!
+     Error!
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+#1  0x7b1308526ac5 in ???
+#0  0x79750fc4f960 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+#0  0x789e138af960 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+
+     Error!
+     Memory Footprint:
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+
+#2  0x7ce65877451f in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+Error termination. Backtrace:
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+#2  0x7ff858e9a51f in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+#2  0x7b13081e851f in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          B32(********,*******) =   5565.0595 MB
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+#3  0x5698aa11bb08 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+Error termination. Backtrace:
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+#3  0x5b4f076e6b08 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          B32(98733404,*******) = -16123.6865 MB
+Backtrace for this error:
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+     Generating arbitrary input data with the structure of*** water clusters
+#3  0x594a83725b08 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+     Error!
+#4  0x5698aa11d797 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+#4  0x5b4f076e8797 in ???
+#0  0x782c08e9f960 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+#4  0x594a83727797 in ???
+Backtrace for this error:
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+#5  0x5698aa11e0b1 in ???
+#1  0x79750fc4eac5 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+#5  0x5b4f076e90b1 in ???
+#1  0x789e138aeac5 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+
+Error termination. Backtrace:
+Error termination. Backtrace:
+#5  0x594a837280b1 in ???
+          B32(********,*******) = -10834.6692 MB
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#6  0x7ce65875bd8f in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+
+     One of the followings should be used as an input:
+#6  0x7ff858e81d8f in ???
+#0  0x78dd6185f960 in ???
+
+
+#6  0x7b13081cfd8f in ???
+          eij(********,*******) =  -4464.3869 MB
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+
+#7  0x7ce65875be3f in ???
+          eij(********,*******) =    610.7209 MB
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+     One of the followings should be used as an input:
+#7  0x7ff858e81e3f in ???
+          eab(********,*******) =  13088.9029 MB
+#0  0x7bf24465f960 in ???
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+Error termination. Backtrace:
+#7  0x7b13081cfe3f in ???
+          eab(********,*******) = -14137.8972 MB
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+#8  0x5698aa11a254 in ???
+          QVV(*****,****,*****) =  -7740.2156 MB
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+#8  0x5b4f076e5254 in ???
+#1  0x782c08e9eac5 in ???
+          QVV(*****,****,*****) =   2488.6432 MB
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+Error termination. Backtrace:
+
+#8  0x594a83724254 in ???
+ rank skipped wwww           0
+#0  0x7b2511bef960 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#9  0xffffffffffffffff in ???
+#2  0x79750f91451f in ???
+ rank skipped wwww           0
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+#9  0xffffffffffffffff in ???
+#2  0x789e1357451f in ???
+
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+#9  0xffffffffffffffff in ???
+          eij(********,*******) =  12396.7151 MB
+
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+Error termination. Backtrace:
+#2  0x782c08b6251f in ???
+     Results:
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+Backtrace for this error:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#3  0x56d6027f5b08 in ???
+     Results:
+#1  0x78dd618604d9 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+ You are running the code serially
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Error!
+
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#3  0x5a30f6151b08 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+                               Number of MPI ranks   =     1
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+Backtrace for this error:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#0  0x7aa21db2f960 in ???
+          eab(********,*******) =  15560.3966 MB
+                               Number of MPI ranks   =     1
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     NQVV =**********
+#0  0x7ba52eb17960 in ???
+     One of the followings should be used as an input:
+#1  0x7aa21db2eac5 in ???
+#3  0x5c051da72b08 in ???
+                               Number of OMP threads =     1
+#1  0x7bf24465eac5 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+Backtrace for this error:
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+#2  0x7aa21d7f251f in ???
+#4  0x56d6027f7797 in ???
+                               Number of OMP threads =     1
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+Backtrace for this error:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#3  0x5ce2acd9fb08 in ???
+#4  0x5a30f6153797 in ???
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#4  0x5ce2acda1797 in ???
+          QVV(*****,****,*****) = -13085.8561 MB
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#5  0x5ce2acda20b1 in ???
+#4  0x5c051da74797 in ???
+                               Wall time (minimum)   =    0.000 sec
+#1  0x7b2511beeac5 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#0  0x79c263bf7960 in ???
+#6  0x7aa21d7d9d8f in ???
+#5  0x56d6027f80b1 in ???
+                               Wall time (minimum)   =    0.000 sec
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7be9704b7960 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#7  0x7aa21d7d9e3f in ???
+#5  0x5a30f61540b1 in ???
+ You are running the code serially
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+Backtrace for this error:
+#8  0x5ce2acd9e254 in ???
+ rank skipped wwww           0
+                               Wall time (mean)      =    0.000 sec
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#9  0xffffffffffffffff in ???
+#5  0x5c051da750b1 in ???
+                               Wall time (mean)      =    0.000 sec
+#0  0x7da6470ff960 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7db83c2c7960 in ???
+     NQVV =**********
+#6  0x79750f8fbd8f in ???
+     Error!
+#2  0x78dd6186084c in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+Backtrace for this error:
+#6  0x789e1355bd8f in ???
+                               Wall time (maximum)   =    0.000 sec
+#0  0x7af610d7f960 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     NQVV =**********
+
+                               Wall time (maximum)   =    0.000 sec
+     Memory Footprint:
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#6  0x782c08b49d8f in ???
+     One of the followings should be used as an input:
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7a4338d77960 in ???
+#7  0x79750f8fbe3f in ???
+          Failed :-(
+#2  0x7bf24432251f in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#1  0x7ba52eb184d9 in ???
+Backtrace for this error:
+#7  0x789e1355be3f in ???
+          Failed :-(
+#2  0x7b25118b051f in ???
+#0  0x78a850d27960 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Results:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#3  0x5c5bed9eafa5 in ???
+#0  0x7ce211017960 in ???
+     NQVV =**********
+#7  0x782c08b49e3f in ???
+#3  0x5a3d162a7b08 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#8  0x56d6027f4254 in ???
+#3  0x5904edcedb08 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#8  0x5a30f6150254 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#4  0x5c5bed9ec797 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+                               Number of MPI ranks   =     1
+#4  0x5a3d162a9797 in ???
+#1  0x7be9704b84d9 in ???
+#1  0x79c263bf84d9 in ???
+#8  0x5c051da71254 in ???
+#4  0x5904edcef797 in ???
+#1  0x7da6470feac5 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#9  0xffffffffffffffff in ???
+ You are running the code serially
+#5  0x5c5bed9ed0b1 in ???
+     Error!
+#0  0x7b2e08ecf960 in ???
+#9  0xffffffffffffffff in ???
+     Generating arbitrary input data with the structure of*** water clusters
+#5  0x5a3d162aa0b1 in ???
+#1  0x7af610d7eac5 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+                               Number of OMP threads =     1
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+#5  0x5904edcf00b1 in ???
+          B32(********,*******) =  -4673.2366 MB
+#1  0x7db83c2c84d9 in ???
+#9  0xffffffffffffffff in ???
+     NQVV =-880723884
+#6  0x78dd61507d8f in ???
+     Memory Footprint:
+     Memory Footprint:
+#6  0x7bf244309d8f in ???
+#0  0x7d8b45e7f960 in ???
+          B32(********,*******) =  -1326.1820 MB
+#6  0x7b2511897d8f in ???
+     Memory Footprint:
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+          eij(********,*******) =   1214.7007 MB
+#7  0x78dd61507e3f in ???
+#2  0x7da646dc251f in ???
+#2  0x7ba52eb18989 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          eab(********,*******) =   8079.3311 MB
+#7  0x7bf244309e3f in ???
+#2  0x7af610a4451f in ???
+#1  0x78a850d26ac5 in ???
+#1  0x7a4338d784d9 in ???
+                               Wall time (minimum)   =    0.000 sec
+          QVV(*****,****,*****) =   5835.6978 MB
+#7  0x7b2511897e3f in ???
+          eij(********,*******) =  10895.1543 MB
+#1  0x7ce211016ac5 in ???
+#0  0x7c604cf6f960 in ???
+                               Wall time (mean)      =    0.000 sec
+ rank skipped wwww           0
+#8  0x5c5bed9e9254 in ???
+#3  0x570542809b08 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+                               Wall time (maximum)   =    0.000 sec
+
+#8  0x5a3d162a6254 in ???
+#3  0x58b3ecc40b08 in ???
+ You are running the code serially
+     Memory Footprint:
+          Failed :-(
+     Results:
+#8  0x5904edcec254 in ???
+          eab(********,*******) =   1008.7831 MB
+     Generating arbitrary input data with the structure of*** water clusters
+                               Number of MPI ranks   =     1
+#9  0xffffffffffffffff in ???
+#4  0x57054280b797 in ???
+#2  0x7be9704b884c in ???
+In file '../source/rimp2_energy_whole_KERN.f90', around line 474: Error allocating 7177671716629958408 bytes: Cannot allocate memory
+ You are running the code serially
+                               Number of OMP threads =     1
+#9  0xffffffffffffffff in ???
+#4  0x58b3ecc42797 in ???
+
+
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+#9  0xffffffffffffffff in ???
+          QVV(*****,****,*****) =   5078.6260 MB
+Error termination. Backtrace:
+#2  0x79c263bf8989 in ???
+     Generating arbitrary input data with the structure of*** water clusters
+                               Wall time (minimum)   =    0.000 sec
+#5  0x57054280c0b1 in ???
+     One of the followings should be used as an input:
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+                               Wall time (mean)      =    0.000 sec
+#5  0x58b3ecc430b1 in ???
+#3  0x5d16ffb41f29 in ???
+#1  0x7b2e08eceac5 in ???
+
+                               Wall time (maximum)   =    0.000 sec
+ rank skipped wwww           0
+#2  0x78a8509e851f in ???
+Backtrace for this error:
+          Failed :-(
+#6  0x7da646da9d8f in ???
+#2  0x7ce210cda51f in ???
+#2  0x7db83c2c8989 in ???
+ You are running the code serially
+ You are running the code serially
+#6  0x7af610a2bd8f in ???
+#3  0x5bc52ce2afa5 in ???
+ You are running the code serially
+          B32(********,*******) =   1916.0150 MB
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Generating arbitrary input data with the structure of*** water clusters
+#1  0x7d8b45e7eac5 in ???
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+#4  0x5d16ffb43797 in ???
+     One of the followings should be used as an input:
+#7  0x7da646da9e3f in ???
+          B32(********,*******) = -11711.2787 MB
+     NQVV =-197969836
+#3  0x59ccfab0db08 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#7  0x7af610a2be3f in ???
+     Memory Footprint:
+#3  0x57c8ea618b08 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     Results:
+#2  0x7a4338d7884c in ???
+          B32(********,*******) =  -1607.2004 MB
+#4  0x5bc52ce2c797 in ???
+#8  0x570542808254 in ???
+#1  0x7c604cf6eac5 in ???
+          eij(********,*******) = -13171.7620 MB
+#8  0x58b3ecc3f254 in ???
+          eab(********,*******) =  12049.7641 MB
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+                               Number of MPI ranks   =     1
+          B32(********,*******) =   9897.7755 MB
+          QVV(*****,****,*****) = -13043.9131 MB
+#5  0x5d16ffb440b1 in ???
+#9  0xffffffffffffffff in ???
+ rank skipped wwww           0
+#4  0x59ccfab0f797 in ???
+#9  0xffffffffffffffff in ???
+#3  0x581463ed6f29 in ???
+
+#4  0x57c8ea61a797 in ???
+                               Number of OMP threads =     1
+#2  0x7b2e08b9251f in ???
+     Results:
+#5  0x5bc52ce2d0b1 in ???
+#3  0x5baea3dacf29 in ???
+                               Number of MPI ranks   =     1
+          eij(********,*******) =  16423.2470 MB
+                               Number of OMP threads =     1
+#6  0x7ba52e7c3d8f in ???
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+#2  0x7d8b45b4051f in ???
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+#5  0x59ccfab100b1 in ???
+                               Wall time (minimum)   =    0.000 sec
+          eij(********,*******) = -10428.6872 MB
+                               Wall time (minimum)   =    0.000 sec
+#5  0x57c8ea61b0b1 in ???
+                               Wall time (mean)      =    0.000 sec
+#3  0x5c56a624efa5 in ???
+                               Wall time (mean)      =    0.000 sec
+#6  0x7be970163d8f in ???
+                               Wall time (maximum)   =    0.000 sec
+#2  0x7c604cc3451f in ???
+                               Wall time (maximum)   =    0.000 sec
+#7  0x7ba52e7c3e3f in ???
+          Failed :-(
+          eij(********,*******) = -14455.2191 MB
+          Failed :-(
+#6  0x78a8509cfd8f in ???
+#4  0x581463ed8797 in ???
+#6  0x7ce210cc1d8f in ???
+#0  0x7fe0399c7960 in ???
+#3  0x584daf247b08 in ???
+#7  0x7be970163e3f in ???
+#1  0x7fe0399c84d9 in ???
+#4  0x5baea3dae797 in ???
+#2  0x7fe0399c884c in ???
+#8  0x5d16ffb40254 in ???
+          eab(********,*******) =   1182.3224 MB
+#3  0x561d63e35fa5 in ???
+#7  0x78a8509cfe3f in ???
+#3  0x5c2c6521db08 in ???
+#4  0x561d63e37797 in ???
+#7  0x7ce210cc1e3f in ???
+          eab(********,*******) =  15958.3311 MB
+#5  0x561d63e380b1 in ???
+#8  0x5bc52ce29254 in ???
+#4  0x5c56a6250797 in ???
+#6  0x7fe039673d8f in ???
+#9  0xffffffffffffffff in ???
+#3  0x5a858a26ab08 in ???
+#7  0x7fe039673e3f in ???
+#8  0x59ccfab0c254 in ???
+          eab(********,*******) =  -4023.3331 MB
+#8  0x561d63e34254 in ???
+#8  0x57c8ea617254 in ???
+#5  0x581463ed90b1 in ???
+#9  0xffffffffffffffff in ???
+#9  0xffffffffffffffff in ???
+#4  0x584daf249797 in ???
+#5  0x5baea3daf0b1 in ???
+#9  0xffffffffffffffff in ???
+          QVV(*****,****,*****) =  13522.8085 MB
+ You are running the code serially
+#9  0xffffffffffffffff in ???
+#4  0x5c2c6521f797 in ???
+     Error!
+          QVV(*****,****,*****) =   4304.7769 MB
+     One of the followings should be used as an input:
+#5  0x5c56a62510b1 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#4  0x5a858a26c797 in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+          QVV(*****,****,*****) =  12055.8507 MB
+
+#6  0x79c26389dd8f in ???
+     Generating arbitrary input data with the structure of*** water clusters
+#5  0x584daf24a0b1 in ???
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+#6  0x7db83bf6fd8f in ???
+
+ rank skipped wwww           0
+Backtrace for this error:
+#5  0x5c2c652200b1 in ???
+ rank skipped wwww           0
+#6  0x7a4338a23d8f in ???
+#5  0x5a858a26d0b1 in ???
+ rank skipped wwww           0
+#7  0x79c26389de3f in ???
+#6  0x7b2e08b79d8f in ???
+#7  0x7db83bf6fe3f in ???
+
+#6  0x7d8b45b27d8f in ???
+
+#7  0x7a4338a23e3f in ???
+#6  0x7c604cc1bd8f in ???
+
+#8  0x581463ed5254 in ???
+#7  0x7b2e08b79e3f in ???
+#8  0x5baea3dab254 in ???
+     Results:
+#7  0x7d8b45b27e3f in ???
+     Results:
+#8  0x5c56a624d254 in ???
+#7  0x7c604cc1be3f in ???
+     Results:
+#9  0xffffffffffffffff in ???
+#8  0x584daf246254 in ???
+#9  0xffffffffffffffff in ???
+                               Number of MPI ranks   =     1
+#8  0x5c2c6521c254 in ???
+                               Number of MPI ranks   =     1
+#9  0xffffffffffffffff in ???
+#8  0x5a858a269254 in ???
+                               Number of MPI ranks   =     1
+#9  0xffffffffffffffff in ???
+                               Number of OMP threads =     1
+#9  0xffffffffffffffff in ???
+                               Number of OMP threads =     1
+#9  0xffffffffffffffff in ???
+                               Number of OMP threads =     1
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+                               Wall time (minimum)   =    0.000 sec
+                               Wall time (minimum)   =    0.000 sec
+                               Wall time (minimum)   =    0.000 sec
+                               Wall time (mean)      =    0.000 sec
+                               Wall time (mean)      =    0.000 sec
+                               Wall time (mean)      =    0.000 sec
+                               Wall time (maximum)   =    0.000 sec
+                               Wall time (maximum)   =    0.000 sec
+                               Wall time (maximum)   =    0.000 sec
+          Failed :-(
+          Failed :-(
+          Failed :-(
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+
+Backtrace for this error:
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7a4b43e3f960 in ???
+#1  0x7a4b43e3eac5 in ???
+#2  0x7a4b43b0451f in ???
+#3  0x575e27160b08 in ???
+#4  0x575e27162797 in ???
+#5  0x575e271630b1 in ???
+#6  0x7a4b43aebd8f in ???
+#7  0x7a4b43aebe3f in ???
+#8  0x575e2715f254 in ???
+#9  0xffffffffffffffff in ???
+#0  0x7d5d4770f960 in ???
+#1  0x7d5d4770eac5 in ???
+#2  0x7d5d473d251f in ???
+#3  0x5c76a1103b08 in ???
+#4  0x5c76a1105797 in ???
+#5  0x5c76a11060b1 in ???
+#6  0x7d5d473b9d8f in ???
+#7  0x7d5d473b9e3f in ???
+#8  0x5c76a1102254 in ???
+#9  0xffffffffffffffff in ???
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+#0  0x7cc56e9d7960 in ???
+
+#1  0x7cc56e9d84d9 in ???
+Backtrace for this error:
+#2  0x7cc56e9d884c in ???
+#3  0x5c00d750dfa5 in ???
+#4  0x5c00d750f797 in ???
+#5  0x5c00d75100b1 in ???
+#6  0x7cc56e67fd8f in ???
+#7  0x7cc56e67fe3f in ???
+#8  0x5c00d750c254 in ???
+#9  0xffffffffffffffff in ???
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+
+Backtrace for this error:
+#0  0x7cc21a587960 in ???
+#1  0x7cc21a586ac5 in ???
+#2  0x7cc21a24a51f in ???
+#3  0x5ab920a6cb08 in ???
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+#4  0x5ab920a6e797 in ???
+     Generating arbitrary input data with the structure of*** water clusters
+#5  0x5ab920a6f0b1 in ???
+#6  0x7cc21a231d8f in ???
+#7  0x7cc21a231e3f in ???
+#8  0x5ab920a6b254 in ???
+#9  0xffffffffffffffff in ???
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+     NQVV =**********
+     Memory Footprint:
+          B32(********,*******) =  12003.3161 MB
+          eij(********,*******) =   6667.2959 MB
+          eab(********,*******) =  15139.3933 MB
+          QVV(*****,****,*****) = -14055.7889 MB
+ rank skipped wwww           0
+
+     Results:
+                               Number of MPI ranks   =     1
+                               Number of OMP threads =     1
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+                               Wall time (minimum)   =    0.000 sec
+                               Wall time (mean)      =    0.000 sec
+                               Wall time (maximum)   =    0.000 sec
+          Failed :-(
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+     NQVV =-584239020
+     Memory Footprint:
+          B32(********,*******) =   7456.6906 MB
+          eij(********,*******) =  -4036.5679 MB
+          eab(********,*******) =  -9470.6854 MB
+          QVV(*****,****,*****) =   5368.0329 MB
+ rank skipped wwww           0
+
+     Results:
+                               Number of MPI ranks   =     1
+                               Number of OMP threads =     1
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+                               Wall time (minimum)   =    0.000 sec
+                               Wall time (mean)      =    0.000 sec
+                               Wall time (maximum)   =    0.000 sec
+          Failed :-(
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+ You are running the code serially
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Error!
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7f19108af960 in ???
+#1  0x7f19108aeac5 in ???
+#2  0x7f191057451f in ???
+#3  0x5b0aa0665b08 in ???
+#4  0x5b0aa0667797 in ???
+#5  0x5b0aa06680b1 in ???
+#6  0x7f191055bd8f in ???
+#7  0x7f191055be3f in ???
+#8  0x5b0aa0664254 in ???
+#9  0xffffffffffffffff in ???
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7b821e98f960 in ???
+#1  0x7b821e98eac5 in ???
+#2  0x7b821e65451f in ???
+#3  0x59729d838b08 in ???
+#4  0x59729d83a797 in ???
+#5  0x59729d83b0b1 in ???
+#6  0x7b821e63bd8f in ???
+#7  0x7b821e63be3f in ???
+#8  0x59729d837254 in ???
+#9  0xffffffffffffffff in ???
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+ You are running the code serially
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+
+Backtrace for this error:
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+
+     Generating arbitrary input data with the structure of*** water clusters
+
+ You are running the code serially
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+Backtrace for this error:
+     Error!
+
+     One of the followings should be used as an input:
+Backtrace for this error:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+ You are running the code serially
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Generating arbitrary input data with the structure of*** water clusters
+
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+Backtrace for this error:
+
+Backtrace for this error:
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7ea21d597960 in ???
+#1  0x7ea21d596ac5 in ???
+#2  0x7ea21d25a51f in ???
+#3  0x56bcf4993b08 in ???
+#4  0x56bcf4995797 in ???
+#5  0x56bcf49960b1 in ???
+#6  0x7ea21d241d8f in ???
+#7  0x7ea21d241e3f in ???
+#8  0x56bcf4992254 in ???
+#9  0xffffffffffffffff in ???
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7f8e1404f960 in ???
+#0  0x7a8c05597960 in ???
+#1  0x7f8e1404eac5 in ???
+#1  0x7a8c05596ac5 in ???
+#2  0x7f8e13d0e51f in ???
+#2  0x7a8c0525851f in ???
+#3  0x585a61e40b08 in ???
+#3  0x56cf651b0b08 in ???
+#4  0x585a61e42797 in ???
+#4  0x56cf651b2797 in ???
+#5  0x585a61e430b1 in ???
+#5  0x56cf651b30b1 in ???
+#6  0x7f8e13cf5d8f in ???
+#6  0x7a8c0523fd8f in ???
+#7  0x7f8e13cf5e3f in ???
+#7  0x7a8c0523fe3f in ???
+#8  0x585a61e3f254 in ???
+#8  0x56cf651af254 in ???
+#9  0xffffffffffffffff in ???
+#9  0xffffffffffffffff in ???
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+     NQVV =**********
+     Memory Footprint:
+          B32(36867420,*******) =  -1175.1871 MB
+          eij(********,*******) =  -4388.8895 MB
+ You are running the code serially
+          eab(********,*******) =  -2387.5546 MB
+     Error!
+          QVV(*****,****,*****) =   3415.5844 MB
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ rank skipped wwww           0
+
+     Results:
+                               Number of MPI ranks   =     1
+                               Number of OMP threads =     1
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+                               Wall time (minimum)   =    0.000 sec
+                               Wall time (mean)      =    0.000 sec
+                               Wall time (maximum)   =    0.000 sec
+          Failed :-(
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+ You are running the code serially
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+ You are running the code serially
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+     Error!
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     One of the followings should be used as an input:
+
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+Backtrace for this error:
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7c73108f7960 in ???
+#1  0x7c73108f6ac5 in ???
+#0  0x7bd447367960 in ???
+#2  0x7c73105b851f in ???
+#1  0x7bd447366ac5 in ???
+#3  0x58062259ab08 in ???
+#2  0x7bd44702c51f in ???
+#4  0x58062259c797 in ???
+#3  0x5837eef0bb08 in ???
+#5  0x58062259d0b1 in ???
+#4  0x5837eef0d797 in ???
+#6  0x7c731059fd8f in ???
+#5  0x5837eef0e0b1 in ???
+#7  0x7c731059fe3f in ???
+#6  0x7bd447013d8f in ???
+#8  0x580622599254 in ???
+#7  0x7bd447013e3f in ???
+#9  0xffffffffffffffff in ???
+#8  0x5837eef0a254 in ???
+#9  0xffffffffffffffff in ???
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+ You are running the code serially
+     Error!
+     Generating arbitrary input data with the structure of*** water clusters
+     One of the followings should be used as an input:
+ You are running the code serially
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     Error!
+ You are running the code serially
+     NQVV =-676644780
+     One of the followings should be used as an input:
+     Generating arbitrary input data with the structure of*** water clusters
+     Memory Footprint:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          B32(********,*******) =  16294.0891 MB
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          eij(********,*******) =  13504.0114 MB
+          eab(********,*******) =  -2405.9046 MB
+ You are running the code serially
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          QVV(*****,****,*****) = -15539.5239 MB
+     Error!
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ rank skipped wwww           0
+     One of the followings should be used as an input:
+
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Results:
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+                               Number of MPI ranks   =     1
+                               Number of OMP threads =     1
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+                               Wall time (minimum)   =    0.000 sec
+                               Wall time (mean)      =    0.000 sec
+                               Wall time (maximum)   =    0.000 sec
+          Failed :-(
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+
+Backtrace for this error:
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+
+Backtrace for this error:
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+
+ You are running the code serially
+     Error!
+Backtrace for this error:
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+     One of the followings should be used as an input:
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+Backtrace for this error:
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+     NQVV =-975751084
+     Memory Footprint:
+          B32(********,*******) =  -1498.1485 MB
+          eij(********,*******) =  -1947.8045 MB
+          eab(********,*******) =   9739.7512 MB
+          QVV(*****,****,*****) =  14795.7797 MB
+ rank skipped wwww           0
+
+     Results:
+                               Number of MPI ranks   =     1
+                               Number of OMP threads =     1
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+                               Wall time (minimum)   =    0.000 sec
+                               Wall time (mean)      =    0.000 sec
+                               Wall time (maximum)   =    0.000 sec
+          Failed :-(
+ You are running the code serially
+     Error!
+ You are running the code serially
+     One of the followings should be used as an input:
+     Error!
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+     One of the followings should be used as an input:
+ You are running the code serially
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     Generating arbitrary input data with the structure of*** water clusters
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+#0  0x7a7546c47960 in ???
+#1  0x7a7546c46ac5 in ???
+#2  0x7a754690851f in ???
+#3  0x5a1898243b08 in ???
+#4  0x5a1898245797 in ???
+#5  0x5a18982460b1 in ???
+#6  0x7a75468efd8f in ???
+#7  0x7a75468efe3f in ???
+#8  0x5a1898242254 in ???
+#9  0xffffffffffffffff in ???
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+     NAUXBASD,NCOR,NACT,NVIR,NBF = ******************************
+ You are running the code serially
+     NQVV =-931055532
+     Error!
+     Memory Footprint:
+     One of the followings should be used as an input:
+          B32(********,*******) =  -9379.2457 MB
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          eij(********,*******) =   2288.4425 MB
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          eab(********,*******) =  -6349.0747 MB
+ You are running the code serially
+          QVV(*****,****,*****) =   8922.7056 MB
+
+     Generating arbitrary input data with the structure of*** water clusters
+ rank skipped wwww           0
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+
+
+Backtrace for this error:
+     Results:
+                               Number of MPI ranks   =     1
+                               Number of OMP threads =     1
+             Rel. error of computed MP2 corr. energy =  0.10000E+01
+                               Wall time (minimum)   =    0.000 sec
+                               Wall time (mean)      =    0.000 sec
+                               Wall time (maximum)   =    0.000 sec
+          Failed :-(
+ You are running the code serially
+     Error!
+     One of the followings should be used as an input:
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+     Error!
+ You are running the code serially
+     One of the followings should be used as an input:
+     Error!
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+     One of the followings should be used as an input:
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+#0  0x7f02571d7960 in ???
+#1  0x7f02571d6ac5 in ???
+#2  0x7f0256e9c51f in ???
+#3  0x577027681b08 in ???
+#4  0x577027683797 in ???
+#5  0x5770276840b1 in ???
+#6  0x7f0256e83d8f in ???
+ You are running the code serially
+#7  0x7f0256e83e3f in ???
+     Error!
+     One of the followings should be used as an input:
+#8  0x577027680254 in ???
+          benz.kern, cor.kern, c60.kern, w30.kern, or w60.kern for actual data sets, or
+#9  0xffffffffffffffff in ???
+          benz.rand, cor.rand, c60.rand, w30.rand, or w60.rand for arbitrary data sets.
+ You are running the code serially
+ You are running the code serially
+     Generating arbitrary input data with the structure of*** water clusters
+
+     Generating arbitrary input data with the structure of*** water clusters
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+
+Backtrace for this error:
+ You are running the code serially
+
+     Generating arbitrary input data with the structure of*** water clusters
+ You are running the code serially
+Program received signal SIGSEGV: Segmentation fault - invalid memory reference.
+     Error!

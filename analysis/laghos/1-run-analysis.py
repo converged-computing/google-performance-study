@@ -80,6 +80,9 @@ def parse_data(indir, outdir, files):
 
     # It's important to just parse raw data once, and then use intermediate
     for filename in files:
+        if "performance-study" in filename:
+            print(f'Skipping different config {filename}')
+            continue
         exp = ps.ExperimentNameParser(filename, indir)
         if exp.prefix not in data:
             data[exp.prefix] = []
@@ -166,11 +169,9 @@ def plot_results(df, outdir, non_anon=False):
             err_kws={"color": "darkred"},
             hue_order=[
                 "google/gke/cpu",
-    #            "google/compute-engine/cpu",
             ],
             palette=cloud_colors,
-            # Stopped working after 8
-            order=[4, 8],
+            order=[4, 8, 16, 32, 64],
         )
         if "rate" not in metric:        
             axes[0].set_title(f"Laghos {metric.capitalize()} (CPU)", fontsize=14)

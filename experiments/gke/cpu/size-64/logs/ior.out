@@ -1,0 +1,1694 @@
+Defaulted container "ior" out of: ior, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START ior-iter-$i"
+  for node in $(seq 0 63); do
+      flux submit --flags waitable --requires="hosts:ior-$node" -N 1 --setattr=user.study_id=ior-iter-$i-node-$node -n 88 -o cpu-affinity=per-task -o gpu-affinity=off    ior          -r    -w          -b=100M                 -t=1M      -O summaryFormat=CSV  -o testfile               
+  done 
+  echo "FLUX-RUN END ior-iter-$i"
+done
+flux job wait --all
+
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    echo "FLUX-JOB-LOG START"
+    flux job attach $jobid
+    echo "FLUX-JOB-LOG END"
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     64     5632        0 ior-[0-63]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START ior-iter-1
+ƒBTo93ps
+ƒBXJFMS7
+ƒBamsfm1
+ƒBetZg8X
+ƒBivoif1
+ƒBnXqyPd
+ƒBrANDQb
+ƒBujvUrs
+ƒByLxjbV
+ƒC3fWeDm
+ƒC7KWsX5
+ƒCApdB8K
+ƒCEf1KQ3
+ƒCK2XCb1
+ƒCPUV3d1
+ƒCU6podR
+ƒCY1eukB
+ƒCbr341u
+ƒCg96yMq
+ƒCkgzmXD
+ƒCqBvb7u
+ƒCuEAdeP
+ƒCyUGaRd
+ƒD3XzcET
+ƒD7XGgCF
+ƒDCKzMB5
+ƒDGEpTHq
+ƒDMMKyeo
+ƒDRoHpgo
+ƒDWc1Vfd
+ƒDbpSy9y
+ƒDibKgqM
+ƒDpt2eAB
+ƒDwXVRRq
+ƒE3pCNkf
+ƒE7mzTS7
+ƒEB9gpdd
+ƒEEYsB7V
+ƒEHsbZkK
+ƒEMAqy6o
+ƒEQScPAw
+ƒETmLmom
+ƒEX4bBAF
+ƒEaMqaWj
+ƒEddbzas
+ƒEguNQf1
+ƒEkCcp1V
+ƒEoKVJPZ
+ƒErbFiTh
+ƒEum6BQT
+ƒEy7JZKd
+ƒF2P4yPm
+ƒF5gKNkF
+ƒF8yZn6j
+ƒFCFLCAs
+ƒFFX6cF1
+ƒFJqpzsq
+ƒFN95QEK
+ƒFRSKoao
+ƒFUagHFD
+ƒFXrShKM
+ƒFb9h6fq
+ƒFeRTWjy
+ƒFhhDvp7
+FLUX-RUN END ior-iter-1
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Connecting to archive.ubuntu.com (185.125.190.81)] [1 InRelease 12.7 kB/129                                                                               0% [Waiting for headers]                        Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+                        0% [Working]0% [Waiting for headers]                        Get:3 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+0% [Waiting for headers] [3 Packages 2655 B/2844 kB 0%]                                                       Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [4 InRelease 12.7 kB/128 kB 10%] [3 Packages 44.6 kB/2844 kB 2%]                                                                   0% [4 InRelease 15.6 kB/128 kB 12%] [3 Packages 113 kB/2844 kB 4%]                                                                  0% [4 InRelease 38.8 kB/128 kB 30%]0% [3 Packages store 0 B] [4 InRelease 38.8 kB/128 kB 30%] [Waiting for headers                                                                               Get:5 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+0% [3 Packages store 0 B] [4 InRelease 47.5 kB/128 kB 37%] [5 Packages 15.7 kB/0% [3 Packages store 0 B] [4 InRelease 47.5 kB/128 kB 37%] [Waiting for headers                                                                               Get:6 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4118 kB]
+0% [3 Packages store 0 B] [4 InRelease 47.5 kB/128 kB 37%] [6 Packages 15.6 kB/0% [3 Packages store 0 B] [4 InRelease 62.0 kB/128 kB 48%] [Waiting for headers                                                                               Get:7 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+0% [3 Packages store 0 B] [4 InRelease 62.0 kB/128 kB 48%] [7 Packages 9260 B/4                                                                               0% [3 Packages store 0 B] [4 InRelease 62.0 kB/128 kB 48%]                                                          0% [4 InRelease 76.4 kB/128 kB 60%]0% [5 Packages store 0 B] [4 InRelease 76.4 kB/128 kB 60%]                                                          0% [4 InRelease 82.2 kB/128 kB 64%]0% [6 Packages store 0 B] [4 InRelease 82.2 kB/128 kB 64%]                                                          0% [6 Packages store 0 B]                         0% [Waiting for headers]0% [7 Packages store 0 B] [Waiting for headers]                                               0% [Waiting for headers]0% [Waiting for headers]                        Get:8 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [8 InRelease 2588 B/127 kB 2%]                                 0% [Working]56% [Waiting for headers]                         Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1543 kB]
+56% [9 Packages 2655 B/1543 kB 0%]                                  62% [Waiting for headers]62% [9 Packages store 0 B] [Waiting for headers]                                                Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3155 kB]
+63% [9 Packages store 0 B] [10 Packages 10.1 kB/3155 kB 0%]                                                           67% [10 Packages 782 kB/3155 kB 25%]                                    77% [Waiting for headers]                         Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4272 kB]
+77% [11 Packages 40.2 kB/4272 kB 1%]77% [10 Packages store 0 B] [11 Packages 40.2 kB/4272 kB 1%]                                                            96% [10 Packages store 0 B] [Waiting for headers]                                                 Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+96% [10 Packages store 0 B] [12 Packages 12.8 kB/55.7 kB 23%]                                                             97% [10 Packages store 0 B] [Waiting for headers]                                                 Get:13 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+97% [10 Packages store 0 B] [13 Packages 22.4 kB/82.7 kB 27%]                                                             97% [10 Packages store 0 B] [Waiting for headers]                                                 Get:14 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+97% [10 Packages store 0 B] [14 Packages 19.6 kB/35.2 kB 56%]                                                             97% [10 Packages store 0 B]                           98% [Working]98% [11 Packages store 0 B]                           98% [Working]98% [12 Packages store 0 B]                           99% [Working]99% [13 Packages store 0 B]                           99% [Working]99% [14 Packages store 0 B]                           100% [Working]              Fetched 17.8 MB in 2s (8597 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 5%Reading package lists... 5%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 34%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 116 not upgraded.
+Need to get 357 kB of archives.
+After this operation, 1087 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libonig5 amd64 6.9.7.1-2build1 [172 kB]
+1% [1 libonig5 5500 B/172 kB 3%]                                45% [Working]             Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjq1 amd64 1.6-2.1ubuntu3 [133 kB]
+46% [2 libjq1 2604 B/133 kB 2%]                               82% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 jq amd64 1.6-2.1ubuntu3 [52.5 kB]
+82% [3 jq 2872 B/52.5 kB 5%]                            100% [Working]              Fetched 357 kB in 1s (374 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 24274 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.7.1-2build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.7.1-2build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-2.1ubuntu3) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking jq (1.6-2.1ubuntu3) ...
+Setting up libonig5:amd64 (6.9.7.1-2build1) ...
+Setting up libjq1:amd64 (1.6-2.1ubuntu3) ...
+Setting up jq (1.6-2.1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.1) ...
+
+FLUX-JOB START 559671148544 ior-iter-1-node-63
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-63"]}}, "user": {"study_id": "ior-iter-1-node-63"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2642.1316,2642.1832,0.0323,102400.0000,1024.0000,0.0003,3.3306,1.2126,3.3306,88,0
+read,380275.0353,380573.0288,0.0002,102400.0000,1024.0000,0.0004,0.0231,0.0012,0.0231,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "63", "children": {"core": "0-87"}}], "starttime": 1745987304.5931101, "expiration": 0.0, "nodelist": ["ior-63"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987304.5946171,"name":"init"}
+{"timestamp":1745987304.5955443,"name":"starting"}
+{"timestamp":1745987304.609098,"name":"shell.init","context":{"service":"0-shell-fFhhDvp7","leader-rank":63,"size":1}}
+{"timestamp":1745987304.7832055,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987310.1755736,"name":"shell.task-exit","context":{"localid":27,"rank":27,"state":"Exited","pid":100,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987310.2292662,"name":"complete","context":{"status":0}}
+{"timestamp":1745987310.2292931,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 559671148544 ior-iter-1-node-63
+
+FLUX-JOB START 557523664896 ior-iter-1-node-62
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-62"]}}, "user": {"study_id": "ior-iter-1-node-62"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2646.6230,2646.6691,0.0330,102400.0000,1024.0000,0.0003,3.3249,1.5159,3.3250,88,0
+read,379130.5463,379344.8566,0.0002,102400.0000,1024.0000,0.0005,0.0232,0.0012,0.0232,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "62", "children": {"core": "0-87"}}], "starttime": 1745987304.4649928, "expiration": 0.0, "nodelist": ["ior-62"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987304.4665124,"name":"init"}
+{"timestamp":1745987304.467396,"name":"starting"}
+{"timestamp":1745987304.4798419,"name":"shell.init","context":{"service":"0-shell-fFeRTWjy","leader-rank":62,"size":1}}
+{"timestamp":1745987304.6501293,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987309.9998832,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":73,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987310.0535824,"name":"complete","context":{"status":0}}
+{"timestamp":1745987310.0536122,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 557523664896 ior-iter-1-node-62
+
+FLUX-JOB START 555376181248 ior-iter-1-node-61
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-61"]}}, "user": {"study_id": "ior-iter-1-node-61"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2655.0104,2655.0696,0.0326,102400.0000,1024.0000,0.0003,3.3144,1.7691,3.3145,88,0
+read,387204.4312,387493.0469,0.0002,102400.0000,1024.0000,0.0003,0.0227,0.0008,0.0227,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "61", "children": {"core": "0-87"}}], "starttime": 1745987304.3364546, "expiration": 0.0, "nodelist": ["ior-61"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987304.337944,"name":"init"}
+{"timestamp":1745987304.3388555,"name":"starting"}
+{"timestamp":1745987304.3517759,"name":"shell.init","context":{"service":"0-shell-fFb9h6fq","leader-rank":61,"size":1}}
+{"timestamp":1745987304.5238419,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987309.8676245,"name":"shell.task-exit","context":{"localid":31,"rank":31,"state":"Exited","pid":104,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987309.9124229,"name":"complete","context":{"status":0}}
+{"timestamp":1745987309.9124501,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 555376181248 ior-iter-1-node-61
+
+FLUX-JOB START 553211920384 ior-iter-1-node-60
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-60"]}}, "user": {"study_id": "ior-iter-1-node-60"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2661.2297,2661.2756,0.0327,102400.0000,1024.0000,0.0003,3.3067,1.4702,3.3067,88,0
+read,385526.0155,385711.3394,0.0002,102400.0000,1024.0000,0.0004,0.0228,0.0007,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "60", "children": {"core": "0-87"}}], "starttime": 1745987304.2082276, "expiration": 0.0, "nodelist": ["ior-60"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987304.2096586,"name":"init"}
+{"timestamp":1745987304.2105625,"name":"starting"}
+{"timestamp":1745987304.2243989,"name":"shell.init","context":{"service":"0-shell-fFXrShKM","leader-rank":60,"size":1}}
+{"timestamp":1745987304.3996232,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987309.7935307,"name":"shell.task-exit","context":{"localid":70,"rank":70,"state":"Exited","pid":143,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987309.8302176,"name":"complete","context":{"status":0}}
+{"timestamp":1745987309.8302469,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 553211920384 ior-iter-1-node-60
+
+FLUX-JOB START 551064436736 ior-iter-1-node-59
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-59"]}}, "user": {"study_id": "ior-iter-1-node-59"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2654.6003,2654.6549,0.0307,102400.0000,1024.0000,0.0003,3.3149,1.2854,3.3150,88,0
+read,384229.7183,384429.8129,0.0002,102400.0000,1024.0000,0.0003,0.0229,0.0009,0.0229,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "59", "children": {"core": "0-87"}}], "starttime": 1745987304.0796254, "expiration": 0.0, "nodelist": ["ior-59"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987304.0810776,"name":"init"}
+{"timestamp":1745987304.0819743,"name":"starting"}
+{"timestamp":1745987304.0956964,"name":"shell.init","context":{"service":"0-shell-fFUagHFD","leader-rank":59,"size":1}}
+{"timestamp":1745987304.2669165,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987309.6055515,"name":"shell.task-exit","context":{"localid":80,"rank":80,"state":"Exited","pid":153,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987309.658567,"name":"complete","context":{"status":0}}
+{"timestamp":1745987309.658596,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 551064436736 ior-iter-1-node-59
+
+FLUX-JOB START 549000839168 ior-iter-1-node-58
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-58"]}}, "user": {"study_id": "ior-iter-1-node-58"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2651.1247,2651.1677,0.0303,102400.0000,1024.0000,0.0003,3.3193,1.5497,3.3193,88,0
+read,384614.0842,385204.1370,0.0002,102400.0000,1024.0000,0.0003,0.0228,0.0008,0.0229,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "58", "children": {"core": "0-87"}}], "starttime": 1745987303.95102, "expiration": 0.0, "nodelist": ["ior-58"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987303.9525309,"name":"init"}
+{"timestamp":1745987303.9534521,"name":"starting"}
+{"timestamp":1745987303.9664149,"name":"shell.init","context":{"service":"0-shell-fFRSKoao","leader-rank":58,"size":1}}
+{"timestamp":1745987304.1344919,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987309.51459,"name":"shell.task-exit","context":{"localid":48,"rank":48,"state":"Exited","pid":121,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987309.5472937,"name":"complete","context":{"status":0}}
+{"timestamp":1745987309.5473223,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 549000839168 ior-iter-1-node-58
+
+FLUX-JOB START 546836578304 ior-iter-1-node-57
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-57"]}}, "user": {"study_id": "ior-iter-1-node-57"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2651.7957,2651.8420,0.0327,102400.0000,1024.0000,0.0003,3.3184,1.8189,3.3185,88,0
+read,371308.0348,371494.8941,0.0002,102400.0000,1024.0000,0.0004,0.0237,0.0017,0.0237,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "57", "children": {"core": "0-87"}}], "starttime": 1745987303.8278117, "expiration": 0.0, "nodelist": ["ior-57"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987303.8296287,"name":"init"}
+{"timestamp":1745987303.8305602,"name":"starting"}
+{"timestamp":1745987303.8446794,"name":"shell.init","context":{"service":"0-shell-fFN95QEK","leader-rank":57,"size":1}}
+{"timestamp":1745987304.01805,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987309.3444443,"name":"shell.task-exit","context":{"localid":26,"rank":26,"state":"Exited","pid":99,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987309.3894002,"name":"complete","context":{"status":0}}
+{"timestamp":1745987309.3894279,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 546836578304 ior-iter-1-node-57
+
+FLUX-JOB START 544672317440 ior-iter-1-node-56
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-56"]}}, "user": {"study_id": "ior-iter-1-node-56"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2646.3810,2646.4216,0.0330,102400.0000,1024.0000,0.0002,3.3252,1.5839,3.3253,88,0
+read,385711.3394,385880.7038,0.0002,102400.0000,1024.0000,0.0005,0.0228,0.0007,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "56", "children": {"core": "0-87"}}], "starttime": 1745987303.698405, "expiration": 0.0, "nodelist": ["ior-56"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987303.6998909,"name":"init"}
+{"timestamp":1745987303.7007871,"name":"starting"}
+{"timestamp":1745987303.7137341,"name":"shell.init","context":{"service":"0-shell-fFJqpzsq","leader-rank":56,"size":1}}
+{"timestamp":1745987303.8904097,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987309.2790632,"name":"shell.task-exit","context":{"localid":26,"rank":26,"state":"Exited","pid":99,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987309.3242409,"name":"complete","context":{"status":0}}
+{"timestamp":1745987309.3242707,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 544672317440 ior-iter-1-node-56
+
+FLUX-JOB START 542491279360 ior-iter-1-node-55
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-55"]}}, "user": {"study_id": "ior-iter-1-node-55"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2657.4188,2657.4582,0.0328,102400.0000,1024.0000,0.0003,3.3114,1.6821,3.3115,88,0
+read,374119.4348,374290.1565,0.0002,102400.0000,1024.0000,0.0011,0.0235,0.0017,0.0235,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "55", "children": {"core": "0-87"}}], "starttime": 1745987303.5693188, "expiration": 0.0, "nodelist": ["ior-55"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987303.5706909,"name":"init"}
+{"timestamp":1745987303.5715754,"name":"starting"}
+{"timestamp":1745987303.5844479,"name":"shell.init","context":{"service":"0-shell-fFFX6cF1","leader-rank":55,"size":1}}
+{"timestamp":1745987303.7522144,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987309.0860686,"name":"shell.task-exit","context":{"localid":42,"rank":42,"state":"Exited","pid":115,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987309.1395524,"name":"complete","context":{"status":0}}
+{"timestamp":1745987309.1395724,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 542491279360 ior-iter-1-node-55
+
+FLUX-JOB START 540343795712 ior-iter-1-node-54
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-54"]}}, "user": {"study_id": "ior-iter-1-node-54"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2645.9599,2646.0063,0.0327,102400.0000,1024.0000,0.0003,3.3258,1.1499,3.3258,88,0
+read,386762.1808,386964.9225,0.0002,102400.0000,1024.0000,0.0004,0.0227,0.0008,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "54", "children": {"core": "0-87"}}], "starttime": 1745987303.4404345, "expiration": 0.0, "nodelist": ["ior-54"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987303.4418919,"name":"init"}
+{"timestamp":1745987303.4427719,"name":"starting"}
+{"timestamp":1745987303.455601,"name":"shell.init","context":{"service":"0-shell-fFCFLCAs","leader-rank":54,"size":1}}
+{"timestamp":1745987303.6290557,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987309.0485456,"name":"shell.task-exit","context":{"localid":57,"rank":57,"state":"Exited","pid":130,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987309.0965288,"name":"complete","context":{"status":0}}
+{"timestamp":1745987309.09656,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 540343795712 ior-iter-1-node-54
+
+FLUX-JOB START 538196312064 ior-iter-1-node-53
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-53"]}}, "user": {"study_id": "ior-iter-1-node-53"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2654.1799,2654.2248,0.0309,102400.0000,1024.0000,0.0003,3.3155,1.1614,3.3155,88,0
+read,371685.6844,371842.9530,0.0002,102400.0000,1024.0000,0.0004,0.0237,0.0016,0.0237,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "53", "children": {"core": "0-87"}}], "starttime": 1745987303.3122089, "expiration": 0.0, "nodelist": ["ior-53"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987303.3136187,"name":"init"}
+{"timestamp":1745987303.3144825,"name":"starting"}
+{"timestamp":1745987303.3273509,"name":"shell.init","context":{"service":"0-shell-fF8yZn6j","leader-rank":53,"size":1}}
+{"timestamp":1745987303.4967177,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987308.8481588,"name":"shell.task-exit","context":{"localid":38,"rank":38,"state":"Exited","pid":111,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987308.8872817,"name":"complete","context":{"status":0}}
+{"timestamp":1745987308.8873129,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 538196312064 ior-iter-1-node-53
+
+FLUX-JOB START 536032051200 ior-iter-1-node-52
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-52"]}}, "user": {"study_id": "ior-iter-1-node-52"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2651.4027,2651.4435,0.0309,102400.0000,1024.0000,0.0003,3.3189,1.3747,3.3190,88,0
+read,371872.9240,372060.3524,0.0002,102400.0000,1024.0000,0.0014,0.0237,0.0017,0.0237,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "52", "children": {"core": "0-87"}}], "starttime": 1745987303.1841402, "expiration": 0.0, "nodelist": ["ior-52"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987303.185544,"name":"init"}
+{"timestamp":1745987303.186394,"name":"starting"}
+{"timestamp":1745987303.1993203,"name":"shell.init","context":{"service":"0-shell-fF5gKNkF","leader-rank":52,"size":1}}
+{"timestamp":1745987303.3737576,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987308.6888356,"name":"shell.task-exit","context":{"localid":85,"rank":85,"state":"Exited","pid":158,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987308.7238219,"name":"complete","context":{"status":0}}
+{"timestamp":1745987308.7238486,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 536032051200 ior-iter-1-node-52
+
+FLUX-JOB START 533867790336 ior-iter-1-node-51
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-51"]}}, "user": {"study_id": "ior-iter-1-node-51"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2651.9253,2651.9731,0.0328,102400.0000,1024.0000,0.0003,3.3183,1.4069,3.3183,88,0
+read,386745.9706,386916.2451,0.0002,102400.0000,1024.0000,0.0004,0.0227,0.0007,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "51", "children": {"core": "0-87"}}], "starttime": 1745987303.0548236, "expiration": 0.0, "nodelist": ["ior-51"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987303.0562873,"name":"init"}
+{"timestamp":1745987303.0571308,"name":"starting"}
+{"timestamp":1745987303.0700431,"name":"shell.init","context":{"service":"0-shell-fF2P4yPm","leader-rank":51,"size":1}}
+{"timestamp":1745987303.2408223,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987308.6359873,"name":"shell.task-exit","context":{"localid":2,"rank":2,"state":"Exited","pid":75,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987308.6860197,"name":"complete","context":{"status":0}}
+{"timestamp":1745987308.6860459,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 533867790336 ior-iter-1-node-51
+
+FLUX-JOB START 525294632960 ior-iter-1-node-47
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-47"]}}, "user": {"study_id": "ior-iter-1-node-47"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2329.0294,2329.0664,0.0375,102400.0000,1024.0000,0.0003,3.7783,1.6197,3.7784,88,0
+read,374913.6629,375088.9221,0.0002,102400.0000,1024.0000,0.0004,0.0235,0.0014,0.0235,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "47", "children": {"core": "0-87"}}], "starttime": 1745987302.5434203, "expiration": 0.0, "nodelist": ["ior-47"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987302.5456066,"name":"init"}
+{"timestamp":1745987302.5468149,"name":"starting"}
+{"timestamp":1745987302.5599911,"name":"shell.init","context":{"service":"0-shell-fEoKVJPZ","leader-rank":47,"size":1}}
+{"timestamp":1745987302.7268124,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987308.5578308,"name":"shell.task-exit","context":{"localid":41,"rank":41,"state":"Exited","pid":114,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987308.6058993,"name":"complete","context":{"status":0}}
+{"timestamp":1745987308.6059148,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 525294632960 ior-iter-1-node-47
+
+FLUX-JOB START 531720306688 ior-iter-1-node-50
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-50"]}}, "user": {"study_id": "ior-iter-1-node-50"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2648.5610,2648.6072,0.0325,102400.0000,1024.0000,0.0003,3.3225,1.3083,3.3226,88,0
+read,383842.1281,384009.8547,0.0002,102400.0000,1024.0000,0.0004,0.0229,0.0009,0.0229,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "50", "children": {"core": "0-87"}}], "starttime": 1745987302.9262691, "expiration": 0.0, "nodelist": ["ior-50"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987302.9277232,"name":"init"}
+{"timestamp":1745987302.9285979,"name":"starting"}
+{"timestamp":1745987302.9417107,"name":"shell.init","context":{"service":"0-shell-fEy7JZKd","leader-rank":50,"size":1}}
+{"timestamp":1745987303.1144905,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987308.4360516,"name":"shell.task-exit","context":{"localid":7,"rank":7,"state":"Exited","pid":80,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987308.4812107,"name":"complete","context":{"status":0}}
+{"timestamp":1745987308.481225,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 531720306688 ior-iter-1-node-50
+
+FLUX-JOB START 529522491392 ior-iter-1-node-49
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-49"]}}, "user": {"study_id": "ior-iter-1-node-49"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2651.6654,2651.7199,0.0179,102400.0000,1024.0000,0.0003,3.3186,1.5287,3.3187,88,0
+read,387037.9615,387253.1811,0.0002,102400.0000,1024.0000,0.0004,0.0227,0.0008,0.0227,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "49", "children": {"core": "0-87"}}], "starttime": 1745987302.7960758, "expiration": 0.0, "nodelist": ["ior-49"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987302.7975404,"name":"init"}
+{"timestamp":1745987302.7984211,"name":"starting"}
+{"timestamp":1745987302.8117976,"name":"shell.init","context":{"service":"0-shell-fEum6BQT","leader-rank":49,"size":1}}
+{"timestamp":1745987302.9823222,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987308.3089311,"name":"shell.task-exit","context":{"localid":38,"rank":38,"state":"Exited","pid":111,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987308.3546333,"name":"complete","context":{"status":0}}
+{"timestamp":1745987308.3546493,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 529522491392 ior-iter-1-node-49
+
+FLUX-JOB START 527442116608 ior-iter-1-node-48
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-48"]}}, "user": {"study_id": "ior-iter-1-node-48"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2641.5654,2641.6082,0.0319,102400.0000,1024.0000,0.0003,3.3313,1.9274,3.3314,88,0
+read,379442.3505,379637.4887,0.0002,102400.0000,1024.0000,0.0004,0.0232,0.0011,0.0232,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "48", "children": {"core": "0-87"}}], "starttime": 1745987302.6671028, "expiration": 0.0, "nodelist": ["ior-48"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987302.6685693,"name":"init"}
+{"timestamp":1745987302.6694314,"name":"starting"}
+{"timestamp":1745987302.6817262,"name":"shell.init","context":{"service":"0-shell-fErbFiTh","leader-rank":48,"size":1}}
+{"timestamp":1745987302.854713,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987308.207371,"name":"shell.task-exit","context":{"localid":47,"rank":47,"state":"Exited","pid":120,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987308.249059,"name":"complete","context":{"status":0}}
+{"timestamp":1745987308.2490757,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 527442116608 ior-iter-1-node-48
+
+FLUX-JOB START 523247812608 ior-iter-1-node-46
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-46"]}}, "user": {"study_id": "ior-iter-1-node-46"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2633.4989,2633.5421,0.0323,102400.0000,1024.0000,0.0003,3.3415,1.6846,3.3416,88,0
+read,374708.1327,375123.2311,0.0002,102400.0000,1024.0000,0.0003,0.0235,0.0014,0.0235,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "46", "children": {"core": "0-87"}}], "starttime": 1745987302.4154522, "expiration": 0.0, "nodelist": ["ior-46"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987302.4168892,"name":"init"}
+{"timestamp":1745987302.4177561,"name":"starting"}
+{"timestamp":1745987302.4308019,"name":"shell.init","context":{"service":"0-shell-fEkCcp1V","leader-rank":46,"size":1}}
+{"timestamp":1745987302.6079066,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987307.9688258,"name":"shell.task-exit","context":{"localid":61,"rank":61,"state":"Exited","pid":134,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987308.0181937,"name":"complete","context":{"status":0}}
+{"timestamp":1745987308.0182106,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 523247812608 ior-iter-1-node-46
+
+FLUX-JOB START 521083551744 ior-iter-1-node-45
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-45"]}}, "user": {"study_id": "ior-iter-1-node-45"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2653.8854,2653.9311,0.0326,102400.0000,1024.0000,0.0003,3.3158,1.9812,3.3159,88,0
+read,389118.9205,389258.4470,0.0002,102400.0000,1024.0000,0.0005,0.0226,0.0007,0.0226,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "45", "children": {"core": "0-87"}}], "starttime": 1745987302.293061, "expiration": 0.0, "nodelist": ["ior-45"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987302.2945535,"name":"init"}
+{"timestamp":1745987302.2954462,"name":"starting"}
+{"timestamp":1745987302.3085644,"name":"shell.init","context":{"service":"0-shell-fEguNQf1","leader-rank":45,"size":1}}
+{"timestamp":1745987302.4764884,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987307.8494763,"name":"shell.task-exit","context":{"localid":43,"rank":43,"state":"Exited","pid":116,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987307.8976276,"name":"complete","context":{"status":0}}
+{"timestamp":1745987307.8976452,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 521083551744 ior-iter-1-node-45
+
+FLUX-JOB START 518936068096 ior-iter-1-node-44
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-44"]}}, "user": {"study_id": "ior-iter-1-node-44"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2634.0586,2634.1124,0.0330,102400.0000,1024.0000,0.0004,3.3408,1.7116,3.3409,88,0
+read,373087.0526,373438.1028,0.0002,102400.0000,1024.0000,0.0004,0.0236,0.0016,0.0236,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "44", "children": {"core": "0-87"}}], "starttime": 1745987302.1644981, "expiration": 0.0, "nodelist": ["ior-44"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987302.1659534,"name":"init"}
+{"timestamp":1745987302.1668396,"name":"starting"}
+{"timestamp":1745987302.1805813,"name":"shell.init","context":{"service":"0-shell-fEddbzas","leader-rank":44,"size":1}}
+{"timestamp":1745987302.3488102,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987307.7158649,"name":"shell.task-exit","context":{"localid":42,"rank":42,"state":"Exited","pid":115,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987307.7623796,"name":"complete","context":{"status":0}}
+{"timestamp":1745987307.762394,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 518936068096 ior-iter-1-node-44
+
+FLUX-JOB START 516788584448 ior-iter-1-node-43
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-43"]}}, "user": {"study_id": "ior-iter-1-node-43"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2640.6451,2640.6982,0.0145,102400.0000,1024.0000,0.0003,3.3325,1.8874,3.3325,88,0
+read,383375.6616,383742.3605,0.0002,102400.0000,1024.0000,0.0004,0.0229,0.0009,0.0230,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "43", "children": {"core": "0-87"}}], "starttime": 1745987302.0362828, "expiration": 0.0, "nodelist": ["ior-43"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987302.03773,"name":"init"}
+{"timestamp":1745987302.0386004,"name":"starting"}
+{"timestamp":1745987302.0519497,"name":"shell.init","context":{"service":"0-shell-fEaMqaWj","leader-rank":43,"size":1}}
+{"timestamp":1745987302.2237093,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987307.6228774,"name":"shell.task-exit","context":{"localid":14,"rank":14,"state":"Exited","pid":87,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987307.6687481,"name":"complete","context":{"status":0}}
+{"timestamp":1745987307.6687658,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 516788584448 ior-iter-1-node-43
+
+FLUX-JOB START 514624323584 ior-iter-1-node-42
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-42"]}}, "user": {"study_id": "ior-iter-1-node-42"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2657.3376,2657.3786,0.0274,102400.0000,1024.0000,0.0003,3.3115,1.7845,3.3116,88,0
+read,380785.0450,381052.3647,0.0002,102400.0000,1024.0000,0.0004,0.0231,0.0011,0.0231,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "42", "children": {"core": "0-87"}}], "starttime": 1745987301.9081428, "expiration": 0.0, "nodelist": ["ior-42"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987301.90962,"name":"init"}
+{"timestamp":1745987301.9104879,"name":"starting"}
+{"timestamp":1745987301.9236984,"name":"shell.init","context":{"service":"0-shell-fEX4bBAF","leader-rank":42,"size":1}}
+{"timestamp":1745987302.0963144,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987307.4345384,"name":"shell.task-exit","context":{"localid":42,"rank":42,"state":"Exited","pid":115,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987307.4801946,"name":"complete","context":{"status":0}}
+{"timestamp":1745987307.4802096,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 514624323584 ior-iter-1-node-42
+
+FLUX-JOB START 512460062720 ior-iter-1-node-41
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-41"]}}, "user": {"study_id": "ior-iter-1-node-41"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2641.9610,2642.0253,0.0317,102400.0000,1024.0000,0.0003,3.3308,2.0958,3.3309,88,0
+read,383224.4035,383443.3684,0.0002,102400.0000,1024.0000,0.0003,0.0229,0.0008,0.0230,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "41", "children": {"core": "0-87"}}], "starttime": 1745987301.7789025, "expiration": 0.0, "nodelist": ["ior-41"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987301.7804091,"name":"init"}
+{"timestamp":1745987301.7812767,"name":"starting"}
+{"timestamp":1745987301.7941988,"name":"shell.init","context":{"service":"0-shell-fETmLmom","leader-rank":41,"size":1}}
+{"timestamp":1745987301.9663393,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987307.4047098,"name":"shell.task-exit","context":{"localid":45,"rank":45,"state":"Exited","pid":118,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987307.4515269,"name":"complete","context":{"status":0}}
+{"timestamp":1745987307.4515445,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 512460062720 ior-iter-1-node-41
+
+FLUX-JOB START 510279024640 ior-iter-1-node-40
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-40"]}}, "user": {"study_id": "ior-iter-1-node-40"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2643.0689,2643.1164,0.0314,102400.0000,1024.0000,0.0003,3.3294,1.8330,3.3295,88,0
+read,384634.1243,384782.4861,0.0002,102400.0000,1024.0000,0.0003,0.0229,0.0008,0.0229,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "40", "children": {"core": "0-87"}}], "starttime": 1745987301.6489124, "expiration": 0.0, "nodelist": ["ior-40"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987301.6503558,"name":"init"}
+{"timestamp":1745987301.6511948,"name":"starting"}
+{"timestamp":1745987301.6638899,"name":"shell.init","context":{"service":"0-shell-fEQScPAw","leader-rank":40,"size":1}}
+{"timestamp":1745987301.8378971,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987307.2150419,"name":"shell.task-exit","context":{"localid":12,"rank":12,"state":"Exited","pid":85,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987307.263633,"name":"complete","context":{"status":0}}
+{"timestamp":1745987307.2636492,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 510279024640 ior-iter-1-node-40
+
+FLUX-JOB START 508131540992 ior-iter-1-node-39
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-39"]}}, "user": {"study_id": "ior-iter-1-node-39"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2630.7851,2630.8402,0.0284,102400.0000,1024.0000,0.0004,3.3449,1.8097,3.3450,88,0
+read,388091.9732,388263.4352,0.0002,102400.0000,1024.0000,0.0005,0.0227,0.0005,0.0227,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "39", "children": {"core": "0-87"}}], "starttime": 1745987301.5203805, "expiration": 0.0, "nodelist": ["ior-39"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987301.5219064,"name":"init"}
+{"timestamp":1745987301.5233111,"name":"starting"}
+{"timestamp":1745987301.5364599,"name":"shell.init","context":{"service":"0-shell-fEMAqy6o","leader-rank":39,"size":1}}
+{"timestamp":1745987301.7076955,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987307.1229842,"name":"shell.task-exit","context":{"localid":10,"rank":10,"state":"Exited","pid":83,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987307.1716156,"name":"complete","context":{"status":0}}
+{"timestamp":1745987307.1716318,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 508131540992 ior-iter-1-node-39
+
+FLUX-JOB START 505967280128 ior-iter-1-node-38
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-38"]}}, "user": {"study_id": "ior-iter-1-node-38"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2653.0886,2653.1445,0.0320,102400.0000,1024.0000,0.0003,3.3168,1.6499,3.3169,88,0
+read,383894.0278,384077.7856,0.0002,102400.0000,1024.0000,0.0003,0.0229,0.0009,0.0229,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "38", "children": {"core": "0-87"}}], "starttime": 1745987301.391562, "expiration": 0.0, "nodelist": ["ior-38"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987301.3929825,"name":"init"}
+{"timestamp":1745987301.3938293,"name":"starting"}
+{"timestamp":1745987301.4061077,"name":"shell.init","context":{"service":"0-shell-fEHsbZkK","leader-rank":38,"size":1}}
+{"timestamp":1745987301.5805302,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987306.9721069,"name":"shell.task-exit","context":{"localid":26,"rank":26,"state":"Exited","pid":99,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987307.0162325,"name":"complete","context":{"status":0}}
+{"timestamp":1745987307.0162485,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 505967280128 ior-iter-1-node-38
+
+FLUX-JOB START 503786242048 ior-iter-1-node-37
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-37"]}}, "user": {"study_id": "ior-iter-1-node-37"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2629.5651,2629.6241,0.0331,102400.0000,1024.0000,0.0003,3.3465,1.5677,3.3466,88,0
+read,372909.8911,373166.2643,0.0002,102400.0000,1024.0000,0.0004,0.0236,0.0016,0.0236,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "37", "children": {"core": "0-87"}}], "starttime": 1745987301.2615354, "expiration": 0.0, "nodelist": ["ior-37"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987301.2630458,"name":"init"}
+{"timestamp":1745987301.26386,"name":"starting"}
+{"timestamp":1745987301.2766726,"name":"shell.init","context":{"service":"0-shell-fEEYsB7V","leader-rank":37,"size":1}}
+{"timestamp":1745987301.4525867,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987306.8696716,"name":"shell.task-exit","context":{"localid":54,"rank":54,"state":"Exited","pid":127,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987306.9120357,"name":"complete","context":{"status":0}}
+{"timestamp":1745987306.9120538,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 503786242048 ior-iter-1-node-37
+
+FLUX-JOB START 501554872320 ior-iter-1-node-36
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-36"]}}, "user": {"study_id": "ior-iter-1-node-36"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2638.7329,2638.7763,0.0328,102400.0000,1024.0000,0.0003,3.3349,1.2215,3.3349,88,0
+read,382858.6934,383109.0500,0.0002,102400.0000,1024.0000,0.0003,0.0230,0.0010,0.0230,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "36", "children": {"core": "0-87"}}], "starttime": 1745987301.129118, "expiration": 0.0, "nodelist": ["ior-36"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987301.1305809,"name":"init"}
+{"timestamp":1745987301.1314456,"name":"starting"}
+{"timestamp":1745987301.1435773,"name":"shell.init","context":{"service":"0-shell-fEB9gpdd","leader-rank":36,"size":1}}
+{"timestamp":1745987301.3155932,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987306.7329829,"name":"shell.task-exit","context":{"localid":32,"rank":32,"state":"Exited","pid":105,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987306.7837362,"name":"complete","context":{"status":0}}
+{"timestamp":1745987306.7837517,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 501554872320 ior-iter-1-node-36
+
+FLUX-JOB START 499340279808 ior-iter-1-node-35
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-35"]}}, "user": {"study_id": "ior-iter-1-node-35"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2656.5902,2656.6311,0.0314,102400.0000,1024.0000,0.0003,3.3125,1.7465,3.3125,88,0
+read,386135.0295,386555.6030,0.0002,102400.0000,1024.0000,0.0003,0.0228,0.0007,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "35", "children": {"core": "0-87"}}], "starttime": 1745987300.9964464, "expiration": 0.0, "nodelist": ["ior-35"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987300.9978812,"name":"init"}
+{"timestamp":1745987300.9987247,"name":"starting"}
+{"timestamp":1745987301.0119581,"name":"shell.init","context":{"service":"0-shell-fE7mzTS7","leader-rank":35,"size":1}}
+{"timestamp":1745987301.1873245,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987306.5313962,"name":"shell.task-exit","context":{"localid":50,"rank":50,"state":"Exited","pid":123,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987306.5745497,"name":"complete","context":{"status":0}}
+{"timestamp":1745987306.5745699,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 499340279808 ior-iter-1-node-35
+
+FLUX-JOB START 496739811328 ior-iter-1-node-34
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-34"]}}, "user": {"study_id": "ior-iter-1-node-34"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2647.4844,2647.5331,0.0327,102400.0000,1024.0000,0.0003,3.3238,1.9407,3.3239,88,0
+read,377420.8825,377598.4941,0.0002,102400.0000,1024.0000,0.0004,0.0233,0.0013,0.0233,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "34", "children": {"core": "0-87"}}], "starttime": 1745987300.8427398, "expiration": 0.0, "nodelist": ["ior-34"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987300.8443863,"name":"init"}
+{"timestamp":1745987300.8520293,"name":"starting"}
+{"timestamp":1745987300.8794782,"name":"shell.init","context":{"service":"0-shell-fE3pCNkf","leader-rank":34,"size":1}}
+{"timestamp":1745987301.0541992,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987306.4660499,"name":"shell.task-exit","context":{"localid":41,"rank":41,"state":"Exited","pid":114,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987306.5189202,"name":"complete","context":{"status":0}}
+{"timestamp":1745987306.51895,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 496739811328 ior-iter-1-node-34
+
+FLUX-JOB START 492612616192 ior-iter-1-node-33
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-33"]}}, "user": {"study_id": "ior-iter-1-node-33"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2648.6669,2648.7163,0.0330,102400.0000,1024.0000,0.0003,3.3224,1.6074,3.3224,88,0
+read,387647.6942,387835.0639,0.0002,102400.0000,1024.0000,0.0005,0.0227,0.0006,0.0227,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "33", "children": {"core": "0-87"}}], "starttime": 1745987300.5962358, "expiration": 0.0, "nodelist": ["ior-33"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987300.6023953,"name":"init"}
+{"timestamp":1745987300.6040566,"name":"starting"}
+{"timestamp":1745987300.6261547,"name":"shell.init","context":{"service":"0-shell-fDwXVRRq","leader-rank":33,"size":1}}
+{"timestamp":1745987300.7995398,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987306.2182651,"name":"shell.task-exit","context":{"localid":3,"rank":3,"state":"Exited","pid":76,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987306.2615798,"name":"complete","context":{"status":0}}
+{"timestamp":1745987306.2616112,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 492612616192 ior-iter-1-node-33
+
+FLUX-JOB START 488250540032 ior-iter-1-node-32
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-32"]}}, "user": {"study_id": "ior-iter-1-node-32"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2641.5535,2641.6074,0.0333,102400.0000,1024.0000,0.0004,3.3313,1.3815,3.3314,88,0
+read,376435.4795,376950.6337,0.0002,102400.0000,1024.0000,0.0003,0.0233,0.0011,0.0234,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "32", "children": {"core": "0-87"}}], "starttime": 1745987300.3363001, "expiration": 0.0, "nodelist": ["ior-32"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987300.3421638,"name":"init"}
+{"timestamp":1745987300.3443177,"name":"starting"}
+{"timestamp":1745987300.3614094,"name":"shell.init","context":{"service":"0-shell-fDpt2eAB","leader-rank":32,"size":1}}
+{"timestamp":1745987300.5312891,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987305.9217496,"name":"shell.task-exit","context":{"localid":30,"rank":30,"state":"Exited","pid":103,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987305.9689848,"name":"complete","context":{"status":0}}
+{"timestamp":1745987305.9690006,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 488250540032 ior-iter-1-node-32
+
+FLUX-JOB START 484123344896 ior-iter-1-node-31
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-31"]}}, "user": {"study_id": "ior-iter-1-node-31"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2634.3953,2634.4419,0.0220,102400.0000,1024.0000,0.0003,3.3404,1.1390,3.3404,88,0
+read,358731.4141,358888.3777,0.0002,102400.0000,1024.0000,0.0007,0.0245,0.0024,0.0245,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "31", "children": {"core": "0-87"}}], "starttime": 1745987300.090925, "expiration": 0.0, "nodelist": ["ior-31"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987300.0930579,"name":"init"}
+{"timestamp":1745987300.0976746,"name":"starting"}
+{"timestamp":1745987300.115082,"name":"shell.init","context":{"service":"0-shell-fDibKgqM","leader-rank":31,"size":1}}
+{"timestamp":1745987300.2864962,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987305.6701133,"name":"shell.task-exit","context":{"localid":25,"rank":25,"state":"Exited","pid":98,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987305.720829,"name":"complete","context":{"status":0}}
+{"timestamp":1745987305.7208462,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 484123344896 ior-iter-1-node-31
+
+FLUX-JOB START 479677382656 ior-iter-1-node-30
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-30"]}}, "user": {"study_id": "ior-iter-1-node-30"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2636.3430,2636.3794,0.0280,102400.0000,1024.0000,0.0003,3.3379,1.5818,3.3380,88,0
+read,366664.1024,366817.1493,0.0002,102400.0000,1024.0000,0.0004,0.0240,0.0018,0.0240,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "30", "children": {"core": "0-87"}}], "starttime": 1745987299.8272858, "expiration": 0.0, "nodelist": ["ior-30"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987299.8304679,"name":"init"}
+{"timestamp":1745987299.8360257,"name":"starting"}
+{"timestamp":1745987299.8492742,"name":"shell.init","context":{"service":"0-shell-fDbpSy9y","leader-rank":30,"size":1}}
+{"timestamp":1745987300.0231495,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987305.3551393,"name":"shell.task-exit","context":{"localid":46,"rank":46,"state":"Exited","pid":119,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987305.3972688,"name":"complete","context":{"status":0}}
+{"timestamp":1745987305.3972881,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 479677382656 ior-iter-1-node-30
+
+FLUX-JOB START 476254830592 ior-iter-1-node-29
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-29"]}}, "user": {"study_id": "ior-iter-1-node-29"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2657.6773,2657.7358,0.0267,102400.0000,1024.0000,0.0003,3.3111,1.4884,3.3112,88,0
+read,379606.2531,379801.5600,0.0002,102400.0000,1024.0000,0.0004,0.0232,0.0014,0.0232,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "29", "children": {"core": "0-87"}}], "starttime": 1745987299.6222241, "expiration": 0.0, "nodelist": ["ior-29"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987299.6242075,"name":"init"}
+{"timestamp":1745987299.626538,"name":"starting"}
+{"timestamp":1745987299.6485324,"name":"shell.init","context":{"service":"0-shell-fDWc1Vfd","leader-rank":29,"size":1}}
+{"timestamp":1745987299.8114002,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987305.1729989,"name":"shell.task-exit","context":{"localid":6,"rank":6,"state":"Exited","pid":80,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987305.2222204,"name":"complete","context":{"status":0}}
+{"timestamp":1745987305.2222373,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 476254830592 ior-iter-1-node-29
+
+FLUX-JOB START 473100713984 ior-iter-1-node-28
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-28"]}}, "user": {"study_id": "ior-iter-1-node-28"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2659.6902,2659.7451,0.0159,102400.0000,1024.0000,0.0003,3.3086,1.9771,3.3087,88,0
+read,364268.5510,364448.3905,0.0002,102400.0000,1024.0000,0.0004,0.0241,0.0022,0.0242,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "28", "children": {"core": "0-87"}}], "starttime": 1745987299.4344997, "expiration": 0.0, "nodelist": ["ior-28"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987299.4405265,"name":"init"}
+{"timestamp":1745987299.4428174,"name":"starting"}
+{"timestamp":1745987299.4574795,"name":"shell.init","context":{"service":"0-shell-fDRoHpgo","leader-rank":28,"size":1}}
+{"timestamp":1745987299.6296527,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987304.9910028,"name":"shell.task-exit","context":{"localid":49,"rank":49,"state":"Exited","pid":122,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987305.0361702,"name":"complete","context":{"status":0}}
+{"timestamp":1745987305.0361881,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 473100713984 ior-iter-1-node-28
+
+FLUX-JOB START 470181478400 ior-iter-1-node-27
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-27"]}}, "user": {"study_id": "ior-iter-1-node-27"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2658.5153,2658.5573,0.0328,102400.0000,1024.0000,0.0003,3.3101,1.4896,3.3101,88,0
+read,374563.6354,374738.5674,0.0002,102400.0000,1024.0000,0.0004,0.0235,0.0014,0.0235,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "27", "children": {"core": "0-87"}}], "starttime": 1745987299.2615623, "expiration": 0.0, "nodelist": ["ior-27"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987299.2634816,"name":"init"}
+{"timestamp":1745987299.2646925,"name":"starting"}
+{"timestamp":1745987299.2857969,"name":"shell.init","context":{"service":"0-shell-fDMMKyeo","leader-rank":27,"size":1}}
+{"timestamp":1745987299.4583519,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987304.8123894,"name":"shell.task-exit","context":{"localid":18,"rank":18,"state":"Exited","pid":91,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987304.8607461,"name":"complete","context":{"status":0}}
+{"timestamp":1745987304.8607745,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 470181478400 ior-iter-1-node-27
+
+FLUX-JOB START 466826035200 ior-iter-1-node-26
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-26"]}}, "user": {"study_id": "ior-iter-1-node-26"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2640.1968,2640.2569,0.0320,102400.0000,1024.0000,0.0003,3.3330,1.9338,3.3331,88,0
+read,357577.6017,357737.0241,0.0002,102400.0000,1024.0000,0.0004,0.0246,0.0026,0.0246,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "26", "children": {"core": "0-87"}}], "starttime": 1745987299.0595865, "expiration": 0.0, "nodelist": ["ior-26"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987299.0620909,"name":"init"}
+{"timestamp":1745987299.0632579,"name":"starting"}
+{"timestamp":1745987299.0797937,"name":"shell.init","context":{"service":"0-shell-fDGEpTHq","leader-rank":26,"size":1}}
+{"timestamp":1745987299.252594,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987304.5848951,"name":"shell.task-exit","context":{"localid":21,"rank":21,"state":"Exited","pid":94,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987304.6365521,"name":"complete","context":{"status":0}}
+{"timestamp":1745987304.6365716,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 466826035200 ior-iter-1-node-26
+
+FLUX-JOB START 464259121152 ior-iter-1-node-25
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-25"]}}, "user": {"study_id": "ior-iter-1-node-25"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2642.8529,2642.8991,0.0327,102400.0000,1024.0000,0.0004,3.3297,1.7317,3.3297,88,0
+read,379719.5066,379899.2888,0.0002,102400.0000,1024.0000,0.0004,0.0232,0.0011,0.0232,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "25", "children": {"core": "0-87"}}], "starttime": 1745987298.9072466, "expiration": 0.0, "nodelist": ["ior-25"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987298.9096575,"name":"init"}
+{"timestamp":1745987298.910676,"name":"starting"}
+{"timestamp":1745987298.9246068,"name":"shell.init","context":{"service":"0-shell-fDCKzMB5","leader-rank":25,"size":1}}
+{"timestamp":1745987299.0935056,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987304.4785669,"name":"shell.task-exit","context":{"localid":41,"rank":41,"state":"Exited","pid":114,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987304.5232899,"name":"complete","context":{"status":0}}
+{"timestamp":1745987304.5233059,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 464259121152 ior-iter-1-node-25
+
+FLUX-JOB START 461105004544 ior-iter-1-node-24
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-24"]}}, "user": {"study_id": "ior-iter-1-node-24"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2568.5744,2568.6172,0.0327,102400.0000,1024.0000,0.0003,3.4260,1.7271,3.4260,88,0
+read,381383.1017,381777.5856,0.0002,102400.0000,1024.0000,0.0005,0.0231,0.0012,0.0231,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "24", "children": {"core": "0-87"}}], "starttime": 1745987298.7174203, "expiration": 0.0, "nodelist": ["ior-24"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987298.7189333,"name":"init"}
+{"timestamp":1745987298.7197657,"name":"starting"}
+{"timestamp":1745987298.7399204,"name":"shell.init","context":{"service":"0-shell-fD7XGgCF","leader-rank":24,"size":1}}
+{"timestamp":1745987298.9124527,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987304.3763053,"name":"shell.task-exit","context":{"localid":33,"rank":33,"state":"Exited","pid":106,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987304.4198534,"name":"complete","context":{"status":0}}
+{"timestamp":1745987304.4198699,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 461105004544 ior-iter-1-node-24
+
+FLUX-JOB START 453035163648 ior-iter-1-node-21
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-21"]}}, "user": {"study_id": "ior-iter-1-node-21"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2399.6169,2399.6497,0.0361,102400.0000,1024.0000,0.0003,3.6672,1.3420,3.6673,88,0
+read,379231.8264,379438.4498,0.0002,102400.0000,1024.0000,0.0004,0.0232,0.0013,0.0232,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "21", "children": {"core": "0-87"}}], "starttime": 1745987298.2391915, "expiration": 0.0, "nodelist": ["ior-21"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987298.2445798,"name":"init"}
+{"timestamp":1745987298.245677,"name":"starting"}
+{"timestamp":1745987298.2582562,"name":"shell.init","context":{"service":"0-shell-fCuEAdeP","leader-rank":21,"size":1}}
+{"timestamp":1745987298.4295883,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987304.1672857,"name":"shell.task-exit","context":{"localid":36,"rank":36,"state":"Exited","pid":109,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987304.2201762,"name":"complete","context":{"status":0}}
+{"timestamp":1745987304.2201941,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 453035163648 ior-iter-1-node-21
+
+FLUX-JOB START 458487758848 ior-iter-1-node-23
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-23"]}}, "user": {"study_id": "ior-iter-1-node-23"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2645.3562,2645.4072,0.0330,102400.0000,1024.0000,0.0002,3.3265,1.2707,3.3266,88,0
+read,375764.8199,376017.4735,0.0002,102400.0000,1024.0000,0.0004,0.0234,0.0016,0.0234,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "23", "children": {"core": "0-87"}}], "starttime": 1745987298.5639482, "expiration": 0.0, "nodelist": ["ior-23"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987298.5657132,"name":"init"}
+{"timestamp":1745987298.5668061,"name":"starting"}
+{"timestamp":1745987298.5825167,"name":"shell.init","context":{"service":"0-shell-fD3XzcET","leader-rank":23,"size":1}}
+{"timestamp":1745987298.7576587,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987304.1055477,"name":"shell.task-exit","context":{"localid":44,"rank":44,"state":"Exited","pid":117,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987304.1547225,"name":"complete","context":{"status":0}}
+{"timestamp":1745987304.154741,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 458487758848 ior-iter-1-node-23
+
+FLUX-JOB START 455820181504 ior-iter-1-node-22
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-22"]}}, "user": {"study_id": "ior-iter-1-node-22"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2656.6510,2656.6977,0.0292,102400.0000,1024.0000,0.0003,3.3124,1.6060,3.3124,88,0
+read,383160.7516,383323.9020,0.0002,102400.0000,1024.0000,0.0005,0.0230,0.0011,0.0230,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "22", "children": {"core": "0-87"}}], "starttime": 1745987298.4026537, "expiration": 0.0, "nodelist": ["ior-22"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987298.404283,"name":"init"}
+{"timestamp":1745987298.405194,"name":"starting"}
+{"timestamp":1745987298.4246716,"name":"shell.init","context":{"service":"0-shell-fCyUGaRd","leader-rank":22,"size":1}}
+{"timestamp":1745987298.600873,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987303.8919976,"name":"shell.task-exit","context":{"localid":3,"rank":3,"state":"Exited","pid":76,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987303.9392672,"name":"complete","context":{"status":0}}
+{"timestamp":1745987303.9392848,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 455820181504 ior-iter-1-node-22
+
+FLUX-JOB START 450384363520 ior-iter-1-node-20
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-20"]}}, "user": {"study_id": "ior-iter-1-node-20"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2660.5884,2660.6303,0.0329,102400.0000,1024.0000,0.0003,3.3075,1.7358,3.3075,88,0
+read,332728.2293,332902.2864,0.0003,102400.0000,1024.0000,0.0003,0.0264,0.0044,0.0264,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "20", "children": {"core": "0-87"}}], "starttime": 1745987298.0796561, "expiration": 0.0, "nodelist": ["ior-20"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987298.081836,"name":"init"}
+{"timestamp":1745987298.0830247,"name":"starting"}
+{"timestamp":1745987298.1004725,"name":"shell.init","context":{"service":"0-shell-fCqBvb7u","leader-rank":20,"size":1}}
+{"timestamp":1745987298.2723649,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987303.7041545,"name":"shell.task-exit","context":{"localid":4,"rank":4,"state":"Exited","pid":77,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987303.7494013,"name":"complete","context":{"status":0}}
+{"timestamp":1745987303.749418,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 450384363520 ior-iter-1-node-20
+
+FLUX-JOB START 447431573504 ior-iter-1-node-19
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-19"]}}, "user": {"study_id": "ior-iter-1-node-19"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2636.6573,2636.7057,0.0319,102400.0000,1024.0000,0.0003,3.3375,1.5713,3.3376,88,0
+read,385864.5675,386050.2170,0.0002,102400.0000,1024.0000,0.0004,0.0228,0.0007,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "19", "children": {"core": "0-87"}}], "starttime": 1745987297.9066963, "expiration": 0.0, "nodelist": ["ior-19"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987297.9084556,"name":"init"}
+{"timestamp":1745987297.9096651,"name":"starting"}
+{"timestamp":1745987297.9261129,"name":"shell.init","context":{"service":"0-shell-fCkgzmXD","leader-rank":19,"size":1}}
+{"timestamp":1745987298.0959184,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987303.5161283,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":73,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987303.566988,"name":"complete","context":{"status":0}}
+{"timestamp":1745987303.5670056,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 447431573504 ior-iter-1-node-19
+
+FLUX-JOB START 444445229056 ior-iter-1-node-18
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-18"]}}, "user": {"study_id": "ior-iter-1-node-18"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2621.7616,2621.8130,0.0311,102400.0000,1024.0000,0.0003,3.3565,1.5571,3.3565,88,0
+read,270061.7186,270196.1524,0.0002,102400.0000,1024.0000,0.0036,0.0326,0.0109,0.0326,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "18", "children": {"core": "0-87"}}], "starttime": 1745987297.7303057, "expiration": 0.0, "nodelist": ["ior-18"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987297.7325068,"name":"init"}
+{"timestamp":1745987297.7333429,"name":"starting"}
+{"timestamp":1745987297.7463903,"name":"shell.init","context":{"service":"0-shell-fCg96yMq","leader-rank":18,"size":1}}
+{"timestamp":1745987297.9185545,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987303.3090305,"name":"shell.task-exit","context":{"localid":35,"rank":35,"state":"Exited","pid":108,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987303.3605974,"name":"complete","context":{"status":0}}
+{"timestamp":1745987303.3606148,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 444445229056 ior-iter-1-node-18
+
+FLUX-JOB START 436543160320 ior-iter-1-node-15
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-15"]}}, "user": {"study_id": "ior-iter-1-node-15"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2448.1814,2448.2134,0.0353,102400.0000,1024.0000,0.0002,3.5945,1.1175,3.5945,88,0
+read,230054.0713,230102.8341,0.0002,102400.0000,1024.0000,0.0004,0.0382,0.0165,0.0383,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "15", "children": {"core": "0-87"}}], "starttime": 1745987297.2556424, "expiration": 0.0, "nodelist": ["ior-15"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987297.2576303,"name":"init"}
+{"timestamp":1745987297.258739,"name":"starting"}
+{"timestamp":1745987297.2748778,"name":"shell.init","context":{"service":"0-shell-fCU6podR","leader-rank":15,"size":1}}
+{"timestamp":1745987297.4494495,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987303.1266539,"name":"shell.task-exit","context":{"localid":23,"rank":23,"state":"Exited","pid":96,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987303.17238,"name":"complete","context":{"status":0}}
+{"timestamp":1745987303.1723933,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 436543160320 ior-iter-1-node-15
+
+FLUX-JOB START 441626656768 ior-iter-1-node-17
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-17"]}}, "user": {"study_id": "ior-iter-1-node-17"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2657.5996,2657.6436,0.0328,102400.0000,1024.0000,0.0003,3.3112,1.4951,3.3113,88,0
+read,381331.8787,381497.4181,0.0002,102400.0000,1024.0000,0.0003,0.0231,0.0009,0.0231,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "17", "children": {"core": "0-87"}}], "starttime": 1745987297.5590029, "expiration": 0.0, "nodelist": ["ior-17"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987297.5606289,"name":"init"}
+{"timestamp":1745987297.5616202,"name":"starting"}
+{"timestamp":1745987297.5748684,"name":"shell.init","context":{"service":"0-shell-fCbr341u","leader-rank":17,"size":1}}
+{"timestamp":1745987297.7452397,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987303.0859032,"name":"shell.task-exit","context":{"localid":25,"rank":25,"state":"Exited","pid":98,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987303.1338038,"name":"complete","context":{"status":0}}
+{"timestamp":1745987303.1338217,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 441626656768 ior-iter-1-node-17
+
+FLUX-JOB START 439110074368 ior-iter-1-node-16
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-16"]}}, "user": {"study_id": "ior-iter-1-node-16"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2644.3379,2644.3840,0.0315,102400.0000,1024.0000,0.0002,3.3278,1.3705,3.3279,88,0
+read,378590.0034,378737.6245,0.0002,102400.0000,1024.0000,0.0004,0.0232,0.0013,0.0232,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "16", "children": {"core": "0-87"}}], "starttime": 1745987297.4066086, "expiration": 0.0, "nodelist": ["ior-16"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987297.4081416,"name":"init"}
+{"timestamp":1745987297.4089649,"name":"starting"}
+{"timestamp":1745987297.421382,"name":"shell.init","context":{"service":"0-shell-fCY1eukB","leader-rank":16,"size":1}}
+{"timestamp":1745987297.5916173,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987302.9560492,"name":"shell.task-exit","context":{"localid":29,"rank":29,"state":"Exited","pid":102,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987303.0034709,"name":"complete","context":{"status":0}}
+{"timestamp":1745987303.0034921,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 439110074368 ior-iter-1-node-16
+
+FLUX-JOB START 433506484224 ior-iter-1-node-14
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-14"]}}, "user": {"study_id": "ior-iter-1-node-14"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2667.2309,2667.2705,0.0307,102400.0000,1024.0000,0.0003,3.2993,1.7693,3.2993,88,0
+read,377861.3569,378380.4238,0.0002,102400.0000,1024.0000,0.0004,0.0233,0.0013,0.0233,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "14", "children": {"core": "0-87"}}], "starttime": 1745987297.0727115, "expiration": 0.0, "nodelist": ["ior-14"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987297.074295,"name":"init"}
+{"timestamp":1745987297.0750747,"name":"starting"}
+{"timestamp":1745987297.0876625,"name":"shell.init","context":{"service":"0-shell-fCPUV3d1","leader-rank":14,"size":1}}
+{"timestamp":1745987297.2552965,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987302.6055291,"name":"shell.task-exit","context":{"localid":75,"rank":75,"state":"Exited","pid":148,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987302.655128,"name":"complete","context":{"status":0}}
+{"timestamp":1745987302.6551714,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 433506484224 ior-iter-1-node-14
+
+FLUX-JOB START 430587248640 ior-iter-1-node-13
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-13"]}}, "user": {"study_id": "ior-iter-1-node-13"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2641.6741,2641.7121,0.0329,102400.0000,1024.0000,0.0003,3.3312,1.5587,3.3312,88,0
+read,386252.2128,386438.2356,0.0002,102400.0000,1024.0000,0.0004,0.0228,0.0009,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "13", "children": {"core": "0-87"}}], "starttime": 1745987296.9022591, "expiration": 0.0, "nodelist": ["ior-13"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987296.9170194,"name":"init"}
+{"timestamp":1745987296.9220693,"name":"starting"}
+{"timestamp":1745987296.941304,"name":"shell.init","context":{"service":"0-shell-fCK2XCb1","leader-rank":13,"size":1}}
+{"timestamp":1745987297.1065841,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987302.4960527,"name":"shell.task-exit","context":{"localid":31,"rank":31,"state":"Exited","pid":104,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987302.5449758,"name":"complete","context":{"status":0}}
+{"timestamp":1745987302.5449965,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 430587248640 ior-iter-1-node-13
+
+FLUX-JOB START 427718344704 ior-iter-1-node-12
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-12"]}}, "user": {"study_id": "ior-iter-1-node-12"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2656.5510,2656.5975,0.0328,102400.0000,1024.0000,0.0003,3.3125,1.3900,3.3126,88,0
+read,364693.2575,364859.0894,0.0002,102400.0000,1024.0000,0.0004,0.0241,0.0020,0.0241,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "12", "children": {"core": "0-87"}}], "starttime": 1745987296.7402213, "expiration": 0.0, "nodelist": ["ior-12"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987296.7435017,"name":"init"}
+{"timestamp":1745987296.7442446,"name":"starting"}
+{"timestamp":1745987296.7573338,"name":"shell.init","context":{"service":"0-shell-fCEf1KQ3","leader-rank":12,"size":1}}
+{"timestamp":1745987296.9263148,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987302.3580997,"name":"shell.task-exit","context":{"localid":52,"rank":52,"state":"Exited","pid":125,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987302.4034739,"name":"complete","context":{"status":0}}
+{"timestamp":1745987302.4034917,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 427718344704 ior-iter-1-node-12
+
+FLUX-JOB START 422903283712 ior-iter-1-node-10
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-10"]}}, "user": {"study_id": "ior-iter-1-node-10"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2414.2893,2414.3211,0.0359,102400.0000,1024.0000,0.0003,3.6449,1.2898,3.6450,88,0
+read,357041.4618,357186.5796,0.0002,102400.0000,1024.0000,0.0005,0.0246,0.0027,0.0246,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "10", "children": {"core": "0-87"}}], "starttime": 1745987296.4400938, "expiration": 0.0, "nodelist": ["ior-10"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987296.4413748,"name":"init"}
+{"timestamp":1745987296.4420154,"name":"starting"}
+{"timestamp":1745987296.4642091,"name":"shell.init","context":{"service":"0-shell-fC7KWsX5","leader-rank":10,"size":1}}
+{"timestamp":1745987296.6381938,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987302.3134639,"name":"shell.task-exit","context":{"localid":41,"rank":41,"state":"Exited","pid":114,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987302.3595285,"name":"complete","context":{"status":0}}
+{"timestamp":1745987302.3595462,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 422903283712 ior-iter-1-node-10
+
+FLUX-JOB START 420504141824 ior-iter-1-node-9
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-9"]}}, "user": {"study_id": "ior-iter-1-node-9"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2347.5958,2347.6370,0.0290,102400.0000,1024.0000,0.0002,3.7485,1.3087,3.7485,88,0
+read,374404.0575,374578.8404,0.0002,102400.0000,1024.0000,0.0004,0.0235,0.0016,0.0235,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "9", "children": {"core": "0-87"}}], "starttime": 1745987296.3029146, "expiration": 0.0, "nodelist": ["ior-9"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987296.305104,"name":"init"}
+{"timestamp":1745987296.3060708,"name":"starting"}
+{"timestamp":1745987296.3192916,"name":"shell.init","context":{"service":"0-shell-fC3fWeDm","leader-rank":9,"size":1}}
+{"timestamp":1745987296.4909737,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987302.2789948,"name":"shell.task-exit","context":{"localid":45,"rank":45,"state":"Exited","pid":118,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987302.3113251,"name":"complete","context":{"status":0}}
+{"timestamp":1745987302.3113422,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 420504141824 ior-iter-1-node-9
+
+FLUX-JOB START 425201762304 ior-iter-1-node-11
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-11"]}}, "user": {"study_id": "ior-iter-1-node-11"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2656.3896,2656.4361,0.0330,102400.0000,1024.0000,0.0003,3.3127,1.7639,3.3128,88,0
+read,377826.5452,378023.8962,0.0002,102400.0000,1024.0000,0.0004,0.0233,0.0011,0.0233,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "11", "children": {"core": "0-87"}}], "starttime": 1745987296.5773518, "expiration": 0.0, "nodelist": ["ior-11"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987296.5788045,"name":"init"}
+{"timestamp":1745987296.5795143,"name":"starting"}
+{"timestamp":1745987296.5918519,"name":"shell.init","context":{"service":"0-shell-fCApdB8K","leader-rank":11,"size":1}}
+{"timestamp":1745987296.7598093,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987302.1381474,"name":"shell.task-exit","context":{"localid":27,"rank":27,"state":"Exited","pid":100,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987302.1831136,"name":"complete","context":{"status":0}}
+{"timestamp":1745987302.1831388,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 425201762304 ior-iter-1-node-11
+
+FLUX-JOB START 417668792320 ior-iter-1-node-8
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-8"]}}, "user": {"study_id": "ior-iter-1-node-8"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2624.2469,2624.3118,0.0327,102400.0000,1024.0000,0.0003,3.3533,1.2783,3.3533,88,0
+read,382894.4386,383109.0500,0.0002,102400.0000,1024.0000,0.0004,0.0230,0.0008,0.0230,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "8", "children": {"core": "0-87"}}], "starttime": 1745987296.1282232, "expiration": 0.0, "nodelist": ["ior-8"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987296.1296036,"name":"init"}
+{"timestamp":1745987296.1303072,"name":"starting"}
+{"timestamp":1745987296.1427207,"name":"shell.init","context":{"service":"0-shell-fByLxjbV","leader-rank":8,"size":1}}
+{"timestamp":1745987296.3154202,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987301.7144985,"name":"shell.task-exit","context":{"localid":13,"rank":13,"state":"Exited","pid":86,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987301.7500954,"name":"complete","context":{"status":0}}
+{"timestamp":1745987301.7501111,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 417668792320 ior-iter-1-node-8
+
+FLUX-JOB START 415303204864 ior-iter-1-node-7
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-7"]}}, "user": {"study_id": "ior-iter-1-node-7"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2649.9760,2650.0142,0.0293,102400.0000,1024.0000,0.0003,3.3207,1.5053,3.3208,88,0
+read,386389.6907,386762.1808,0.0002,102400.0000,1024.0000,0.0003,0.0228,0.0009,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "7", "children": {"core": "0-87"}}], "starttime": 1745987295.9872882, "expiration": 0.0, "nodelist": ["ior-7"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987295.9886749,"name":"init"}
+{"timestamp":1745987295.9894395,"name":"starting"}
+{"timestamp":1745987296.0014095,"name":"shell.init","context":{"service":"0-shell-fBujvUrs","leader-rank":7,"size":1}}
+{"timestamp":1745987296.1688082,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987301.5102532,"name":"shell.task-exit","context":{"localid":1,"rank":1,"state":"Exited","pid":74,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987301.5549848,"name":"complete","context":{"status":0}}
+{"timestamp":1745987301.555001,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 415303204864 ior-iter-1-node-7
+
+FLUX-JOB START 412954394624 ior-iter-1-node-6
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-6"]}}, "user": {"study_id": "ior-iter-1-node-6"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2654.0719,2654.1150,0.0242,102400.0000,1024.0000,0.0003,3.3156,1.3118,3.3157,88,0
+read,388161.3562,388328.7939,0.0002,102400.0000,1024.0000,0.0003,0.0227,0.0006,0.0227,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "6", "children": {"core": "0-87"}}], "starttime": 1745987295.847472, "expiration": 0.0, "nodelist": ["ior-6"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987295.8488801,"name":"init"}
+{"timestamp":1745987295.8496602,"name":"starting"}
+{"timestamp":1745987295.8724337,"name":"shell.init","context":{"service":"0-shell-fBrANDQb","leader-rank":6,"size":1}}
+{"timestamp":1745987296.0421665,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987301.4716959,"name":"shell.task-exit","context":{"localid":2,"rank":2,"state":"Exited","pid":75,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987301.5206928,"name":"complete","context":{"status":0}}
+{"timestamp":1745987301.5207169,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 412954394624 ior-iter-1-node-6
+
+FLUX-JOB START 410572029952 ior-iter-1-node-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-5"]}}, "user": {"study_id": "ior-iter-1-node-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2661.1123,2661.1491,0.0330,102400.0000,1024.0000,0.0003,3.3068,1.4334,3.3069,88,0
+read,386066.3689,386268.3816,0.0002,102400.0000,1024.0000,0.0004,0.0228,0.0008,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "5", "children": {"core": "0-87"}}], "starttime": 1745987295.7069457, "expiration": 0.0, "nodelist": ["ior-5"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987295.7093699,"name":"init"}
+{"timestamp":1745987295.7109687,"name":"starting"}
+{"timestamp":1745987295.723804,"name":"shell.init","context":{"service":"0-shell-fBnXqyPd","leader-rank":5,"size":1}}
+{"timestamp":1745987295.8952994,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987301.2612824,"name":"shell.task-exit","context":{"localid":24,"rank":24,"state":"Exited","pid":97,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987301.3107936,"name":"complete","context":{"status":0}}
+{"timestamp":1745987301.310817,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 410572029952 ior-iter-1-node-5
+
+FLUX-JOB START 408206442496 ior-iter-1-node-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-4"]}}, "user": {"study_id": "ior-iter-1-node-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2628.3351,2628.3886,0.0319,102400.0000,1024.0000,0.0003,3.3481,1.9154,3.3481,88,0
+read,380851.8398,381016.9626,0.0002,102400.0000,1024.0000,0.0003,0.0231,0.0011,0.0231,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "4", "children": {"core": "0-87"}}], "starttime": 1745987295.5660403, "expiration": 0.0, "nodelist": ["ior-4"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987295.5719085,"name":"init"}
+{"timestamp":1745987295.5730767,"name":"starting"}
+{"timestamp":1745987295.5871077,"name":"shell.init","context":{"service":"0-shell-fBivoif1","leader-rank":4,"size":1}}
+{"timestamp":1745987295.7603641,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987301.1572766,"name":"shell.task-exit","context":{"localid":40,"rank":40,"state":"Exited","pid":113,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987301.2024951,"name":"complete","context":{"status":0}}
+{"timestamp":1745987301.2025123,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 408206442496 ior-iter-1-node-4
+
+FLUX-JOB START 405555642368 ior-iter-1-node-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-3"]}}, "user": {"study_id": "ior-iter-1-node-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2636.8225,2636.8755,0.0322,102400.0000,1024.0000,0.0003,3.3373,1.4044,3.3374,88,0
+read,364362.0454,364570.7829,0.0002,102400.0000,1024.0000,0.0004,0.0241,0.0021,0.0242,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "3", "children": {"core": "0-87"}}], "starttime": 1745987295.4172444, "expiration": 0.0, "nodelist": ["ior-3"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987295.4217234,"name":"init"}
+{"timestamp":1745987295.4250197,"name":"starting"}
+{"timestamp":1745987295.437222,"name":"shell.init","context":{"service":"0-shell-fBetZg8X","leader-rank":3,"size":1}}
+{"timestamp":1745987295.6047678,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987300.9705789,"name":"shell.task-exit","context":{"localid":28,"rank":28,"state":"Exited","pid":101,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987301.0170128,"name":"complete","context":{"status":0}}
+{"timestamp":1745987301.0170279,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 405555642368 ior-iter-1-node-3
+
+FLUX-JOB START 402854510592 ior-iter-1-node-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-2"]}}, "user": {"study_id": "ior-iter-1-node-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2644.0917,2644.1434,0.0330,102400.0000,1024.0000,0.0003,3.3281,1.2475,3.3282,88,0
+read,382993.7658,383208.4885,0.0002,102400.0000,1024.0000,0.0004,0.0230,0.0009,0.0230,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "2", "children": {"core": "0-87"}}], "starttime": 1745987295.2456195, "expiration": 0.0, "nodelist": ["ior-2"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987295.2472072,"name":"init"}
+{"timestamp":1745987295.2479999,"name":"starting"}
+{"timestamp":1745987295.2919245,"name":"shell.init","context":{"service":"0-shell-fBamsfm1","leader-rank":2,"size":1}}
+{"timestamp":1745987295.4567077,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987300.8987958,"name":"shell.task-exit","context":{"localid":35,"rank":35,"state":"Exited","pid":108,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987300.9499521,"name":"complete","context":{"status":0}}
+{"timestamp":1745987300.9499705,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 402854510592 ior-iter-1-node-2
+
+FLUX-JOB START 398274330624 ior-iter-1-node-0
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-0"]}}, "user": {"study_id": "ior-iter-1-node-0"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2456.5739,2456.6149,0.0335,102400.0000,1024.0000,0.0003,3.5822,0.9469,3.5822,88,0
+read,353241.7307,353397.3095,0.0002,102400.0000,1024.0000,0.0037,0.0249,0.0030,0.0249,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "starttime": 1745987294.9726083, "expiration": 0.0, "nodelist": ["ior-0"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987294.9741497,"name":"init"}
+{"timestamp":1745987294.9829617,"name":"shell.init","context":{"service":"0-shell-fBTo93ps","leader-rank":0,"size":1}}
+{"timestamp":1745987294.9749103,"name":"starting"}
+{"timestamp":1745987295.1585369,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987300.8720291,"name":"shell.task-exit","context":{"localid":35,"rank":35,"state":"Exited","pid":143,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987300.915853,"name":"complete","context":{"status":0}}
+{"timestamp":1745987300.9158792,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 398274330624 ior-iter-1-node-0
+
+FLUX-JOB START 400572809216 ior-iter-1-node-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["ior", "-r", "-w", "-b=100M", "-t=1M", "-O", "summaryFormat=CSV", "-o", "testfile"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/ior", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}, "constraints": {"hostlist": ["ior-1"]}}, "user": {"study_id": "ior-iter-1-node-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-LOG START
+access,bw(MiB/s),IOPS,Latency,block(KiB),xfer(KiB),open(s),wr/rd(s),close(s),total(s),numTasks,iter
+write,2651.9901,2652.0354,0.0327,102400.0000,1024.0000,0.0003,3.3182,1.3493,3.3183,88,0
+read,386713.5544,387171.9381,0.0002,102400.0000,1024.0000,0.0005,0.0227,0.0005,0.0228,88,0
+FLUX-JOB-LOG END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "1", "children": {"core": "0-87"}}], "starttime": 1745987295.1095209, "expiration": 0.0, "nodelist": ["ior-1"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745987295.1110153,"name":"init"}
+{"timestamp":1745987295.111799,"name":"starting"}
+{"timestamp":1745987295.2313306,"name":"shell.init","context":{"service":"0-shell-fBXJFMS7","leader-rank":1,"size":1}}
+{"timestamp":1745987295.4023583,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,88,1]]}}}
+{"timestamp":1745987300.8108363,"name":"shell.task-exit","context":{"localid":2,"rank":2,"state":"Exited","pid":76,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745987300.8605704,"name":"complete","context":{"status":0}}
+{"timestamp":1745987300.8605866,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 400572809216 ior-iter-1-node-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":64,"total":64},"successful":64,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

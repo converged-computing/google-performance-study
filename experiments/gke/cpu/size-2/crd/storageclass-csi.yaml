@@ -1,0 +1,17 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: csi-gcs
+provisioner: gcs.csi.ofek.dev
+volumeBindingMode: Immediate
+allowVolumeExpansion: true
+parameters:
+  csi.storage.k8s.io/node-publish-secret-name: csi-gcs-secret-mounter
+  csi.storage.k8s.io/node-publish-secret-namespace: default
+  csi.storage.k8s.io/provisioner-secret-name: csi-gcs-secret-creator
+  csi.storage.k8s.io/provisioner-secret-namespace: default
+  csi.storage.k8s.io/controller-expand-secret-name: csi-gcs-secret-creator
+  csi.storage.k8s.io/controller-expand-secret-namespace: default
+  gcs.csi.ofek.dev/location: us-central1
+  gcs.csi.ofek.dev/project-id: dinodev
+  gcs.csi.ofek.dev/bucket: flux-operator-storage

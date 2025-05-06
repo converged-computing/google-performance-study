@@ -1,0 +1,367 @@
+Defaulted container "remhos" out of: remhos, flux-view (init)
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START remhos-iter-$i"
+  flux run --setattr=user.study_id=remhos-iter-$i -N16 -n 1408 -o cpu-affinity=per-task -o gpu-affinity=off     remhos -m data/periodic-cube.mesh |& tee /tmp/remhos.out
+  
+   echo "FLUX-RUN END remhos-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     16     1408        0 remhos-[0-15]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START remhos-iter-1
+Mesh::GeneratePartitioning(...): METIS returned 812 empty parts! Applying a simple fix ...
+Options used:
+   --mesh data/periodic-cube.mesh
+   --problem 0
+Mesh::GeneratePartitioning(...): METIS returned 216 empty parts! Applying a simple fix ...
+   --refine-serial 2
+   --refine-parallel 0
+   --order 3
+   --mesh-order 2
+   --ode-solver 3
+   --ho-type 3
+   --lo-type 0
+   --fct-type 0
+   --mono-type 0
+   --no-partial-assembly
+   --smth_ind 0
+   --t-final 4
+   --time-step 0.005
+   --visualization
+   --no-visit-datafiles
+   --no-verify-bounds
+   --visualization-steps 100
+Number of unknowns: 110592
+time step: 100, time: 0.5, residual: 0
+time step: 200, time: 1, residual: 0
+time step: 300, time: 1.5, residual: 0
+time step: 400, time: 2, residual: 0
+time step: 500, time: 2.5, residual: 0
+time step: 600, time: 3, residual: 0
+time step: 700, time: 3.5, residual: 0
+time step: 800, time: 4, residual: 0
+Final mass: 0.9283672072
+Max value:  1.063094046
+Mass loss:  4.25215e-14
+FLUX-RUN END remhos-iter-1
+FLUX-RUN START remhos-iter-2
+Mesh::GeneratePartitioning(...): METIS returned 812 empty parts! Applying a simple fix ...
+Options used:
+   --mesh data/periodic-cube.mesh
+   --problem 0
+Mesh::GeneratePartitioning(...): METIS returned 216 empty parts! Applying a simple fix ...
+   --refine-serial 2
+   --refine-parallel 0
+   --order 3
+   --mesh-order 2
+   --ode-solver 3
+   --ho-type 3
+   --lo-type 0
+   --fct-type 0
+   --mono-type 0
+   --no-partial-assembly
+   --smth_ind 0
+   --t-final 4
+   --time-step 0.005
+   --visualization
+   --no-visit-datafiles
+   --no-verify-bounds
+   --visualization-steps 100
+Number of unknowns: 110592
+time step: 100, time: 0.5, residual: 0
+time step: 200, time: 1, residual: 0
+time step: 300, time: 1.5, residual: 0
+time step: 400, time: 2, residual: 0
+time step: 500, time: 2.5, residual: 0
+time step: 600, time: 3, residual: 0
+time step: 700, time: 3.5, residual: 0
+time step: 800, time: 4, residual: 0
+Final mass: 0.9283672072
+Max value:  1.063094046
+Mass loss:  4.25215e-14
+FLUX-RUN END remhos-iter-2
+FLUX-RUN START remhos-iter-3
+Mesh::GeneratePartitioning(...): METIS returned 812 empty parts! Applying a simple fix ...
+Options used:
+   --mesh data/periodic-cube.mesh
+   --problem 0
+   --refine-serial 2
+   --refine-parallel 0
+   --order 3
+   --mesh-order 2
+   --ode-solver 3
+   --ho-type 3
+   --lo-type 0
+Mesh::GeneratePartitioning(...): METIS returned 216 empty parts! Applying a simple fix ...
+   --fct-type 0
+   --mono-type 0
+   --no-partial-assembly
+   --smth_ind 0
+   --t-final 4
+   --time-step 0.005
+   --visualization
+   --no-visit-datafiles
+   --no-verify-bounds
+   --visualization-steps 100
+Number of unknowns: 110592
+time step: 100, time: 0.5, residual: 0
+time step: 200, time: 1, residual: 0
+time step: 300, time: 1.5, residual: 0
+time step: 400, time: 2, residual: 0
+time step: 500, time: 2.5, residual: 0
+time step: 600, time: 3, residual: 0
+time step: 700, time: 3.5, residual: 0
+time step: 800, time: 4, residual: 0
+Final mass: 0.9283672072
+Max value:  1.063094046
+Mass loss:  4.25215e-14
+FLUX-RUN END remhos-iter-3
+FLUX-RUN START remhos-iter-4
+Mesh::GeneratePartitioning(...): METIS returned 812 empty parts! Applying a simple fix ...
+Options used:
+   --mesh data/periodic-cube.mesh
+   --problem 0
+   --refine-serial 2
+   --refine-parallel 0
+   --order 3
+   --mesh-order 2
+   --ode-solver 3
+   --ho-type 3
+   --lo-type 0
+   --fct-type 0
+   --mono-type 0
+   --no-partial-assembly
+Mesh::GeneratePartitioning(...): METIS returned 216 empty parts! Applying a simple fix ...
+   --smth_ind 0
+   --t-final 4
+   --time-step 0.005
+   --visualization
+   --no-visit-datafiles
+   --no-verify-bounds
+   --visualization-steps 100
+Number of unknowns: 110592
+time step: 100, time: 0.5, residual: 0
+time step: 200, time: 1, residual: 0
+time step: 300, time: 1.5, residual: 0
+time step: 400, time: 2, residual: 0
+time step: 500, time: 2.5, residual: 0
+time step: 600, time: 3, residual: 0
+time step: 700, time: 3.5, residual: 0
+time step: 800, time: 4, residual: 0
+Final mass: 0.9283672072
+Max value:  1.063094046
+Mass loss:  4.25215e-14
+FLUX-RUN END remhos-iter-4
+FLUX-RUN START remhos-iter-5
+Mesh::GeneratePartitioning(...): METIS returned 812 empty parts! Applying a simple fix ...
+Options used:
+   --mesh data/periodic-cube.mesh
+Mesh::GeneratePartitioning(...): METIS returned 216 empty parts! Applying a simple fix ...
+   --problem 0
+   --refine-serial 2
+   --refine-parallel 0
+   --order 3
+   --mesh-order 2
+   --ode-solver 3
+   --ho-type 3
+   --lo-type 0
+   --fct-type 0
+   --mono-type 0
+   --no-partial-assembly
+   --smth_ind 0
+   --t-final 4
+   --time-step 0.005
+   --visualization
+   --no-visit-datafiles
+   --no-verify-bounds
+   --visualization-steps 100
+Number of unknowns: 110592
+time step: 100, time: 0.5, residual: 0
+time step: 200, time: 1, residual: 0
+time step: 300, time: 1.5, residual: 0
+time step: 400, time: 2, residual: 0
+time step: 500, time: 2.5, residual: 0
+time step: 600, time: 3, residual: 0
+time step: 700, time: 3.5, residual: 0
+time step: 800, time: 4, residual: 0
+Final mass: 0.9283672072
+Max value:  1.063094046
+Mass loss:  4.25215e-14
+FLUX-RUN END remhos-iter-5
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy InRelease [270 kB]
+0% [1 InRelease 5484 B/270 kB 2%] [Waiting for headers]                                                       Get:2 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [1 InRelease 35.9 kB/270 kB 13%] [2 InRelease 14.2 kB/129 kB 11%]                                                                    0% [2 InRelease 25.8 kB/129 kB 20%]                                   Get:3 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [3 InRelease 6932 B/128 kB 5%] [2 InRelease 34.4 kB/129 kB 27%]                                                                  0% [2 InRelease 40.2 kB/129 kB 31%]0% [Waiting for headers] [2 InRelease 43.1 kB/129 kB 33%]                                                         Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 6932 B/127 kB 5%] [2 InRelease 43.1 kB/129 kB 33%]                                                                  0% [2 InRelease 43.1 kB/129 kB 33%]                                   Get:5 http://archive.ubuntu.com/ubuntu jammy/multiverse amd64 Packages [266 kB]
+0% [5 Packages 7001 B/266 kB 3%] [2 InRelease 57.6 kB/129 kB 45%]0% [5 Packages 75.1 kB/266 kB 28%] [2 InRelease 60.5 kB/129 kB 47%]                                                                   0% [Waiting for headers] [2 InRelease 69.2 kB/129 kB 54%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy/main amd64 Packages [1792 kB]
+0% [6 Packages 56.7 kB/1792 kB 3%] [2 InRelease 69.2 kB/129 kB 54%]0% [5 Packages store 0 B] [6 Packages 56.7 kB/1792 kB 3%] [2 InRelease 69.2 kB/                                                                               0% [6 Packages 157 kB/1792 kB 9%] [2 InRelease 75.0 kB/129 kB 58%]0% [6 Packages 430 kB/1792 kB 24%] [2 InRelease 86.6 kB/129 kB 67%]                                                                   0% [Waiting for headers] [2 InRelease 101 kB/129 kB 78%]                                                        Get:7 http://archive.ubuntu.com/ubuntu jammy/restricted amd64 Packages [164 kB]
+0% [7 Packages 12.0 kB/164 kB 7%] [2 InRelease 101 kB/129 kB 78%]0% [6 Packages store 0 B] [7 Packages 12.0 kB/164 kB 7%] [2 InRelease 101 kB/120% [6 Packages store 0 B] [Waiting for headers] [2 InRelease 101 kB/129 kB 78%]                                                                               Get:8 http://archive.ubuntu.com/ubuntu jammy/universe amd64 Packages [17.5 MB]
+0% [6 Packages store 0 B] [8 Packages 12.6 kB/17.5 MB 0%] [2 InRelease 101 kB/1                                                                               0% [6 Packages store 0 B] [8 Packages 6602 kB/17.5 MB 38%]                                                          0% [8 Packages 6996 kB/17.5 MB 40%]0% [7 Packages store 0 B] [8 Packages 7016 kB/17.5 MB 40%]                                                          0% [8 Packages 8699 kB/17.5 MB 50%]                                   0% [Waiting for headers]                        Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+0% [9 Packages 8192 B/4420 kB 0%]0% [8 Packages store 0 B] [9 Packages 8192 B/4420 kB 0%]62% [8 Packages store 0 B] [9 Packages 2520 kB/4420 kB 57%]66% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:10 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+66% [8 Packages store 0 B] [10 Packages 45.1 kB/1544 kB 3%] [Waiting for header                                                                               69% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:11 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+69% [8 Packages store 0 B] [11 Packages 8192 B/3200 kB 0%] [Waiting for headers                                                                               76% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:12 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+76% [8 Packages store 0 B] [12 Packages 40.2 kB/55.7 kB 72%] [Waiting for heade                                                                               76% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:13 http://archive.ubuntu.com/ubuntu jammy-backports/main amd64 Packages [82.7 kB]
+76% [8 Packages store 0 B] [13 Packages 49.9 kB/82.7 kB 60%] [Waiting for heade                                                                               76% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:14 http://archive.ubuntu.com/ubuntu jammy-backports/universe amd64 Packages [35.2 kB]
+76% [8 Packages store 0 B] [14 Packages 32.4 kB/35.2 kB 92%] [Waiting for heade                                                                               76% [8 Packages store 0 B] [Waiting for headers]                                                Get:15 http://security.ubuntu.com/ubuntu jammy-security/multiverse amd64 Packages [47.7 kB]
+76% [8 Packages store 0 B] [15 Packages 2659 B/47.7 kB 6%]                                                          77% [8 Packages store 0 B]                          Get:16 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [2844 kB]
+77% [8 Packages store 0 B] [16 Packages 2655 B/2844 kB 0%]                                                          79% [16 Packages 724 kB/2844 kB 25%]79% [9 Packages store 0 B] [16 Packages 724 kB/2844 kB 25%]                                                           83% [16 Packages 2305 kB/2844 kB 81%]83% [10 Packages store 0 B] [16 Packages 2305 kB/2844 kB 81%]                                                             84% [10 Packages store 0 B] [Waiting for headers]                                                 Get:17 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+84% [10 Packages store 0 B] [17 Packages 6649 B/1244 kB 1%]                                                           86% [17 Packages 620 kB/1244 kB 50%]86% [11 Packages store 0 B] [17 Packages 620 kB/1244 kB 50%]                                                            87% [11 Packages store 0 B] [Waiting for headers]                                                 Get:18 http://security.ubuntu.com/ubuntu jammy-security/restricted amd64 Packages [4118 kB]
+87% [11 Packages store 0 B] [18 Packages 4096 B/4118 kB 0%]                                                           95% [18 Packages 3555 kB/4118 kB 86%]95% [12 Packages store 0 B] [18 Packages 3565 kB/4118 kB 87%]                                                             96% [18 Packages 3685 kB/4118 kB 89%]96% [13 Packages store 0 B] [18 Packages 3685 kB/4118 kB 89%]                                                             97% [18 Packages 3880 kB/4118 kB 94%]97% [14 Packages store 0 B] [18 Packages 3880 kB/4118 kB 94%]                                                             97% [18 Packages 3946 kB/4118 kB 96%]97% [15 Packages store 0 B] [18 Packages 3946 kB/4118 kB 96%]                                                             98% [18 Packages 4057 kB/4118 kB 99%]98% [16 Packages store 0 B] [18 Packages 4057 kB/4118 kB 99%]                                                             98% [16 Packages store 0 B]                           99% [Working]99% [17 Packages store 0 B]                           99% [Working]99% [18 Packages store 0 B]                           100% [Working]              Fetched 37.9 MB in 2s (19.2 MB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 70%Reading package lists... 70%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 75%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 1%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
+Need to get 357 kB of archives.
+After this operation, 1087 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu jammy/main amd64 libonig5 amd64 6.9.7.1-2build1 [172 kB]
+1% [1 libonig5 2604 B/172 kB 2%]                                45% [Working]             Get:2 http://archive.ubuntu.com/ubuntu jammy/main amd64 libjq1 amd64 1.6-2.1ubuntu3 [133 kB]
+46% [2 libjq1 4052 B/133 kB 3%]                               82% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu jammy/main amd64 jq amd64 1.6-2.1ubuntu3 [52.5 kB]
+82% [3 jq 1424 B/52.5 kB 3%]                            100% [Working]              Fetched 357 kB in 0s (1213 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 11275 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.7.1-2build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.7.1-2build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-2.1ubuntu3) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-2.1ubuntu3_amd64.deb ...
+Unpacking jq (1.6-2.1ubuntu3) ...
+Setting up libonig5:amd64 (6.9.7.1-2build1) ...
+Setting up libjq1:amd64 (1.6-2.1ubuntu3) ...
+Setting up jq (1.6-2.1ubuntu3) ...
+Processing triggers for libc-bin (2.35-0ubuntu3.9) ...
+
+FLUX-JOB START 2780471230464 remhos-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["remhos", "-m", "data/periodic-cube.mesh"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/remhos", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "remhos-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["remhos-[0-15]"], "starttime": 1746407439, "expiration": 4900007273}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746407439.0581279,"name":"init"}
+{"timestamp":1746407439.0587389,"name":"starting"}
+{"timestamp":1746407439.0731111,"name":"shell.init","context":{"service":"0-shell-f2G3Diqew","leader-rank":0,"size":16}}
+{"timestamp":1746407439.2537632,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1746407479.5783477,"name":"shell.task-exit","context":{"localid":58,"rank":146,"state":"Exited","pid":941,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746407479.686954,"name":"complete","context":{"status":0}}
+{"timestamp":1746407479.6869829,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2780471230464 remhos-iter-5
+
+FLUX-JOB START 2087538655232 remhos-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["remhos", "-m", "data/periodic-cube.mesh"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/remhos", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "remhos-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["remhos-[0-15]"], "starttime": 1746407397, "expiration": 4900007273}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746407397.7569177,"name":"init"}
+{"timestamp":1746407397.757504,"name":"starting"}
+{"timestamp":1746407397.7722883,"name":"shell.init","context":{"service":"0-shell-fwqVeGSs","leader-rank":0,"size":16}}
+{"timestamp":1746407397.9538405,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1746407438.6618342,"name":"shell.task-exit","context":{"localid":77,"rank":77,"state":"Exited","pid":853,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746407438.7725327,"name":"complete","context":{"status":0}}
+{"timestamp":1746407438.7725637,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2087538655232 remhos-iter-4
+
+FLUX-JOB START 1383449231360 remhos-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["remhos", "-m", "data/periodic-cube.mesh"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/remhos", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "remhos-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["remhos-[0-15]"], "starttime": 1746407355, "expiration": 4900007273}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746407355.7894158,"name":"init"}
+{"timestamp":1746407355.790019,"name":"starting"}
+{"timestamp":1746407355.8050139,"name":"shell.init","context":{"service":"0-shell-fdLmfvqV","leader-rank":0,"size":16}}
+{"timestamp":1746407355.9879863,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1746407397.4010859,"name":"shell.task-exit","context":{"localid":81,"rank":81,"state":"Exited","pid":680,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746407397.4744713,"name":"complete","context":{"status":0}}
+{"timestamp":1746407397.4745011,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1383449231360 remhos-iter-3
+
+FLUX-JOB START 692815134720 remhos-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["remhos", "-m", "data/periodic-cube.mesh"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/remhos", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "remhos-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["remhos-[0-15]"], "starttime": 1746407314, "expiration": 4900007273}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746407314.6238492,"name":"init"}
+{"timestamp":1746407314.6244071,"name":"starting"}
+{"timestamp":1746407314.6389339,"name":"shell.init","context":{"service":"0-shell-fKCYhfEf","leader-rank":0,"size":16}}
+{"timestamp":1746407314.821584,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1746407355.3987801,"name":"shell.task-exit","context":{"localid":69,"rank":69,"state":"Exited","pid":475,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746407355.5052021,"name":"complete","context":{"status":0}}
+{"timestamp":1746407355.5052459,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 692815134720 remhos-iter-2
+
+FLUX-JOB START 14898167808 remhos-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["remhos", "-m", "data/periodic-cube.mesh"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt/remhos", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "remhos-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["remhos-[0-15]"], "starttime": 1746407274, "expiration": 4900007273}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746407274.2189569,"name":"init"}
+{"timestamp":1746407274.219564,"name":"starting"}
+{"timestamp":1746407274.2341049,"name":"shell.init","context":{"service":"0-shell-fPhW1FD","leader-rank":0,"size":16}}
+{"timestamp":1746407274.4170544,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1746407314.2270734,"name":"shell.task-exit","context":{"localid":46,"rank":222,"state":"Exited","pid":209,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746407314.3414073,"name":"complete","context":{"status":0}}
+{"timestamp":1746407314.3414381,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 14898167808 remhos-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

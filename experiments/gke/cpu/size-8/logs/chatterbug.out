@@ -1,0 +1,188 @@
+Defaulted container "bug" out of: bug, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..4}
+do
+  echo "FLUX-RUN START chatterbug-iter-$i"
+  flux run --setattr=user.study_id=chatterbug-iter-$i -N8 -n 704 -o cpu-affinity=per-task -o gpu-affinity=off    stencil3d/stencil3d.x 8 8 11 1024 1024 1024 4 100 |& tee /tmp/chatterbug.out
+    echo "FLUX-RUN END chatterbug-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      8      704        0 bug-[0-7]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START chatterbug-iter-1
+Running stencil3d on 704 processors each with (1024, 1024, 1024) grid points with 4 variables
+Finished 100 iterations
+Time elapsed per iteration for grid size (1024,1024,1024) x 4 x 8: 0.477767 s
+FLUX-RUN END chatterbug-iter-1
+FLUX-RUN START chatterbug-iter-2
+Running stencil3d on 704 processors each with (1024, 1024, 1024) grid points with 4 variables
+Finished 100 iterations
+Time elapsed per iteration for grid size (1024,1024,1024) x 4 x 8: 0.479767 s
+FLUX-RUN END chatterbug-iter-2
+FLUX-RUN START chatterbug-iter-3
+Running stencil3d on 704 processors each with (1024, 1024, 1024) grid points with 4 variables
+Finished 100 iterations
+Time elapsed per iteration for grid size (1024,1024,1024) x 4 x 8: 0.479495 s
+FLUX-RUN END chatterbug-iter-3
+FLUX-RUN START chatterbug-iter-4
+Running stencil3d on 704 processors each with (1024, 1024, 1024) grid points with 4 variables
+Finished 100 iterations
+Time elapsed per iteration for grid size (1024,1024,1024) x 4 x 8: 0.478692 s
+FLUX-RUN END chatterbug-iter-4
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu focal InRelease [265 kB]
+0% [1 InRelease 14.2 kB/265 kB 5%] [Waiting for headers] [Connecting to ppa.lau                                                                               Get:2 http://security.ubuntu.com/ubuntu focal-security InRelease [128 kB]
+0% [1 InRelease 14.2 kB/265 kB 5%] [2 InRelease 14.2 kB/128 kB 11%] [Connecting0% [1 InRelease 113 kB/265 kB 43%] [Connecting to ppa.launchpad.net (185.125.19                                                                               0% [Waiting for headers]0% [Waiting for headers] [Waiting for headers]                                              Get:3 http://archive.ubuntu.com/ubuntu focal-updates InRelease [128 kB]
+0% [3 InRelease 8380 B/128 kB 7%] [Waiting for headers] [Waiting for headers]                                                                             0% [Waiting for headers] [Waiting for headers]                                              Get:4 http://security.ubuntu.com/ubuntu focal-security/multiverse amd64 Packages [33.2 kB]
+0% [Waiting for headers] [4 Packages 2659 B/33.2 kB 8%] [Waiting for headers]                                                                             0% [Waiting for headers] [Waiting for headers]0% [4 Packages store 0 B] [Waiting for headers] [Waiting for headers] [Waiting                                                                                0% [Waiting for headers] [Waiting for headers] [Waiting for headers]                                                                    Get:5 http://archive.ubuntu.com/ubuntu focal-backports InRelease [128 kB]
+0% [5 InRelease 8380 B/128 kB 7%] [Waiting for headers] [Waiting for headers]                                                                             0% [Waiting for headers] [Waiting for headers]0% [Waiting for headers] [Waiting for headers]                                              Get:6 http://security.ubuntu.com/ubuntu focal-security/universe amd64 Packages [1308 kB]
+0% [Waiting for headers] [6 Packages 2655 B/1308 kB 0%] [Waiting for headers]                                                                             Get:7 http://archive.ubuntu.com/ubuntu focal/main amd64 Packages [1275 kB]
+0% [7 Packages 8447 B/1275 kB 1%] [6 Packages 118 kB/1308 kB 9%] [Waiting for h0% [7 Packages 412 kB/1275 kB 32%] [6 Packages 337 kB/1308 kB 26%] [Waiting for                                                                               0% [6 Packages 1005 kB/1308 kB 77%] [Waiting for headers]0% [7 Packages store 0 B] [6 Packages 1005 kB/1308 kB 77%] [Waiting for headers0% [7 Packages store 0 B] [Waiting for headers] [Waiting for headers] [Waiting                                                                                Get:8 http://security.ubuntu.com/ubuntu focal-security/restricted amd64 Packages [4617 kB]
+0% [7 Packages store 0 B] [Waiting for headers] [8 Packages 0 B/4617 kB 0%] [Wa                                                                               Get:9 http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu focal InRelease [24.6 kB]
+0% [7 Packages store 0 B] [Waiting for headers] [8 Packages 113 kB/4617 kB 2%] 0% [7 Packages store 0 B] [Waiting for headers] [8 Packages 374 kB/4617 kB 8%]                                                                                Get:10 http://archive.ubuntu.com/ubuntu focal/universe amd64 Packages [11.3 MB]
+0% [7 Packages store 0 B] [10 Packages 36.9 kB/11.3 MB 0%] [8 Packages 765 kB/40% [10 Packages 1804 kB/11.3 MB 16%] [8 Packages 3298 kB/4617 kB 71%] [9 InRele0% [6 Packages store 0 B] [10 Packages 1804 kB/11.3 MB 16%] [8 Packages 3298 kB0% [6 Packages store 0 B] [10 Packages 2560 kB/11.3 MB 23%] [Waiting for header                                                                               Get:11 http://security.ubuntu.com/ubuntu focal-security/main amd64 Packages [4358 kB]
+0% [6 Packages store 0 B] [10 Packages 2560 kB/11.3 MB 23%] [11 Packages 7474 B0% [6 Packages store 0 B] [10 Packages 6078 kB/11.3 MB 54%] [9 InRelease 14.2 k                                                                               0% [10 Packages 9473 kB/11.3 MB 84%] [9 InRelease 22.9 kB/24.6 kB 93%]0% [8 Packages store 0 B] [10 Packages 9473 kB/11.3 MB 84%] [9 InRelease 22.9 k                                                                               0% [8 Packages store 0 B] [10 Packages 10.2 MB/11.3 MB 90%]                                                           0% [8 Packages store 0 B] [Waiting for headers]                                               Get:12 http://archive.ubuntu.com/ubuntu focal/restricted amd64 Packages [33.4 kB]
+0% [8 Packages store 0 B] [12 Packages 31.3 kB/33.4 kB 94%]                                                           0% [8 Packages store 0 B]                         Get:13 http://archive.ubuntu.com/ubuntu focal/multiverse amd64 Packages [177 kB]
+0% [8 Packages store 0 B] [13 Packages 0 B/177 kB 0%]                                                     0% [8 Packages store 0 B] [Waiting for headers]                                               Get:14 http://archive.ubuntu.com/ubuntu focal-updates/multiverse amd64 Packages [36.8 kB]
+0% [8 Packages store 0 B] [14 Packages 17.1 kB/36.8 kB 47%]                                                           0% [8 Packages store 0 B] [Waiting for headers]                                               Get:15 http://archive.ubuntu.com/ubuntu focal-updates/universe amd64 Packages [1599 kB]
+0% [8 Packages store 0 B] [15 Packages 45.6 kB/1599 kB 3%]                                                          0% [8 Packages store 0 B] [Waiting for headers]                                               Get:16 http://archive.ubuntu.com/ubuntu focal-updates/main amd64 Packages [4849 kB]
+0% [8 Packages store 0 B] [16 Packages 8192 B/4849 kB 0%]                                                         0% [8 Packages store 0 B] [Waiting for headers]                                               Get:17 http://archive.ubuntu.com/ubuntu focal-updates/restricted amd64 Packages [4815 kB]
+0% [8 Packages store 0 B] [17 Packages 19.6 kB/4815 kB 0%]87% [8 Packages store 0 B] [17 Packages 2032 kB/4815 kB 42%]94% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:18 http://archive.ubuntu.com/ubuntu focal-backports/main amd64 Packages [55.2 kB]
+94% [8 Packages store 0 B] [18 Packages 53.9 kB/55.2 kB 98%] [Waiting for heade                                                                               94% [8 Packages store 0 B] [Waiting for headers] [Waiting for headers]                                                                      Get:19 http://archive.ubuntu.com/ubuntu focal-backports/universe amd64 Packages [28.6 kB]
+94% [8 Packages store 0 B] [19 Packages 28.6 kB/28.6 kB 100%] [Waiting for head                                                                               94% [8 Packages store 0 B] [Waiting for headers]                                                Get:20 http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu focal/main amd64 Packages [28.7 kB]
+94% [8 Packages store 0 B] [20 Packages 2689 B/28.7 kB 9%]                                                          94% [8 Packages store 0 B]                          94% [Working]94% [11 Packages store 0 B]                           95% [Working]95% [10 Packages store 0 B]95% [10 Packages store 0 B]                           95% [Working]95% [12 Packages store 0 B]                           96% [Working]96% [13 Packages store 0 B]                           96% [Working]96% [14 Packages store 0 B]                           97% [Working]97% [15 Packages store 0 B]                           97% [Working]97% [16 Packages store 0 B]                           98% [Working]98% [17 Packages store 0 B]                           98% [Working]98% [18 Packages store 0 B]                           99% [Working]99% [19 Packages store 0 B]                           99% [Working]99% [20 Packages store 0 B]                           100% [Working]              Fetched 35.2 MB in 2s (16.0 MB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 3%Reading package lists... 3%Reading package lists... 3%Reading package lists... 3%Reading package lists... 35%Reading package lists... 35%Reading package lists... 36%Reading package lists... 36%Reading package lists... 50%Reading package lists... 50%Reading package lists... 64%Reading package lists... 64%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 81%Reading package lists... 81%Reading package lists... 82%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 3%Reading package lists... 3%Reading package lists... 3%Reading package lists... 3%Reading package lists... 35%Reading package lists... 35%Reading package lists... 36%Reading package lists... 36%Reading package lists... 50%Reading package lists... 50%Reading package lists... 64%Reading package lists... 64%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 81%Reading package lists... 81%Reading package lists... 82%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree       
+Reading state information... 0%Reading state information... 0%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 108 not upgraded.
+Need to get 313 kB of archives.
+After this operation, 1062 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu focal/universe amd64 libonig5 amd64 6.9.4-1 [142 kB]
+4% [1 libonig5 14.2 kB/142 kB 10%]                                  43% [Working]             Get:2 http://archive.ubuntu.com/ubuntu focal-updates/main amd64 libjq1 amd64 1.6-1ubuntu0.20.04.1 [121 kB]
+44% [2 libjq1 2604 B/121 kB 2%]                               81% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu focal-updates/main amd64 jq amd64 1.6-1ubuntu0.20.04.1 [50.2 kB]
+81% [3 jq 1606 B/50.2 kB 3%]                            100% [Working]              Fetched 313 kB in 1s (328 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 37179 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.4-1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.4-1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.6-1ubuntu0.20.04.1_amd64.deb ...
+Unpacking libjq1:amd64 (1.6-1ubuntu0.20.04.1) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.6-1ubuntu0.20.04.1_amd64.deb ...
+Unpacking jq (1.6-1ubuntu0.20.04.1) ...
+Setting up libonig5:amd64 (6.9.4-1) ...
+Setting up libjq1:amd64 (1.6-1ubuntu0.20.04.1) ...
+Setting up jq (1.6-1ubuntu0.20.04.1) ...
+Processing triggers for libc-bin (2.31-0ubuntu9.9) ...
+
+FLUX-JOB START 2593740816384 chatterbug-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["stencil3d/stencil3d.x", "8", "8", "11", "1024", "1024", "1024", "4", "100"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/root/chatterbug", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "chatterbug-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "starttime": 1745974324.0014517, "expiration": 0.0, "nodelist": ["bug-[0-7]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745974324.0041935,"name":"init"}
+{"timestamp":1745974324.0048389,"name":"starting"}
+{"timestamp":1745974324.0169797,"name":"shell.init","context":{"service":"0-shell-f2B8izf91","leader-rank":0,"size":8}}
+{"timestamp":1745974324.1886399,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1745974374.7489657,"name":"shell.task-exit","context":{"localid":87,"rank":351,"state":"Exited","pid":776,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745974374.8344815,"name":"complete","context":{"status":0}}
+{"timestamp":1745974374.8345113,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2593740816384 chatterbug-iter-4
+
+FLUX-JOB START 1733740724224 chatterbug-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["stencil3d/stencil3d.x", "8", "8", "11", "1024", "1024", "1024", "4", "100"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/root/chatterbug", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "chatterbug-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "starttime": 1745974272.7416234, "expiration": 0.0, "nodelist": ["bug-[0-7]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745974272.7444263,"name":"init"}
+{"timestamp":1745974272.7451236,"name":"starting"}
+{"timestamp":1745974272.7574854,"name":"shell.init","context":{"service":"0-shell-fnYTjPh9","leader-rank":0,"size":8}}
+{"timestamp":1745974272.9284317,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1745974323.655643,"name":"shell.task-exit","context":{"localid":73,"rank":73,"state":"Exited","pid":613,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745974323.7582917,"name":"complete","context":{"status":0}}
+{"timestamp":1745974323.7583275,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1733740724224 chatterbug-iter-3
+
+FLUX-JOB START 874982146048 chatterbug-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["stencil3d/stencil3d.x", "8", "8", "11", "1024", "1024", "1024", "4", "100"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/root/chatterbug", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "chatterbug-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "starttime": 1745974221.5557129, "expiration": 0.0, "nodelist": ["bug-[0-7]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745974221.5584936,"name":"init"}
+{"timestamp":1745974221.5590732,"name":"starting"}
+{"timestamp":1745974221.570436,"name":"shell.init","context":{"service":"0-shell-fPz6BD6o","leader-rank":0,"size":8}}
+{"timestamp":1745974221.7422225,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1745974272.406935,"name":"shell.task-exit","context":{"localid":85,"rank":437,"state":"Exited","pid":418,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745974272.4989705,"name":"complete","context":{"status":0}}
+{"timestamp":1745974272.4990025,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 874982146048 chatterbug-iter-2
+
+FLUX-JOB START 19377684480 chatterbug-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 8, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["stencil3d/stencil3d.x", "8", "8", "11", "1024", "1024", "1024", "4", "100"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/root/chatterbug", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "chatterbug-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-7", "children": {"core": "0-87"}}], "starttime": 1745974170.5574851, "expiration": 0.0, "nodelist": ["bug-[0-7]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745974170.5601952,"name":"init"}
+{"timestamp":1745974170.5607402,"name":"starting"}
+{"timestamp":1745974170.5716004,"name":"shell.init","context":{"service":"0-shell-fWXLhVH","leader-rank":0,"size":8}}
+{"timestamp":1745974170.7446749,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,8,88,1]]}}}
+{"timestamp":1745974221.2143803,"name":"shell.task-exit","context":{"localid":81,"rank":81,"state":"Exited","pid":267,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745974221.3110955,"name":"complete","context":{"status":0}}
+{"timestamp":1745974221.311126,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 19377684480 chatterbug-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":4,"total":4},"successful":4,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

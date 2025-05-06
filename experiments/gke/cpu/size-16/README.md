@@ -1,6 +1,5 @@
 # GKE CPU Experiment Size 16
 
-
 ## Setup
 
 ```bash
@@ -194,6 +193,8 @@ helm uninstall kripke
 
 **Did not run at this size**
 
+This was the original performance study.
+
 ```bash
 helm dependency update laghos
 helm install \
@@ -218,6 +219,31 @@ helm install \
   --set laghos.ot=2 \
   --set laghos.mesh=/opt/laghos/data/cube_311_hex.mesh \
   --set experiment.iterations=2 \
+  laghos ./laghos
+
+time kubectl wait --for=condition=ready pod -l job-name=laghos --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/laghos.out
+helm uninstall laghos
+```
+
+### Laghos Redo
+
+This was a simpler attempt
+
+```
+helm dependency update laghos
+helm install \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=1408 \
+  --set experiment.tasks=1408 \
+  --set minicluster.save_logs=true \
+  --set laghos.p=1 \
+  --set laghos.rs=5 \
+  --set laghos.fom=true \
+  --set laghos.max_steps=500 \
+  --set experiment.iterations=5 \
   laghos ./laghos
 
 time kubectl wait --for=condition=ready pod -l job-name=laghos --timeout=600s

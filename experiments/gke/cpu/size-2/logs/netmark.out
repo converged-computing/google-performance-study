@@ -1,0 +1,208 @@
+Defaulted container "netmark" out of: netmark, flux-view (init)
+chmod: cannot access './wait-fs': No such file or directory
+mv: cannot stat './wait-fs': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START netmark-iter-$i"
+  flux run --setattr=user.study_id=netmark-iter-$i -N2 -n 2 -o cpu-affinity=per-task -o gpu-affinity=off    netmark -w 10 -t 20 -c 100 -b 0 -s |& tee /tmp/netmark.out
+    echo "FLUX-RUN END netmark-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+sleep infinity
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      2      176        0 netmark-[0-1]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START netmark-iter-1
+=========== SETUP ===========
+warmups                  10
+trials                   20
+send_recv_cycles        100
+bytes                     0
+store_per_trial           1
+=============================
+size 2 rank 0 on host netmark-0 ip 10.16.0.40
+Rank 0 sends to rank 1
+Rank 0 sends to rank 1
+Rank 0 sends to rank 1
+Rank 0 sends to rank 1
+Rank 0 sends to rank 1
+Rank 0 sends to rank 1
+Rank 0 sends to rank 1
+Rank 0 sends to rank 1
+Rank 0 sends to rank 1
+Rank 0 sends to rank 1
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.692 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.800 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.840 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.987 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.967 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.913 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.902 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.913 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.884 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.874 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.846 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.859 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.854 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.860 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.859 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.862 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.855 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.855 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.849 micro-seconds
+Rank 0 sends to rank 1
+RTT between rank 0 and rank 1 is 27.839 micro-seconds
+size 2 rank 1 on host netmark-1 ip 10.16.1.44
+Rank 1 sends to rank 0
+Rank 1 sends to rank 0
+Rank 1 sends to rank 0
+Rank 1 sends to rank 0
+Rank 1 sends to rank 0
+Rank 1 sends to rank 0
+Rank 1 sends to rank 0
+Rank 1 sends to rank 0
+Rank 1 sends to rank 0
+Rank 1 sends to rank 0
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.772 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.828 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.806 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.852 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.830 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.823 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.817 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.983 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 28.013 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.988 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.957 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.952 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.933 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.941 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.918 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.905 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.898 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.891 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.880 micro-seconds
+Rank 1 sends to rank 0
+RTT between rank 1 and rank 0 is 27.873 micro-seconds
+FLUX-RUN END netmark-iter-1
+0% [Working]            Hit:1 http://security.ubuntu.com/ubuntu noble-security InRelease
+0% [Waiting for headers]                        Hit:2 http://archive.ubuntu.com/ubuntu noble InRelease
+0% [Waiting for headers]                        Get:3 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]
+0% [3 InRelease 6931 B/126 kB 5%]0% [3 InRelease 43.1 kB/126 kB 34%]0% [3 InRelease 77.9 kB/126 kB 62%]                                   0% [Working]            Hit:4 http://archive.ubuntu.com/ubuntu noble-backports InRelease
+0% [Working]0% [Working]100% [Working]              Fetched 126 kB in 0s (402 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 6%Reading package lists... 6%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 70%Reading package lists... 70%Reading package lists... 75%Reading package lists... 75%Reading package lists... 81%Reading package lists... 81%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 90%Reading package lists... 90%Reading package lists... 94%Reading package lists... 94%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 6%Reading package lists... 6%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 69%Reading package lists... 70%Reading package lists... 70%Reading package lists... 75%Reading package lists... 75%Reading package lists... 81%Reading package lists... 81%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 86%Reading package lists... 90%Reading package lists... 90%Reading package lists... 94%Reading package lists... 94%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+The following additional packages will be installed:
+  libjq1 libonig5
+The following NEW packages will be installed:
+  jq libjq1 libonig5
+0 upgraded, 3 newly installed, 0 to remove and 0 not upgraded.
+Need to get 378 kB of archives.
+After this operation, 1125 kB of additional disk space will be used.
+0% [Working]            Get:1 http://archive.ubuntu.com/ubuntu noble/main amd64 libonig5 amd64 6.9.9-1build1 [172 kB]
+1% [1 libonig5 4052 B/172 kB 2%]                                43% [Working]             Get:2 http://archive.ubuntu.com/ubuntu noble/main amd64 libjq1 amd64 1.7.1-3build1 [141 kB]
+44% [2 libjq1 4052 B/141 kB 3%]                               79% [Waiting for headers]                         Get:3 http://archive.ubuntu.com/ubuntu noble/main amd64 jq amd64 1.7.1-3build1 [65.5 kB]
+80% [3 jq 815 B/65.5 kB 1%]                           100% [Working]              Fetched 378 kB in 0s (1302 kB/s)
+debconf: delaying package configuration, since apt-utils is not installed
+Selecting previously unselected package libonig5:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 16294 files and directories currently installed.)
+Preparing to unpack .../libonig5_6.9.9-1build1_amd64.deb ...
+Unpacking libonig5:amd64 (6.9.9-1build1) ...
+Selecting previously unselected package libjq1:amd64.
+Preparing to unpack .../libjq1_1.7.1-3build1_amd64.deb ...
+Unpacking libjq1:amd64 (1.7.1-3build1) ...
+Selecting previously unselected package jq.
+Preparing to unpack .../jq_1.7.1-3build1_amd64.deb ...
+Unpacking jq (1.7.1-3build1) ...
+Setting up libonig5:amd64 (6.9.9-1build1) ...
+Setting up libjq1:amd64 (1.7.1-3build1) ...
+Setting up jq (1.7.1-3build1) ...
+Processing triggers for libc-bin (2.39-0ubuntu8.4) ...
+
+FLUX-JOB START 18404605952 netmark-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 2, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["netmark", "-w", "10", "-t", "20", "-c", "100", "-b", "0", "-s"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "netmark-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-1", "children": {"core": "0"}}], "starttime": 1745803799.335891, "expiration": 0.0, "nodelist": ["netmark-[0-1]"]}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1745803799.3369741,"name":"init"}
+{"timestamp":1745803799.3466794,"name":"shell.init","context":{"service":"0-shell-fV3MR9H","leader-rank":0,"size":2}}
+{"timestamp":1745803799.3374913,"name":"starting"}
+{"timestamp":1745803799.3511543,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,2,1,1]]}}}
+{"timestamp":1745803799.775171,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":103,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1745803799.7781789,"name":"complete","context":{"status":0}}
+{"timestamp":1745803799.7782035,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 18404605952 netmark-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":1,"total":1},"successful":1,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

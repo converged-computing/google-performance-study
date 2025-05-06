@@ -1,0 +1,798 @@
+Defaulted container "lulesh" out of: lulesh, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START lulesh-iter-$i"
+  flux run --setattr=user.study_id=lulesh-iter-$i -N16 -n 1331 -o cpu-affinity=per-task -o gpu-affinity=off     lulesh -i 100 -s 100 -r 11 -b 1 -c 1  -p |& tee /tmp/lulesh.out
+  
+   echo "FLUX-RUN END lulesh-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     16     1408        0 lulesh-[0-15]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START lulesh-iter-1
+Running problem size 100^3 per domain until completion
+Num processors: 1331
+Num threads: 1
+Total number of elements: 1331000000 
+
+To run other sizes, use -s <integer>.
+To run a fixed number of iterations, use -i <integer>.
+To run a more or less balanced region set, use -b <integer>.
+To change the relative costs of regions, use -c <integer>.
+To print out progress, use -p
+To write an output file for VisIt, use -v
+See help (-h) for more options
+
+cycle = 1, time = 4.761184e-10, dt=4.761184e-10
+cycle = 2, time = 1.047461e-09, dt=5.713421e-10
+cycle = 3, time = 1.243295e-09, dt=1.958343e-10
+cycle = 4, time = 1.406832e-09, dt=1.635368e-10
+cycle = 5, time = 1.552618e-09, dt=1.457868e-10
+cycle = 6, time = 1.687988e-09, dt=1.353697e-10
+cycle = 7, time = 1.816690e-09, dt=1.287016e-10
+cycle = 8, time = 1.941002e-09, dt=1.243118e-10
+cycle = 9, time = 2.062466e-09, dt=1.214646e-10
+cycle = 10, time = 2.182218e-09, dt=1.197517e-10
+cycle = 11, time = 2.325920e-09, dt=1.437020e-10
+cycle = 12, time = 2.488167e-09, dt=1.622470e-10
+cycle = 13, time = 2.641543e-09, dt=1.533756e-10
+cycle = 14, time = 2.786083e-09, dt=1.445406e-10
+cycle = 15, time = 2.921780e-09, dt=1.356970e-10
+cycle = 16, time = 3.051329e-09, dt=1.295485e-10
+cycle = 17, time = 3.177016e-09, dt=1.256877e-10
+cycle = 18, time = 3.300808e-09, dt=1.237915e-10
+cycle = 19, time = 3.424580e-09, dt=1.237720e-10
+cycle = 20, time = 3.548352e-09, dt=1.237720e-10
+cycle = 21, time = 3.672124e-09, dt=1.237720e-10
+cycle = 22, time = 3.795896e-09, dt=1.237720e-10
+cycle = 23, time = 3.919668e-09, dt=1.237720e-10
+cycle = 24, time = 4.056664e-09, dt=1.369966e-10
+cycle = 25, time = 4.193661e-09, dt=1.369966e-10
+cycle = 26, time = 4.330657e-09, dt=1.369966e-10
+cycle = 27, time = 4.486810e-09, dt=1.561522e-10
+cycle = 28, time = 4.642962e-09, dt=1.561522e-10
+cycle = 29, time = 4.829436e-09, dt=1.864746e-10
+cycle = 30, time = 5.041043e-09, dt=2.116069e-10
+cycle = 31, time = 5.244186e-09, dt=2.031423e-10
+cycle = 32, time = 5.440467e-09, dt=1.962816e-10
+cycle = 33, time = 5.632035e-09, dt=1.915680e-10
+cycle = 34, time = 5.820546e-09, dt=1.885104e-10
+cycle = 35, time = 6.007677e-09, dt=1.871316e-10
+cycle = 36, time = 6.194809e-09, dt=1.871316e-10
+cycle = 37, time = 6.381941e-09, dt=1.871316e-10
+cycle = 38, time = 6.569072e-09, dt=1.871316e-10
+cycle = 39, time = 6.756204e-09, dt=1.871316e-10
+cycle = 40, time = 6.965899e-09, dt=2.096952e-10
+cycle = 41, time = 7.175594e-09, dt=2.096952e-10
+cycle = 42, time = 7.385289e-09, dt=2.096952e-10
+cycle = 43, time = 7.594984e-09, dt=2.096952e-10
+cycle = 44, time = 7.804680e-09, dt=2.096952e-10
+cycle = 45, time = 8.012698e-09, dt=2.080181e-10
+cycle = 46, time = 8.216293e-09, dt=2.035954e-10
+cycle = 47, time = 8.416108e-09, dt=1.998152e-10
+cycle = 48, time = 8.612824e-09, dt=1.967159e-10
+cycle = 49, time = 8.807094e-09, dt=1.942695e-10
+cycle = 50, time = 8.999629e-09, dt=1.925349e-10
+cycle = 51, time = 9.191125e-09, dt=1.914963e-10
+cycle = 52, time = 9.382463e-09, dt=1.913380e-10
+cycle = 53, time = 9.573801e-09, dt=1.913380e-10
+cycle = 54, time = 9.765139e-09, dt=1.913380e-10
+cycle = 55, time = 9.956477e-09, dt=1.913380e-10
+cycle = 56, time = 1.014781e-08, dt=1.913380e-10
+cycle = 57, time = 1.033915e-08, dt=1.913380e-10
+cycle = 58, time = 1.055108e-08, dt=2.119315e-10
+cycle = 59, time = 1.076302e-08, dt=2.119315e-10
+cycle = 60, time = 1.099759e-08, dt=2.345751e-10
+cycle = 61, time = 1.123217e-08, dt=2.345751e-10
+cycle = 62, time = 1.149404e-08, dt=2.618749e-10
+cycle = 63, time = 1.175592e-08, dt=2.618749e-10
+cycle = 64, time = 1.201779e-08, dt=2.618749e-10
+cycle = 65, time = 1.227967e-08, dt=2.618749e-10
+cycle = 66, time = 1.254154e-08, dt=2.618749e-10
+cycle = 67, time = 1.280342e-08, dt=2.618749e-10
+cycle = 68, time = 1.306529e-08, dt=2.618749e-10
+cycle = 69, time = 1.332717e-08, dt=2.618749e-10
+cycle = 70, time = 1.358904e-08, dt=2.618749e-10
+cycle = 71, time = 1.385091e-08, dt=2.618749e-10
+cycle = 72, time = 1.411279e-08, dt=2.618749e-10
+cycle = 73, time = 1.437466e-08, dt=2.618749e-10
+cycle = 74, time = 1.463654e-08, dt=2.618749e-10
+cycle = 75, time = 1.489841e-08, dt=2.618749e-10
+cycle = 76, time = 1.516029e-08, dt=2.618749e-10
+cycle = 77, time = 1.542216e-08, dt=2.618749e-10
+cycle = 78, time = 1.568404e-08, dt=2.618749e-10
+cycle = 79, time = 1.594591e-08, dt=2.618749e-10
+cycle = 80, time = 1.620738e-08, dt=2.614695e-10
+cycle = 81, time = 1.646367e-08, dt=2.562830e-10
+cycle = 82, time = 1.671550e-08, dt=2.518368e-10
+cycle = 83, time = 1.696370e-08, dt=2.482002e-10
+cycle = 84, time = 1.720905e-08, dt=2.453492e-10
+cycle = 85, time = 1.745233e-08, dt=2.432807e-10
+cycle = 86, time = 1.769429e-08, dt=2.419532e-10
+cycle = 87, time = 1.793562e-08, dt=2.413340e-10
+cycle = 88, time = 1.817695e-08, dt=2.413340e-10
+cycle = 89, time = 1.841829e-08, dt=2.413340e-10
+cycle = 90, time = 1.865962e-08, dt=2.413340e-10
+cycle = 91, time = 1.890096e-08, dt=2.413340e-10
+cycle = 92, time = 1.914229e-08, dt=2.413340e-10
+cycle = 93, time = 1.938362e-08, dt=2.413340e-10
+cycle = 94, time = 1.962496e-08, dt=2.413340e-10
+cycle = 95, time = 1.989803e-08, dt=2.730715e-10
+cycle = 96, time = 2.017110e-08, dt=2.730715e-10
+cycle = 97, time = 2.047603e-08, dt=3.049306e-10
+cycle = 98, time = 2.078096e-08, dt=3.049306e-10
+cycle = 99, time = 2.108589e-08, dt=3.049306e-10
+cycle = 100, time = 2.142556e-08, dt=3.396687e-10
+Run completed:
+   Problem size        =  100
+   MPI tasks           =  1331
+   Iteration count     =  100
+   Final Origin Energy =  6.520283e+10
+   Testing Plane 0 of Energy Array on rank 0:
+        MaxAbsDiff   = 1.287460e-05
+        TotalAbsDiff = 3.311642e-05
+        MaxRelDiff   = 6.119701e-11
+
+Elapsed time         =    1.5e+02 (s)
+Grind time (us/z/c)  =  1.5138269 (per dom)  ( 151.38269 overall)
+FOM                  =  879228.64 (z/s)
+
+FLUX-RUN END lulesh-iter-1
+FLUX-RUN START lulesh-iter-2
+Running problem size 100^3 per domain until completion
+Num processors: 1331
+Num threads: 1
+Total number of elements: 1331000000 
+
+To run other sizes, use -s <integer>.
+To run a fixed number of iterations, use -i <integer>.
+To run a more or less balanced region set, use -b <integer>.
+To change the relative costs of regions, use -c <integer>.
+To print out progress, use -p
+To write an output file for VisIt, use -v
+See help (-h) for more options
+
+cycle = 1, time = 4.761184e-10, dt=4.761184e-10
+cycle = 2, time = 1.047461e-09, dt=5.713421e-10
+cycle = 3, time = 1.243295e-09, dt=1.958343e-10
+cycle = 4, time = 1.406832e-09, dt=1.635368e-10
+cycle = 5, time = 1.552618e-09, dt=1.457868e-10
+cycle = 6, time = 1.687988e-09, dt=1.353697e-10
+cycle = 7, time = 1.816690e-09, dt=1.287016e-10
+cycle = 8, time = 1.941002e-09, dt=1.243118e-10
+cycle = 9, time = 2.062466e-09, dt=1.214646e-10
+cycle = 10, time = 2.182218e-09, dt=1.197517e-10
+cycle = 11, time = 2.325920e-09, dt=1.437020e-10
+cycle = 12, time = 2.488167e-09, dt=1.622470e-10
+cycle = 13, time = 2.641543e-09, dt=1.533756e-10
+cycle = 14, time = 2.786083e-09, dt=1.445406e-10
+cycle = 15, time = 2.921780e-09, dt=1.356970e-10
+cycle = 16, time = 3.051329e-09, dt=1.295485e-10
+cycle = 17, time = 3.177016e-09, dt=1.256877e-10
+cycle = 18, time = 3.300808e-09, dt=1.237915e-10
+cycle = 19, time = 3.424580e-09, dt=1.237720e-10
+cycle = 20, time = 3.548352e-09, dt=1.237720e-10
+cycle = 21, time = 3.672124e-09, dt=1.237720e-10
+cycle = 22, time = 3.795896e-09, dt=1.237720e-10
+cycle = 23, time = 3.919668e-09, dt=1.237720e-10
+cycle = 24, time = 4.056664e-09, dt=1.369966e-10
+cycle = 25, time = 4.193661e-09, dt=1.369966e-10
+cycle = 26, time = 4.330657e-09, dt=1.369966e-10
+cycle = 27, time = 4.486810e-09, dt=1.561522e-10
+cycle = 28, time = 4.642962e-09, dt=1.561522e-10
+cycle = 29, time = 4.829436e-09, dt=1.864746e-10
+cycle = 30, time = 5.041043e-09, dt=2.116069e-10
+cycle = 31, time = 5.244186e-09, dt=2.031423e-10
+cycle = 32, time = 5.440467e-09, dt=1.962816e-10
+cycle = 33, time = 5.632035e-09, dt=1.915680e-10
+cycle = 34, time = 5.820546e-09, dt=1.885104e-10
+cycle = 35, time = 6.007677e-09, dt=1.871316e-10
+cycle = 36, time = 6.194809e-09, dt=1.871316e-10
+cycle = 37, time = 6.381941e-09, dt=1.871316e-10
+cycle = 38, time = 6.569072e-09, dt=1.871316e-10
+cycle = 39, time = 6.756204e-09, dt=1.871316e-10
+cycle = 40, time = 6.965899e-09, dt=2.096952e-10
+cycle = 41, time = 7.175594e-09, dt=2.096952e-10
+cycle = 42, time = 7.385289e-09, dt=2.096952e-10
+cycle = 43, time = 7.594984e-09, dt=2.096952e-10
+cycle = 44, time = 7.804680e-09, dt=2.096952e-10
+cycle = 45, time = 8.012698e-09, dt=2.080181e-10
+cycle = 46, time = 8.216293e-09, dt=2.035954e-10
+cycle = 47, time = 8.416108e-09, dt=1.998152e-10
+cycle = 48, time = 8.612824e-09, dt=1.967159e-10
+cycle = 49, time = 8.807094e-09, dt=1.942695e-10
+cycle = 50, time = 8.999629e-09, dt=1.925349e-10
+cycle = 51, time = 9.191125e-09, dt=1.914963e-10
+cycle = 52, time = 9.382463e-09, dt=1.913380e-10
+cycle = 53, time = 9.573801e-09, dt=1.913380e-10
+cycle = 54, time = 9.765139e-09, dt=1.913380e-10
+cycle = 55, time = 9.956477e-09, dt=1.913380e-10
+cycle = 56, time = 1.014781e-08, dt=1.913380e-10
+cycle = 57, time = 1.033915e-08, dt=1.913380e-10
+cycle = 58, time = 1.055108e-08, dt=2.119315e-10
+cycle = 59, time = 1.076302e-08, dt=2.119315e-10
+cycle = 60, time = 1.099759e-08, dt=2.345751e-10
+cycle = 61, time = 1.123217e-08, dt=2.345751e-10
+cycle = 62, time = 1.149404e-08, dt=2.618749e-10
+cycle = 63, time = 1.175592e-08, dt=2.618749e-10
+cycle = 64, time = 1.201779e-08, dt=2.618749e-10
+cycle = 65, time = 1.227967e-08, dt=2.618749e-10
+cycle = 66, time = 1.254154e-08, dt=2.618749e-10
+cycle = 67, time = 1.280342e-08, dt=2.618749e-10
+cycle = 68, time = 1.306529e-08, dt=2.618749e-10
+cycle = 69, time = 1.332717e-08, dt=2.618749e-10
+cycle = 70, time = 1.358904e-08, dt=2.618749e-10
+cycle = 71, time = 1.385091e-08, dt=2.618749e-10
+cycle = 72, time = 1.411279e-08, dt=2.618749e-10
+cycle = 73, time = 1.437466e-08, dt=2.618749e-10
+cycle = 74, time = 1.463654e-08, dt=2.618749e-10
+cycle = 75, time = 1.489841e-08, dt=2.618749e-10
+cycle = 76, time = 1.516029e-08, dt=2.618749e-10
+cycle = 77, time = 1.542216e-08, dt=2.618749e-10
+cycle = 78, time = 1.568404e-08, dt=2.618749e-10
+cycle = 79, time = 1.594591e-08, dt=2.618749e-10
+cycle = 80, time = 1.620738e-08, dt=2.614695e-10
+cycle = 81, time = 1.646367e-08, dt=2.562830e-10
+cycle = 82, time = 1.671550e-08, dt=2.518368e-10
+cycle = 83, time = 1.696370e-08, dt=2.482002e-10
+cycle = 84, time = 1.720905e-08, dt=2.453492e-10
+cycle = 85, time = 1.745233e-08, dt=2.432807e-10
+cycle = 86, time = 1.769429e-08, dt=2.419532e-10
+cycle = 87, time = 1.793562e-08, dt=2.413340e-10
+cycle = 88, time = 1.817695e-08, dt=2.413340e-10
+cycle = 89, time = 1.841829e-08, dt=2.413340e-10
+cycle = 90, time = 1.865962e-08, dt=2.413340e-10
+cycle = 91, time = 1.890096e-08, dt=2.413340e-10
+cycle = 92, time = 1.914229e-08, dt=2.413340e-10
+cycle = 93, time = 1.938362e-08, dt=2.413340e-10
+cycle = 94, time = 1.962496e-08, dt=2.413340e-10
+cycle = 95, time = 1.989803e-08, dt=2.730715e-10
+cycle = 96, time = 2.017110e-08, dt=2.730715e-10
+cycle = 97, time = 2.047603e-08, dt=3.049306e-10
+cycle = 98, time = 2.078096e-08, dt=3.049306e-10
+cycle = 99, time = 2.108589e-08, dt=3.049306e-10
+cycle = 100, time = 2.142556e-08, dt=3.396687e-10
+Run completed:
+   Problem size        =  100
+   MPI tasks           =  1331
+   Iteration count     =  100
+   Final Origin Energy =  6.520283e+10
+   Testing Plane 0 of Energy Array on rank 0:
+        MaxAbsDiff   = 1.287460e-05
+        TotalAbsDiff = 3.311642e-05
+        MaxRelDiff   = 6.119701e-11
+
+Elapsed time         =    1.5e+02 (s)
+Grind time (us/z/c)  =  1.5171129 (per dom)  ( 151.71129 overall)
+FOM                  =  877324.31 (z/s)
+
+FLUX-RUN END lulesh-iter-2
+FLUX-RUN START lulesh-iter-3
+Running problem size 100^3 per domain until completion
+Num processors: 1331
+Num threads: 1
+Total number of elements: 1331000000 
+
+To run other sizes, use -s <integer>.
+To run a fixed number of iterations, use -i <integer>.
+To run a more or less balanced region set, use -b <integer>.
+To change the relative costs of regions, use -c <integer>.
+To print out progress, use -p
+To write an output file for VisIt, use -v
+See help (-h) for more options
+
+cycle = 1, time = 4.761184e-10, dt=4.761184e-10
+cycle = 2, time = 1.047461e-09, dt=5.713421e-10
+cycle = 3, time = 1.243295e-09, dt=1.958343e-10
+cycle = 4, time = 1.406832e-09, dt=1.635368e-10
+cycle = 5, time = 1.552618e-09, dt=1.457868e-10
+cycle = 6, time = 1.687988e-09, dt=1.353697e-10
+cycle = 7, time = 1.816690e-09, dt=1.287016e-10
+cycle = 8, time = 1.941002e-09, dt=1.243118e-10
+cycle = 9, time = 2.062466e-09, dt=1.214646e-10
+cycle = 10, time = 2.182218e-09, dt=1.197517e-10
+cycle = 11, time = 2.325920e-09, dt=1.437020e-10
+cycle = 12, time = 2.488167e-09, dt=1.622470e-10
+cycle = 13, time = 2.641543e-09, dt=1.533756e-10
+cycle = 14, time = 2.786083e-09, dt=1.445406e-10
+cycle = 15, time = 2.921780e-09, dt=1.356970e-10
+cycle = 16, time = 3.051329e-09, dt=1.295485e-10
+cycle = 17, time = 3.177016e-09, dt=1.256877e-10
+cycle = 18, time = 3.300808e-09, dt=1.237915e-10
+cycle = 19, time = 3.424580e-09, dt=1.237720e-10
+cycle = 20, time = 3.548352e-09, dt=1.237720e-10
+cycle = 21, time = 3.672124e-09, dt=1.237720e-10
+cycle = 22, time = 3.795896e-09, dt=1.237720e-10
+cycle = 23, time = 3.919668e-09, dt=1.237720e-10
+cycle = 24, time = 4.056664e-09, dt=1.369966e-10
+cycle = 25, time = 4.193661e-09, dt=1.369966e-10
+cycle = 26, time = 4.330657e-09, dt=1.369966e-10
+cycle = 27, time = 4.486810e-09, dt=1.561522e-10
+cycle = 28, time = 4.642962e-09, dt=1.561522e-10
+cycle = 29, time = 4.829436e-09, dt=1.864746e-10
+cycle = 30, time = 5.041043e-09, dt=2.116069e-10
+cycle = 31, time = 5.244186e-09, dt=2.031423e-10
+cycle = 32, time = 5.440467e-09, dt=1.962816e-10
+cycle = 33, time = 5.632035e-09, dt=1.915680e-10
+cycle = 34, time = 5.820546e-09, dt=1.885104e-10
+cycle = 35, time = 6.007677e-09, dt=1.871316e-10
+cycle = 36, time = 6.194809e-09, dt=1.871316e-10
+cycle = 37, time = 6.381941e-09, dt=1.871316e-10
+cycle = 38, time = 6.569072e-09, dt=1.871316e-10
+cycle = 39, time = 6.756204e-09, dt=1.871316e-10
+cycle = 40, time = 6.965899e-09, dt=2.096952e-10
+cycle = 41, time = 7.175594e-09, dt=2.096952e-10
+cycle = 42, time = 7.385289e-09, dt=2.096952e-10
+cycle = 43, time = 7.594984e-09, dt=2.096952e-10
+cycle = 44, time = 7.804680e-09, dt=2.096952e-10
+cycle = 45, time = 8.012698e-09, dt=2.080181e-10
+cycle = 46, time = 8.216293e-09, dt=2.035954e-10
+cycle = 47, time = 8.416108e-09, dt=1.998152e-10
+cycle = 48, time = 8.612824e-09, dt=1.967159e-10
+cycle = 49, time = 8.807094e-09, dt=1.942695e-10
+cycle = 50, time = 8.999629e-09, dt=1.925349e-10
+cycle = 51, time = 9.191125e-09, dt=1.914963e-10
+cycle = 52, time = 9.382463e-09, dt=1.913380e-10
+cycle = 53, time = 9.573801e-09, dt=1.913380e-10
+cycle = 54, time = 9.765139e-09, dt=1.913380e-10
+cycle = 55, time = 9.956477e-09, dt=1.913380e-10
+cycle = 56, time = 1.014781e-08, dt=1.913380e-10
+cycle = 57, time = 1.033915e-08, dt=1.913380e-10
+cycle = 58, time = 1.055108e-08, dt=2.119315e-10
+cycle = 59, time = 1.076302e-08, dt=2.119315e-10
+cycle = 60, time = 1.099759e-08, dt=2.345751e-10
+cycle = 61, time = 1.123217e-08, dt=2.345751e-10
+cycle = 62, time = 1.149404e-08, dt=2.618749e-10
+cycle = 63, time = 1.175592e-08, dt=2.618749e-10
+cycle = 64, time = 1.201779e-08, dt=2.618749e-10
+cycle = 65, time = 1.227967e-08, dt=2.618749e-10
+cycle = 66, time = 1.254154e-08, dt=2.618749e-10
+cycle = 67, time = 1.280342e-08, dt=2.618749e-10
+cycle = 68, time = 1.306529e-08, dt=2.618749e-10
+cycle = 69, time = 1.332717e-08, dt=2.618749e-10
+cycle = 70, time = 1.358904e-08, dt=2.618749e-10
+cycle = 71, time = 1.385091e-08, dt=2.618749e-10
+cycle = 72, time = 1.411279e-08, dt=2.618749e-10
+cycle = 73, time = 1.437466e-08, dt=2.618749e-10
+cycle = 74, time = 1.463654e-08, dt=2.618749e-10
+cycle = 75, time = 1.489841e-08, dt=2.618749e-10
+cycle = 76, time = 1.516029e-08, dt=2.618749e-10
+cycle = 77, time = 1.542216e-08, dt=2.618749e-10
+cycle = 78, time = 1.568404e-08, dt=2.618749e-10
+cycle = 79, time = 1.594591e-08, dt=2.618749e-10
+cycle = 80, time = 1.620738e-08, dt=2.614695e-10
+cycle = 81, time = 1.646367e-08, dt=2.562830e-10
+cycle = 82, time = 1.671550e-08, dt=2.518368e-10
+cycle = 83, time = 1.696370e-08, dt=2.482002e-10
+cycle = 84, time = 1.720905e-08, dt=2.453492e-10
+cycle = 85, time = 1.745233e-08, dt=2.432807e-10
+cycle = 86, time = 1.769429e-08, dt=2.419532e-10
+cycle = 87, time = 1.793562e-08, dt=2.413340e-10
+cycle = 88, time = 1.817695e-08, dt=2.413340e-10
+cycle = 89, time = 1.841829e-08, dt=2.413340e-10
+cycle = 90, time = 1.865962e-08, dt=2.413340e-10
+cycle = 91, time = 1.890096e-08, dt=2.413340e-10
+cycle = 92, time = 1.914229e-08, dt=2.413340e-10
+cycle = 93, time = 1.938362e-08, dt=2.413340e-10
+cycle = 94, time = 1.962496e-08, dt=2.413340e-10
+cycle = 95, time = 1.989803e-08, dt=2.730715e-10
+cycle = 96, time = 2.017110e-08, dt=2.730715e-10
+cycle = 97, time = 2.047603e-08, dt=3.049306e-10
+cycle = 98, time = 2.078096e-08, dt=3.049306e-10
+cycle = 99, time = 2.108589e-08, dt=3.049306e-10
+cycle = 100, time = 2.142556e-08, dt=3.396687e-10
+Run completed:
+   Problem size        =  100
+   MPI tasks           =  1331
+   Iteration count     =  100
+   Final Origin Energy =  6.520283e+10
+   Testing Plane 0 of Energy Array on rank 0:
+        MaxAbsDiff   = 1.287460e-05
+        TotalAbsDiff = 3.311642e-05
+        MaxRelDiff   = 6.119701e-11
+
+Elapsed time         =    1.5e+02 (s)
+Grind time (us/z/c)  =  1.5127056 (per dom)  ( 151.27056 overall)
+FOM                  =  879880.38 (z/s)
+
+FLUX-RUN END lulesh-iter-3
+FLUX-RUN START lulesh-iter-4
+Running problem size 100^3 per domain until completion
+Num processors: 1331
+Num threads: 1
+Total number of elements: 1331000000 
+
+To run other sizes, use -s <integer>.
+To run a fixed number of iterations, use -i <integer>.
+To run a more or less balanced region set, use -b <integer>.
+To change the relative costs of regions, use -c <integer>.
+To print out progress, use -p
+To write an output file for VisIt, use -v
+See help (-h) for more options
+
+cycle = 1, time = 4.761184e-10, dt=4.761184e-10
+cycle = 2, time = 1.047461e-09, dt=5.713421e-10
+cycle = 3, time = 1.243295e-09, dt=1.958343e-10
+cycle = 4, time = 1.406832e-09, dt=1.635368e-10
+cycle = 5, time = 1.552618e-09, dt=1.457868e-10
+cycle = 6, time = 1.687988e-09, dt=1.353697e-10
+cycle = 7, time = 1.816690e-09, dt=1.287016e-10
+cycle = 8, time = 1.941002e-09, dt=1.243118e-10
+cycle = 9, time = 2.062466e-09, dt=1.214646e-10
+cycle = 10, time = 2.182218e-09, dt=1.197517e-10
+cycle = 11, time = 2.325920e-09, dt=1.437020e-10
+cycle = 12, time = 2.488167e-09, dt=1.622470e-10
+cycle = 13, time = 2.641543e-09, dt=1.533756e-10
+cycle = 14, time = 2.786083e-09, dt=1.445406e-10
+cycle = 15, time = 2.921780e-09, dt=1.356970e-10
+cycle = 16, time = 3.051329e-09, dt=1.295485e-10
+cycle = 17, time = 3.177016e-09, dt=1.256877e-10
+cycle = 18, time = 3.300808e-09, dt=1.237915e-10
+cycle = 19, time = 3.424580e-09, dt=1.237720e-10
+cycle = 20, time = 3.548352e-09, dt=1.237720e-10
+cycle = 21, time = 3.672124e-09, dt=1.237720e-10
+cycle = 22, time = 3.795896e-09, dt=1.237720e-10
+cycle = 23, time = 3.919668e-09, dt=1.237720e-10
+cycle = 24, time = 4.056664e-09, dt=1.369966e-10
+cycle = 25, time = 4.193661e-09, dt=1.369966e-10
+cycle = 26, time = 4.330657e-09, dt=1.369966e-10
+cycle = 27, time = 4.486810e-09, dt=1.561522e-10
+cycle = 28, time = 4.642962e-09, dt=1.561522e-10
+cycle = 29, time = 4.829436e-09, dt=1.864746e-10
+cycle = 30, time = 5.041043e-09, dt=2.116069e-10
+cycle = 31, time = 5.244186e-09, dt=2.031423e-10
+cycle = 32, time = 5.440467e-09, dt=1.962816e-10
+cycle = 33, time = 5.632035e-09, dt=1.915680e-10
+cycle = 34, time = 5.820546e-09, dt=1.885104e-10
+cycle = 35, time = 6.007677e-09, dt=1.871316e-10
+cycle = 36, time = 6.194809e-09, dt=1.871316e-10
+cycle = 37, time = 6.381941e-09, dt=1.871316e-10
+cycle = 38, time = 6.569072e-09, dt=1.871316e-10
+cycle = 39, time = 6.756204e-09, dt=1.871316e-10
+cycle = 40, time = 6.965899e-09, dt=2.096952e-10
+cycle = 41, time = 7.175594e-09, dt=2.096952e-10
+cycle = 42, time = 7.385289e-09, dt=2.096952e-10
+cycle = 43, time = 7.594984e-09, dt=2.096952e-10
+cycle = 44, time = 7.804680e-09, dt=2.096952e-10
+cycle = 45, time = 8.012698e-09, dt=2.080181e-10
+cycle = 46, time = 8.216293e-09, dt=2.035954e-10
+cycle = 47, time = 8.416108e-09, dt=1.998152e-10
+cycle = 48, time = 8.612824e-09, dt=1.967159e-10
+cycle = 49, time = 8.807094e-09, dt=1.942695e-10
+cycle = 50, time = 8.999629e-09, dt=1.925349e-10
+cycle = 51, time = 9.191125e-09, dt=1.914963e-10
+cycle = 52, time = 9.382463e-09, dt=1.913380e-10
+cycle = 53, time = 9.573801e-09, dt=1.913380e-10
+cycle = 54, time = 9.765139e-09, dt=1.913380e-10
+cycle = 55, time = 9.956477e-09, dt=1.913380e-10
+cycle = 56, time = 1.014781e-08, dt=1.913380e-10
+cycle = 57, time = 1.033915e-08, dt=1.913380e-10
+cycle = 58, time = 1.055108e-08, dt=2.119315e-10
+cycle = 59, time = 1.076302e-08, dt=2.119315e-10
+cycle = 60, time = 1.099759e-08, dt=2.345751e-10
+cycle = 61, time = 1.123217e-08, dt=2.345751e-10
+cycle = 62, time = 1.149404e-08, dt=2.618749e-10
+cycle = 63, time = 1.175592e-08, dt=2.618749e-10
+cycle = 64, time = 1.201779e-08, dt=2.618749e-10
+cycle = 65, time = 1.227967e-08, dt=2.618749e-10
+cycle = 66, time = 1.254154e-08, dt=2.618749e-10
+cycle = 67, time = 1.280342e-08, dt=2.618749e-10
+cycle = 68, time = 1.306529e-08, dt=2.618749e-10
+cycle = 69, time = 1.332717e-08, dt=2.618749e-10
+cycle = 70, time = 1.358904e-08, dt=2.618749e-10
+cycle = 71, time = 1.385091e-08, dt=2.618749e-10
+cycle = 72, time = 1.411279e-08, dt=2.618749e-10
+cycle = 73, time = 1.437466e-08, dt=2.618749e-10
+cycle = 74, time = 1.463654e-08, dt=2.618749e-10
+cycle = 75, time = 1.489841e-08, dt=2.618749e-10
+cycle = 76, time = 1.516029e-08, dt=2.618749e-10
+cycle = 77, time = 1.542216e-08, dt=2.618749e-10
+cycle = 78, time = 1.568404e-08, dt=2.618749e-10
+cycle = 79, time = 1.594591e-08, dt=2.618749e-10
+cycle = 80, time = 1.620738e-08, dt=2.614695e-10
+cycle = 81, time = 1.646367e-08, dt=2.562830e-10
+cycle = 82, time = 1.671550e-08, dt=2.518368e-10
+cycle = 83, time = 1.696370e-08, dt=2.482002e-10
+cycle = 84, time = 1.720905e-08, dt=2.453492e-10
+cycle = 85, time = 1.745233e-08, dt=2.432807e-10
+cycle = 86, time = 1.769429e-08, dt=2.419532e-10
+cycle = 87, time = 1.793562e-08, dt=2.413340e-10
+cycle = 88, time = 1.817695e-08, dt=2.413340e-10
+cycle = 89, time = 1.841829e-08, dt=2.413340e-10
+cycle = 90, time = 1.865962e-08, dt=2.413340e-10
+cycle = 91, time = 1.890096e-08, dt=2.413340e-10
+cycle = 92, time = 1.914229e-08, dt=2.413340e-10
+cycle = 93, time = 1.938362e-08, dt=2.413340e-10
+cycle = 94, time = 1.962496e-08, dt=2.413340e-10
+cycle = 95, time = 1.989803e-08, dt=2.730715e-10
+cycle = 96, time = 2.017110e-08, dt=2.730715e-10
+cycle = 97, time = 2.047603e-08, dt=3.049306e-10
+cycle = 98, time = 2.078096e-08, dt=3.049306e-10
+cycle = 99, time = 2.108589e-08, dt=3.049306e-10
+cycle = 100, time = 2.142556e-08, dt=3.396687e-10
+Run completed:
+   Problem size        =  100
+   MPI tasks           =  1331
+   Iteration count     =  100
+   Final Origin Energy =  6.520283e+10
+   Testing Plane 0 of Energy Array on rank 0:
+        MaxAbsDiff   = 1.287460e-05
+        TotalAbsDiff = 3.311642e-05
+        MaxRelDiff   = 6.119701e-11
+
+Elapsed time         =    1.5e+02 (s)
+Grind time (us/z/c)  =  1.5128443 (per dom)  ( 151.28443 overall)
+FOM                  =  879799.75 (z/s)
+
+FLUX-RUN END lulesh-iter-4
+FLUX-RUN START lulesh-iter-5
+Running problem size 100^3 per domain until completion
+Num processors: 1331
+Num threads: 1
+Total number of elements: 1331000000 
+
+To run other sizes, use -s <integer>.
+To run a fixed number of iterations, use -i <integer>.
+To run a more or less balanced region set, use -b <integer>.
+To change the relative costs of regions, use -c <integer>.
+To print out progress, use -p
+To write an output file for VisIt, use -v
+See help (-h) for more options
+
+cycle = 1, time = 4.761184e-10, dt=4.761184e-10
+cycle = 2, time = 1.047461e-09, dt=5.713421e-10
+cycle = 3, time = 1.243295e-09, dt=1.958343e-10
+cycle = 4, time = 1.406832e-09, dt=1.635368e-10
+cycle = 5, time = 1.552618e-09, dt=1.457868e-10
+cycle = 6, time = 1.687988e-09, dt=1.353697e-10
+cycle = 7, time = 1.816690e-09, dt=1.287016e-10
+cycle = 8, time = 1.941002e-09, dt=1.243118e-10
+cycle = 9, time = 2.062466e-09, dt=1.214646e-10
+cycle = 10, time = 2.182218e-09, dt=1.197517e-10
+cycle = 11, time = 2.325920e-09, dt=1.437020e-10
+cycle = 12, time = 2.488167e-09, dt=1.622470e-10
+cycle = 13, time = 2.641543e-09, dt=1.533756e-10
+cycle = 14, time = 2.786083e-09, dt=1.445406e-10
+cycle = 15, time = 2.921780e-09, dt=1.356970e-10
+cycle = 16, time = 3.051329e-09, dt=1.295485e-10
+cycle = 17, time = 3.177016e-09, dt=1.256877e-10
+cycle = 18, time = 3.300808e-09, dt=1.237915e-10
+cycle = 19, time = 3.424580e-09, dt=1.237720e-10
+cycle = 20, time = 3.548352e-09, dt=1.237720e-10
+cycle = 21, time = 3.672124e-09, dt=1.237720e-10
+cycle = 22, time = 3.795896e-09, dt=1.237720e-10
+cycle = 23, time = 3.919668e-09, dt=1.237720e-10
+cycle = 24, time = 4.056664e-09, dt=1.369966e-10
+cycle = 25, time = 4.193661e-09, dt=1.369966e-10
+cycle = 26, time = 4.330657e-09, dt=1.369966e-10
+cycle = 27, time = 4.486810e-09, dt=1.561522e-10
+cycle = 28, time = 4.642962e-09, dt=1.561522e-10
+cycle = 29, time = 4.829436e-09, dt=1.864746e-10
+cycle = 30, time = 5.041043e-09, dt=2.116069e-10
+cycle = 31, time = 5.244186e-09, dt=2.031423e-10
+cycle = 32, time = 5.440467e-09, dt=1.962816e-10
+cycle = 33, time = 5.632035e-09, dt=1.915680e-10
+cycle = 34, time = 5.820546e-09, dt=1.885104e-10
+cycle = 35, time = 6.007677e-09, dt=1.871316e-10
+cycle = 36, time = 6.194809e-09, dt=1.871316e-10
+cycle = 37, time = 6.381941e-09, dt=1.871316e-10
+cycle = 38, time = 6.569072e-09, dt=1.871316e-10
+cycle = 39, time = 6.756204e-09, dt=1.871316e-10
+cycle = 40, time = 6.965899e-09, dt=2.096952e-10
+cycle = 41, time = 7.175594e-09, dt=2.096952e-10
+cycle = 42, time = 7.385289e-09, dt=2.096952e-10
+cycle = 43, time = 7.594984e-09, dt=2.096952e-10
+cycle = 44, time = 7.804680e-09, dt=2.096952e-10
+cycle = 45, time = 8.012698e-09, dt=2.080181e-10
+cycle = 46, time = 8.216293e-09, dt=2.035954e-10
+cycle = 47, time = 8.416108e-09, dt=1.998152e-10
+cycle = 48, time = 8.612824e-09, dt=1.967159e-10
+cycle = 49, time = 8.807094e-09, dt=1.942695e-10
+cycle = 50, time = 8.999629e-09, dt=1.925349e-10
+cycle = 51, time = 9.191125e-09, dt=1.914963e-10
+cycle = 52, time = 9.382463e-09, dt=1.913380e-10
+cycle = 53, time = 9.573801e-09, dt=1.913380e-10
+cycle = 54, time = 9.765139e-09, dt=1.913380e-10
+cycle = 55, time = 9.956477e-09, dt=1.913380e-10
+cycle = 56, time = 1.014781e-08, dt=1.913380e-10
+cycle = 57, time = 1.033915e-08, dt=1.913380e-10
+cycle = 58, time = 1.055108e-08, dt=2.119315e-10
+cycle = 59, time = 1.076302e-08, dt=2.119315e-10
+cycle = 60, time = 1.099759e-08, dt=2.345751e-10
+cycle = 61, time = 1.123217e-08, dt=2.345751e-10
+cycle = 62, time = 1.149404e-08, dt=2.618749e-10
+cycle = 63, time = 1.175592e-08, dt=2.618749e-10
+cycle = 64, time = 1.201779e-08, dt=2.618749e-10
+cycle = 65, time = 1.227967e-08, dt=2.618749e-10
+cycle = 66, time = 1.254154e-08, dt=2.618749e-10
+cycle = 67, time = 1.280342e-08, dt=2.618749e-10
+cycle = 68, time = 1.306529e-08, dt=2.618749e-10
+cycle = 69, time = 1.332717e-08, dt=2.618749e-10
+cycle = 70, time = 1.358904e-08, dt=2.618749e-10
+cycle = 71, time = 1.385091e-08, dt=2.618749e-10
+cycle = 72, time = 1.411279e-08, dt=2.618749e-10
+cycle = 73, time = 1.437466e-08, dt=2.618749e-10
+cycle = 74, time = 1.463654e-08, dt=2.618749e-10
+cycle = 75, time = 1.489841e-08, dt=2.618749e-10
+cycle = 76, time = 1.516029e-08, dt=2.618749e-10
+cycle = 77, time = 1.542216e-08, dt=2.618749e-10
+cycle = 78, time = 1.568404e-08, dt=2.618749e-10
+cycle = 79, time = 1.594591e-08, dt=2.618749e-10
+cycle = 80, time = 1.620738e-08, dt=2.614695e-10
+cycle = 81, time = 1.646367e-08, dt=2.562830e-10
+cycle = 82, time = 1.671550e-08, dt=2.518368e-10
+cycle = 83, time = 1.696370e-08, dt=2.482002e-10
+cycle = 84, time = 1.720905e-08, dt=2.453492e-10
+cycle = 85, time = 1.745233e-08, dt=2.432807e-10
+cycle = 86, time = 1.769429e-08, dt=2.419532e-10
+cycle = 87, time = 1.793562e-08, dt=2.413340e-10
+cycle = 88, time = 1.817695e-08, dt=2.413340e-10
+cycle = 89, time = 1.841829e-08, dt=2.413340e-10
+cycle = 90, time = 1.865962e-08, dt=2.413340e-10
+cycle = 91, time = 1.890096e-08, dt=2.413340e-10
+cycle = 92, time = 1.914229e-08, dt=2.413340e-10
+cycle = 93, time = 1.938362e-08, dt=2.413340e-10
+cycle = 94, time = 1.962496e-08, dt=2.413340e-10
+cycle = 95, time = 1.989803e-08, dt=2.730715e-10
+cycle = 96, time = 2.017110e-08, dt=2.730715e-10
+cycle = 97, time = 2.047603e-08, dt=3.049306e-10
+cycle = 98, time = 2.078096e-08, dt=3.049306e-10
+cycle = 99, time = 2.108589e-08, dt=3.049306e-10
+cycle = 100, time = 2.142556e-08, dt=3.396687e-10
+Run completed:
+   Problem size        =  100
+   MPI tasks           =  1331
+   Iteration count     =  100
+   Final Origin Energy =  6.520283e+10
+   Testing Plane 0 of Energy Array on rank 0:
+        MaxAbsDiff   = 1.287460e-05
+        TotalAbsDiff = 3.311642e-05
+        MaxRelDiff   = 6.119701e-11
+
+Elapsed time         =    1.5e+02 (s)
+Grind time (us/z/c)  =  1.5245995 (per dom)  ( 152.45995 overall)
+FOM                  =  873016.17 (z/s)
+
+FLUX-RUN END lulesh-iter-5
+0% [Working]            Hit:1 http://archive.ubuntu.com/ubuntu jammy InRelease
+0% [Connecting to security.ubuntu.com (185.125.190.82)]                                                       Get:2 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [2 InRelease 5484 B/128 kB 4%] [Connecting to security.ubuntu.com (185.125.1                                                                               0% [2 InRelease 64.9 kB/128 kB 51%] [Waiting for headers]                                                         0% [Waiting for headers]                        Get:3 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Waiting for headers] [3 InRelease 14.2 kB/129 kB 11%]                                                         Get:4 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [4 InRelease 2588 B/127 kB 2%] [3 InRelease 14.2 kB/129 kB 11%]0% [4 InRelease 127 kB/127 kB 100%] [3 InRelease 14.2 kB/129 kB 11%]                                                                    0% [3 InRelease 14.2 kB/129 kB 11%]                                   Get:5 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+0% [5 Packages 5763 B/55.7 kB 10%] [3 InRelease 14.2 kB/129 kB 11%]                                                                   0% [Waiting for headers] [3 InRelease 14.2 kB/129 kB 11%]                                                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+0% [6 Packages 49.6 kB/1544 kB 3%] [3 InRelease 14.2 kB/129 kB 11%]0% [5 Packages store 0 B] [6 Packages 49.6 kB/1544 kB 3%] [3 InRelease 14.2 kB/                                                                               0% [6 Packages 75.7 kB/1544 kB 5%] [3 InRelease 14.2 kB/129 kB 11%]0% [6 Packages 160 kB/1544 kB 10%] [3 InRelease 17.1 kB/129 kB 13%]                                                                   0% [Waiting for headers] [3 InRelease 43.1 kB/129 kB 33%]                                                         Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+0% [7 Packages 24.6 kB/4420 kB 1%] [3 InRelease 43.1 kB/129 kB 33%]0% [6 Packages store 0 B] [7 Packages 24.6 kB/4420 kB 1%] [3 InRelease 43.1 kB/0% [6 Packages store 0 B] [Waiting for headers] [3 InRelease 60.5 kB/129 kB 47%                                                                               Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+0% [6 Packages store 0 B] [8 Packages 884 B/3200 kB 0%] [3 InRelease 60.5 kB/12                                                                               0% [8 Packages 322 kB/3200 kB 10%] [3 InRelease 60.5 kB/129 kB 47%]0% [7 Packages store 0 B] [8 Packages 322 kB/3200 kB 10%] [3 InRelease 60.5 kB/                                                                               0% [7 Packages store 0 B] [3 InRelease 69.2 kB/129 kB 54%]                                                          0% [3 InRelease 113 kB/129 kB 87%]0% [8 Packages store 0 B] [3 InRelease 113 kB/129 kB 87%]                                                         0% [8 Packages store 0 B]90% [8 Packages store 0 B]                          90% [Waiting for headers]                         Get:9 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+90% [9 Packages 2655 B/1244 kB 0%]                                  99% [Working]99% [9 Packages store 0 B]                          100% [Working]              Fetched 10.8 MB in 1s (7824 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
+
+FLUX-JOB START 10531310141440 lulesh-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 84, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["lulesh", "-i", "100", "-s", "100", "-r", "11", "-b", "1", "-c", "1", "-p"], "slot": "task", "count": {"total": 1331}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "lulesh-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "4-87"}}], "nodelist": ["lulesh-[0-15]"], "starttime": 1746408125, "expiration": 4900007498}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746408125.9243214,"name":"init"}
+{"timestamp":1746408125.925122,"name":"starting"}
+{"timestamp":1746408125.9383807,"name":"shell.init","context":{"service":"0-shell-f5me6pEiT","leader-rank":0,"size":16}}
+{"timestamp":1746408126.1381607,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,3,84,1],[3,13,83,1]]}}}
+{"timestamp":1746408282.9956777,"name":"shell.task-exit","context":{"localid":67,"rank":67,"state":"Exited","pid":925,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746408283.0847569,"name":"complete","context":{"status":0}}
+{"timestamp":1746408283.0847874,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 10531310141440 lulesh-iter-5
+
+FLUX-JOB START 7910071468032 lulesh-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 84, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["lulesh", "-i", "100", "-s", "100", "-r", "11", "-b", "1", "-c", "1", "-p"], "slot": "task", "count": {"total": 1331}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "lulesh-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "4-87"}}], "nodelist": ["lulesh-[0-15]"], "starttime": 1746407969, "expiration": 4900007498}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746407969.6867197,"name":"init"}
+{"timestamp":1746407969.687254,"name":"starting"}
+{"timestamp":1746407969.7003455,"name":"shell.init","context":{"service":"0-shell-f4anUvshH","leader-rank":0,"size":16}}
+{"timestamp":1746407969.8995624,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,3,84,1],[3,13,83,1]]}}}
+{"timestamp":1746408125.5908444,"name":"shell.task-exit","context":{"localid":15,"rank":682,"state":"Exited","pid":596,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746408125.6846941,"name":"complete","context":{"status":0}}
+{"timestamp":1746408125.6847248,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 7910071468032 lulesh-iter-4
+
+FLUX-JOB START 5286148440064 lulesh-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 84, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["lulesh", "-i", "100", "-s", "100", "-r", "11", "-b", "1", "-c", "1", "-p"], "slot": "task", "count": {"total": 1331}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "lulesh-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "4-87"}}], "nodelist": ["lulesh-[0-15]"], "starttime": 1746407813, "expiration": 4900007498}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746407813.2858922,"name":"init"}
+{"timestamp":1746407813.2864478,"name":"starting"}
+{"timestamp":1746407813.3003266,"name":"shell.init","context":{"service":"0-shell-f3PrmqVaw","leader-rank":0,"size":16}}
+{"timestamp":1746407813.4997945,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,3,84,1],[3,13,83,1]]}}}
+{"timestamp":1746407969.3469708,"name":"shell.task-exit","context":{"localid":79,"rank":1078,"state":"Exited","pid":557,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746407969.4466016,"name":"complete","context":{"status":0}}
+{"timestamp":1746407969.4466281,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 5286148440064 lulesh-iter-3
+
+FLUX-JOB START 2657108361216 lulesh-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 84, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["lulesh", "-i", "100", "-s", "100", "-r", "11", "-b", "1", "-c", "1", "-p"], "slot": "task", "count": {"total": 1331}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "lulesh-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "4-87"}}], "nodelist": ["lulesh-[0-15]"], "starttime": 1746407656, "expiration": 4900007498}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746407656.584012,"name":"init"}
+{"timestamp":1746407656.5846062,"name":"starting"}
+{"timestamp":1746407656.5980477,"name":"shell.init","context":{"service":"0-shell-f2CoGZtXR","leader-rank":0,"size":16}}
+{"timestamp":1746407656.7975371,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,3,84,1],[3,13,83,1]]}}}
+{"timestamp":1746407812.9391246,"name":"shell.task-exit","context":{"localid":76,"rank":76,"state":"Exited","pid":424,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746407813.0475092,"name":"complete","context":{"status":0}}
+{"timestamp":1746407813.0475376,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2657108361216 lulesh-iter-2
+
+FLUX-JOB START 30148657152 lulesh-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 84, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["lulesh", "-i", "100", "-s", "100", "-r", "11", "-b", "1", "-c", "1", "-p"], "slot": "task", "count": {"total": 1331}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "lulesh-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "4-87"}}], "nodelist": ["lulesh-[0-15]"], "starttime": 1746407499, "expiration": 4900007498}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746407500.0051916,"name":"init"}
+{"timestamp":1746407500.005764,"name":"starting"}
+{"timestamp":1746407500.0194368,"name":"shell.init","context":{"service":"0-shell-fnw8kQf","leader-rank":0,"size":16}}
+{"timestamp":1746407500.2169449,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,3,84,1],[3,13,83,1]]}}}
+{"timestamp":1746407656.2410684,"name":"shell.task-exit","context":{"localid":76,"rank":76,"state":"Exited","pid":251,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746407656.3383381,"name":"complete","context":{"status":0}}
+{"timestamp":1746407656.3383656,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 30148657152 lulesh-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

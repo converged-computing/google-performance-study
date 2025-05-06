@@ -1,0 +1,60 @@
+Defaulted container "gpcnet" out of: gpcnet, flux-view (init)
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..1}
+do
+  echo "FLUX-RUN START gpcnet-iter-$i"
+  flux run --setattr=user.study_id=gpcnet-iter-$i -N64 -n 5632 -o cpu-affinity=per-task -o gpu-affinity=off     network_test |& tee /tmp/gpcnet.out
+  
+   echo "FLUX-RUN END gpcnet-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     64     5632        0 gpcnet-[0-63]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START gpcnet-iter-1
+Network Tests v1.3
+  Test with 5632 MPI ranks (64 nodes)
+
+  Legend
+   RR = random ring communication pattern
+   Nat = natural ring communication pattern
+   Lat = latency
+   BW = bandwidth
+   BW+Sync = bandwidth with barrier
++------------------------------------------------------------------------------+
+|                            Isolated Network Tests                            |
++---------------------------------+--------------+--------------+--------------+
+|                            Name |          Avg |          99% |        Units |
++---------------------------------+--------------+--------------+--------------+
+|          RR Two-sided Lat (8 B) |         38.6 |        131.4 |         usec |
++---------------------------------+--------------+--------------+--------------+
+|                RR Get Lat (8 B) |        107.2 |        164.1 |         usec |
++---------------------------------+--------------+--------------+--------------+

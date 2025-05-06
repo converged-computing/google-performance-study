@@ -1,0 +1,174 @@
+Defaulted container "amg" out of: amg, flux-view (init)
+/flux_operator/wait-0.sh: line 22: /etc/flux/system/R: No such file or directory
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START amg2023-iter-$i"
+  flux run --setattr=user.study_id=amg2023-iter-$i -N2 -n 126 -o cpu-affinity=per-task -o gpu-affinity=off    amg -n 256 256 128 -P 2 7 9 -problem 2 |& tee /tmp/amg2023.out
+    echo "FLUX-RUN END amg2023-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      2      176        0 amg-[0-1]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START amg2023-iter-1
+Running with these driver parameters:
+  Problem ID    = 2
+
+=============================================
+Hypre init times:
+=============================================
+Hypre init:
+  wall clock time = 0.000004 seconds
+  Laplacian_7pt:
+    (Nx, Ny, Nz) = (512, 1792, 1152)
+    (Px, Py, Pz) = (2, 7, 9)
+
+=============================================
+Generate Matrix:
+=============================================
+Spatial Operator:
+  wall clock time = 3.987447 seconds
+  RHS vector has unit components
+  Initial guess is 0
+=============================================
+IJ Vector Setup:
+=============================================
+RHS and Initial Guess:
+  wall clock time = 0.186774 seconds
+=============================================
+Problem 2: AMG Setup Time:
+=============================================
+PCG Setup:
+  wall clock time = 43.031380 seconds
+
+FOM_Setup: nnz_AP / Setup Phase Time: 2.962787e+08
+
+=============================================
+Problem 2: AMG-PCG Solve Time:
+=============================================
+PCG Solve:
+  wall clock time = 52.942704 seconds
+
+Iterations = 25
+Final Relative Residual Norm = 5.924867e-09
+
+
+FOM_Solve: nnz_AP * iterations / Solve Phase Time: 2.408128e+08
+
+
+
+Figure of Merit (FOM): nnz_AP / (Setup Phase Time + 3 * Solve Phase Time) 6.315919e+07
+
+FLUX-RUN END amg2023-iter-1
+FLUX-RUN START amg2023-iter-2
+Running with these driver parameters:
+  Problem ID    = 2
+
+=============================================
+Hypre init times:
+=============================================
+Hypre init:
+  wall clock time = 0.000004 seconds
+  Laplacian_7pt:
+    (Nx, Ny, Nz) = (512, 1792, 1152)
+    (Px, Py, Pz) = (2, 7, 9)
+
+=============================================
+Generate Matrix:
+=============================================
+Spatial Operator:
+  wall clock time = 3.975464 seconds
+  RHS vector has unit components
+  Initial guess is 0
+=============================================
+IJ Vector Setup:
+=============================================
+RHS and Initial Guess:
+  wall clock time = 0.187186 seconds
+=============================================
+Problem 2: AMG Setup Time:
+=============================================
+PCG Setup:
+  wall clock time = 42.871546 seconds
+
+FOM_Setup: nnz_AP / Setup Phase Time: 2.973833e+08
+
+=============================================
+Problem 2: AMG-PCG Solve Time:
+=============================================
+PCG Solve:
+  wall clock time = 52.913616 seconds
+
+Iterations = 25
+Final Relative Residual Norm = 5.924867e-09
+
+
+FOM_Solve: nnz_AP * iterations / Solve Phase Time: 2.409452e+08
+
+
+
+Figure of Merit (FOM): nnz_AP / (Setup Phase Time + 3 * Solve Phase Time) 6.323660e+07
+
+FLUX-RUN END amg2023-iter-2
+FLUX-RUN START amg2023-iter-3
+Running with these driver parameters:
+  Problem ID    = 2
+
+=============================================
+Hypre init times:
+=============================================
+Hypre init:
+  wall clock time = 0.000004 seconds
+  Laplacian_7pt:
+    (Nx, Ny, Nz) = (512, 1792, 1152)
+    (Px, Py, Pz) = (2, 7, 9)
+
+=============================================
+Generate Matrix:
+=============================================
+Spatial Operator:
+  wall clock time = 3.975078 seconds
+  RHS vector has unit components
+  Initial guess is 0
+=============================================
+IJ Vector Setup:
+=============================================
+RHS and Initial Guess:
+  wall clock time = 0.187516 seconds
+=============================================
+Problem 2: AMG Setup Time:
+=============================================
+PCG Setup:
+  wall clock time = 43.163686 seconds
+
+FOM_Setup: nnz_AP / Setup Phase Time: 2.953706e+08
+
