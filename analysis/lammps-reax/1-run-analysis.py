@@ -72,6 +72,7 @@ def main():
     df = parse_data(indir, outdir, files)
     plot_results(df, outdir, args.non_anon)
 
+
 def parse_matom_steps(item):
     """
     Parse matom steps
@@ -98,33 +99,50 @@ def parse_data(indir, outdir, files):
 
     # It's important to just parse raw data once, and then use intermediate
     for filename in files:
+        if (
+            "compute-engine" in filename
+            or "intel-mpi" in filename
+            or "lammps-rocky8-mpich" in filename
+        ):
+            continue
         exp = ps.ExperimentNameParser(filename, indir)
         if exp.prefix not in data:
             data[exp.prefix] = []
+        if exp.size == 2:
+            continue
+
+        basename = os.path.basename(filename)
+        if basename == "lammps.out":
+            env_name = "Ubuntu OpenMPI"
+        elif basename == "lammps-rocky8-openmpi.out":
+            env_name = "Rocky OpenMPI"
+        elif basename == "lammps-ubuntu-mpich.out":
+            env_name = "Ubuntu Mpich"
+        else:
+            print(filename)
+            raise ValueError(f"Unexpected basename: {basename}")
 
         # Set the parsing context for the result data frame
         p.set_context(exp.cloud, exp.env, exp.env_type, exp.size)
-        
+
         # Sanity check the files we found
         print(filename)
         exp.show()
-         
+
         item = ps.read_file(filename)
         jobs = ps.parse_flux_jobs(item)
-        # All had the same problem size
-        problem_size = "32x16x16"
         for job, metadata in jobs.items():
             p.add_result(
-                "matom_steps_per_second", parse_matom_steps(metadata['log']), problem_size
-            )   
+                "matom_steps_per_second", parse_matom_steps(metadata["log"]), env_name
+            )
             wall_time = [
                 ps.convert_walltime_to_seconds(x.rsplit(" ", 1)[-1])
-                for x in metadata['log'].split("\n")
+                for x in metadata["log"].split("\n")
                 if "Total wall time" in x
-            ][0]        
-            p.add_result("wall-time", wall_time, problem_size)
-            p.add_result("duration", metadata['duration'], problem_size)
-            p.add_result("hookup-time", metadata['duration'] - wall_time, problem_size)
+            ][0]
+            p.add_result("wall-time", wall_time, env_name)
+            p.add_result("duration", metadata["duration"], env_name)
+            p.add_result("hookup-time", metadata["duration"] - wall_time, env_name)
 
     print("Done parsing lammps results!")
 
@@ -132,6 +150,7 @@ def parse_data(indir, outdir, files):
     p.df.to_csv(os.path.join(outdir, "lammps-results.csv"))
     ps.write_json(jobs, os.path.join(outdir, "flux-jobs-and-events.json"))
     return p.df
+
 
 def plot_results(df, outdir, non_anon=False):
     """
@@ -143,9 +162,6 @@ def plot_results(df, outdir, non_anon=False):
     if not os.path.exists(img_outdir):
         os.makedirs(img_outdir)
 
-    # TODO do we want to do this?
-    # ps.print_experiment_cost(df, outdir)
-    
     # We are going to put the plots together, and the colors need to match!
     cloud_colors = {}
     for cloud in df.experiment.unique():
@@ -161,7 +177,7 @@ def plot_results(df, outdir, non_anon=False):
         for metric in subset.metric.unique():
             metric_df = subset[subset.metric == metric]
             title = " ".join([x.capitalize() for x in metric.split("_")])
-            frames[metric] = {'cpu': metric_df}
+            frames[metric] = {"cpu": metric_df}
 
     for metric, data_frames in frames.items():
         # We only have one for now :)
@@ -177,16 +193,12 @@ def plot_results(df, outdir, non_anon=False):
             ax=axes[0],
             x="nodes",
             y="value",
-            hue="experiment",
+            hue="problem_size",
             err_kws={"color": "darkred"},
-            hue_order=[
-                "google/gke/cpu",
-    #            "google/compute-engine/cpu",
-            ],
-            palette=cloud_colors,
+            # palette=cloud_colors,
             order=[4, 8, 16, 32, 64, 128],
         )
-        if metric in ["duration", "wall-time", "hookup-time"]:        
+        if metric in ["duration", "wall-time", "hookup-time"]:
             axes[0].set_title(f"LAMMPS {metric.capitalize()} (CPU)", fontsize=14)
             axes[0].set_ylabel("Seconds", fontsize=14)
         else:
@@ -197,12 +209,16 @@ def plot_results(df, outdir, non_anon=False):
         handles, labels = axes[0].get_legend_handles_labels()
         labels = ["/".join(x.split("/")[0:2]) for x in labels]
         axes[1].legend(
-            handles, labels, loc="center left", bbox_to_anchor=(-0.1, 0.5), frameon=False
+            handles,
+            labels,
+            loc="center left",
+            bbox_to_anchor=(-0.1, 0.5),
+            frameon=False,
         )
         for ax in axes[0:1]:
             ax.get_legend().remove()
         axes[1].axis("off")
-    
+
         plt.tight_layout()
         plt.savefig(os.path.join(img_outdir, f"lammps-{metric}-cpu.svg"))
         plt.savefig(os.path.join(img_outdir, f"lammps-{metric}-cpu.png"))
@@ -210,7 +226,7 @@ def plot_results(df, outdir, non_anon=False):
 
         # Print the total number of data points
         print(f'Total number of CPU datum: {data_frames["cpu"].shape[0]}')
-    
+
 
 if __name__ == "__main__":
     main()
