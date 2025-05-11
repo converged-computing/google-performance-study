@@ -101,7 +101,7 @@ def parse_data(indir, outdir, files):
     for filename in files:
         if (
             "compute-engine" in filename
-            or "intel-mpi" in filename
+            or "lammps-gpu-mpich.out" in filename
             or "lammps-rocky8-mpich" in filename
         ):
             continue
@@ -114,10 +114,14 @@ def parse_data(indir, outdir, files):
         basename = os.path.basename(filename)
         if basename == "lammps.out":
             env_name = "Ubuntu OpenMPI"
+        elif basename in ["lammps-rocky8-intel-mpi-interactive.out", "lammps-rocky8-intel-mpi.out"]:
+            continue
         elif basename == "lammps-rocky8-openmpi.out":
             env_name = "Rocky OpenMPI"
         elif basename == "lammps-ubuntu-mpich.out":
             env_name = "Ubuntu Mpich"
+        elif basename == "lammps-ubuntu-mpi-gpu.out":
+            env_name = "Ubuntu OpenMPI GPU"
         else:
             print(filename)
             raise ValueError(f"Unexpected basename: {basename}")
@@ -167,17 +171,13 @@ def plot_results(df, outdir, non_anon=False):
     for cloud in df.experiment.unique():
         cloud_colors[cloud] = ps.match_color(cloud)
 
-    # Within a setup, compare between experiments for GPU and cpu
     frames = {}
-    for env in df.env_type.unique():
-        subset = df[df.env_type == env]
-
-        # Make a plot for seconds runtime, and each FOM set.
-        # We can look at the metric across sizes, colored by experiment
-        for metric in subset.metric.unique():
-            metric_df = subset[subset.metric == metric]
-            title = " ".join([x.capitalize() for x in metric.split("_")])
-            frames[metric] = {"cpu": metric_df}
+    # Make a plot for seconds runtime, and each FOM set.
+    # We can look at the metric across sizes, colored by experiment
+    for metric in df.metric.unique():
+        metric_df = df[df.metric == metric]
+        title = " ".join([x.capitalize() for x in metric.split("_")])
+        frames[metric] = {"cpu": metric_df}
 
     for metric, data_frames in frames.items():
         # We only have one for now :)
@@ -199,10 +199,10 @@ def plot_results(df, outdir, non_anon=False):
             order=[4, 8, 16, 32, 64, 128],
         )
         if metric in ["duration", "wall-time", "hookup-time"]:
-            axes[0].set_title(f"LAMMPS {metric.capitalize()} (CPU)", fontsize=14)
+            axes[0].set_title(f"LAMMPS {metric.capitalize()}", fontsize=14)
             axes[0].set_ylabel("Seconds", fontsize=14)
         else:
-            axes[0].set_title("LAMMPS M/Atom Steps per Second (CPU)", fontsize=14)
+            axes[0].set_title("LAMMPS M/Atom Steps per Second", fontsize=14)
             axes[0].set_ylabel("M/Atom Steps Per Second", fontsize=14)
         axes[0].set_xlabel("Nodes", fontsize=14)
 
@@ -220,12 +220,12 @@ def plot_results(df, outdir, non_anon=False):
         axes[1].axis("off")
 
         plt.tight_layout()
-        plt.savefig(os.path.join(img_outdir, f"lammps-{metric}-cpu.svg"))
-        plt.savefig(os.path.join(img_outdir, f"lammps-{metric}-cpu.png"))
+        plt.savefig(os.path.join(img_outdir, f"lammps-{metric}.svg"))
+        plt.savefig(os.path.join(img_outdir, f"lammps-{metric}.png"))
         plt.clf()
 
         # Print the total number of data points
-        print(f'Total number of CPU datum: {data_frames["cpu"].shape[0]}')
+        print(f'Total number of datum: {data_frames["cpu"].shape[0]}')
 
 
 if __name__ == "__main__":
