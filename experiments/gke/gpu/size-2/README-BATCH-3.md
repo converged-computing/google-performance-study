@@ -45,8 +45,6 @@ The output directory should already exist.
 
 This is ubuntu OpenMPI (default image)
 
-**TRY AGAIN**
-
 ```bash
 helm dependency update lammps-reax-gpu/
 helm install \
