@@ -1,0 +1,257 @@
+Defaulted container "cfdscope" out of: cfdscope, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START cfdscope-iter-$i"
+  flux run --setattr=user.study_id=cfdscope-iter-$i -N1 -n 1 -o cpu-affinity=per-task -o gpu-affinity=off  --cores-per-task 88   cfdscope --domain-size 100 --cell-size 1 --end-time 6 --lid-speed 10 --step-size 0.4 --output-prefix fields --output-format csv --preconditioner dic |& tee /tmp/cfdscope.out
+    echo "FLUX-RUN END cfdscope-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      1       88        0 cfdscope-0
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START cfdscope-iter-1
+[2025-05-03 19:58:17.354] [info] Welcome to cfdSCOPE!
+[2025-05-03 19:58:17.370] [info] Using 88 OpenMP threads.
+[2025-05-03 19:58:17.372] [info] Initialization done!
+[2025-05-03 19:58:27.554] [info] Time step complete. t = 0.00000
+[2025-05-03 19:58:36.253] [info] Time step complete. t = 0.40000
+[2025-05-03 19:58:44.702] [info] Time step complete. t = 0.80000
+[2025-05-03 19:58:52.698] [info] Time step complete. t = 1.20000
+[2025-05-03 19:59:00.613] [info] Time step complete. t = 1.60000
+[2025-05-03 19:59:09.533] [info] Time step complete. t = 2.00000
+[2025-05-03 19:59:17.496] [info] Time step complete. t = 2.40000
+[2025-05-03 19:59:25.401] [info] Time step complete. t = 2.80000
+[2025-05-03 19:59:33.315] [info] Time step complete. t = 3.20000
+[2025-05-03 19:59:41.103] [info] Time step complete. t = 3.60000
+[2025-05-03 19:59:48.903] [info] Time step complete. t = 4.00000
+[2025-05-03 19:59:56.725] [info] Time step complete. t = 4.40000
+[2025-05-03 20:00:04.563] [info] Time step complete. t = 4.80000
+[2025-05-03 20:00:12.356] [info] Time step complete. t = 5.20000
+[2025-05-03 20:00:20.196] [info] Time step complete. t = 5.60000
+[2025-05-03 20:00:20.202] [info] Simulation took 122.85 s.
+FLUX-RUN END cfdscope-iter-1
+FLUX-RUN START cfdscope-iter-2
+[2025-05-03 20:00:20.424] [info] Welcome to cfdSCOPE!
+[2025-05-03 20:00:20.440] [info] Using 88 OpenMP threads.
+[2025-05-03 20:00:20.442] [info] Initialization done!
+[2025-05-03 20:00:30.765] [info] Time step complete. t = 0.00000
+[2025-05-03 20:00:39.576] [info] Time step complete. t = 0.40000
+[2025-05-03 20:00:48.170] [info] Time step complete. t = 0.80000
+[2025-05-03 20:00:56.348] [info] Time step complete. t = 1.20000
+[2025-05-03 20:01:04.408] [info] Time step complete. t = 1.60000
+[2025-05-03 20:01:12.507] [info] Time step complete. t = 2.00000
+[2025-05-03 20:01:20.653] [info] Time step complete. t = 2.40000
+[2025-05-03 20:01:29.655] [info] Time step complete. t = 2.80000
+[2025-05-03 20:01:37.644] [info] Time step complete. t = 3.20000
+[2025-05-03 20:01:45.669] [info] Time step complete. t = 3.60000
+[2025-05-03 20:01:53.587] [info] Time step complete. t = 4.00000
+[2025-05-03 20:02:01.524] [info] Time step complete. t = 4.40000
+[2025-05-03 20:02:09.380] [info] Time step complete. t = 4.80000
+[2025-05-03 20:02:17.275] [info] Time step complete. t = 5.20000
+[2025-05-03 20:02:25.199] [info] Time step complete. t = 5.60000
+[2025-05-03 20:02:25.204] [info] Simulation took 124.78 s.
+FLUX-RUN END cfdscope-iter-2
+FLUX-RUN START cfdscope-iter-3
+[2025-05-03 20:02:25.426] [info] Welcome to cfdSCOPE!
+[2025-05-03 20:02:25.442] [info] Using 88 OpenMP threads.
+[2025-05-03 20:02:25.443] [info] Initialization done!
+[2025-05-03 20:02:35.708] [info] Time step complete. t = 0.00000
+[2025-05-03 20:02:44.390] [info] Time step complete. t = 0.40000
+[2025-05-03 20:02:52.873] [info] Time step complete. t = 0.80000
+[2025-05-03 20:03:00.945] [info] Time step complete. t = 1.20000
+[2025-05-03 20:03:08.928] [info] Time step complete. t = 1.60000
+[2025-05-03 20:03:16.932] [info] Time step complete. t = 2.00000
+[2025-05-03 20:03:24.858] [info] Time step complete. t = 2.40000
+[2025-05-03 20:03:32.758] [info] Time step complete. t = 2.80000
+[2025-05-03 20:03:40.630] [info] Time step complete. t = 3.20000
+[2025-05-03 20:03:48.471] [info] Time step complete. t = 3.60000
+[2025-05-03 20:03:56.425] [info] Time step complete. t = 4.00000
+[2025-05-03 20:04:04.257] [info] Time step complete. t = 4.40000
+[2025-05-03 20:04:12.066] [info] Time step complete. t = 4.80000
+[2025-05-03 20:04:19.901] [info] Time step complete. t = 5.20000
+[2025-05-03 20:04:27.739] [info] Time step complete. t = 5.60000
+[2025-05-03 20:04:27.744] [info] Simulation took 122.32 s.
+FLUX-RUN END cfdscope-iter-3
+FLUX-RUN START cfdscope-iter-4
+[2025-05-03 20:04:27.963] [info] Welcome to cfdSCOPE!
+[2025-05-03 20:04:27.979] [info] Using 88 OpenMP threads.
+[2025-05-03 20:04:27.980] [info] Initialization done!
+[2025-05-03 20:04:38.413] [info] Time step complete. t = 0.00000
+[2025-05-03 20:04:47.240] [info] Time step complete. t = 0.40000
+[2025-05-03 20:04:55.926] [info] Time step complete. t = 0.80000
+[2025-05-03 20:05:04.100] [info] Time step complete. t = 1.20000
+[2025-05-03 20:05:12.249] [info] Time step complete. t = 1.60000
+[2025-05-03 20:05:20.299] [info] Time step complete. t = 2.00000
+[2025-05-03 20:05:29.918] [info] Time step complete. t = 2.40000
+[2025-05-03 20:05:37.931] [info] Time step complete. t = 2.80000
+[2025-05-03 20:05:45.911] [info] Time step complete. t = 3.20000
+[2025-05-03 20:05:53.855] [info] Time step complete. t = 3.60000
+[2025-05-03 20:06:01.708] [info] Time step complete. t = 4.00000
+[2025-05-03 20:06:09.722] [info] Time step complete. t = 4.40000
+[2025-05-03 20:06:17.601] [info] Time step complete. t = 4.80000
+[2025-05-03 20:06:25.516] [info] Time step complete. t = 5.20000
+[2025-05-03 20:06:33.418] [info] Time step complete. t = 5.60000
+[2025-05-03 20:06:33.423] [info] Simulation took 125.46 s.
+FLUX-RUN END cfdscope-iter-4
+FLUX-RUN START cfdscope-iter-5
+[2025-05-03 20:06:33.646] [info] Welcome to cfdSCOPE!
+[2025-05-03 20:06:33.662] [info] Using 88 OpenMP threads.
+[2025-05-03 20:06:33.663] [info] Initialization done!
+[2025-05-03 20:06:44.022] [info] Time step complete. t = 0.00000
+[2025-05-03 20:06:52.781] [info] Time step complete. t = 0.40000
+[2025-05-03 20:07:01.281] [info] Time step complete. t = 0.80000
+[2025-05-03 20:07:09.357] [info] Time step complete. t = 1.20000
+[2025-05-03 20:07:17.390] [info] Time step complete. t = 1.60000
+[2025-05-03 20:07:25.421] [info] Time step complete. t = 2.00000
+[2025-05-03 20:07:33.335] [info] Time step complete. t = 2.40000
+[2025-05-03 20:07:41.230] [info] Time step complete. t = 2.80000
+[2025-05-03 20:07:49.128] [info] Time step complete. t = 3.20000
+[2025-05-03 20:07:57.001] [info] Time step complete. t = 3.60000
+[2025-05-03 20:08:04.844] [info] Time step complete. t = 4.00000
+[2025-05-03 20:08:12.693] [info] Time step complete. t = 4.40000
+[2025-05-03 20:08:20.530] [info] Time step complete. t = 4.80000
+[2025-05-03 20:08:28.386] [info] Time step complete. t = 5.20000
+[2025-05-03 20:08:36.291] [info] Time step complete. t = 5.60000
+[2025-05-03 20:08:36.296] [info] Simulation took 122.65 s.
+FLUX-RUN END cfdscope-iter-5
+0% [Working]            Get:1 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]
+0% [Connecting to archive.ubuntu.com (185.125.190.81)] [1 InRelease 4096 B/129                                                                                0% [Waiting for headers]                        Hit:2 http://archive.ubuntu.com/ubuntu jammy InRelease
+                        0% [Working]0% [Waiting for headers]                        Get:3 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1244 kB]
+0% [Waiting for headers] [3 Packages 2655 B/1244 kB 0%]                                                       Get:4 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]
+0% [4 InRelease 1140 B/128 kB 1%] [3 Packages 41.8 kB/1244 kB 3%]0% [4 InRelease 15.6 kB/128 kB 12%] [3 Packages 166 kB/1244 kB 13%]                                                                   0% [4 InRelease 24.3 kB/128 kB 19%]0% [3 Packages store 0 B] [4 InRelease 24.3 kB/128 kB 19%]                                                          0% [4 InRelease 44.6 kB/128 kB 35%]                                   0% [Working]0% [Waiting for headers]                        Get:5 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]
+0% [5 InRelease 2588 B/127 kB 2%]                                 0% [Working]30% [Waiting for headers]                         Get:6 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1544 kB]
+30% [6 Packages 2655 B/1544 kB 0%]                                  41% [Waiting for headers]                         Get:7 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3200 kB]
+41% [7 Packages 3361 B/3200 kB 0%]41% [6 Packages store 0 B] [7 Packages 3361 B/3200 kB 0%]                                                         48% [7 Packages 787 kB/3200 kB 25%]                                   65% [Waiting for headers]                         Get:8 http://archive.ubuntu.com/ubuntu jammy-updates/multiverse amd64 Packages [55.7 kB]
+65% [8 Packages 17.6 kB/55.7 kB 32%]65% [7 Packages store 0 B] [8 Packages 20.5 kB/55.7 kB 37%]                                                           66% [7 Packages store 0 B] [Waiting for headers]                                                Get:9 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [4420 kB]
+66% [7 Packages store 0 B] [9 Packages 28.3 kB/4420 kB 1%]                                                          98% [7 Packages store 0 B]                          99% [Working]99% [8 Packages store 0 B]                          99% [Working]99% [9 Packages store 0 B]                          100% [Working]              Fetched 10.8 MB in 2s (5573 kB/s)
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Reading package lists... 0%Reading package lists... 0%Reading package lists... 0%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 4%Reading package lists... 46%Reading package lists... 46%Reading package lists... 47%Reading package lists... 47%Reading package lists... 56%Reading package lists... 56%Reading package lists... 69%Reading package lists... 69%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 74%Reading package lists... 83%Reading package lists... 83%Reading package lists... 95%Reading package lists... 95%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... 99%Reading package lists... Done
+Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 0%Building dependency tree... 50%Building dependency tree... 50%Building dependency tree... Done
+Reading state information... 0% Reading state information... 0%Reading state information... Done
+jq is already the newest version (1.6-2.1ubuntu3).
+0 upgraded, 0 newly installed, 0 to remove and 1 not upgraded.
+
+FLUX-JOB START 8334182711296 cfdscope-iter-5
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 88}], "label": "task"}]}], "tasks": [{"command": ["cfdscope", "--domain-size", "100", "--cell-size", "1", "--end-time", "6", "--lid-speed", "10", "--step-size", "0.4", "--output-prefix", "fields", "--output-format", "csv", "--preconditioner", "dic"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "cfdscope-iter-5"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "nodelist": ["cfdscope-0"], "starttime": 1746302793, "expiration": 4899902296}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746302793.6338127,"name":"init"}
+{"timestamp":1746302793.6423833,"name":"shell.init","context":{"service":"0-shell-f4mveBrWB","leader-rank":0,"size":1}}
+{"timestamp":1746302793.6343293,"name":"starting"}
+{"timestamp":1746302793.6448717,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,1,1]]}}}
+{"timestamp":1746302916.3034177,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":471,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746302916.3050387,"name":"complete","context":{"status":0}}
+{"timestamp":1746302916.3050647,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 8334182711296 cfdscope-iter-5
+
+FLUX-JOB START 6225588649984 cfdscope-iter-4
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 88}], "label": "task"}]}], "tasks": [{"command": ["cfdscope", "--domain-size", "100", "--cell-size", "1", "--end-time", "6", "--lid-speed", "10", "--step-size", "0.4", "--output-prefix", "fields", "--output-format", "csv", "--preconditioner", "dic"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "cfdscope-iter-4"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "nodelist": ["cfdscope-0"], "starttime": 1746302667, "expiration": 4899902296}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746302667.9513271,"name":"init"}
+{"timestamp":1746302667.9597378,"name":"shell.init","context":{"service":"0-shell-f3pY4x8PZ","leader-rank":0,"size":1}}
+{"timestamp":1746302667.9622443,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,1,1]]}}}
+{"timestamp":1746302667.9518137,"name":"starting"}
+{"timestamp":1746302793.432718,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":378,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746302793.434212,"name":"complete","context":{"status":0}}
+{"timestamp":1746302793.4342523,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 6225588649984 cfdscope-iter-4
+
+FLUX-JOB START 4169758932992 cfdscope-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 88}], "label": "task"}]}], "tasks": [{"command": ["cfdscope", "--domain-size", "100", "--cell-size", "1", "--end-time", "6", "--lid-speed", "10", "--step-size", "0.4", "--output-prefix", "fields", "--output-format", "csv", "--preconditioner", "dic"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "cfdscope-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "nodelist": ["cfdscope-0"], "starttime": 1746302545, "expiration": 4899902296}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746302545.41396,"name":"init"}
+{"timestamp":1746302545.4225059,"name":"shell.init","context":{"service":"0-shell-f2tXtKTZR","leader-rank":0,"size":1}}
+{"timestamp":1746302545.4144297,"name":"starting"}
+{"timestamp":1746302545.4249771,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,1,1]]}}}
+{"timestamp":1746302667.7513227,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":285,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746302667.752892,"name":"complete","context":{"status":0}}
+{"timestamp":1746302667.7529311,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 4169758932992 cfdscope-iter-3
+
+FLUX-JOB START 2072556601344 cfdscope-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 88}], "label": "task"}]}], "tasks": [{"command": ["cfdscope", "--domain-size", "100", "--cell-size", "1", "--end-time", "6", "--lid-speed", "10", "--step-size", "0.4", "--output-prefix", "fields", "--output-format", "csv", "--preconditioner", "dic"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "cfdscope-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "nodelist": ["cfdscope-0"], "starttime": 1746302420, "expiration": 4899902296}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746302420.411437,"name":"init"}
+{"timestamp":1746302420.4201181,"name":"shell.init","context":{"service":"0-shell-fwSfjKnw","leader-rank":0,"size":1}}
+{"timestamp":1746302420.4119127,"name":"starting"}
+{"timestamp":1746302420.4226069,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,1,1]]}}}
+{"timestamp":1746302545.2130096,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":192,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746302545.2144582,"name":"complete","context":{"status":0}}
+{"timestamp":1746302545.2144969,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 2072556601344 cfdscope-iter-2
+
+FLUX-JOB START 7801405440 cfdscope-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 1, "with": [{"type": "slot", "count": 1, "with": [{"type": "core", "count": 88}], "label": "task"}]}], "tasks": [{"command": ["cfdscope", "--domain-size", "100", "--cell-size", "1", "--end-time", "6", "--lid-speed", "10", "--step-size", "0.4", "--output-prefix", "fields", "--output-format", "csv", "--preconditioner", "dic"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "cfdscope-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0", "children": {"core": "0-87"}}], "nodelist": ["cfdscope-0"], "starttime": 1746302297, "expiration": 4899902296}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1746302297.342011,"name":"init"}
+{"timestamp":1746302297.3502476,"name":"shell.init","context":{"service":"0-shell-fCtPF3M","leader-rank":0,"size":1}}
+{"timestamp":1746302297.352865,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,1,1,1]]}}}
+{"timestamp":1746302297.3424382,"name":"starting"}
+{"timestamp":1746302420.2127113,"name":"shell.task-exit","context":{"localid":0,"rank":0,"state":"Exited","pid":99,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1746302420.2142165,"name":"complete","context":{"status":0}}
+{"timestamp":1746302420.2142448,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 7801405440 cfdscope-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":5,"total":5},"successful":5,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}

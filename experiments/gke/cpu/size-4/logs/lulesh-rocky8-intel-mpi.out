@@ -1,0 +1,63 @@
+Defaulted container "lulesh" out of: lulesh, flux-view (init)
+cp: cannot stat '/mnt/flux/software/*': No such file or directory
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START lulesh-iter-$i"
+  flux run --setattr=user.study_id=lulesh-iter-$i -N4 -n 343 -o cpu-affinity=per-task -o gpu-affinity=off     lulesh2.0 -i 100 -s 100 -r 11 -b 1 -c 1  -p |& tee /tmp/lulesh.out
+  
+   echo "FLUX-RUN END lulesh-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free      4      352        0 lulesh-[0-3]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START lulesh-iter-1
+Running problem size 100^3 per domain until completion
+Num processors: 343
+Num threads: 1
+Total number of elements: 343000000
+
+To run other sizes, use -s <integer>.
+To run a fixed number of iterations, use -i <integer>.
+To run a more or less balanced region set, use -b <integer>.
+To change the relative costs of regions, use -c <integer>.
+To print out progress, use -p
+To write an output file for VisIt, use -v
+See help (-h) for more options
+
+100.332s: job.exception type=exec severity=0 MPI_Abort: aborted
+Abort(337818511) on node 141 (rank 141 in comm 0): Fatal error in PMPI_Wait: Unknown error class, error stack:
+PMPI_Wait(206).................: MPI_Wait(request=0x3d4df530, status=0x7ffe5c6a65c0) failed
+MPIR_Wait(97)..................: 
+MPIR_Wait_impl(43).............: 
+MPIDI_Progress_test(107).......: 
+MPIDI_OFI_handle_cq_error(1133): OFI poll failed (ofi_events.c:1133:MPIDI_OFI_handle_cq_error:Transport endpoint is not connected)
+flux-job: task(s) exited with exit code 143

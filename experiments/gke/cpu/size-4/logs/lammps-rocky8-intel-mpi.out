@@ -1,0 +1,1531 @@
+Defaulted container "lammps" out of: lammps, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+mkdir -p /tmp/output
+flux resource list
+for i in {1..5}
+do
+  echo "FLUX-RUN START lammps-iter-$i"
+  flux run --setattr=user.study_id=lammps-iter-$i -N4 -n 352 -o cpu-affinity=per-task -o gpu-affinity=off     /usr/bin/lmp -v x 32 -v y 16 -v z 16 -in in.reaxff.hns -nocite |& tee /tmp/lammps.out
+  
+   echo "FLUX-RUN END lammps-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update && apt-get install -y jq) || (yum update -y && yum install -y jq)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES NCORES NGPUS NODELIST
+      free      4    352     0 lammps-[0-3]
+ allocated      0      0     0 
+      down      0      0     0 
+FLUX-RUN START lammps-iter-1
+0.468s: job.exception ƒ2ZVLaY6j type=exec severity=0 PMI_Abort: aborted
+0.470s: job.exception ƒ2ZVLaY6j type=exec severity=0 PMI_Abort: aborted
+0.485s: job.exception ƒ2ZVLaY6j type=exec severity=0 PMI_Abort: aborted
+0.487s: job.exception ƒ2ZVLaY6j type=exec severity=0 PMI_Abort: aborted
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+Abort(1090447) on node 0 (rank 0 in comm 0): Fatal error in PMPI_Init: Unknown error class, error stack:
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+flux-job: task(s) Terminated
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIR_Init_thread(192)........: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+(unknown)(): Unknown error class
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPID_Init(1665)..............: 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+MPIDI_OFI_mpi_init_hook(1586): 
+MPIDI_OFI_mpi_init_hook(1586): 
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
+(unknown)(): Unknown error class
