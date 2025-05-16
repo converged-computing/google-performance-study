@@ -36,7 +36,7 @@ Note that you'll need to clone [converged-computing/flux-apps-helm](https://gith
 
 ```bash
 helm dependency update lammps-reax/
-for prog in tcp-socket cpu-model open-close futex-model shmem
+for prog in tcp-model cpu-model open-close futex-model shmem
   do
   helm install \
   --set experiment.nodes=2 \
@@ -64,13 +64,12 @@ for prog in tcp-socket cpu-model open-close futex-model shmem
 done
 ```
 
-
 ### LAMMPS with Mpich Ubuntu
 
 
 ```bash
 helm dependency update lammps-reax/
-for prog in tcp-socket cpu-model open-close futex-model shmem
+for prog in tcp-model cpu-model open-close futex-model shmem
   do
   helm install \
   --set experiment.nodes=2 \
@@ -104,7 +103,7 @@ done
 
 ```bash
 helm dependency update lammps-reax/
-for prog in tcp-socket cpu-model open-close futex-model shmem
+for prog in tcp-model cpu-model open-close futex-model shmem
   do
   helm install \
   --set experiment.nodes=2 \
