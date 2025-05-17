@@ -36,100 +36,101 @@ Note that you'll need to clone [converged-computing/flux-apps-helm](https://gith
 
 ```bash
 helm dependency update lammps-reax/
-for prog in tcp-model cpu-model open-close futex-model shmem
-  do
-  helm install \
+app=lammps-ubuntu-openmpi
+mkdir -p ./logs/$app
+helm install \
   --set experiment.nodes=2 \
   --set minicluster.size=2 \
   --set minicluster.tasks=176 \
   --set experiment.tasks=176 \
   --set minicluster.save_logs=true \
-  --set lammps.x=16 \
-  --set lammps.y=8 \
-  --set lammps.z=8 \
-  --set experiment.monitor_program=prog1,prog2 \
-  --set experiment.monitor=true \
-  --set experiment.iterations=1 \
+  --set lammps.x=32 \
+  --set lammps.y=16 \
+  --set lammps.z=16 \
+  --set experiment.monitor="tcp-model|cpu-model|open-close|futex-model|shmem" \
+  --set experiment.iterations=3 \
   lammps ./lammps-reax
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s
   pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-  mkdir -p ./logs/${prog}
-  kubectl logs ${pod} -c lammps -f |& tee ./logs/$prog/lammps-ubuntu-openmpi.out
+  kubectl logs ${pod} -c lammps -f |& tee ./logs/$app/lammps.out
   for pod in $(kubectl get pod -o json | jq -r .items[].metadata.name)
     do
-    kubectl logs ${pod} -f |& tee ./logs/$prog/lammps-ubuntu-openmpi-${pod}.out    
+    for prog in tcp-model cpu-model open-close futex-model shmem
+    do
+      mkdir -p ./logs/$app/$prog    
+      kubectl logs ${pod} -c bcc-monitor-$prog -f |& tee ./logs/$app/$prog/${pod}.out    
+    done
   done
-  helm uninstall lammps
-done
+helm uninstall lammps
 ```
+
 
 ### LAMMPS with Mpich Ubuntu
 
-
 ```bash
 helm dependency update lammps-reax/
-for prog in tcp-model cpu-model open-close futex-model shmem
-  do
-  helm install \
+app=lammps-mpich-ubuntu
+mkdir -p ./logs/$app
+helm install \
   --set experiment.nodes=2 \
   --set minicluster.size=2 \
   --set minicluster.tasks=176 \
   --set experiment.tasks=176 \
   --set minicluster.save_logs=true \
-  --set lammps.x=16 \
-  --set lammps.y=8 \
-  --set lammps.z=8 \
-  --set experiment.iterations=1 \
-  --set experiment.monitor_program=$prog \
-  --set experiment.monitor=true \
+  --set lammps.x=32 \
+  --set lammps.y=16 \
+  --set lammps.z=16 \
   --set minicluster.image=ghcr.io/converged-computing/lammps-reax:ubuntu2204-mpich \
-  lammps lammps-reax/
+  --set experiment.monitor="tcp-model|cpu-model|open-close|futex-model|shmem" \
+  --set experiment.iterations=3 \
+  lammps ./lammps-reax
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s
   pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-  mkdir -p ./logs/${prog}
-  kubectl logs ${pod} -c lammps -f |& tee ./logs/$prog/lammps-ubuntu-mpich.out
+  kubectl logs ${pod} -c lammps -f |& tee ./logs/$app/$prog/lammps.out
   for pod in $(kubectl get pod -o json | jq -r .items[].metadata.name)
     do
-    kubectl logs ${pod} -f |& tee ./logs/$prog/lammps-ubuntu-mpich-${pod}.out    
+    for prog in tcp-model cpu-model open-close futex-model shmem
+    do
+      mkdir -p ./logs/$app/$prog    
+      kubectl logs ${pod} -c bcc-monitor-$prog -f |& tee ./logs/$app/$prog/${pod}.out    
+    done
   done
-  helm uninstall lammps
-done
+helm uninstall lammps
 ```
 
 
 ### LAMMPS with OpenMPI Rocky
 
 ```bash
-helm dependency update lammps-reax/
-for prog in tcp-model cpu-model open-close futex-model shmem
-  do
-  helm install \
+app=lammps-rocky8-openmpi
+mkdir -p ./logs/$app
+helm install \
   --set experiment.nodes=2 \
   --set minicluster.size=2 \
   --set minicluster.tasks=176 \
   --set experiment.tasks=176 \
   --set minicluster.save_logs=true \
-  --set lammps.x=16 \
-  --set lammps.y=8 \
-  --set lammps.z=8 \
-  --set experiment.iterations=1 \
-  --set experiment.monitor_program=$prog \
-  --set experiment.monitor=true \
+  --set lammps.x=32 \
+  --set lammps.y=16 \
+  --set lammps.z=16 \
   --set minicluster.image=ghcr.io/converged-computing/lammps-reax:rocky8 \
-  lammps lammps-reax/
+  --set experiment.monitor="tcp-model|cpu-model|open-close|futex-model|shmem" \
+  --set experiment.iterations=3 \
+  lammps ./lammps-reax
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s
   pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-  mkdir -p ./logs/${prog}
-  kubectl logs ${pod} -c lammps -f |& tee ./logs/$prog/lammps-rocky9-openmpi.out
+  kubectl logs ${pod} -c lammps -f |& tee ./logs/$app/$prog/lammps.out
   for pod in $(kubectl get pod -o json | jq -r .items[].metadata.name)
     do
-    kubectl logs ${pod} -f |& tee ./logs/$prog/lammps-rocky9-openmpi-${pod}.out    
+    for prog in tcp-model cpu-model open-close futex-model shmem
+    do
+      mkdir -p ./logs/$app/$prog    
+      kubectl logs ${pod} -c bcc-monitor-$prog -f |& tee ./logs/$app/$prog/${pod}.out    
+    done
   done
-  helm uninstall lammps
-done
 ```
 
 ## Clean Up
