@@ -88,7 +88,7 @@ helm install \
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s
   pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-  kubectl logs ${pod} -c lammps -f |& tee ./logs/$app/$prog/lammps.out
+  kubectl logs ${pod} -c lammps -f |& tee ./logs/$app/lammps.out
   for pod in $(kubectl get pod -o json | jq -r .items[].metadata.name)
     do
     for prog in tcp-model cpu-model open-close futex-model shmem
@@ -122,7 +122,7 @@ helm install \
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s
   pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
-  kubectl logs ${pod} -c lammps -f |& tee ./logs/$app/$prog/lammps.out
+  kubectl logs ${pod} -c lammps -f |& tee ./logs/$app/lammps.out
   for pod in $(kubectl get pod -o json | jq -r .items[].metadata.name)
     do
     for prog in tcp-model cpu-model open-close futex-model shmem
