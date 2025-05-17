@@ -47,7 +47,7 @@ for prog in tcp-model cpu-model open-close futex-model shmem
   --set lammps.x=16 \
   --set lammps.y=8 \
   --set lammps.z=8 \
-  --set experiment.monitor_program=$prog \
+  --set experiment.monitor_program=prog1,prog2 \
   --set experiment.monitor=true \
   --set experiment.iterations=1 \
   lammps ./lammps-reax
