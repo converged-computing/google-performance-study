@@ -347,17 +347,24 @@ def parse_data(indir, outdir, files):
             "compute-engine" in filename
             or "lammps-gpu-mpich.out" in filename
             or "lammps-rocky8-mpich" in filename
+            # Initial serial runs
+            or "ebpf-serial" in filename
         ):
             continue
 
         basename = os.path.basename(filename)
-        # These are lammps output, not an ebpf output
+
+        # These are initial lammps output, without ebpf
         if basename in [
             "lammps-ubuntu-openmpi.out",
             "lammps-rocky9-openmpi.out",
             "lammps-ubuntu-mpich.out",
         ]:
-            p = add_lammps_result(p, indir, filename)
+            p = add_lammps_result(p, indir, filename, ebpf=False)
+
+        # Lammps output, but with ebpf running. We need to show no overhead
+        elif basename == "lammps.out":
+            p = add_lammps_result(p, indir, filename, ebpf=True)        
         else:
             ebpf_p = add_ebpf_result(ebpf_p, indir, filename)
 
