@@ -111,16 +111,16 @@ def get_environment_context(filename):
     return env_name, exp_name
 
 
-def add_lammps_result(p, indir, filename, ebpf=False):
+def add_lammps_result(p, indir, filename, ebpf=None):
     """
     Add a new lammps result
     """
     exp = ps.ExperimentNameParser(filename, indir)
-    if exp.size == 2:
+    if exp.size == 2 or exp.size > 8:
         return p
     env_name, _ = get_environment_context(filename)
-    if ebpf: 
-        env_name = f"{env_name} eBPF"
+    if ebpf is not None: 
+        env_name = f"{env_name} eBPF {ebpf.capitalize()}"
 
     # Set the parsing context for the result data frame
     p.set_context(exp.cloud, exp.env, exp.env_type, exp.size)
@@ -381,14 +381,23 @@ def parse_data(indir, outdir, files):
             "lammps-rocky8-openmpi.out",
             "lammps-ubuntu-mpich.out",
         ]:
-            p = add_lammps_result(p, indir, filename, ebpf=False)
+            p = add_lammps_result(p, indir, filename, ebpf=None)
 
+        # First original run
         elif "logs/lammps.out" in filename:
-            p = add_lammps_result(p, indir, filename, ebpf=False) 
+            p = add_lammps_result(p, indir, filename, ebpf=None) 
 
         # Lammps output, but with ebpf running. We need to show no overhead
         elif basename == "lammps.out":
             p = add_lammps_result(p, indir, filename, ebpf=True)        
+
+        elif "ebpf-multiple" in filename:
+            p = add_lammps_result(p, indir, filename, ebpf="multiple") 
+
+        # Single pod with randomly selected ebpf program
+        elif "ebpf-sample" in filename:
+            p = add_lammps_result(p, indir, filename, ebpf="sample") 
+
         else:
             ebpf_p = add_ebpf_result(ebpf_p, indir, filename)
 
@@ -408,7 +417,7 @@ def plot_results(df, ebpfs, outdir, non_anon=False):
         os.makedirs(img_outdir)
 
     plot_lammps(df, img_outdir, non_anon)
-    plot_ebpfs(ebpfs, img_outdir, non_anon)
+    # plot_ebpfs(ebpfs, img_outdir, non_anon)
 
 
 def plot_open_close(counts, outdir):
