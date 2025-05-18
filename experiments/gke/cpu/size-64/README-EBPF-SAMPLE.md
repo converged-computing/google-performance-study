@@ -9,6 +9,15 @@ credits starting at 1528
 - ESTIMATED COST: 320*(15/60) == ~$80
 - credits after: ~1448
 
+Round 2 (for one additional sample), starting credits 1100.
+
+- START TIME: 11:24
+- END TIME: 11:37
+- COST/HOUR: $320
+- ESTIMATED COST: 320*(13/60) == ~$70
+- credits after: ~1030
+
+
 ```bash
 GOOGLE_PROJECT=llnl-flux
 NODES=64
@@ -56,7 +65,7 @@ helm install \
   --set lammps.y=16 \
   --set lammps.z=16 \
   --set experiment.monitor="tcp|cpu|open_close|futex|shmem" \
-  --set experiment.iterations=2 \
+  --set experiment.iterations=3 \
   lammps ./lammps-reax
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s
@@ -88,7 +97,7 @@ helm install \
   --set lammps.z=16 \
   --set minicluster.image=ghcr.io/converged-computing/lammps-reax:ubuntu2204-mpich \
   --set experiment.monitor="tcp|cpu|open_close|futex|shmem" \
-  --set experiment.iterations=2 \
+  --set experiment.iterations=3 \
   lammps ./lammps-reax
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s
@@ -118,7 +127,7 @@ helm install \
   --set lammps.z=16 \
   --set minicluster.image=ghcr.io/converged-computing/lammps-reax:rocky8 \
   --set experiment.monitor="tcp|cpu|open_close|futex|shmem" \
-  --set experiment.iterations=2 \
+  --set experiment.iterations=3 \
   lammps ./lammps-reax
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s

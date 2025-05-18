@@ -12,10 +12,10 @@ credits starting at 1568
 Round 2 (for one additional sample), starting credits 1128.
 
 - START TIME: 11:07
-- END TIME: 
+- END TIME: 11:17
 - COST/HOUR: $160
-- ESTIMATED COST: 160*(/60) == ~$18
-- credits after: ~
+- ESTIMATED COST: 160*(10/60) == ~$28
+- credits after: ~1100
 
 
 ```bash
