@@ -361,6 +361,9 @@ def parse_data(indir, outdir, files):
     p = ps.ProblemSizeParser("lammps")
     ebpf_p = {}
 
+    # Sanity check groups at end
+    checks = {"multiple": [], "sample": [], "no-ebpf": []}
+
     # It's important to just parse raw data once, and then use intermediate
     for filename in files:
         if (
@@ -369,6 +372,7 @@ def parse_data(indir, outdir, files):
             or "lammps-rocky8-mpich" in filename
             # Initial serial runs
             or "ebpf-serial" in filename
+            or "tcp-socket" in filename
         ):
             continue
 
@@ -381,27 +385,30 @@ def parse_data(indir, outdir, files):
             "lammps-rocky8-openmpi.out",
             "lammps-ubuntu-mpich.out",
         ]:
+            checks['no-ebpf'].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf=None)
 
         # First original run
         elif "logs/lammps.out" in filename:
+            checks['no-ebpf'].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf=None) 
 
-        # Lammps output, but with ebpf running. We need to show no overhead
-        elif basename == "lammps.out":
-            p = add_lammps_result(p, indir, filename, ebpf=True)        
-
-        elif "ebpf-multiple" in filename:
+        elif "ebpf-multiple" in filename and "lammps.out" in filename:
+            checks['multiple'].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf="multiple") 
 
         # Single pod with randomly selected ebpf program
-        elif "ebpf-sample" in filename:
+        elif "ebpf-sample" in filename and "lammps.out" in filename:
+            checks['sample'].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf="sample") 
 
         else:
+            continue
             ebpf_p = add_ebpf_result(ebpf_p, indir, filename)
 
     print("Done parsing lammps results!")
+    print("Please check groupings")
+    print(json.dumps(checks, indent=4))
 
     # Save stuff to file first
     p.df.to_csv(os.path.join(outdir, "lammps-results.csv"))
