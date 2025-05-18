@@ -73,6 +73,9 @@ def main():
     for dirname in dirs:
         files += ps.find_inputs(dirname, "lammps")
 
+    # Get original runs without ebpf
+    files += [x for x in ps.find_inputs(indir, "lammps") if "ebpf" not in x]
+
     # Saves raw data to file
     df, ebpfs = parse_data(indir, outdir, files)
     plot_results(df, ebpfs, outdir, args.non_anon)
@@ -82,28 +85,42 @@ def get_environment_context(filename):
     if "lammps-ubuntu-openmpi" in filename:
         env_name = "Ubuntu OpenMPI"
         exp_name = "ubuntu-openmpi"
+    # These were rocky 8 and incorrectly named
     elif "lammps-rocky9-openmpi" in filename:
+        env_name = "Rocky OpenMPI"
+        exp_name = "rocky-openmpi"
+    elif "lammps-rocky8-openmpi" in filename:
         env_name = "Rocky OpenMPI"
         exp_name = "rocky-openmpi"
     elif "lammps-ubuntu-mpich" in filename:
         env_name = "Ubuntu Mpich"
         exp_name = "ubuntu-mpich"
+    elif "lammps-mpich-ubuntu" in filename:
+        env_name = "Ubuntu Mpich"
+        exp_name = "ubuntu-mpich"
     elif "lammps-ubuntu-mpi-gpu" in filename:
         env_name = "Ubuntu OpenMPI GPU"
-        exp_name = "ubuntu-openmpi-gpu"
+        exp_name = "ubuntu-openmpi-gpu"        
+    # Initial run of lammps, used the ubuntu openmpi
+    elif "logs/lammps.out" in filename:
+        env_name = "Ubuntu OpenMPI"
+        exp_name = "ubuntu-openmpi"
+        print(filename)
     else:
         raise ValueError(f"Unexpected filename: {filename}")
     return env_name, exp_name
 
 
-def add_lammps_result(p, indir, filename):
+def add_lammps_result(p, indir, filename, ebpf=False):
     """
     Add a new lammps result
     """
     exp = ps.ExperimentNameParser(filename, indir)
-    # if exp.size == 2:
-    #    return p
-    env_name, exp_name = get_environment_context(filename)
+    if exp.size == 2:
+        return p
+    env_name, _ = get_environment_context(filename)
+    if ebpf: 
+        env_name = f"{env_name} eBPF"
 
     # Set the parsing context for the result data frame
     p.set_context(exp.cloud, exp.env, exp.env_type, exp.size)
@@ -114,7 +131,7 @@ def add_lammps_result(p, indir, filename):
 
     item = ps.read_file(filename)
     jobs = ps.parse_flux_jobs(item)
-    for job, metadata in jobs.items():
+    for _, metadata in jobs.items():
         if not metadata:
             continue
         step, seconds = parse_matom_steps(metadata["log"])
@@ -124,6 +141,9 @@ def add_lammps_result(p, indir, filename):
             for x in metadata["log"].split("\n")
             if "Total wall time" in x
         ][0]
+        # This is a percentage
+        cpu_use = float([x for x in item.split('\n') if "CPU use" in x][0].split('%')[0])
+        p.add_result("cpu-usage", cpu_use, env_name)
         p.add_result("wall-time", wall_time, env_name)
         p.add_result("duration", metadata["duration"], env_name)
         p.add_result("hookup-time", metadata["duration"] - wall_time, env_name)
@@ -358,9 +378,13 @@ def parse_data(indir, outdir, files):
         if basename in [
             "lammps-ubuntu-openmpi.out",
             "lammps-rocky9-openmpi.out",
+            "lammps-rocky8-openmpi.out",
             "lammps-ubuntu-mpich.out",
         ]:
             p = add_lammps_result(p, indir, filename, ebpf=False)
+
+        elif "logs/lammps.out" in filename:
+            p = add_lammps_result(p, indir, filename, ebpf=False) 
 
         # Lammps output, but with ebpf running. We need to show no overhead
         elif basename == "lammps.out":
@@ -476,9 +500,10 @@ def plot_ebpfs(ebpfs, outdir, non_anon):
         if not os.path.exists(img_outdir):
             os.makedirs(img_outdir)
 
+        import IPython
+        IPython.embed()
         # problem size corresponding to application or context
         if analysis in ["cpu-model", "futex-model", "tcp-model", "shmem"]:
-            if analysis == "shmem":
             for command in df.problem_size.unique():
                 img_outdir = os.path.join(outdir, analysis, command)
                 if not os.path.exists(img_outdir):
@@ -486,7 +511,6 @@ def plot_ebpfs(ebpfs, outdir, non_anon):
                 command_df = df[df.problem_size == command]
                 for metric in command_df.metric.unique():
                     metric_df = command_df[command_df.metric == metric]
-                    title = " ".join([x.capitalize() for x in metric.split("_")])
                     fig = plt.figure(figsize=(9, 3.3))
                     gs = plt.GridSpec(1, 2, width_ratios=[2, 1])
                     axes = []
@@ -584,6 +608,13 @@ def plot_lammps(df, img_outdir, non_anon):
         metric_df = df[df.metric == metric]
         frames[metric] = {"cpu": metric_df}
 
+    order = ['Ubuntu Mpich',
+             'Ubuntu Mpich eBPF',
+             'Ubuntu OpenMPI',
+             'Ubuntu OpenMPI eBPF',
+             'Rocky OpenMPI',
+             'Rocky OpenMPI eBPF']
+
     for metric, data_frames in frames.items():
         # We only have one for now :)
         fig = plt.figure(figsize=(9, 3.3))
@@ -600,11 +631,15 @@ def plot_lammps(df, img_outdir, non_anon):
             y="value",
             hue="problem_size",
             err_kws={"color": "darkred"},
+            # order=order,
             # palette=cloud_colors,
         )
         if metric in ["duration", "wall-time", "hookup-time"]:
             axes[0].set_title(f"LAMMPS {metric.capitalize()}", fontsize=14)
             axes[0].set_ylabel("Seconds", fontsize=14)
+        elif "cpu" in metric:
+            axes[0].set_title("LAMMPS CPU Usage", fontsize=14)
+            axes[0].set_ylabel("% CPU usage", fontsize=14)
         elif "katom" in metric:
             axes[0].set_title("LAMMPS K/Atom Steps per Second", fontsize=14)
             axes[0].set_ylabel("M/Atom Steps Per Second", fontsize=14)
