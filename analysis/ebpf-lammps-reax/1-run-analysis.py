@@ -116,7 +116,7 @@ def add_lammps_result(p, indir, filename, ebpf=None):
     Add a new lammps result
     """
     exp = ps.ExperimentNameParser(filename, indir)
-    if exp.size == 2 or exp.size > 8:
+    if exp.size == 2 or exp.size > 16:
         return p
     env_name, _ = get_environment_context(filename)
     if ebpf is not None: 
