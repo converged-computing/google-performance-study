@@ -1,5 +1,14 @@
 # GKE CPU Experiment Size 4
 
+Round 2 (for one additional sample), starting credits 1160.
+
+- START TIME: 10:10
+- END TIME: 10:21
+- COST/HOUR: $20
+- ESTIMATED COST: 20*(11/60) == ~$4
+- credits after: ~1156
+
+
 ```bash
 GOOGLE_PROJECT=llnl-flux
 NODES=4
@@ -47,7 +56,7 @@ helm install \
   --set lammps.y=16 \
   --set lammps.z=16 \
   --set experiment.monitor="tcp|cpu|open_close|futex|shmem" \
-  --set experiment.iterations=2 \
+  --set experiment.iterations=3 \
   lammps ./lammps-reax
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s
@@ -80,7 +89,7 @@ helm install \
   --set lammps.z=16 \
   --set minicluster.image=ghcr.io/converged-computing/lammps-reax:ubuntu2204-mpich \
   --set experiment.monitor="tcp|cpu|open_close|futex|shmem" \
-  --set experiment.iterations=2 \
+  --set experiment.iterations=3 \
   lammps ./lammps-reax
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s
@@ -110,7 +119,7 @@ helm install \
   --set lammps.z=16 \
   --set minicluster.image=ghcr.io/converged-computing/lammps-reax:rocky8 \
   --set experiment.monitor="tcp|cpu|open_close|futex|shmem" \
-  --set experiment.iterations=2 \
+  --set experiment.iterations=3 \
   lammps ./lammps-reax
   sleep 5
   time kubectl wait --for=condition=ready pod -l job-name=lammps --timeout=600s
