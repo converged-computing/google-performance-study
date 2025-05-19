@@ -172,10 +172,13 @@ def plot_results(df, outdir, non_anon=False):
             palette=cloud_colors,
             order=[4, 8, 16, 32, 64],
         )
+        if metric == "duration":
+            duration_df = data_frames["cpu"]
         if "rate" not in metric:        
             axes[0].set_title(f"Laghos {metric.capitalize()} (CPU)", fontsize=12)
             axes[0].set_ylabel("Seconds", fontsize=12)
         else:
+            fom_df = data_frames["cpu"]
             axes[0].set_title("Laghos Major Kernels Total Rate (CPU)", fontsize=12)
             axes[0].set_ylabel("Megadofs By Ts/s", fontsize=12)
         axes[0].set_xlabel("Nodes", fontsize=12)
@@ -188,7 +191,49 @@ def plot_results(df, outdir, non_anon=False):
 
         # Print the total number of data points
         print(f'Total number of CPU datum for {metric}: {data_frames["cpu"].shape[0]}')
-    
+
+    # Figure for paper - include duration and FOM
+    fig = plt.figure(figsize=(9, 3))
+    gs = plt.GridSpec(1, 2, width_ratios=[1, 1])
+    axes = []
+    axes.append(fig.add_subplot(gs[0, 0]))
+    axes.append(fig.add_subplot(gs[0, 1]))
+
+    sns.set_style("whitegrid")
+    sns.barplot(
+        duration_df,
+        ax=axes[0],
+        x="nodes",
+        y="value",
+        hue="experiment",
+        err_kws={"color": "darkred"},
+        order=[4, 8, 16, 32, 64],
+        palette=cloud_colors,
+    )
+    axes[0].set_title(f"Laghos Duration", fontsize=12)
+    axes[0].set_ylabel("Seconds", fontsize=12)
+    axes[0].set_xlabel("", fontsize=12)
+    sns.barplot(
+        fom_df,
+        ax=axes[1],
+        x="nodes",
+        y="value",
+        hue="experiment",
+        err_kws={"color": "darkred"},
+        order=[4, 8, 16, 32],
+        palette=cloud_colors,
+    )
+    axes[1].set_title("Laghos Major Kernels Total Rate (CPU)", fontsize=12)
+    axes[1].set_ylabel("Megadofs By Ts/s", fontsize=12)
+    axes[1].set_xlabel("Nodes", fontsize=12)
+    for ax in axes[0:2]:
+        ax.get_legend().remove()
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(img_outdir, f"laghos-paper.svg"))
+    plt.savefig(os.path.join(img_outdir, f"laghos-paper.png"))
+    plt.clf()
+
 
 if __name__ == "__main__":
     main()
