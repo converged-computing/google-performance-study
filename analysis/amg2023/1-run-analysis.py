@@ -171,44 +171,46 @@ def plot_results(df, outdir, non_anon=False):
 
     for metric, data_frames in frames.items():
         # We only have one for now :)
-        fig = plt.figure(figsize=(9, 3))
-        gs = plt.GridSpec(1, 2, width_ratios=[2, 1])
+        fig = plt.figure(figsize=(4, 2))
+        gs = plt.GridSpec(1, 1 )# , width_ratios=[3, 1])
         axes = []
         axes.append(fig.add_subplot(gs[0, 0]))
-        axes.append(fig.add_subplot(gs[0, 1]))
+        # axes.append(fig.add_subplot(gs[0, 1]))
 
+        # These are all ubuntu openmpi, the intel spack build was using it
         sns.set_style("whitegrid")
         sns.barplot(
             data_frames["cpu"],
             ax=axes[0],
             x="nodes",
             y="value",
-            hue="problem_size",
+            hue="experiment",
             err_kws={"color": "darkred"},
             #hue_order=[
             #    "google/gke/cpu",
     #            "google/compute-engine/cpu",
            # ],
-            # palette=cloud_colors,
+            palette=cloud_colors,
             order=[4, 8, 16, 32],
         )
         if metric == "duration":        
-            axes[0].set_title("AMG2023 Duration (CPU)", fontsize=14)
-            axes[0].set_ylabel("Seconds", fontsize=14)
+            axes[0].set_title("AMG2023 Duration (CPU)", fontsize=12)
+            axes[0].set_ylabel("Seconds", fontsize=12)
         else:
-            axes[0].set_title("FOM Overall (CPU)", fontsize=14)
-            axes[0].set_ylabel("FOM Overall", fontsize=14)
-        axes[0].set_xlabel("Nodes", fontsize=14)
+            axes[0].set_title("FOM Overall (CPU)", fontsize=12)
+            axes[0].set_ylabel("FOM Overall", fontsize=12)
+        axes[0].set_xlabel("Nodes", fontsize=12)
         
-        handles, labels = axes[0].get_legend_handles_labels()
-        labels = ["/".join(x.split("/")[0:2]) for x in labels]
-        axes[1].legend(
-            handles, labels, loc="center left", bbox_to_anchor=(-0.1, 0.5), frameon=False
-        )
-        for ax in axes[0:1]:
-            ax.get_legend().remove()
-        axes[1].axis("off")
-    
+        # handles, labels = axes[0].get_legend_handles_labels()
+        # labels = ["/".join(x.split("/")[0:2]) for x in labels]
+        #axes[1].legend(
+        #    handles, labels, loc="center left", bbox_to_anchor=(-0.1, 0.5), frameon=False
+        #)
+        #for ax in axes[0:1]:
+        #    ax.get_legend().remove()
+        #axes[1].axis("off")
+        axes[0].get_legend().remove()
+        
         plt.tight_layout()
         plt.savefig(os.path.join(img_outdir, f"amg-{metric}-cpu.svg"))
         plt.savefig(os.path.join(img_outdir, f"amg-{metric}-cpu.png"))
