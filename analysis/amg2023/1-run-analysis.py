@@ -171,7 +171,7 @@ def plot_results(df, outdir, non_anon=False):
 
     for metric, data_frames in frames.items():
         # We only have one for now :)
-        fig = plt.figure(figsize=(9, 3.3))
+        fig = plt.figure(figsize=(9, 3))
         gs = plt.GridSpec(1, 2, width_ratios=[2, 1])
         axes = []
         axes.append(fig.add_subplot(gs[0, 0]))
