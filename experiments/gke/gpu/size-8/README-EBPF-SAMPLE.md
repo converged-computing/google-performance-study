@@ -10,7 +10,6 @@ Hourly cost is $2.48/GPU and about 20 cents for n1-standard-4, so ~2.70.
 - ESTIMATED COST: 22*(15/60) == ~$6
 - credits after: 1039
 
-
 ```bash
 GOOGLE_PROJECT=llnl-flux
 NODES=8
@@ -77,11 +76,11 @@ helm uninstall lammps
 app=lammps-ubuntu-openmpi-gpu-noebpf
 mkdir -p ./logs/$app
 helm install \
-  --set experiment.nodes=4 \
-  --set minicluster.size=4 \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
   --set minicluster.gpus=1 \
-  --set minicluster.tasks=8 \
-  --set experiment.tasks=4 \
+  --set minicluster.tasks=16 \
+  --set experiment.tasks=8 \
   --set minicluster.save_logs=true \
   --set lammps.kokkos=true \
   --set lammps.x=32 \
