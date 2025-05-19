@@ -720,8 +720,6 @@ def plot_lammps(df, img_outdir, non_anon):
             matom_df = data_frames['cpu']
 
     # PAPER FIGURE
-    import IPython 
-    IPython.embed()
     # Two figures and one legend
     fig = plt.figure(figsize=(6, 6))
     axes = []
