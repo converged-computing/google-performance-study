@@ -111,7 +111,7 @@ def get_environment_context(filename):
     return env_name, exp_name
 
 
-def add_lammps_result(p, indir, filename, ebpf=None):
+def add_lammps_result(p, indir, filename, ebpf=None, gpu=False):
     """
     Add a new lammps result
     """
@@ -120,7 +120,7 @@ def add_lammps_result(p, indir, filename, ebpf=None):
         return p
     env_name, _ = get_environment_context(filename)
     if ebpf is not None: 
-        env_name = f"{env_name} eBPF {ebpf.capitalize()}"
+        env_name = f"{env_name} eBPF {ebpf.capitalize()}"    
 
     # Set the parsing context for the result data frame
     p.set_context(exp.cloud, exp.env, exp.env_type, exp.size)
@@ -339,7 +339,6 @@ def parse_shmem(p, item):
         p.add_result("munmap", datum["munmap"], datum["comm"])
         p.add_result("mmap_sh_mb", datum["mmap_sh_mb"], datum["comm"])
 
-
 # {'tgid': 28139,
 # 'comm': 'lmp',
 # 'shmget': 1,
@@ -362,7 +361,7 @@ def parse_data(indir, outdir, files):
     ebpf_p = {}
 
     # Sanity check groups at end
-    checks = {"multiple": [], "sample": [], "no-ebpf": []}
+    checks = {"multiple": [], "sample": [], "no-ebpf": [], "no-ebpf-gpu": []}
 
     # It's important to just parse raw data once, and then use intermediate
     for filename in files:
@@ -373,6 +372,10 @@ def parse_data(indir, outdir, files):
             # Initial serial runs
             or "ebpf-serial" in filename
             or "tcp-socket" in filename
+            # These are lammps without gvnic, only a subset of sizes
+            # the times look the same, but I don't want to add extra
+            #(slightly different) data.
+            or "no-gvnic" in filename
         ):
             continue
 
@@ -387,6 +390,13 @@ def parse_data(indir, outdir, files):
         ]:
             checks['no-ebpf'].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf=None)
+
+        # GPu runs
+        elif basename in [
+            "lammps-ubuntu-mpi-gpu.out",
+        ]:
+            checks['no-ebpf-gpu'].append(filename)
+            p = add_lammps_result(p, indir, filename, ebpf=None, gpu=True)
 
         # First original run
         elif "logs/lammps.out" in filename:
@@ -527,7 +537,7 @@ def plot_ebpfs(ebpfs, outdir, non_anon):
                 command_df = df[df.problem_size == command]
                 for metric in command_df.metric.unique():
                     metric_df = command_df[command_df.metric == metric]
-                    fig = plt.figure(figsize=(9, 3.3))
+                    fig = plt.figure(figsize=(10, 3.3))
                     gs = plt.GridSpec(1, 2, width_ratios=[2, 1])
                     axes = []
                     axes.append(fig.add_subplot(gs[0, 0]))
@@ -615,7 +625,7 @@ def plot_ebpfs(ebpfs, outdir, non_anon):
 
 def plot_lammps(df, img_outdir, non_anon):
     """
-    Plot lammps result
+    Plot lammps result. The goal here is to show the different environment setups.
     """
     frames = {}
     # Make a plot for seconds runtime, and each FOM set.
@@ -624,18 +634,37 @@ def plot_lammps(df, img_outdir, non_anon):
         metric_df = df[df.metric == metric]
         frames[metric] = {"cpu": metric_df}
 
-    order = ['Ubuntu Mpich',
-             'Ubuntu Mpich eBPF',
+    order = [
+             'Ubuntu Mpich eBPF Sample', 
+             'Ubuntu Mpich',
+             'Ubuntu Mpich eBPF Multiple',
+             'Ubuntu OpenMPI eBPF Sample',
              'Ubuntu OpenMPI',
-             'Ubuntu OpenMPI eBPF',
+             'Ubuntu OpenMPI eBPF Multiple',
+             'Rocky OpenMPI eBPF Sample', 
              'Rocky OpenMPI',
-             'Rocky OpenMPI eBPF']
+             'Rocky OpenMPI eBPF Multiple',
+             'Ubuntu OpenMPI GPU', 
+    ]
+
+    colors = {
+             'Ubuntu Mpich eBPF Sample': "#6495ed",
+             'Ubuntu Mpich eBPF Multiple': "#0047ab",
+             'Ubuntu Mpich': "#758fa9", 
+             'Ubuntu OpenMPI eBPF Sample': "#e79aff",
+             'Ubuntu OpenMPI eBPF Multiple': "#691883",
+             'Ubuntu OpenMPI': "#b148d2",
+             'Rocky OpenMPI eBPF Sample': "#c9df8a", 
+             'Rocky OpenMPI eBPF Multiple': "#36802d",
+             'Rocky OpenMPI': "#77ab59",
+             'Ubuntu OpenMPI GPU': "#973348"
+    }
 
     for metric, data_frames in frames.items():
         # We only have one for now :)
-        fig = plt.figure(figsize=(9, 3.3))
-        gs = plt.GridSpec(1, 2, width_ratios=[2, 1])
+        fig = plt.figure(figsize=(10, 3.3))
         axes = []
+        gs = plt.GridSpec(1, 2, width_ratios=[2, 1])
         axes.append(fig.add_subplot(gs[0, 0]))
         axes.append(fig.add_subplot(gs[0, 1]))
 
@@ -647,8 +676,8 @@ def plot_lammps(df, img_outdir, non_anon):
             y="value",
             hue="problem_size",
             err_kws={"color": "darkred"},
-            # order=order,
-            # palette=cloud_colors,
+            palette=colors,
+            hue_order=order,
         )
         if metric in ["duration", "wall-time", "hookup-time"]:
             axes[0].set_title(f"LAMMPS {metric.capitalize()}", fontsize=14)
@@ -667,16 +696,15 @@ def plot_lammps(df, img_outdir, non_anon):
         handles, labels = axes[0].get_legend_handles_labels()
         labels = ["/".join(x.split("/")[0:2]) for x in labels]
         axes[1].legend(
-            handles,
-            labels,
-            loc="center left",
-            bbox_to_anchor=(-0.1, 0.5),
-            frameon=False,
-        )
+                handles,
+                labels,
+                loc="center left",
+                bbox_to_anchor=(-0.1, 0.5),
+                frameon=False,
+            )
         for ax in axes[0:1]:
             ax.get_legend().remove()
-        axes[1].axis("off")
-
+            axes[1].axis("off")
         plt.tight_layout()
         plt.savefig(os.path.join(img_outdir, f"lammps-{metric}.svg"))
         plt.savefig(os.path.join(img_outdir, f"lammps-{metric}.png"))
@@ -684,6 +712,86 @@ def plot_lammps(df, img_outdir, non_anon):
 
         # Print the total number of data points
         print(f'Total number of datum: {data_frames["cpu"].shape[0]}')
+
+        # Keep a variable with paper figure plots
+        if "duration" in metric:
+            duration_df = data_frames['cpu']
+        elif "matom" in metric:
+            matom_df = data_frames['cpu']
+
+    # PAPER FIGURE
+    import IPython 
+    IPython.embed()
+    # Two figures and one legend
+    fig = plt.figure(figsize=(6, 6))
+    axes = []
+    gs = plt.GridSpec(3, 1, height_ratios=[2, 2, 1])
+    axes.append(fig.add_subplot(gs[0, 0]))
+    axes.append(fig.add_subplot(gs[1, 0]))
+    axes.append(fig.add_subplot(gs[2, 0]))
+
+    # Duration
+    sns.set_style("whitegrid")
+    sns.barplot(
+        duration_df,
+        ax=axes[0],
+        x="nodes",
+        y="value",
+        hue="problem_size",
+        err_kws={"color": "darkred"},
+        palette=colors,
+        hue_order=order,
+    )
+    axes[0].set_title(f"LAMMPS Duration", fontsize=12)
+    axes[0].set_ylabel("Seconds", fontsize=12)
+    axes[0].set_xlabel("", fontsize=12)
+
+
+    # Matom steps per second
+    sns.barplot(
+        matom_df,
+        ax=axes[1],
+        x="nodes",
+        y="value",
+        hue="problem_size",
+        err_kws={"color": "darkred"},
+        palette=colors,
+        hue_order=order,
+    )
+    axes[1].set_title("LAMMPS M/Atom Steps per Second", fontsize=12)
+    axes[1].set_ylabel("M/Atom Steps Per Second", fontsize=12)
+    axes[1].set_xlabel("Nodes", fontsize=12)
+
+    # These labels are the same for axes 0 and 1
+    handles, labels = axes[0].get_legend_handles_labels()
+
+    # Shorten labels
+    updated = []
+    for label in labels:
+        label = label.replace("Ubuntu", "U")  
+        label = label.replace("Rocky", "R")  
+        updated.append(label)
+
+    axes[2].legend(
+        handles,
+        labels,
+        ncols=2,
+        fontsize=10,
+        loc="center left",
+        bbox_to_anchor=(-0.1, 0.5),
+        frameon=False,
+    )
+
+    for ax in axes[0:2]:
+        ax.get_legend().remove()
+    # The legend will go here
+    axes[2].axis("off")
+    plt.tight_layout()
+    plt.savefig(os.path.join(img_outdir, f"lammps-paper.svg"))
+    plt.savefig(os.path.join(img_outdir, f"lammps-paper.png"))
+    plt.clf()
+
+
 
 
 if __name__ == "__main__":

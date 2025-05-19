@@ -69,6 +69,8 @@ helm uninstall lammps-gpu
 
 ### LAMMPS GPU MPich
 
+**Did not work, exited with error code** (see log)
+
 ```bash
 helm dependency update lammps-reax-gpu/
 helm install \
