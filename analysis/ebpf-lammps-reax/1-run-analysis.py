@@ -119,9 +119,14 @@ def add_lammps_result(p, indir, filename, ebpf=None, gpu=False):
     if exp.size == 2:
         return p
     env_name, _ = get_environment_context(filename)
-    if ebpf is not None: 
+    if ebpf == "":
+        env_name = f"{env_name} eBPF"    
+
+    elif ebpf is not None: 
         env_name = f"{env_name} eBPF {ebpf.capitalize()}"    
 
+    if gpu and "GPU" not in env_name:
+        env_name = f"{env_name} GPU"
     # Set the parsing context for the result data frame
     p.set_context(exp.cloud, exp.env, exp.env_type, exp.size)
 
@@ -361,7 +366,7 @@ def parse_data(indir, outdir, files):
     ebpf_p = {}
 
     # Sanity check groups at end
-    checks = {"multiple": [], "sample": [], "no-ebpf": [], "no-ebpf-gpu": []}
+    checks = {"multiple": [], "sample": [], "no-ebpf": [], "no-ebpf-gpu": [], 'ebpf-gpu': []}
 
     # It's important to just parse raw data once, and then use intermediate
     for filename in files:
@@ -391,13 +396,20 @@ def parse_data(indir, outdir, files):
             checks['no-ebpf'].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf=None)
 
-        # GPu runs
-        elif basename in [
-            "lammps-ubuntu-mpi-gpu.out",
-        ]:
+        # GPU without ebpf
+        elif "gpu" in filename and "noebpf" in filename and basename == "lammps.out":
             checks['no-ebpf-gpu'].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf=None, gpu=True)
 
+        elif "gpu" in filename and "ebpf" in filename and basename == "lammps.out":
+            checks['ebpf-gpu'].append(filename)
+            p = add_lammps_result(p, indir, filename, ebpf="", gpu=True)
+
+        # original GPU runs
+        elif basename in ["lammps-ubuntu-mpi-gpu.out"]:
+            checks['no-ebpf-gpu'].append(filename)
+            p = add_lammps_result(p, indir, filename, ebpf=None, gpu=True)
+        
         # First original run
         elif "logs/lammps.out" in filename:
             checks['no-ebpf'].append(filename)
@@ -634,6 +646,7 @@ def plot_lammps(df, img_outdir, non_anon):
         metric_df = df[df.metric == metric]
         frames[metric] = {"cpu": metric_df}
 
+    print(metric_df.problem_size.unique())
     order = [
              'Ubuntu Mpich eBPF Sample', 
              'Ubuntu Mpich',
@@ -644,9 +657,9 @@ def plot_lammps(df, img_outdir, non_anon):
              'Rocky OpenMPI eBPF Sample', 
              'Rocky OpenMPI',
              'Rocky OpenMPI eBPF Multiple',
+             'Ubuntu OpenMPI eBPF GPU',
              'Ubuntu OpenMPI GPU', 
     ]
-
     colors = {
              'Ubuntu Mpich eBPF Sample': "#6495ed",
              'Ubuntu Mpich eBPF Multiple': "#0047ab",
@@ -657,7 +670,8 @@ def plot_lammps(df, img_outdir, non_anon):
              'Rocky OpenMPI eBPF Sample': "#c9df8a", 
              'Rocky OpenMPI eBPF Multiple': "#36802d",
              'Rocky OpenMPI': "#77ab59",
-             'Ubuntu OpenMPI GPU': "#973348"
+             'Ubuntu OpenMPI GPU': "#973348",
+             'Ubuntu OpenMPI eBPF GPU': '#FF5B61',
     }
 
     for metric, data_frames in frames.items():
@@ -740,9 +754,9 @@ def plot_lammps(df, img_outdir, non_anon):
         palette=colors,
         hue_order=order,
     )
-    axes[0].set_title(f"LAMMPS Duration", fontsize=12)
-    axes[0].set_ylabel("Seconds", fontsize=12)
-    axes[0].set_xlabel("", fontsize=12)
+    axes[0].set_title(f"LAMMPS Duration", fontsize=11)
+    axes[0].set_ylabel("Seconds", fontsize=11)
+    axes[0].set_xlabel("", fontsize=11)
 
 
     # Matom steps per second
@@ -756,9 +770,9 @@ def plot_lammps(df, img_outdir, non_anon):
         palette=colors,
         hue_order=order,
     )
-    axes[1].set_title("LAMMPS M/Atom Steps per Second", fontsize=12)
-    axes[1].set_ylabel("M/Atom Steps Per Second", fontsize=12)
-    axes[1].set_xlabel("Nodes", fontsize=12)
+    axes[1].set_title("LAMMPS M/Atom Steps per Second", fontsize=11)
+    axes[1].set_ylabel("M/Atom Steps Per Second", fontsize=11)
+    axes[1].set_xlabel("Nodes", fontsize=11)
 
     # These labels are the same for axes 0 and 1
     handles, labels = axes[0].get_legend_handles_labels()

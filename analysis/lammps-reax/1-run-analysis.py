@@ -103,6 +103,7 @@ def parse_data(indir, outdir, files):
             "compute-engine" in filename
             or "lammps-gpu-mpich.out" in filename
             or "lammps-rocky8-mpich" in filename
+            or "ebpf" in filename
         ):
             continue
         exp = ps.ExperimentNameParser(filename, indir)
@@ -198,10 +199,13 @@ def plot_results(df, outdir, non_anon=False):
             # palette=cloud_colors,
             order=[4, 8, 16, 32, 64, 128],
         )
+        if metric == "duration":
+            duration_df = data_frames["cpu"]
         if metric in ["duration", "wall-time", "hookup-time"]:
             axes[0].set_title(f"LAMMPS {metric.capitalize()}", fontsize=14)
             axes[0].set_ylabel("Seconds", fontsize=14)
         else:
+            fom_df = data_frames["cpu"]
             axes[0].set_title("LAMMPS M/Atom Steps per Second", fontsize=14)
             axes[0].set_ylabel("M/Atom Steps Per Second", fontsize=14)
         axes[0].set_xlabel("Nodes", fontsize=14)
@@ -226,6 +230,60 @@ def plot_results(df, outdir, non_anon=False):
 
         # Print the total number of data points
         print(f'Total number of datum: {data_frames["cpu"].shape[0]}')
+
+    # Figure for paper - include duration and FOM
+    fig = plt.figure(figsize=(9, 3))
+    gs = plt.GridSpec(1, 3, width_ratios=[3, 3, 1])
+    axes = []
+    axes.append(fig.add_subplot(gs[0, 0]))
+    axes.append(fig.add_subplot(gs[0, 1]))
+    axes.append(fig.add_subplot(gs[0, 2]))
+
+    sns.set_style("whitegrid")
+    sns.barplot(
+        duration_df,
+        ax=axes[0],
+        x="nodes",
+        y="value",
+        hue="env_type",
+        err_kws={"color": "darkred"},
+        order=[4, 8, 16, 32, 64, 128],
+        # palette=cloud_colors,
+    )
+    axes[0].set_title(f"LAMMPS Duration", fontsize=12)
+    axes[0].set_ylabel("Seconds", fontsize=12)
+    axes[0].set_xlabel("", fontsize=12)
+    sns.barplot(
+        fom_df,
+        ax=axes[1],
+        x="nodes",
+        y="value",
+        hue="env_type",
+        err_kws={"color": "darkred"},
+        order=[4, 8, 16, 32, 64, 128],
+        #palette=cloud_colors,
+    )
+    axes[1].set_title("LAMMPS M/Atom Steps per Second", fontsize=12)
+    axes[1].set_ylabel("M/Atom Steps Per Second", fontsize=12)
+    axes[1].set_xlabel("Nodes", fontsize=12)
+
+    handles, labels = axes[0].get_legend_handles_labels()
+    labels = ["/".join(x.split("/")[0:2]) for x in labels]
+    axes[2].legend(
+        handles,
+        labels,
+        loc="center left",
+        bbox_to_anchor=(-0.1, 0.5),
+        frameon=False,
+    )
+    for ax in axes[0:2]:
+        ax.get_legend().remove()
+    axes[2].axis("off")
+
+    plt.tight_layout()
+    plt.savefig(os.path.join(img_outdir, f"lammps-single-app-paper.svg"))
+    plt.savefig(os.path.join(img_outdir, f"lammps-single-app-paper.png"))
+    plt.clf()
 
 
 if __name__ == "__main__":
