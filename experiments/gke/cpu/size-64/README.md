@@ -346,6 +346,28 @@ kubectl logs ${pod} -f |& tee ./logs/stream.out
 helm uninstall stream
 ```
 
+### samurai
+
+```console
+helm dependency update ./samurai
+helm install \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set minicluster.tasks=5632 \
+  --set experiment.tasks=5632 \
+  --set minicluster.save_logs=true \
+  --set experiment.iterations=3 \
+  --set samurai.min_level=14 \
+  --set samurai.max_level=14 \
+  sam ./samurai
+
+time kubectl wait --for=condition=ready pod -l job-name=sam --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/samurai.log
+helm uninstall sam
+```
+
+
 ## Clean Up
 
 When you are done:

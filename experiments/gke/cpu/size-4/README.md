@@ -30,6 +30,7 @@ time gcloud container clusters create test-cluster \
     --network-performance-configs=total-egress-bandwidth-tier=TIER_1 \
 ```
 
+
 Save nodes:
 
 ```bash
@@ -450,6 +451,26 @@ kubectl logs ${pod} -f |& tee ./logs/stream.out
 helm uninstall stream
 ```
 
+### samurai
+
+```console
+helm dependency update ./samurai
+helm install \
+  --set experiment.nodes=4 \
+  --set minicluster.size=4 \
+  --set minicluster.tasks=352 \
+  --set experiment.tasks=352 \
+  --set minicluster.save_logs=true \
+  --set experiment.iterations=3 \
+  --set samurai.min_level=14 \
+  --set samurai.max_level=14 \
+  sam ./samurai
+
+time kubectl wait --for=condition=ready pod -l job-name=sam --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/samurai.log
+helm uninstall sam
+```
 
 ## First Impressions (Testing)
 

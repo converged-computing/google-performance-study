@@ -167,7 +167,6 @@ class ExperimentNameParser:
         # If these are in the size, they are additional identifiers to indicate the
         # environment type. Add to it instead of the size. I could skip some of these
         # but I want to see the differences.
-        print(size)
         if "-" in size:
             _, size = size.split("-", 1)
         self.size = int(size.replace("size", ""))
