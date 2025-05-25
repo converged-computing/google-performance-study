@@ -1,0 +1,192 @@
+Defaulted container "mfem" out of: mfem, flux-view (init)
+#!/bin/bash
+set -euo pipefail
+flux resource list
+
+for i in {1..3}
+do
+  echo "FLUX-RUN START mfem-iter-$i"
+  flux run --setattr=user.study_id=mfem-iter-$i -N16 -n 1408 -o cpu-affinity=per-task -o gpu-affinity=off     /opt/build/mfem/tests/benchmarks/pbench_ceed --benchmark_filter=BP3 --benchmark_context="proc_grid=8x16x11,local_size=1771561"
+  
+   echo "FLUX-RUN END mfem-iter-$i"
+done
+
+
+output=./results/${app}
+(apt-get update > /dev/null 2>&1 && apt-get install -y jq > /dev/null 2>&1) || (yum update -y > /dev/null 2>&1 && yum install -y jq > /dev/null 2>&1)
+mkdir -p $output
+for jobid in $(flux jobs -a --json | jq -r .jobs[].id); do
+    echo
+    study_id=$(flux job info $jobid jobspec | jq -r ".attributes.user.study_id")
+    echo "FLUX-JOB START ${jobid} ${study_id}"
+    echo "FLUX-JOB-JOBSPEC START"
+    flux job info $jobid jobspec
+    echo "FLUX-JOB-JOBSPEC END" 
+    
+    echo "FLUX-JOB-RESOURCES START"
+    flux job info ${jobid} R
+    echo "FLUX-JOB-RESOURCES END"
+    echo "FLUX-JOB-EVENTLOG START" 
+    flux job info $jobid guest.exec.eventlog
+    echo "FLUX-JOB-EVENTLOG END" 
+    echo "FLUX-JOB END ${jobid} ${study_id}"
+done
+echo "FLUX JOB STATS"
+flux job stats         
+
+     STATE NNODES   NCORES    NGPUS NODELIST
+      free     16     1408        0 mfem-[0-15]
+ allocated      0        0        0 
+      down      0        0        0 
+FLUX-RUN START mfem-iter-1
+Device configuration: cpu
+Memory configuration: host-std
+    num procs: 1408
+gpu aware mpi: 0
+   local size: 1.77156e+06
+    proc grid: 8x16x11
+     GL q_inc: 0
+    GLL q_inc: 0
+2025-05-21T22:07:29+00:00
+Running /opt/build/mfem/tests/benchmarks/pbench_ceed
+Run on (88 X 2700 MHz CPU s)
+CPU Caches:
+  L1 Data 48 KiB (x88)
+  L1 Instruction 32 KiB (x88)
+  L2 Unified 2048 KiB (x88)
+  L3 Unified 107520 KiB (x2)
+Load Average: 1.34, 0.58, 0.23
+local_size: 1771561
+proc_grid: 8x16x11
+***WARNING*** ASLR is enabled, the results may have unreproducible noise in them.
+-------------------------------------------------------------------------------------------------
+Benchmark                  Time             CPU   Iterations   Num Dofs |      Dof/s |   Dof/s/NP
+-------------------------------------------------------------------------------------------------
+[0;32mBP3/1/manual_time [m[0;33m     12068 ms        12031 ms   [m[0;36m         1[m   2.43867G[m   4.04162G/s[m   2.87047M/s[m
+[m[0;32mBP3/2/manual_time [m[0;33m      6677 ms         6654 ms   [m[0;36m         1[m   2.43867G[m   7.30442G/s[m    5.1878M/s[m
+[m[0;32mBP3/3/manual_time [m[0;33m      5328 ms         5323 ms   [m[0;36m         1[m   2.43867G[m   9.15456G/s[m   6.50182M/s[m
+[m[0;32mBP3/4/manual_time [m[0;33m      4706 ms         4704 ms   [m[0;36m         1[m   2.43867G[m   10.3645G/s[m   7.36118M/s[m
+[m[0;32mBP3/5/manual_time [m[0;33m      4776 ms         4728 ms   [m[0;36m         1[m   2.43867G[m   10.2127G/s[m   7.25331M/s[m
+[m[0;32mBP3/6/manual_time [m[0;33m      4928 ms         4918 ms   [m[0;36m         1[m   2.43867G[m   9.89712G/s[m   7.02921M/s[m
+[mFLUX-RUN END mfem-iter-1
+FLUX-RUN START mfem-iter-2
+Device configuration: cpu
+Memory configuration: host-std
+    num procs: 1408
+gpu aware mpi: 0
+   local size: 1.77156e+06
+    proc grid: 8x16x11
+     GL q_inc: 0
+    GLL q_inc: 0
+2025-05-21T22:09:10+00:00
+Running /opt/build/mfem/tests/benchmarks/pbench_ceed
+Run on (88 X 2700 MHz CPU s)
+CPU Caches:
+  L1 Data 48 KiB (x88)
+  L1 Instruction 32 KiB (x88)
+  L2 Unified 2048 KiB (x88)
+  L3 Unified 107520 KiB (x2)
+Load Average: 65.46, 24.44, 8.89
+local_size: 1771561
+proc_grid: 8x16x11
+***WARNING*** ASLR is enabled, the results may have unreproducible noise in them.
+-------------------------------------------------------------------------------------------------
+Benchmark                  Time             CPU   Iterations   Num Dofs |      Dof/s |   Dof/s/NP
+-------------------------------------------------------------------------------------------------
+[0;32mBP3/1/manual_time [m[0;33m     11922 ms        11887 ms   [m[0;36m         1[m   2.43867G[m   4.09107G/s[m   2.90559M/s[m
+[m[0;32mBP3/2/manual_time [m[0;33m      6532 ms         6529 ms   [m[0;36m         1[m   2.43867G[m   7.46721G/s[m   5.30341M/s[m
+[m[0;32mBP3/3/manual_time [m[0;33m      5365 ms         5361 ms   [m[0;36m         1[m   2.43867G[m    9.0904G/s[m   6.45625M/s[m
+[m[0;32mBP3/4/manual_time [m[0;33m      4602 ms         4569 ms   [m[0;36m         1[m   2.43867G[m   10.5984G/s[m   7.52725M/s[m
+[m[0;32mBP3/5/manual_time [m[0;33m      4350 ms         4337 ms   [m[0;36m         1[m   2.43867G[m    11.212G/s[m   7.96308M/s[m
+[m[0;32mBP3/6/manual_time [m[0;33m      4686 ms         4674 ms   [m[0;36m         1[m   2.43867G[m   10.4076G/s[m   7.39177M/s[m
+[mFLUX-RUN END mfem-iter-2
+FLUX-RUN START mfem-iter-3
+Device configuration: cpu
+Memory configuration: host-std
+    num procs: 1408
+gpu aware mpi: 0
+   local size: 1.77156e+06
+    proc grid: 8x16x11
+     GL q_inc: 0
+    GLL q_inc: 0
+2025-05-21T22:10:47+00:00
+Running /opt/build/mfem/tests/benchmarks/pbench_ceed
+Run on (88 X 2700 MHz CPU s)
+CPU Caches:
+  L1 Data 48 KiB (x88)
+  L1 Instruction 32 KiB (x88)
+  L2 Unified 2048 KiB (x88)
+  L3 Unified 107520 KiB (x2)
+Load Average: 79.11, 41.69, 16.71
+local_size: 1771561
+proc_grid: 8x16x11
+***WARNING*** ASLR is enabled, the results may have unreproducible noise in them.
+-------------------------------------------------------------------------------------------------
+Benchmark                  Time             CPU   Iterations   Num Dofs |      Dof/s |   Dof/s/NP
+-------------------------------------------------------------------------------------------------
+[0;32mBP3/1/manual_time [m[0;33m     11914 ms        11836 ms   [m[0;36m         1[m   2.43867G[m   4.09376G/s[m    2.9075M/s[m
+[m[0;32mBP3/2/manual_time [m[0;33m      6449 ms         6418 ms   [m[0;36m         1[m   2.43867G[m   7.56309G/s[m   5.37151M/s[m
+[m[0;32mBP3/3/manual_time [m[0;33m      5350 ms         5347 ms   [m[0;36m         1[m   2.43867G[m   9.11701G/s[m   6.47515M/s[m
+[m[0;32mBP3/4/manual_time [m[0;33m      4732 ms         4695 ms   [m[0;36m         1[m   2.43867G[m   10.3076G/s[m   7.32076M/s[m
+[m[0;32mBP3/5/manual_time [m[0;33m      4527 ms         4489 ms   [m[0;36m         1[m   2.43867G[m   10.7737G/s[m   7.65179M/s[m
+[m[0;32mBP3/6/manual_time [m[0;33m      4650 ms         4641 ms   [m[0;36m         1[m   2.43867G[m   10.4896G/s[m      7.45M/s[m
+[mFLUX-RUN END mfem-iter-3
+
+FLUX-JOB START 3435755732992 mfem-iter-3
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/build/mfem/tests/benchmarks/pbench_ceed", "--benchmark_filter=BP3", "--benchmark_context=proc_grid=8x16x11,local_size=1771561"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "mfem-iter-3"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["mfem-[0-15]"], "starttime": 1747865444, "expiration": 4901465239}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1747865444.2418225,"name":"init"}
+{"timestamp":1747865444.2425325,"name":"starting"}
+{"timestamp":1747865444.2565486,"name":"shell.init","context":{"service":"0-shell-f2ZFayCVD","leader-rank":0,"size":16}}
+{"timestamp":1747865444.4613681,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1747865541.6934407,"name":"shell.task-exit","context":{"localid":2,"rank":178,"state":"Exited","pid":421,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1747865541.8485014,"name":"complete","context":{"status":0}}
+{"timestamp":1747865541.8485353,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 3435755732992 mfem-iter-3
+
+FLUX-JOB START 1800245608448 mfem-iter-2
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/build/mfem/tests/benchmarks/pbench_ceed", "--benchmark_filter=BP3", "--benchmark_context=proc_grid=8x16x11,local_size=1771561"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "mfem-iter-2"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["mfem-[0-15]"], "starttime": 1747865346, "expiration": 4901465239}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1747865346.7574,"name":"init"}
+{"timestamp":1747865346.7580602,"name":"starting"}
+{"timestamp":1747865346.7710783,"name":"shell.init","context":{"service":"0-shell-fpHnYJn3","leader-rank":0,"size":16}}
+{"timestamp":1747865346.9767232,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1747865443.8406444,"name":"shell.task-exit","context":{"localid":0,"rank":704,"state":"Exited","pid":242,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1747865443.9988892,"name":"complete","context":{"status":0}}
+{"timestamp":1747865443.99892,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 1800245608448 mfem-iter-2
+
+FLUX-JOB START 104589164544 mfem-iter-1
+FLUX-JOB-JOBSPEC START
+{"resources": [{"type": "node", "count": 16, "with": [{"type": "slot", "count": 88, "with": [{"type": "core", "count": 1}], "label": "task"}]}], "tasks": [{"command": ["/opt/build/mfem/tests/benchmarks/pbench_ceed", "--benchmark_filter=BP3", "--benchmark_context=proc_grid=8x16x11,local_size=1771561"], "slot": "task", "count": {"per_slot": 1}}], "attributes": {"system": {"duration": 0, "cwd": "/opt", "shell": {"options": {"rlimit": {"cpu": -1, "fsize": -1, "data": -1, "stack": 8388608, "core": -1, "nofile": 1048576, "as": -1, "rss": -1, "nproc": -1}, "cpu-affinity": "per-task", "gpu-affinity": "off"}}}, "user": {"study_id": "mfem-iter-1"}}, "version": 1}
+FLUX-JOB-JOBSPEC END
+FLUX-JOB-RESOURCES START
+{"version": 1, "execution": {"R_lite": [{"rank": "0-15", "children": {"core": "0-87"}}], "nodelist": ["mfem-[0-15]"], "starttime": 1747865245, "expiration": 4901465239}}
+FLUX-JOB-RESOURCES END
+FLUX-JOB-EVENTLOG START
+{"timestamp":1747865245.6888654,"name":"init"}
+{"timestamp":1747865245.689379,"name":"starting"}
+{"timestamp":1747865245.7024386,"name":"shell.init","context":{"service":"0-shell-f3kMBonf","leader-rank":0,"size":16}}
+{"timestamp":1747865245.9095848,"name":"shell.start","context":{"taskmap":{"version":1,"map":[[0,16,88,1]]}}}
+{"timestamp":1747865346.3502812,"name":"shell.task-exit","context":{"localid":79,"rank":871,"state":"Exited","pid":221,"wait_status":0,"signaled":0,"exitcode":0}}
+{"timestamp":1747865346.5133243,"name":"complete","context":{"status":0}}
+{"timestamp":1747865346.5133574,"name":"done"}
+
+FLUX-JOB-EVENTLOG END
+FLUX-JOB END 104589164544 mfem-iter-1
+FLUX JOB STATS
+{"job_states":{"depend":0,"priority":0,"sched":0,"run":0,"cleanup":0,"inactive":3,"total":3},"successful":3,"failed":0,"canceled":0,"timeout":0,"inactive_purged":0,"queues":[]}
