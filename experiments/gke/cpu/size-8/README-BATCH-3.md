@@ -37,6 +37,27 @@ Note that you'll need to clone [converged-computing/flux-apps-helm](https://gith
 
 ## CPU Applications
 
+### MFEM Benchmarks
+
+```bash
+helm dependency update mfem-benchmarks/
+helm install \
+  --set experiment.nodes=8 \
+  --set minicluster.size=8 \
+  --set minicluster.tasks=704 \
+  --set experiment.tasks=704 \
+  --set minicluster.save_logs=true \
+  --set mfem.proc_grid="8x8x11" \
+  --set mfem.local_size="1771561" \
+  --set experiment.iterations=3 \
+  mfem mfem-benchmarks/
+
+time kubectl wait --for=condition=ready pod -l job-name=mfem --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/mfem-benchmarks.out
+helm uninstall mfem
+```
+
 ### LAMMPS with Mpich Ubuntu
 
 ```bash

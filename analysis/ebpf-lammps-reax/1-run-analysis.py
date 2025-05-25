@@ -77,8 +77,8 @@ def main():
     files += [x for x in ps.find_inputs(indir, "lammps") if "ebpf" not in x]
 
     # Saves raw data to file
-    df, ebpfs = parse_data(indir, outdir, files)
-    plot_results(df, ebpfs, outdir, args.non_anon)
+    df = parse_data(indir, outdir, files)
+    plot_results(df, outdir, args.non_anon)
 
 
 def get_environment_context(filename):
@@ -100,7 +100,7 @@ def get_environment_context(filename):
         exp_name = "ubuntu-mpich"
     elif "lammps-ubuntu-mpi-gpu" in filename:
         env_name = "Ubuntu OpenMPI GPU"
-        exp_name = "ubuntu-openmpi-gpu"        
+        exp_name = "ubuntu-openmpi-gpu"
     # Initial run of lammps, used the ubuntu openmpi
     elif "logs/lammps.out" in filename:
         env_name = "Ubuntu OpenMPI"
@@ -120,10 +120,10 @@ def add_lammps_result(p, indir, filename, ebpf=None, gpu=False):
         return p
     env_name, _ = get_environment_context(filename)
     if ebpf == "":
-        env_name = f"{env_name} eBPF"    
+        env_name = f"{env_name} eBPF"
 
-    elif ebpf is not None: 
-        env_name = f"{env_name} eBPF {ebpf.capitalize()}"    
+    elif ebpf is not None:
+        env_name = f"{env_name} eBPF {ebpf.capitalize()}"
 
     if gpu and "GPU" not in env_name:
         env_name = f"{env_name} GPU"
@@ -147,7 +147,9 @@ def add_lammps_result(p, indir, filename, ebpf=None, gpu=False):
             if "Total wall time" in x
         ][0]
         # This is a percentage
-        cpu_use = float([x for x in item.split('\n') if "CPU use" in x][0].split('%')[0])
+        cpu_use = float(
+            [x for x in item.split("\n") if "CPU use" in x][0].split("%")[0]
+        )
         p.add_result("cpu-usage", cpu_use, env_name)
         p.add_result("wall-time", wall_time, env_name)
         p.add_result("duration", metadata["duration"], env_name)
@@ -174,190 +176,6 @@ def parse_matom_steps(item):
     return step, float(line.split(",")[-1].strip().split(" ")[0])
 
 
-def add_ebpf_result(lookup, indir, filename):
-    """
-    Add an ebpf result
-    """
-    env_name, exp_name = get_environment_context(filename)
-    analysis = os.path.basename(os.path.dirname(filename))
-    exp = ps.ExperimentNameParser(filename, indir)
-    if analysis not in lookup:
-        lookup[analysis] = ps.ProblemSizeParser(analysis)
-    p = lookup[analysis]
-    p.set_context(exp_name, exp.env, exp.env_type, exp.size)
-
-    item = ps.read_file(filename)
-    if analysis == "shmem":
-        parse_shmem(p, item)
-    elif analysis == "tcp-socket":
-        return lookup
-    elif analysis == "tcp-model":
-        parse_tcp(p, item)
-    elif analysis == "futex-model":
-        parse_futex(p, item)
-    elif analysis == "open-close":
-        parse_io(p, item, exp_name)
-    elif analysis == "cpu-model":
-        parse_cpu(p, item)
-    lookup[analysis] = p
-    return lookup
-
-
-def parse_cpu(p, item):
-    """
-    Parse TCP
-    """
-    item = item.split("Cleaning up BPF resources")[-1]
-    lines = [x for x in item.split("\n") if x and "Possibly lost" not in x][1:-1]
-    item = "\n".join(lines)
-    models = json.loads(item.split("Initiating cleanup sequence...")[-1])
-    for model_type, model_names in models.items():
-        for model in model_names:
-            # E.g,. migration/22, kworker/88:2
-            command = model["comm"].split("/")[0]
-            # Add the median for now
-            time_waiting_q = model["runq_latency_stats_ns"]["median"]
-            if time_waiting_q is not None:
-                p.add_result("cpu_waiting_ns", time_waiting_q, command)
-            time_running = model["on_cpu_stats_ns"]["median"]
-            if time_running is not None:
-                p.add_result("cpu_running_ns", time_running, command)
-
-
-def parse_tcp(p, item):
-    """
-    Parse TCP
-    """
-    item = item.split("--- FINAL AGGREGATED STATISTICS (JSON) ---")[-1]
-    lines = [x for x in item.split("\n") if x][:-1]
-    item = "\n".join(lines)
-    models = json.loads(item)
-
-    pattern = r"TGID\((?P<tgid>.*?)\)_COMM\((?P<command>.*?)\)_EVT\((?P<event>.*?)\)"
-    bucket_pattern = r"TGID\((?P<tgid>.*?)\)_COMM\((?P<command>.*?)\)_EVT\((?P<event>.*?)\)_BUCKET\((?P<bucket>.*?)\)"
-    for model_type, model_names in models.items():
-        for model_name, model in model_names.items():
-            if model_type == "overall_byte_stats":
-                meta = re.search(pattern, model_name).groupdict()
-                event = f"{meta['command']}-{meta['event'].lower()}"
-                p.add_result("mean_bytes", model["mean"], event)
-            elif "BUCKET" in model_name:
-                meta = re.search(bucket_pattern, model_name).groupdict()
-                bucket = meta["bucket"]
-                event = f"{meta['command']}-{meta['event'].lower()}"
-                p.add_result(f"duration_ns_{bucket}", model["p95"], event)
-            else:
-                meta = re.search(pattern, model_name).groupdict()
-                event = f"{meta['command']}-{meta['event'].lower()}"
-                # Just save median of duration ns to start
-                p.add_result("duration_ns", model["duration_stats"]["p95"], event)
-
-
-def parse_io(p, item, experiment):
-    """
-    Parse IO. This is more qualitiative.
-    """
-    if not hasattr(p, "counts"):
-        p.counts = {}
-
-    for line in item.split("\n"):
-        if line.startswith("{"):
-            datum = json.loads(line)
-            command = datum["command"]
-            # Just counting files for now - we could also time things
-            if datum["event"] == "CLOSE":
-                continue
-            if experiment not in p.counts:
-                p.counts[experiment] = {}
-            if command not in p.counts[experiment]:
-                p.counts[experiment][command] = {}
-            filename = datum["filename"]
-            if filename not in p.counts[experiment][command]:
-                p.counts[experiment][command][filename] = 0
-            p.counts[experiment][command][datum["filename"]] += 1
-
-
-# {'event': 'OPEN',
-# 'command': 'kubelet',
-# 'retval': 33,
-# 'ts_sec': 1857.259043102,
-# 'tgid': 1701734764,
-# 'tid': 3792,
-# 'ppid': 13411,
-# 'cgroup_id': 7237126475108805679,
-# 'filename': '/var/log/pods/default_lammps-0-f6vcz_f27a413b-4d60-44d9-b282-c6cd399424e8/bcc-monitor'}
-
-
-def parse_futex(p, item):
-    """
-    Futex parsing
-    """
-    item = item.split("Cleaning up BPF resources")[-1]
-    lines = [x for x in item.split("\n") if x][1:-1]
-    item = "\n".join(lines)
-    models = json.loads(item)
-
-    # {'tgid': 3592,
-    # 'comm': 'containerd',
-    # 'cgroup_id': 6520,
-    # 'wait_duration_stats_ns': {'count': 1693.0,
-    #  'sum': 224436362166.99985,
-    #  'mean': 132567254.67631415,
-    #  'median': 221633.7996235165,
-    #  'min': 812,
-    #  'max': 25489918732,
-    #  'variance_ns2': 9.336119483708768e+17,
-    #  'iqr_ns': 97748409.18476921,
-    #  'q1_ns': 65205.02079568948,
-    #  'q3_ns': 97813614.2055649},
-    # 'futex_op_counts': {'128': 1693},
-    # 'first_seen_ts_ns': 1941370732957,
-    # 'last_seen_ts_ns': 1975537850634}
-
-    for model_type, model_names in models.items():
-        for model in model_names:
-            # Add the median for now
-            p.add_result(
-                "median_futex_wait",
-                model["wait_duration_stats_ns"]["median"],
-                model["comm"],
-            )
-
-
-def parse_shmem(p, item):
-    """
-    Shared memory parsing
-    """
-    sections = item.split("Shared Memory Stats Summary")[1:]
-    for timepoint, section in enumerate(sections):
-        # Just get to the last timepoint
-        continue
-
-    for line in section.split("\n"):
-        if not line.startswith("{"):
-            continue
-        datum = json.loads(line)
-
-        # The munmap seems to change, the rest don't.
-        p.add_result("get_mb", datum["get_mb"], datum["comm"])
-        p.add_result("mmap_sh", datum["mmap_sh"], datum["comm"])
-        p.add_result("munmap", datum["munmap"], datum["comm"])
-        p.add_result("mmap_sh_mb", datum["mmap_sh_mb"], datum["comm"])
-
-# {'tgid': 28139,
-# 'comm': 'lmp',
-# 'shmget': 1,
-# 'shmat': 1,
-# 'shmdt': 1,
-# 'rmid': 1,
-# 'get_mb': 0.00390625,
-# 'shmopen': 0,
-# 'unlink': 0,
-# 'mmap_sh': 88,
-# 'munmap': 35,
-# 'mmap_sh_mb': 352.00067138671875}
-
-
 def parse_data(indir, outdir, files):
     """
     Parse filepaths for environment, etc., and results files for data.
@@ -366,7 +184,13 @@ def parse_data(indir, outdir, files):
     ebpf_p = {}
 
     # Sanity check groups at end
-    checks = {"multiple": [], "sample": [], "no-ebpf": [], "no-ebpf-gpu": [], 'ebpf-gpu': []}
+    checks = {
+        "multiple": [],
+        "sample": [],
+        "no-ebpf": [],
+        "no-ebpf-gpu": [],
+        "ebpf-gpu": [],
+    }
 
     # It's important to just parse raw data once, and then use intermediate
     for filename in files:
@@ -379,7 +203,7 @@ def parse_data(indir, outdir, files):
             or "tcp-socket" in filename
             # These are lammps without gvnic, only a subset of sizes
             # the times look the same, but I don't want to add extra
-            #(slightly different) data.
+            # (slightly different) data.
             or "no-gvnic" in filename
         ):
             continue
@@ -393,40 +217,36 @@ def parse_data(indir, outdir, files):
             "lammps-rocky8-openmpi.out",
             "lammps-ubuntu-mpich.out",
         ]:
-            checks['no-ebpf'].append(filename)
+            checks["no-ebpf"].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf=None)
 
         # GPU without ebpf
         elif "gpu" in filename and "noebpf" in filename and basename == "lammps.out":
-            checks['no-ebpf-gpu'].append(filename)
+            checks["no-ebpf-gpu"].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf=None, gpu=True)
 
         elif "gpu" in filename and "ebpf" in filename and basename == "lammps.out":
-            checks['ebpf-gpu'].append(filename)
+            checks["ebpf-gpu"].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf="", gpu=True)
 
         # original GPU runs
         elif basename in ["lammps-ubuntu-mpi-gpu.out"]:
-            checks['no-ebpf-gpu'].append(filename)
+            checks["no-ebpf-gpu"].append(filename)
             p = add_lammps_result(p, indir, filename, ebpf=None, gpu=True)
-        
+
         # First original run
         elif "logs/lammps.out" in filename:
-            checks['no-ebpf'].append(filename)
-            p = add_lammps_result(p, indir, filename, ebpf=None) 
+            checks["no-ebpf"].append(filename)
+            p = add_lammps_result(p, indir, filename, ebpf=None)
 
         elif "ebpf-multiple" in filename and "lammps.out" in filename:
-            checks['multiple'].append(filename)
-            p = add_lammps_result(p, indir, filename, ebpf="multiple") 
+            checks["multiple"].append(filename)
+            p = add_lammps_result(p, indir, filename, ebpf="multiple")
 
         # Single pod with randomly selected ebpf program
         elif "ebpf-sample" in filename and "lammps.out" in filename:
-            checks['sample'].append(filename)
-            p = add_lammps_result(p, indir, filename, ebpf="sample") 
-
-        else:
-            continue
-            ebpf_p = add_ebpf_result(ebpf_p, indir, filename)
+            checks["sample"].append(filename)
+            p = add_lammps_result(p, indir, filename, ebpf="sample")
 
     print("Done parsing lammps results!")
     print("Please check groupings")
@@ -434,10 +254,10 @@ def parse_data(indir, outdir, files):
 
     # Save stuff to file first
     p.df.to_csv(os.path.join(outdir, "lammps-results.csv"))
-    return p.df, ebpf_p
+    return p.df
 
 
-def plot_results(df, ebpfs, outdir, non_anon=False):
+def plot_results(df, outdir, non_anon=False):
     """
     Plot analysis results
     """
@@ -446,7 +266,6 @@ def plot_results(df, ebpfs, outdir, non_anon=False):
         os.makedirs(img_outdir)
 
     plot_lammps(df, img_outdir, non_anon)
-    # plot_ebpfs(ebpfs, img_outdir, non_anon)
 
 
 def plot_open_close(counts, outdir):
@@ -496,7 +315,7 @@ def plot_open_close(counts, outdir):
             idx += 1
 
     for command in df.command.unique():
-        print(command)        
+        print(command)
         img_outdir = os.path.join(outdir, "open-close", command)
         if not os.path.exists(img_outdir):
             os.makedirs(img_outdir)
@@ -504,7 +323,9 @@ def plot_open_close(counts, outdir):
         # Make sorted histogram of counts > 1
         subset = df[df.command == command]
         subset = subset[subset["count"] > 1]
-        df_sorted = subset.sort_values(by="count", ascending=False).reset_index(drop=True)
+        df_sorted = subset.sort_values(by="count", ascending=False).reset_index(
+            drop=True
+        )
         plt.figure(figsize=(12, 8))
         bar = sns.barplot(
             x="path",
@@ -522,118 +343,6 @@ def plot_open_close(counts, outdir):
         plt.savefig(os.path.join(img_outdir, f"lammps-open-close.png"))
         plt.clf()
 
-def plot_ebpfs(ebpfs, outdir, non_anon):
-    """
-    Plot ebpf result
-    """
-    for analysis, p in ebpfs.items():
-        if analysis == "open-close":
-            plot_open_close(p.counts, outdir)
-            continue
-        if p.df.shape[0] == 0:
-            continue
-        df = p.df
-        df.experiment = [x.replace("/gke/", "-") for x in df.experiment]
-        img_outdir = os.path.join(outdir, analysis)
-        if not os.path.exists(img_outdir):
-            os.makedirs(img_outdir)
-
-        import IPython
-        IPython.embed()
-        # problem size corresponding to application or context
-        if analysis in ["cpu-model", "futex-model", "tcp-model", "shmem"]:
-            for command in df.problem_size.unique():
-                img_outdir = os.path.join(outdir, analysis, command)
-                if not os.path.exists(img_outdir):
-                    os.makedirs(img_outdir)
-                command_df = df[df.problem_size == command]
-                for metric in command_df.metric.unique():
-                    metric_df = command_df[command_df.metric == metric]
-                    fig = plt.figure(figsize=(10, 3.3))
-                    gs = plt.GridSpec(1, 2, width_ratios=[2, 1])
-                    axes = []
-                    axes.append(fig.add_subplot(gs[0, 0]))
-                    axes.append(fig.add_subplot(gs[0, 1]))
-                    sns.set_style("whitegrid")
-                    sns.barplot(
-                        metric_df,
-                        ax=axes[0],
-                        x="nodes",
-                        y="value",
-                        hue="experiment",
-                        err_kws={"color": "darkred"},
-                        # palette=cloud_colors,
-                    )
-                    axes[0].set_title(f"LAMMPS ({command}) {metric}", fontsize=14)
-                    if "futex" in metric or "cpu" in metric:
-                        axes[0].set_ylabel("Nanoseconds", fontsize=14)
-                    else:
-                        axes[0].set_ylabel("Seconds", fontsize=14)
-                    axes[0].set_xlabel("Nodes", fontsize=14)
-                    handles, labels = axes[0].get_legend_handles_labels()
-                    labels = ["/".join(x.split("/")[0:2]) for x in labels]
-                    axes[1].legend(
-                        handles,
-                        labels,
-                        loc="center left",
-                        bbox_to_anchor=(-0.1, 0.5),
-                        frameon=False,
-                    )
-                    for ax in axes[0:1]:
-                        ax.get_legend().remove()
-                    axes[1].axis("off")
-
-                    plt.tight_layout()
-                    plt.savefig(os.path.join(img_outdir, f"lammps-{metric}.svg"))
-                    plt.savefig(os.path.join(img_outdir, f"lammps-{metric}.png"))
-                    plt.clf()
-
-        elif analysis == "shmemm":
-            df.experiment = [x.replace("/gke/", "-") for x in df.experiment]
-            print(df.experiment.unique())
-            for metric in df.metric.unique():
-                metric_df = df[df.metric == metric]
-                fig = plt.figure(figsize=(9, 3.3))
-                gs = plt.GridSpec(1, 2, width_ratios=[2, 1])
-                axes = []
-                axes.append(fig.add_subplot(gs[0, 0]))
-                axes.append(fig.add_subplot(gs[0, 1]))
-
-                sns.set_style("whitegrid")
-                sns.barplot(
-                    metric_df,
-                    ax=axes[0],
-                    # This will eventually be nodes
-                    x="problem_size",
-                    y="value",
-                    hue="experiment",
-                    err_kws={"color": "darkred"},
-                    # palette=cloud_colors,
-                )
-                axes[0].set_title(f"LAMMPS {metric}", fontsize=14)
-                axes[0].set_ylabel(metric, fontsize=14)
-                axes[0].set_xlabel("Timepoints", fontsize=14)
-                handles, labels = axes[0].get_legend_handles_labels()
-                labels = ["/".join(x.split("/")[0:2]) for x in labels]
-                axes[1].legend(
-                    handles,
-                    labels,
-                    loc="center left",
-                    bbox_to_anchor=(-0.1, 0.5),
-                    frameon=False,
-                )
-                for ax in axes[0:1]:
-                    ax.get_legend().remove()
-                axes[1].axis("off")
-
-                plt.tight_layout()
-                plt.savefig(os.path.join(img_outdir, f"lammps-{metric}.svg"))
-                plt.savefig(os.path.join(img_outdir, f"lammps-{metric}.png"))
-                plt.clf()
-
-        else:
-            raise ValueError(f"Not parsing metric {analysis}")
-
 
 def plot_lammps(df, img_outdir, non_anon):
     """
@@ -648,30 +357,30 @@ def plot_lammps(df, img_outdir, non_anon):
 
     print(metric_df.problem_size.unique())
     order = [
-             'Ubuntu Mpich eBPF Sample', 
-             'Ubuntu Mpich',
-             'Ubuntu Mpich eBPF Multiple',
-             'Ubuntu OpenMPI eBPF Sample',
-             'Ubuntu OpenMPI',
-             'Ubuntu OpenMPI eBPF Multiple',
-             'Rocky OpenMPI eBPF Sample', 
-             'Rocky OpenMPI',
-             'Rocky OpenMPI eBPF Multiple',
-             'Ubuntu OpenMPI eBPF GPU',
-             'Ubuntu OpenMPI GPU', 
+        "Ubuntu Mpich eBPF Sample",
+        "Ubuntu Mpich",
+        "Ubuntu Mpich eBPF Multiple",
+        "Ubuntu OpenMPI eBPF Sample",
+        "Ubuntu OpenMPI",
+        "Ubuntu OpenMPI eBPF Multiple",
+        "Rocky OpenMPI eBPF Sample",
+        "Rocky OpenMPI",
+        "Rocky OpenMPI eBPF Multiple",
+        "Ubuntu OpenMPI eBPF GPU",
+        "Ubuntu OpenMPI GPU",
     ]
     colors = {
-             'Ubuntu Mpich eBPF Sample': "#6495ed",
-             'Ubuntu Mpich eBPF Multiple': "#0047ab",
-             'Ubuntu Mpich': "#758fa9", 
-             'Ubuntu OpenMPI eBPF Sample': "#e79aff",
-             'Ubuntu OpenMPI eBPF Multiple': "#691883",
-             'Ubuntu OpenMPI': "#b148d2",
-             'Rocky OpenMPI eBPF Sample': "#c9df8a", 
-             'Rocky OpenMPI eBPF Multiple': "#36802d",
-             'Rocky OpenMPI': "#77ab59",
-             'Ubuntu OpenMPI GPU': "#973348",
-             'Ubuntu OpenMPI eBPF GPU': '#FF5B61',
+        "Ubuntu Mpich eBPF Sample": "#6495ed",
+        "Ubuntu Mpich eBPF Multiple": "#0047ab",
+        "Ubuntu Mpich": "#758fa9",
+        "Ubuntu OpenMPI eBPF Sample": "#e79aff",
+        "Ubuntu OpenMPI eBPF Multiple": "#691883",
+        "Ubuntu OpenMPI": "#b148d2",
+        "Rocky OpenMPI eBPF Sample": "#c9df8a",
+        "Rocky OpenMPI eBPF Multiple": "#36802d",
+        "Rocky OpenMPI": "#77ab59",
+        "Ubuntu OpenMPI GPU": "#973348",
+        "Ubuntu OpenMPI eBPF GPU": "#FF5B61",
     }
 
     for metric, data_frames in frames.items():
@@ -710,12 +419,12 @@ def plot_lammps(df, img_outdir, non_anon):
         handles, labels = axes[0].get_legend_handles_labels()
         labels = ["/".join(x.split("/")[0:2]) for x in labels]
         axes[1].legend(
-                handles,
-                labels,
-                loc="center left",
-                bbox_to_anchor=(-0.1, 0.5),
-                frameon=False,
-            )
+            handles,
+            labels,
+            loc="center left",
+            bbox_to_anchor=(-0.1, 0.5),
+            frameon=False,
+        )
         for ax in axes[0:1]:
             ax.get_legend().remove()
             axes[1].axis("off")
@@ -729,9 +438,9 @@ def plot_lammps(df, img_outdir, non_anon):
 
         # Keep a variable with paper figure plots
         if "duration" in metric:
-            duration_df = data_frames['cpu']
+            duration_df = data_frames["cpu"]
         elif "matom" in metric:
-            matom_df = data_frames['cpu']
+            matom_df = data_frames["cpu"]
 
     # PAPER FIGURE
     # Two figures and one legend
@@ -758,7 +467,6 @@ def plot_lammps(df, img_outdir, non_anon):
     axes[0].set_ylabel("Seconds", fontsize=11)
     axes[0].set_xlabel("", fontsize=11)
 
-
     # Matom steps per second
     sns.barplot(
         matom_df,
@@ -780,8 +488,8 @@ def plot_lammps(df, img_outdir, non_anon):
     # Shorten labels
     updated = []
     for label in labels:
-        label = label.replace("Ubuntu", "U")  
-        label = label.replace("Rocky", "R")  
+        label = label.replace("Ubuntu", "U")
+        label = label.replace("Rocky", "R")
         updated.append(label)
 
     axes[2].legend(
@@ -802,8 +510,6 @@ def plot_lammps(df, img_outdir, non_anon):
     plt.savefig(os.path.join(img_outdir, f"lammps-paper.svg"))
     plt.savefig(os.path.join(img_outdir, f"lammps-paper.png"))
     plt.clf()
-
-
 
 
 if __name__ == "__main__":

@@ -160,6 +160,7 @@ def plot_results(df, outdir, non_anon=False):
     plt.savefig(os.path.join(img_outdir, f"cfdscope-paper.png"))
     plt.clf()
 
+    print(f'Total number of CPU datum: {frames["simulation_seconds"].shape[0]}')
 
 
 if __name__ == "__main__":

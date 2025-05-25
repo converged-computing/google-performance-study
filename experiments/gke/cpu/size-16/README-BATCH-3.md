@@ -60,6 +60,27 @@ kubectl logs ${pod} -f |& tee ./logs/lammps-ubuntu-mpich.out
 helm uninstall lammps
 ```
 
+### MFEM Benchmarks
+
+```bash
+helm dependency update mfem-benchmarks/
+helm install \
+  --set experiment.nodes=16 \
+  --set minicluster.size=16 \
+  --set minicluster.tasks=1408 \
+  --set experiment.tasks=1408 \
+  --set minicluster.save_logs=true \
+  --set mfem.proc_grid="8x16x11" \
+  --set mfem.local_size="1771561" \
+  --set experiment.iterations=3 \
+  mfem mfem-benchmarks/
+
+time kubectl wait --for=condition=ready pod -l job-name=mfem --timeout=600s
+pod=$(kubectl get pods -o json | jq  -r .items[0].metadata.name)
+kubectl logs ${pod} -f |& tee ./logs/mfem-benchmarks.out
+helm uninstall mfem
+```
+
 ### LAMMPS with OpenMPI Rocky
 
 ```bash
