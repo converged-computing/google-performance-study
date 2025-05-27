@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Process Flame Graphs for LAMMPS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Multi-Process Flame Graphs Viewer for LAMMPS</h1>
+
+    <div id="controls">
+        <label for="sortOrder">Sort by:</label>
+        <select id="sortOrder">
+            <option value="tgid_asc">TGID (Asc)</option>
+            <option value="tgid_desc">TGID (Desc)</option>
+            <option value="similarity_desc">Similarity (Desc - if available)</option>
+            <option value="similarity_asc">Similarity (Asc - if available)</option>
+        </select>
+        <label for="filterTgid">Filter by TGID:</label>
+        <input type="text" id="filterTgid" placeholder="Enter TGID...">
+    </div>
+
+    <div id="main-view">
+        <p class="loading-message">Loading flame graphs...</p>
+    </div>
+
+    <script>
+        let allProcesses = []; // To store all loaded process data
+
+        async function loadAndDisplayFlamegraphs() {
+            const mainView = document.getElementById('main-view');
+            mainView.innerHTML = '<p class="loading-message">Fetching data...</p>';
+
+            try {
+                const response = await fetch('./manifest.json?cachebust=' + new Date().getTime()); // Cache bust
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status} - Could not load manifest.json. Did you run generate_manifest.py?`);
+                }
+                const manifest = await response.json();
+                allProcesses = manifest.processes || [];
+
+                if (allProcesses.length === 0) {
+                    mainView.innerHTML = '<p class="loading-message">No processes found in manifest.json. Please generate SVGs and run the Python script.</p>';
+                    return;
+                }
+                renderFlamegraphs();
+            } catch (error) {
+                console.error('Error loading manifest:', error);
+                mainView.innerHTML = `<p class="error-message">Error: ${error.message}</p>`;
+            }
+        }
+
+        function renderFlamegraphs() {
+            const mainView = document.getElementById('main-view');
+            const sortOrder = document.getElementById('sortOrder').value;
+            const filterText = document.getElementById('filterTgid').value.toLowerCase();
+            mainView.innerHTML = ''; // Clear previous content
+
+            let processesToDisplay = [...allProcesses];
+
+            // Filter
+            if (filterText) {
+                processesToDisplay = processesToDisplay.filter(proc =>
+                    String(proc.tgid).toLowerCase().includes(filterText)
+                );
+            }
+
+            // Sort
+            processesToDisplay.sort((a, b) => {
+                switch (sortOrder) {
+                    case 'tgid_asc':
+                        // Ensure numeric comparison if possible, else string
+                        return (isNaN(a.tgid) || isNaN(b.tgid)) ?
+                                String(a.tgid).localeCompare(String(b.tgid)) :
+                                Number(a.tgid) - Number(b.tgid);
+                    case 'tgid_desc':
+                        return (isNaN(a.tgid) || isNaN(b.tgid)) ?
+                                String(b.tgid).localeCompare(String(a.tgid)) :
+                                Number(b.tgid) - Number(a.tgid);
+                    case 'similarity_desc':
+                        // Handle null scores by putting them last
+                        if (a.similarityScore === null && b.similarityScore === null) return 0;
+                        if (a.similarityScore === null) return 1;
+                        if (b.similarityScore === null) return -1;
+                        return (b.similarityScore || 0) - (a.similarityScore || 0);
+                    case 'similarity_asc':
+                        if (a.similarityScore === null && b.similarityScore === null) return 0;
+                        if (a.similarityScore === null) return 1; // nulls still at the end for asc
+                        if (b.similarityScore === null) return -1;
+                        return (a.similarityScore || 0) - (b.similarityScore || 0);
+                    default:
+                        return 0;
+                }
+            });
+
+            if (processesToDisplay.length === 0) {
+                mainView.innerHTML = '<p class="loading-message">No processes match the filter.</p>';
+                return;
+            }
+
+            processesToDisplay.forEach(proc => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'flamegraph-item';
+                itemDiv.id = `proc-${proc.tgid}`; // For direct linking
+
+                const title = document.createElement('h3');
+                const tgidLink = document.createElement('a');
+                tgidLink.href = `#proc-${proc.tgid}`;
+                tgidLink.className = 'tgid-link';
+                tgidLink.textContent = `TGID: ${proc.tgid}`;
+                title.appendChild(tgidLink);
+
+                if (proc.similarityScore !== null) {
+                    title.innerHTML += ` (Similarity: ${proc.similarityScore})`;
+                }
+                itemDiv.appendChild(title);
+
+                const svgContainer = document.createElement('div');
+                svgContainer.className = 'flamegraph-svg-container';
+
+                const svgObject = document.createElement('object');
+                svgObject.type = 'image/svg+xml';
+                svgObject.data = proc.svgPath + '?cachebust=' + new Date().getTime(); // Cache bust for SVGs too
+                svgObject.className = 'flamegraph-svg-object';
+                svgObject.setAttribute('aria-label', `Flame graph for TGID ${proc.tgid}`);
+
+                // Fallback content or loading indicator
+                svgObject.innerHTML = `<p>Loading SVG for TGID ${proc.tgid}...</p>`;
+                svgObject.addEventListener('error', () => {
+                    svgContainer.innerHTML = `<p class="error-message">Error loading SVG: ${proc.svgPath}</p>`;
+                });
+
+
+                svgContainer.appendChild(svgObject);
+                itemDiv.appendChild(svgContainer);
+                mainView.appendChild(itemDiv);
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAndDisplayFlamegraphs();
+            document.getElementById('sortOrder').addEventListener('change', renderFlamegraphs);
+            document.getElementById('filterTgid').addEventListener('input', renderFlamegraphs);
+        });
+    </script>
+</body>
+</html>
