@@ -107,7 +107,6 @@ def main():
             for proc_data in processes_data:
                 current_tgid = proc_data["tgid"]
                 current_stacks = tgid_to_stacks.get(current_tgid)
-                print(current_stacks)
                 if (
                     current_stacks is not None
                 ):  # Can be None if this tgid had no .folded
