@@ -3,7 +3,6 @@
 import argparse
 import os
 import sys
-import re
 import pandas
 import json
 
@@ -181,7 +180,6 @@ def parse_data(indir, outdir, files):
     Parse filepaths for environment, etc., and results files for data.
     """
     p = ps.ProblemSizeParser("lammps")
-    ebpf_p = {}
 
     # Sanity check groups at end
     checks = {
@@ -327,7 +325,7 @@ def plot_open_close(counts, outdir):
             drop=True
         )
         plt.figure(figsize=(12, 8))
-        bar = sns.barplot(
+        sns.barplot(
             x="path",
             y="count",
             hue="experiment",
@@ -339,8 +337,8 @@ def plot_open_close(counts, outdir):
         plt.title(f"Open Counts by Path for {command.capitalize()} >1")
         plt.xticks(rotation=45, ha="right")
         plt.tight_layout()
-        plt.savefig(os.path.join(img_outdir, f"lammps-open-close.svg"))
-        plt.savefig(os.path.join(img_outdir, f"lammps-open-close.png"))
+        plt.savefig(os.path.join(img_outdir, "lammps-open-close.svg"))
+        plt.savefig(os.path.join(img_outdir, "lammps-open-close.png"))
         plt.clf()
 
 
@@ -463,7 +461,7 @@ def plot_lammps(df, img_outdir, non_anon):
         palette=colors,
         hue_order=order,
     )
-    axes[0].set_title(f"LAMMPS Duration", fontsize=11)
+    axes[0].set_title("LAMMPS Duration", fontsize=11)
     axes[0].set_ylabel("Seconds", fontsize=11)
     axes[0].set_xlabel("", fontsize=11)
 
@@ -507,8 +505,8 @@ def plot_lammps(df, img_outdir, non_anon):
     # The legend will go here
     axes[2].axis("off")
     plt.tight_layout()
-    plt.savefig(os.path.join(img_outdir, f"lammps-paper.svg"))
-    plt.savefig(os.path.join(img_outdir, f"lammps-paper.png"))
+    plt.savefig(os.path.join(img_outdir, "lammps-paper.svg"))
+    plt.savefig(os.path.join(img_outdir, "lammps-paper.png"))
     plt.clf()
 
 

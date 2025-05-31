@@ -4,7 +4,6 @@ import argparse
 import sys
 import re
 import json
-import sqlite3
 import os
 
 here = os.path.dirname(os.path.abspath(__file__))
@@ -13,11 +12,6 @@ root = os.path.dirname(analysis_root)
 sys.path.insert(0, analysis_root)
 
 import performance_study as ps
-
-db = None
-insert_query = """INSERT INTO performance_data (cloud, analysis_name, environment, environment_type,
-nodes, metric_name, metric_value, context) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-"""
 
 
 def get_parser():
@@ -56,7 +50,7 @@ def main():
 
     # Database path
     db_path = os.path.join(outdir, "ebpf-data.sqlite")
-    db = Database(db_path)
+    db = ps.Database(db_path)
 
     # Find input files (skip anything with test)
     dirs = list(ps.recursive_find(indir, "ebpf"))
@@ -84,92 +78,6 @@ def main():
         if "ebpf-multiple" not in x and "/size-2/" not in x and not re.search(regex, x)
     ]
     parse_data(indir, outdir, files, db_path)
-
-
-class Database:
-    def __init__(self, db_path):
-        self.db_path = db_path
-        self.cursor = None
-        self.conn = None
-        self.create_table()
-        self.count = 0
-
-    def create_table(self):
-        """
-        Creates the performance data eBPF table in an SQLite database.
-
-        I started parsing with pandas and realized it took a LONG time
-        to process.
-        """
-        conn = sqlite3.connect(self.db_path)
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-          CREATE TABLE IF NOT EXISTS performance_data (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            cloud TEXT NOT NULL,
-            analysis_name TEXT NOT NULL,
-            environment TEXT NOT NULL,
-            environment_type TEXT NOT NULL,
-            nodes TEXT,
-            metric_name TEXT NOT NULL,
-            metric_value REAL NOT NULL,
-            context TEXT
-          )
-        """
-        )
-        conn.commit()
-        conn.close()
-        print(f"Table 'performance_data' created (or already exists) in {self.db_path}")
-
-    def close(self):
-        self.conn.commit()
-        self.conn.close()
-
-    def ensure_open(self):
-        if self.conn is None or self.cursor is None:
-            self.conn = sqlite3.connect(self.db_path)
-            self.cursor = self.conn.cursor()
-
-    def add_result(
-        self,
-        cloud,
-        analysis,
-        environ,
-        env_type,
-        nodes,
-        metric_name,
-        metric_value,
-        context=None,
-        command=None,
-    ):
-        """
-        Add a new result
-        """
-        # Special parsing of command, if provided
-        if command and "lmp" in command:
-            command = "lmp"
-        if command and "flux-broker" in command:
-            command = "flux-broker"
-
-        self.ensure_open()
-        try:
-            self.cursor.execute(
-                insert_query,
-                (
-                    cloud,
-                    analysis,
-                    environ,
-                    env_type,
-                    nodes,
-                    metric_name,
-                    metric_value,
-                    context or command,
-                ),
-            )
-            self.count += 1
-        except Exception as e:
-            print(f"Error processing entry: {e}")
 
 
 def get_environment_context(filename):
@@ -357,14 +265,215 @@ def parse_io(item, experiment, exp, counts, filename):
         print(f"Issue parsing {filename}")
         return counts
     for d in items:
+
+        filename = d["filename"]
+
+        if filename.startswith("/var/lib/kubelet/pods"):
+            filename = "/var/lib/kubelet/pods"
+
+        elif filename.startswith("/sys/bus/cpu/devices"):
+            filename = "/sys/bus/cpu/devices"
+
+        # Different locations in /proc
+        elif "/proc" in filename and "/stat" in filename:
+            filename = "/proc/<pid>/stat"
+        elif "/proc" in filename and "/net/dev" in filename:
+            filename = "/proc/<pid>/net/dev"
+        elif "/proc" in filename and "/fd" in filename:
+            filename = "/proc/<pid>/fd"
+        elif "/proc" in filename and "/limits" in filename:
+            filename = "/proc/<pid>/limits"
+
+        # sys devices
+        elif "/sys/devices/system/cpu" in filename and filename.endswith("id"):
+            filename = "/sys/devices/system/cpu/<cpu>/cache/<index>/id"
+        elif "/sys/devices/system/cpu" in filename and filename.endswith("level"):
+            filename = "/sys/devices/system/cpu/<cpu>/cache/<index>/level"
+        elif "/sys/devices/system/cpu" in filename and filename.endswith(
+            "shared_cpu_map"
+        ):
+            filename = "/sys/devices/system/cpu/<cpu>/cache/<index>/shared_cpu_map"
+        elif "/sys/devices/system/cpu" in filename and filename.endswith("size"):
+            filename = "/sys/devices/system/cpu/<cpu>/cache/<index>/size"
+        elif "/sys/devices/system/cpu" in filename and filename.endswith("type"):
+            filename = "/sys/devices/system/cpu/<cpu>/cache/<index>/type"
+        elif "/sys/devices/system/cpu" in filename:
+            filename = "/sys/devices/system/cpu/<cpu>/cache"
+
+        elif "/sys/dev/block" in filename:
+            filename = "/sys/dev/block"
+
+        # pod logging
+        elif filename.startswith("/var/log/pods"):
+            filename = "/var/log/pods"
+
+        # Manifests
+        elif filename.startswith("/etc/kubernetes"):
+            filename = "/etc/kubernetes"
+
+        elif filename.startswith("/usr/local/pancakes/lib/openmpi"):
+            filename = "/usr/local/pancakes/lib/openmpi"
+
+        # elif filename.startswith("/usr/local/lib/openmpi") and ".so" not in :
+        #    filename = "/usr/local/lib/openmpi"
+
+        # Flux running assets
+        elif (
+            filename.startswith("/mnt/flux/view/run/flux")
+            and "vader_segment" in filename
+        ):
+            filename = "/mnt/flux/view/run/flux/<vader_segment>"
+
+        elif "/sys/fs/cgroup/kubepods.slice" in filename:
+            filename = "/sys/fs/cgroup/kubepods.slice/"
+
+        elif "/proc/self/task" in filename:
+            filename = "/proc/self/task"
+
+        elif "/proc" in filename and "oom_score_adj" in filename:
+            filename = "/proc/<pid>/oom_score_adj"
+
+        elif "/sys/bus/pci/devices" in filename:
+            filename = os.path.dirname(filename)
+
+        elif "/sys/devices/system/node" in filename and "topology/core_id" in filename:
+            filename = "/sys/devices/system/node/<node>/<cpu>/topology/core_id"
+
+        elif "/run/containerd/io.containerd.grpc.v1.cri/containers" in filename:
+            filename = "/run/containerd/io.containerd.grpc.v1.cri/containers/"
+
+        elif "/var/lib/containerd/io.containerd.grpc.v1.cri/containers" in filename:
+            filename = "/var/lib/containerd/io.containerd.grpc.v1.cri/containers"
+
+        elif (
+            "/sys/devices/system/node" in filename
+            and "/hugepages" in filename
+            and "nr_hugepages" in filename
+        ):
+            hugepage_size = os.path.basename(os.path.dirname(filename))
+            filename = f"/sys/devices/system/node/<node>/hugepages/{hugepage_size}/nr_hugepages"
+
+        elif "/var/run/netns/cni" in filename:
+            filename = "/var/run/netns/cni"
+
+        elif ".kube/cache/discovery" in filename:
+            filename = ".kube/cache/discovery"
+
+        elif ".kube/cache/http/.diskv-temp" in filename:
+            filename = ".kube/cache/http/.diskv-temp/"
+
+        elif "/var/log/journal" in filename:
+            filename = "/var/log/journal"
+
+        elif "/proc" in filename and filename.endswith("cgroup"):
+            filename = "/proc/<pid>/cgroup"
+
+        elif "/proc" in filename and filename.endswith("/cmdline"):
+            filename = "/proc/<pid>/cmdline"
+        elif "/proc" in filename and filename.endswith("/current"):
+            filename = "/proc/<pid>/current"
+        elif "/proc" in filename and filename.endswith("/comm"):
+            filename = "/proc/<pid>/comm"
+        elif "/proc" in filename and filename.endswith("/loginuid"):
+            filename = "/proc/<pid>/loginuid"
+        elif "/proc" in filename and filename.endswith("/sessionid"):
+            filename = "/proc/<pid>/sessionid"
+
+        elif "/mnt/flux/view/run/flux/jobtmp" in filename:
+            filename = "/mnt/flux/view/run/flux/jobtmp-XX"
+        elif "/run/systemd/journal/streams" in filename:
+            filename = "/run/systemd/journal/streams"
+
+        elif "/tmp/runc-process" in filename:
+            filename = "/tmp/runc-process"
+
+        elif "/kube-dns-config/" in filename:
+            filename = "/kube-dns-config/"
+
+        elif "/etc/k8s/dns/dnsmasq-nanny" in filename:
+            filename = "/etc/k8s/dns/dnsmasq-nanny"
+
+        elif "/sys/bus/node/devices" in filename and "distance" in filename:
+            filename = "/sys/bus/node/devices/<node>/distance"
+
+        elif "/sys/devices/system/node" in filename and "meminfo" in filename:
+            filename = "/sys/devices/system/node/<node>/meminfo"
+
+        elif "/proc" in filename and "/ns/ipc" in filename:
+            filename = "/proc/<pid>/ns/ipc"
+        elif "/proc" in filename and "/ns/mnt" in filename:
+            filename = "/proc/<pid>/ns/mnt"
+        elif "/proc" in filename and "/ns/net" in filename:
+            filename = "/proc/<pid>/ns/net"
+        elif "/proc" in filename and "/ns/pid" in filename:
+            filename = "/proc/<pid>/ns/pid"
+        elif "/proc" in filename and "/ns/uts" in filename:
+            filename = "/proc/<pid>/ns/uts"
+
+        elif "/run/containerd/runc" in filename:
+            filename = "/run/containerd/runc"
+
+        elif "/run/systemd/transient/kubepods-besteffort.slice.d" in filename:
+            filename = "/run/systemd/transient/kubepods-besteffort.slice.d"
+        elif "/run/systemd/transient/kubepods-burstable.slice.d" in filename:
+            filename = "/run/systemd/transient/kubepods-burstable.slice.d"
+        elif "/sys/bus/node/devices" in filename and "cpumap" in filename:
+            filename = "/sys/bus/node/devices/<node>/cpumap"
+
+        elif "/sys/bus/node/devices" in filename and "meminfo" in filename:
+            filename = "/sys/bus/node/devices/<node>/meminfo"
+
+        elif (
+            "/sys/devices/system/node" in filename
+            and "topology/physical_package_id" in filename
+        ):
+            filename = (
+                "/sys/devices/system/node/<node>/<cpu>/topology/physical_package_id"
+            )
+
+        elif "/run/containerd/io.containerd.runtime.v2.task" in filename:
+            filename = "/run/containerd/io.containerd.runtime.v2.task"
+
+        elif (
+            "/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots"
+            in filename
+        ):
+            filename = (
+                "/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots"
+            )
+
+        elif "/sys/devices/system/node" in filename and "distance" in filename:
+            filename = "/sys/devices/system/node/<node>/distance"
+
+        elif "/sys/bus/node/devices" in filename and "hugepages" in filename:
+            filename = "/sys/bus/node/devices/<node>/hugepages"
+
+        elif "/sys/devices/system/node" in filename and filename.endswith("hugepages/"):
+            filename = "/sys/devices/system/node/<node>/hugepages/"
+
+        elif filename.startswith("/tmp/ompi.lammps"):
+            filename = "/tmp/ompi.lammps"
+
+        # These are hidden digest directories?
+        if len(filename) == 65 and filename.startswith("."):
+            print(f"Skipping digest {filename}")
+            continue
+
+        elif len(filename) == 64 and os.sep not in filename:
+            print(f"Skipping digest {filename}")
+            continue
+
+        # If we get an integer, don't include it
+        try:
+            int(filename)
+            continue
+        except:
+            pass
         if d["command"] not in counts[experiment][exp.size][exp.env_type]:
             counts[experiment][exp.size][exp.env_type][d["command"]] = {}
-        if (
-            d["filename"]
-            not in counts[experiment][exp.size][exp.env_type][d["command"]]
-        ):
-            counts[experiment][exp.size][exp.env_type][d["command"]][d["filename"]] = 0
-        counts[experiment][exp.size][exp.env_type][d["command"]][d["filename"]] += d[
+        if filename not in counts[experiment][exp.size][exp.env_type][d["command"]]:
+            counts[experiment][exp.size][exp.env_type][d["command"]][filename] = 0
+        counts[experiment][exp.size][exp.env_type][d["command"]][filename] += d[
             "open_count"
         ]
     return counts
