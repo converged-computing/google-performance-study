@@ -80,6 +80,9 @@ def main():
 
     original_runs = [
         "shmem",
+        "tcp",
+        "open_close",
+        "futex",
         "tcp-socket",
         "open-close",
         "futex-model",
@@ -90,7 +93,7 @@ def main():
     files = [
         x
         for x in files
-        if "ebpf-multiple" not in x and "size-2" not in x and not re.search(regex, x)
+        if "ebpf-multiple" not in x and "/size-2/" not in x and not re.search(regex, x)
     ]
 
     # Saves raw data to file
