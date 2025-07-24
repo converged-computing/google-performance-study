@@ -13,6 +13,9 @@ sys.path.insert(0, analysis_root)
 
 import performance_study as ps
 
+# Global counts for number of datum
+total_counts = {}
+
 
 def get_parser():
     parser = argparse.ArgumentParser(
@@ -115,6 +118,7 @@ def add_ebpf_result(indir, filename, io_counts):
     Add an ebpf result
     """
     global db
+    global total_counts
     env_name, exp_name = get_environment_context(filename)
     exp = ps.ExperimentNameParser(filename, indir)
 
@@ -123,6 +127,9 @@ def add_ebpf_result(indir, filename, io_counts):
         return
 
     analysis = [x for x in item.split("\n") if "PROGRAM" in x][0].split(":")[-1].strip()
+    if analysis not in total_counts:
+        total_counts[analysis] = 0
+    total_counts[analysis] += 1
     if analysis == "shmem":
         for name, value, command in parse_shmem(item):
             db.add_result(
@@ -194,10 +201,10 @@ def parse_cpu(item):
             command = model["comm"].split("/")[0]
 
             # Add the median for now
-            time_waiting_q = model["runq_latency_stats_ns"]["median_ns"]
+            time_waiting_q = model["runq_latency_stats_ns"]["median_ns"] * model["runq_latency_stats_ns"]["count"]
             if time_waiting_q is not None:
                 yield "cpu_waiting_ns", time_waiting_q, command
-            time_running = model["on_cpu_stats_ns"]["median_ns"]
+            time_running = model["on_cpu_stats_ns"]["median_ns"] * model["on_cpu_stats_ns"]["count"]
             if time_running is not None:
                 yield "cpu_running_ns", time_running, command
 
@@ -235,14 +242,12 @@ def parse_tcp(item):
                 meta = update_meta(meta)
                 bucket = meta["bucket"]
                 event = f"{meta['command']}-{meta['event'].lower()}"
-                yield f"duration_ns_{bucket}", model["p95"], event
+                yield f"duration_ns_{bucket}", model["p95"] * model['count'], event
             else:
                 meta = re.search(pattern, model_name).groupdict()
                 meta = update_meta(meta)
                 event = f"{meta['command']}-{meta['event'].lower()}"
-
-                # Just save median of duration ns to start
-                yield "duration_ns", model["duration_stats"]["p95"], event
+                yield "duration_ns", model["duration_stats"]["p95"] * model["duration_stats"]["count"], event
 
 
 def parse_io(item, experiment, exp, counts, filename):
@@ -270,11 +275,8 @@ def parse_io(item, experiment, exp, counts, filename):
 
         if filename.startswith("/var/lib/kubelet/pods"):
             filename = "/var/lib/kubelet/pods"
-
         elif filename.startswith("/sys/bus/cpu/devices"):
             filename = "/sys/bus/cpu/devices"
-
-        # Different locations in /proc
         elif "/proc" in filename and "/stat" in filename:
             filename = "/proc/<pid>/stat"
         elif "/proc" in filename and "/net/dev" in filename:
@@ -283,8 +285,6 @@ def parse_io(item, experiment, exp, counts, filename):
             filename = "/proc/<pid>/fd"
         elif "/proc" in filename and "/limits" in filename:
             filename = "/proc/<pid>/limits"
-
-        # sys devices
         elif "/sys/devices/system/cpu" in filename and filename.endswith("id"):
             filename = "/sys/devices/system/cpu/<cpu>/cache/<index>/id"
         elif "/sys/devices/system/cpu" in filename and filename.endswith("level"):
@@ -299,23 +299,14 @@ def parse_io(item, experiment, exp, counts, filename):
             filename = "/sys/devices/system/cpu/<cpu>/cache/<index>/type"
         elif "/sys/devices/system/cpu" in filename:
             filename = "/sys/devices/system/cpu/<cpu>/cache"
-
         elif "/sys/dev/block" in filename:
             filename = "/sys/dev/block"
-
-        # pod logging
         elif filename.startswith("/var/log/pods"):
             filename = "/var/log/pods"
-
-        # Manifests
         elif filename.startswith("/etc/kubernetes"):
             filename = "/etc/kubernetes"
-
         elif filename.startswith("/usr/local/pancakes/lib/openmpi"):
             filename = "/usr/local/pancakes/lib/openmpi"
-
-        # elif filename.startswith("/usr/local/lib/openmpi") and ".so" not in :
-        #    filename = "/usr/local/lib/openmpi"
 
         # Flux running assets
         elif (
@@ -326,25 +317,18 @@ def parse_io(item, experiment, exp, counts, filename):
 
         elif "/sys/fs/cgroup/kubepods.slice" in filename:
             filename = "/sys/fs/cgroup/kubepods.slice/"
-
         elif "/proc/self/task" in filename:
             filename = "/proc/self/task"
-
         elif "/proc" in filename and "oom_score_adj" in filename:
             filename = "/proc/<pid>/oom_score_adj"
-
         elif "/sys/bus/pci/devices" in filename:
             filename = os.path.dirname(filename)
-
         elif "/sys/devices/system/node" in filename and "topology/core_id" in filename:
             filename = "/sys/devices/system/node/<node>/<cpu>/topology/core_id"
-
         elif "/run/containerd/io.containerd.grpc.v1.cri/containers" in filename:
             filename = "/run/containerd/io.containerd.grpc.v1.cri/containers/"
-
         elif "/var/lib/containerd/io.containerd.grpc.v1.cri/containers" in filename:
             filename = "/var/lib/containerd/io.containerd.grpc.v1.cri/containers"
-
         elif (
             "/sys/devices/system/node" in filename
             and "/hugepages" in filename
@@ -355,19 +339,14 @@ def parse_io(item, experiment, exp, counts, filename):
 
         elif "/var/run/netns/cni" in filename:
             filename = "/var/run/netns/cni"
-
         elif ".kube/cache/discovery" in filename:
             filename = ".kube/cache/discovery"
-
         elif ".kube/cache/http/.diskv-temp" in filename:
             filename = ".kube/cache/http/.diskv-temp/"
-
         elif "/var/log/journal" in filename:
             filename = "/var/log/journal"
-
         elif "/proc" in filename and filename.endswith("cgroup"):
             filename = "/proc/<pid>/cgroup"
-
         elif "/proc" in filename and filename.endswith("/cmdline"):
             filename = "/proc/<pid>/cmdline"
         elif "/proc" in filename and filename.endswith("/current"):
@@ -378,27 +357,20 @@ def parse_io(item, experiment, exp, counts, filename):
             filename = "/proc/<pid>/loginuid"
         elif "/proc" in filename and filename.endswith("/sessionid"):
             filename = "/proc/<pid>/sessionid"
-
         elif "/mnt/flux/view/run/flux/jobtmp" in filename:
             filename = "/mnt/flux/view/run/flux/jobtmp-XX"
         elif "/run/systemd/journal/streams" in filename:
             filename = "/run/systemd/journal/streams"
-
         elif "/tmp/runc-process" in filename:
             filename = "/tmp/runc-process"
-
         elif "/kube-dns-config/" in filename:
             filename = "/kube-dns-config/"
-
         elif "/etc/k8s/dns/dnsmasq-nanny" in filename:
             filename = "/etc/k8s/dns/dnsmasq-nanny"
-
         elif "/sys/bus/node/devices" in filename and "distance" in filename:
             filename = "/sys/bus/node/devices/<node>/distance"
-
         elif "/sys/devices/system/node" in filename and "meminfo" in filename:
             filename = "/sys/devices/system/node/<node>/meminfo"
-
         elif "/proc" in filename and "/ns/ipc" in filename:
             filename = "/proc/<pid>/ns/ipc"
         elif "/proc" in filename and "/ns/mnt" in filename:
@@ -409,20 +381,52 @@ def parse_io(item, experiment, exp, counts, filename):
             filename = "/proc/<pid>/ns/pid"
         elif "/proc" in filename and "/ns/uts" in filename:
             filename = "/proc/<pid>/ns/uts"
-
         elif "/run/containerd/runc" in filename:
             filename = "/run/containerd/runc"
-
+        elif "/usr/lib/tmpfiles.d" in filename:
+            filename = "/usr/lib/tmpfiles.d"
+        elif "/tmp/systemd-private" in filename:
+            filename = "/tmp/systemd-private"
         elif "/run/systemd/transient/kubepods-besteffort.slice.d" in filename:
             filename = "/run/systemd/transient/kubepods-besteffort.slice.d"
         elif "/run/systemd/transient/kubepods-burstable.slice.d" in filename:
             filename = "/run/systemd/transient/kubepods-burstable.slice.d"
         elif "/sys/bus/node/devices" in filename and "cpumap" in filename:
             filename = "/sys/bus/node/devices/<node>/cpumap"
-
+        elif "/sys/fs/cgroup/system.slice/systemd-tmpfiles-clean.service" in filename:
+            filename = "/sys/fs/cgroup/system.slice/systemd-tmpfiles-clean.service"
         elif "/sys/bus/node/devices" in filename and "meminfo" in filename:
             filename = "/sys/bus/node/devices/<node>/meminfo"
-
+        elif "/sys/fs/cgroup/system.slice/kube-logrotate.service" in filename:
+            filename = "/sys/fs/cgroup/system.slice/kube-logrotate.service"
+        elif "/sys/fs/cgroup/system.slice/motd-news.service" in filename:
+            filename = "/sys/fs/cgroup/system.slice/motd-news.service"
+        elif "/sys/fs/cgroup/system.slice/gke-node-reg-checker.service" in filename:
+            filename = "/sys/fs/cgroup/system.slice/gke-node-reg-checker.service"
+        elif "kube-system_metrics-server" in filename:
+            filename = "kube-system_metrics-server"
+        elif "/var/lib/cni/networks/k8s-pod-network" in filename:
+            filename = "/var/lib/cni/networks/k8s-pod-network"
+        elif "/prometheus/data" in filename:
+            filename = "/prometheus/data"
+        elif "/run/udev/data" in filename:
+            filename = "/run/udev/data"
+        elif "/usr/libexec/flux" in filename:
+            filename = "/usr/libexec/flux"
+        elif "/usr/lib/python" in filename:
+            filename = "/usr/lib/python"
+        elif "/usr/local/lib/python" in filename:
+            filename = "/usr/local/lib/python"
+        elif "/usr/lib/flux/python" in filename:
+            filename = "/usr/lib/flux/python"
+        elif "/tmp/apt-key-gpghome" in filename:
+            filename = "/tmp/apt-key-gpghome"
+        elif "default_lammps" in filename:
+            filename = "default_lammps"
+        elif (
+            "/sys/fs/cgroup/system.slice/gce-workload-cert-refresh.service" in filename
+        ):
+            filename = "/sys/fs/cgroup/system.slice/gce-workload-cert-refresh.service"
         elif (
             "/sys/devices/system/node" in filename
             and "topology/physical_package_id" in filename
@@ -430,10 +434,16 @@ def parse_io(item, experiment, exp, counts, filename):
             filename = (
                 "/sys/devices/system/node/<node>/<cpu>/topology/physical_package_id"
             )
-
+        elif "/var/lib/apt/lists" in filename:
+            filename = "/var/lib/apt/lists"
+        elif "/tmp/apt" in filename:
+            filename = "/tmp/apt"
+        elif "/etc/dpkg/dpkg" in filename:
+            filename = "/etc/dpkg/dpkg"
+        elif "/etc/apt" in filename:
+            filename = "/etc/apt"
         elif "/run/containerd/io.containerd.runtime.v2.task" in filename:
             filename = "/run/containerd/io.containerd.runtime.v2.task"
-
         elif (
             "/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots"
             in filename
@@ -441,16 +451,14 @@ def parse_io(item, experiment, exp, counts, filename):
             filename = (
                 "/var/lib/containerd/io.containerd.snapshotter.v1.overlayfs/snapshots"
             )
-
+        elif "/tmp/clearsigned" in filename:
+            filename = "/tmp/clearsigned"
         elif "/sys/devices/system/node" in filename and "distance" in filename:
             filename = "/sys/devices/system/node/<node>/distance"
-
         elif "/sys/bus/node/devices" in filename and "hugepages" in filename:
             filename = "/sys/bus/node/devices/<node>/hugepages"
-
         elif "/sys/devices/system/node" in filename and filename.endswith("hugepages/"):
             filename = "/sys/devices/system/node/<node>/hugepages/"
-
         elif filename.startswith("/tmp/ompi.lammps"):
             filename = "/tmp/ompi.lammps"
 
@@ -459,7 +467,7 @@ def parse_io(item, experiment, exp, counts, filename):
             print(f"Skipping digest {filename}")
             continue
 
-        elif len(filename) == 64 and os.sep not in filename:
+        elif (len(filename) == 64 or len(filename) == 32) and os.sep not in filename:
             print(f"Skipping digest {filename}")
             continue
 
@@ -519,7 +527,11 @@ def parse_futex(item):
         for model in model_names:
             # Add the median for now...
             median = model["wait_duration_stats_ns"]["median"]
-            yield "median_futex_wait", median, model["comm"]
+            # The number of times
+            count = 0
+            for futex_id, increment in model["futex_op_counts"].items():
+                count += increment
+            yield "median_futex_wait", median * count, model["comm"]
 
 
 def parse_shmem(item):
@@ -562,6 +574,7 @@ def parse_data(indir, outdir, files, db_path):
     Parse filepaths for environment, etc., and results files for data.
     """
     global db
+    global total_counts
     io_counts = {}
 
     # It's important to just parse raw data once, and then use intermediate
@@ -640,6 +653,7 @@ def parse_data(indir, outdir, files, db_path):
                         )
 
     db.close()
+    print(json.dumps(total_counts))
     print("Done parsing lammps eBPF results!")
 
 

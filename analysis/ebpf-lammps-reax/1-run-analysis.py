@@ -5,6 +5,7 @@ import os
 import sys
 import pandas
 import json
+import numpy as np
 
 import matplotlib.pylab as plt
 import seaborn as sns
@@ -14,32 +15,65 @@ analysis_root = os.path.dirname(here)
 root = os.path.dirname(analysis_root)
 sys.path.insert(0, analysis_root)
 
+# Import the original library
 import performance_study as ps
 
 sns.set_theme(style="whitegrid", palette="muted")
 
-# These are files I found erroneous - no result, or incomplete result
-# Details included with each, and more exploration is likely needed to quantify
-# error types
-errors = []
-error_regex = "(%s)" % "|".join(errors)
+
+class ProblemSizeParser(ps.ResultParser):
+    """
+    Extended ResultParser that includes problem size and eBPF status.
+    It inherits from the base ResultParser to reuse its context-setting logic.
+    """
+
+    def init_df(self):
+        self.df = pandas.DataFrame(
+            columns=[
+                "experiment",
+                "cloud",
+                "env",
+                "env_type",
+                "nodes",
+                "application",
+                "problem_size",
+                "metric",
+                "value",
+                "gpu_count",
+                "ebpf_status",
+                "ebpf_type",
+            ]
+        )
+
+    def add_result(self, metric, value, problem_size, ebpf_status, ebpf_type):
+        experiment = os.path.join(self.cloud, self.env, self.env_type)
+        if self.qualifier is not None:
+            experiment = os.path.join(experiment, self.qualifier)
+        self.df.loc[self.idx, :] = [
+            experiment,
+            self.cloud,
+            self.env,
+            self.env_type,
+            self.size,
+            self.app,
+            problem_size,
+            metric,
+            value,
+            self.gpu_count,
+            ebpf_status,
+            ebpf_type,
+        ]
+        self.idx += 1
 
 
 def get_parser():
     parser = argparse.ArgumentParser(
-        description="Run analysis",
-        formatter_class=argparse.RawTextHelpFormatter,
+        description="Run analysis", formatter_class=argparse.RawTextHelpFormatter
     )
     parser.add_argument(
         "--root",
         help="root directory with experiments",
         default=os.path.join(root, "experiments"),
-    )
-    parser.add_argument(
-        "--non-anon",
-        help="Generate non-anon",
-        action="store_true",
-        default=False,
     )
     parser.add_argument(
         "--out",
@@ -50,122 +84,90 @@ def get_parser():
 
 
 def main():
-    """
-    Find application result files to parse.
-    """
     parser = get_parser()
     args, _ = parser.parse_known_args()
-
-    # Output images and data
     outdir = os.path.abspath(args.out)
     indir = os.path.abspath(args.root)
-
-    # We absolutely want on premises results here
     if not os.path.exists(outdir):
         os.makedirs(outdir)
-
-    # Find input files (skip anything with test)
     dirs = list(ps.recursive_find(indir, "ebpf"))
     if not dirs:
         raise ValueError(f"There are no input files in {indir}")
     files = []
     for dirname in dirs:
         files += ps.find_inputs(dirname, "lammps")
-
-    # Get original runs without ebpf
     files += [x for x in ps.find_inputs(indir, "lammps") if "ebpf" not in x]
 
-    # Saves raw data to file
-    df = parse_data(indir, outdir, files)
-    plot_results(df, outdir, args.non_anon)
+    raw_df = parse_data(indir, outdir, files)
+    overhead_df = calculate_overhead_bootstrap(raw_df)
+    overhead_df.to_csv(os.path.join(outdir, "lammps-overhead-results.csv"))
+
+    img_outdir = os.path.join(outdir, "img")
+    if not os.path.exists(img_outdir):
+        os.makedirs(img_outdir)
+    plot_overhead(overhead_df, img_outdir)
 
 
 def get_environment_context(filename):
-    if "lammps-ubuntu-openmpi" in filename:
-        env_name = "Ubuntu OpenMPI"
-        exp_name = "ubuntu-openmpi"
-    # These were rocky 8 and incorrectly named
-    elif "lammps-rocky9-openmpi" in filename:
-        env_name = "Rocky OpenMPI"
-        exp_name = "rocky-openmpi"
-    elif "lammps-rocky8-openmpi" in filename:
-        env_name = "Rocky OpenMPI"
-        exp_name = "rocky-openmpi"
-    elif "lammps-ubuntu-mpich" in filename:
-        env_name = "Ubuntu Mpich"
-        exp_name = "ubuntu-mpich"
-    elif "lammps-mpich-ubuntu" in filename:
-        env_name = "Ubuntu Mpich"
-        exp_name = "ubuntu-mpich"
-    elif "lammps-ubuntu-mpi-gpu" in filename:
-        env_name = "Ubuntu OpenMPI GPU"
-        exp_name = "ubuntu-openmpi-gpu"
-    # Initial run of lammps, used the ubuntu openmpi
-    elif "logs/lammps.out" in filename:
-        env_name = "Ubuntu OpenMPI"
-        exp_name = "ubuntu-openmpi"
-        print(filename)
+    if "ubuntu-openmpi" in filename or "logs/lammps.out" in filename:
+        return "Ubuntu", "OpenMPI"
+    elif "rocky9-openmpi" in filename or "rocky8-openmpi" in filename:
+        return "Rocky", "OpenMPI"
+    elif "ubuntu-mpich" in filename or "mpich-ubuntu" in filename:
+        return "Ubuntu", "Mpich"
+    elif "ubuntu-mpi-gpu" in filename:
+        return "Ubuntu", "OpenMPI"
     else:
-        raise ValueError(f"Unexpected filename: {filename}")
-    return env_name, exp_name
+        print(f"Warning: Could not determine context for {filename}")
+        return "Unknown", "Unknown"
 
 
-def add_lammps_result(p, indir, filename, ebpf=None, gpu=False):
-    """
-    Add a new lammps result
-    """
+def add_lammps_result(p, indir, filename, ebpf_type, gpu=False):
     exp = ps.ExperimentNameParser(filename, indir)
     if exp.size == 2:
         return p
-    env_name, _ = get_environment_context(filename)
-    if ebpf == "":
-        env_name = f"{env_name} eBPF"
-
-    elif ebpf is not None:
-        env_name = f"{env_name} eBPF {ebpf.capitalize()}"
-
-    if gpu and "GPU" not in env_name:
-        env_name = f"{env_name} GPU"
-    # Set the parsing context for the result data frame
-    p.set_context(exp.cloud, exp.env, exp.env_type, exp.size)
-
-    # Sanity check the files we found
-    print(filename)
-    exp.show()
-
+    container_base, mpi_variant = get_environment_context(filename)
+    config_name = f"{container_base} {mpi_variant}"
+    if gpu:
+        config_name += " GPU"
+    ebpf_status = "Enabled" if ebpf_type else "Disabled"
+    ebpf_type_str = ebpf_type if ebpf_type else "None"
+    p.set_context(exp.cloud, exp.env, exp.env_type, exp.size, gpu_count=1 if gpu else 0)
     item = ps.read_file(filename)
     jobs = ps.parse_flux_jobs(item)
     for _, metadata in jobs.items():
         if not metadata:
             continue
-        step, seconds = parse_matom_steps(metadata["log"])
-        p.add_result(step, seconds, env_name)
+        try:
+            step, seconds = parse_matom_steps(metadata["log"])
+        except:
+            print(f"Skipping {filename} - no result present")
+            continue
+        p.add_result(step, seconds, config_name, ebpf_status, ebpf_type_str)
         wall_time = [
             ps.convert_walltime_to_seconds(x.rsplit(" ", 1)[-1])
             for x in metadata["log"].split("\n")
             if "Total wall time" in x
         ][0]
-        # This is a percentage
         cpu_use = float(
             [x for x in item.split("\n") if "CPU use" in x][0].split("%")[0]
         )
-        p.add_result("cpu-usage", cpu_use, env_name)
-        p.add_result("wall-time", wall_time, env_name)
-        p.add_result("duration", metadata["duration"], env_name)
-        p.add_result("hookup-time", metadata["duration"] - wall_time, env_name)
+        p.add_result("cpu-usage", cpu_use, config_name, ebpf_status, ebpf_type_str)
+        p.add_result("wall-time", wall_time, config_name, ebpf_status, ebpf_type_str)
+        p.add_result(
+            "duration", metadata["duration"], config_name, ebpf_status, ebpf_type_str
+        )
+        p.add_result(
+            "hookup-time",
+            metadata["duration"] - wall_time,
+            config_name,
+            ebpf_status,
+            ebpf_type_str,
+        )
     return p
 
 
 def parse_matom_steps(item):
-    """
-    Parse matom steps
-
-    We separated this into a function because cyclecloud submits have
-    two problem sizes in one file.
-    """
-    # Add in Matom steps - what is considered the LAMMPS FOM
-    # https://asc.llnl.gov/sites/asc/files/2020-09/CORAL2_Benchmark_Summary_LAMMPS.pdf
-    # Not parsed by metrics operator so we find the line here
     try:
         step = "matom_steps_per_second"
         line = [x for x in item.split("\n") if "Matom-step/s" in x][0]
@@ -176,32 +178,15 @@ def parse_matom_steps(item):
 
 
 def parse_data(indir, outdir, files):
-    """
-    Parse filepaths for environment, etc., and results files for data.
-    """
-    p = ps.ProblemSizeParser("lammps")
-
-    # Sanity check groups at end
-    checks = {
-        "multiple": [],
-        "sample": [],
-        "no-ebpf": [],
-        "no-ebpf-gpu": [],
-        "ebpf-gpu": [],
-    }
-
-    # It's important to just parse raw data once, and then use intermediate
+    p = ProblemSizeParser("lammps")
     for filename in files:
         if (
             "compute-engine" in filename
             or "lammps-gpu-mpich.out" in filename
+            or "lammps-rocky8-intel-mpi-interactive" in filename
             or "lammps-rocky8-mpich" in filename
-            # Initial serial runs
             or "ebpf-serial" in filename
             or "tcp-socket" in filename
-            # These are lammps without gvnic, only a subset of sizes
-            # the times look the same, but I don't want to add extra
-            # (slightly different) data.
             or "no-gvnic" in filename
         ):
             continue
@@ -215,299 +200,222 @@ def parse_data(indir, outdir, files):
             "lammps-rocky8-openmpi.out",
             "lammps-ubuntu-mpich.out",
         ]:
-            checks["no-ebpf"].append(filename)
-            p = add_lammps_result(p, indir, filename, ebpf=None)
+            add_lammps_result(p, indir, filename, ebpf_type=None, gpu=False)
 
         # GPU without ebpf
         elif "gpu" in filename and "noebpf" in filename and basename == "lammps.out":
-            checks["no-ebpf-gpu"].append(filename)
-            p = add_lammps_result(p, indir, filename, ebpf=None, gpu=True)
+            add_lammps_result(p, indir, filename, ebpf_type=None, gpu=True)
 
         elif "gpu" in filename and "ebpf" in filename and basename == "lammps.out":
-            checks["ebpf-gpu"].append(filename)
-            p = add_lammps_result(p, indir, filename, ebpf="", gpu=True)
+            add_lammps_result(p, indir, filename, ebpf_type="Sample", gpu=True)
 
         # original GPU runs
         elif basename in ["lammps-ubuntu-mpi-gpu.out"]:
-            checks["no-ebpf-gpu"].append(filename)
-            p = add_lammps_result(p, indir, filename, ebpf=None, gpu=True)
+            add_lammps_result(p, indir, filename, ebpf_type=None, gpu=True)
 
         # First original run
         elif "logs/lammps.out" in filename:
-            checks["no-ebpf"].append(filename)
-            p = add_lammps_result(p, indir, filename, ebpf=None)
+            add_lammps_result(p, indir, filename, ebpf_type=None, gpu=False)
 
         elif "ebpf-multiple" in filename and "lammps.out" in filename:
-            checks["multiple"].append(filename)
-            p = add_lammps_result(p, indir, filename, ebpf="multiple")
+            add_lammps_result(p, indir, filename, ebpf_type="Multiple", gpu=False)
 
         # Single pod with randomly selected ebpf program
         elif "ebpf-sample" in filename and "lammps.out" in filename:
-            checks["sample"].append(filename)
-            p = add_lammps_result(p, indir, filename, ebpf="sample")
+            add_lammps_result(p, indir, filename, ebpf_type="Sample", gpu=False)
 
     print("Done parsing lammps results!")
-    print("Please check groupings")
-    print(json.dumps(checks, indent=4))
-
-    # Save stuff to file first
-    p.df.to_csv(os.path.join(outdir, "lammps-results.csv"))
-    return p.df
+    df = p.df
+    df.to_csv(os.path.join(outdir, "lammps-results-raw-extended.csv"))
+    return df
 
 
-def plot_results(df, outdir, non_anon=False):
+def calculate_overhead_bootstrap(df, n_bootstrap=5000):
     """
-    Plot analysis results
+    Calculates overhead by correctly pairing eBPF runs with their baselines
+    using a common 'base_config' key.
     """
-    img_outdir = os.path.join(outdir, "img")
-    if not os.path.exists(img_outdir):
-        os.makedirs(img_outdir)
+    overhead_results = []
 
-    plot_lammps(df, img_outdir, non_anon)
+    # Create a 'base_config' column for reliable pairing by stripping eBPF type.
+    df["base_config"] = df["problem_size"]
 
+    # Separate the dataframes based on the 'ebpf_status' column from the parser.
+    baseline_df = df[df["ebpf_status"] == "Disabled"].copy()
+    ebpf_df = df[df["ebpf_status"] == "Enabled"].copy()
 
-def plot_open_close(counts, outdir):
-    """
-    Plot counts of open and close for each application
-    """
-    # Note might need to add nodes here
-    df = pandas.DataFrame(columns=["experiment", "command", "path", "count"])
-    idx = 0
+    # The group columns for an eBPF run.
+    group_cols = ["problem_size", "nodes", "metric", "ebpf_type"]
 
-    # First generate summary stats for each experiment and command to add to df
-    for experiment, commands in counts.items():
-        for command, opened in commands.items():
-            # Count cgroups as one
-            updated = {}
+    print(f"\n--- Starting Overhead Calculation ---")
 
-            def update_path(path):
-                if path not in updated:
-                    updated[path] = 0
-                updated[path] += 1
+    for i, (name, group_a) in enumerate(ebpf_df.groupby(group_cols)):
+        config = dict(zip(group_cols, name))
+        print(f"  Analyzing: {config}")
 
-            for filename, count in opened.items():
+        # Determine the baseline config name to search for
+        base_config_name = config["problem_size"].replace(f" {config['ebpf_type']}", "")
 
-                # Kubelet pod activity
-                if filename.startswith("/var/lib/kubelet/pods"):
-                    update_path("/var/lib/kubelet/pods")
-
-                # cgroup checking
-                elif filename.startswith("/sys/fs/cgroup"):
-                    update_path("/sys/fs/cgroup")
-
-                # pod logging
-                elif filename.startswith("/var/log/pods"):
-                    update_path("/var/log/pods")
-
-                # Manifests
-                elif filename.startswith("/etc/kubernetes"):
-                    update_path("/etc/kubernetes")
-
-                # processes
-                elif filename.startswith("/proc"):
-                    update_path("/proc")
-                else:
-                    update_path(filename)
-        for path, count in updated.items():
-            df.loc[idx, :] = [experiment, command, path, count]
-            idx += 1
-
-    for command in df.command.unique():
-        print(command)
-        img_outdir = os.path.join(outdir, "open-close", command)
-        if not os.path.exists(img_outdir):
-            os.makedirs(img_outdir)
-
-        # Make sorted histogram of counts > 1
-        subset = df[df.command == command]
-        subset = subset[subset["count"] > 1]
-        df_sorted = subset.sort_values(by="count", ascending=False).reset_index(
-            drop=True
+        # Query the baseline_df using the constructed base config name
+        group_b = baseline_df.query(
+            f"problem_size == '{base_config_name}' & "
+            f"nodes == {config['nodes']} & "
+            f"metric == '{config['metric']}'"
         )
-        plt.figure(figsize=(12, 8))
-        sns.barplot(
-            x="path",
-            y="count",
-            hue="experiment",
-            data=df_sorted,
-            order=df_sorted["path"],
+
+        if group_b.empty:
+            print(
+                f"    -> WARNING: No matching baseline ('{base_config_name}') found. Skipping."
+            )
+            continue
+
+        values_a = group_a["value"].values
+        values_b = group_b["value"].values
+
+        bootstrap_diffs = [
+            np.mean(np.random.choice(values_a, len(values_a), True))
+            - np.mean(np.random.choice(values_b, len(values_b), True))
+            for _ in range(n_bootstrap)
+        ]
+
+        # We need to add the base_config to the results for plotting
+        result = config.copy()
+        result.update(
+            {
+                "base_config": base_config_name,
+                "overhead": np.median(bootstrap_diffs),
+                "ci_lower": np.percentile(bootstrap_diffs, 2.5),
+                "ci_upper": np.percentile(bootstrap_diffs, 97.5),
+                "mean_with_ebpf": np.mean(values_a),
+                "mean_without_ebpf": np.mean(values_b),
+            }
         )
-        plt.xlabel("File Path / Identifier")
-        plt.ylabel("Count")
-        plt.title(f"Open Counts by Path for {command.capitalize()} >1")
-        plt.xticks(rotation=45, ha="right")
-        plt.tight_layout()
-        plt.savefig(os.path.join(img_outdir, "lammps-open-close.svg"))
-        plt.savefig(os.path.join(img_outdir, "lammps-open-close.png"))
-        plt.clf()
+        overhead_results.append(result)
+
+    return pandas.DataFrame(overhead_results)
 
 
-def plot_lammps(df, img_outdir, non_anon):
+def plot_overhead(df, img_outdir):
     """
-    Plot lammps result. The goal here is to show the different environment setups.
+    Plots the calculated overhead with 95% confidence intervals.
+    - Creates one figure per metric, showing CPU and GPU results together.
+    - Has side-by-side subplots for 'Multiple' and 'Sample' eBPF setups.
     """
-    frames = {}
-    # Make a plot for seconds runtime, and each FOM set.
-    # We can look at the metric across sizes, colored by experiment
-    for metric in df.metric.unique():
-        metric_df = df[df.metric == metric]
-        frames[metric] = {"cpu": metric_df}
+    # consistent colors
+    colors = list(plt.cm.get_cmap("viridis", 4).colors)
+    print(colors)
+    palette = {}
+    for env_type in df.problem_size.unique():
+        palette[env_type] = list(colors.pop(0))
 
-    print(metric_df.problem_size.unique())
-    order = [
-        "Ubuntu Mpich eBPF Sample",
-        "Ubuntu Mpich",
-        "Ubuntu Mpich eBPF Multiple",
-        "Ubuntu OpenMPI eBPF Sample",
-        "Ubuntu OpenMPI",
-        "Ubuntu OpenMPI eBPF Multiple",
-        "Rocky OpenMPI eBPF Sample",
-        "Rocky OpenMPI",
-        "Rocky OpenMPI eBPF Multiple",
-        "Ubuntu OpenMPI eBPF GPU",
-        "Ubuntu OpenMPI GPU",
-    ]
-    colors = {
-        "Ubuntu Mpich eBPF Sample": "#6495ed",
-        "Ubuntu Mpich eBPF Multiple": "#0047ab",
-        "Ubuntu Mpich": "#758fa9",
-        "Ubuntu OpenMPI eBPF Sample": "#e79aff",
-        "Ubuntu OpenMPI eBPF Multiple": "#691883",
-        "Ubuntu OpenMPI": "#b148d2",
-        "Rocky OpenMPI eBPF Sample": "#c9df8a",
-        "Rocky OpenMPI eBPF Multiple": "#36802d",
-        "Rocky OpenMPI": "#77ab59",
-        "Ubuntu OpenMPI GPU": "#973348",
-        "Ubuntu OpenMPI eBPF GPU": "#FF5B61",
-    }
+    def plot_single_setup(ax, data, title):
+        nodes = sorted(data["nodes"].unique())
+        # Use 'base_config' for the hue to distinguish CPU and GPU runs
+        base_configs = sorted(data["base_config"].unique())
+        n_configs = len(base_configs)
+        total_group_width = 0.8
+        bar_width = total_group_width / n_configs
 
-    for metric, data_frames in frames.items():
-        # We only have one for now :)
-        fig = plt.figure(figsize=(10, 3.3))
-        axes = []
-        gs = plt.GridSpec(1, 2, width_ratios=[2, 1])
-        axes.append(fig.add_subplot(gs[0, 0]))
-        axes.append(fig.add_subplot(gs[0, 1]))
+        for i, config in enumerate(base_configs):
+            # Filter by the 'base_config'
+            config_data = data[data["base_config"] == config].sort_values("nodes")
+            if config_data.empty:
+                continue
 
-        sns.set_style("whitegrid")
-        sns.barplot(
-            data_frames["cpu"],
-            ax=axes[0],
-            x="nodes",
-            y="value",
-            hue="problem_size",
-            err_kws={"color": "darkred"},
-            palette=colors,
-            hue_order=order,
-        )
-        if metric in ["duration", "wall-time", "hookup-time"]:
-            axes[0].set_title(f"LAMMPS {metric.capitalize()}", fontsize=14)
-            axes[0].set_ylabel("Seconds", fontsize=14)
-        elif "cpu" in metric:
-            axes[0].set_title("LAMMPS CPU Usage", fontsize=14)
-            axes[0].set_ylabel("% CPU usage", fontsize=14)
-        elif "katom" in metric:
-            axes[0].set_title("LAMMPS K/Atom Steps per Second", fontsize=14)
-            axes[0].set_ylabel("M/Atom Steps Per Second", fontsize=14)
-        else:
-            axes[0].set_title("LAMMPS M/Atom Steps per Second", fontsize=14)
-            axes[0].set_ylabel("M/Atom Steps Per Second", fontsize=14)
-        axes[0].set_xlabel("Nodes", fontsize=14)
+            node_indices = [nodes.index(n) for n in config_data["nodes"]]
+            positions = [
+                idx - (total_group_width / 2) + (i + 0.5) * bar_width
+                for idx in node_indices
+            ]
 
-        handles, labels = axes[0].get_legend_handles_labels()
-        labels = ["/".join(x.split("/")[0:2]) for x in labels]
-        axes[1].legend(
+            err_lower = config_data["overhead_pct"] - (
+                config_data["ci_lower"] / config_data["mean_without_ebpf"] * 100
+            )
+            err_upper = (
+                config_data["ci_upper"] / config_data["mean_without_ebpf"] * 100
+            ) - config_data["overhead_pct"]
+            y_err_config = [err_lower.tolist(), err_upper.tolist()]
+
+            ax.bar(
+                x=positions,
+                height=config_data["overhead_pct"],
+                width=bar_width,
+                label=config,
+                color=palette[config],
+            )
+            ax.errorbar(
+                x=positions,
+                y=config_data["overhead_pct"],
+                yerr=y_err_config,
+                fmt="none",
+                c="black",
+                capsize=3,
+            )
+
+        ax.axhline(0, color="red", linestyle="--", linewidth=1.5)
+        ax.set_title(title, fontsize=14)
+        ax.set_xlabel("Number of Nodes", fontsize=12)
+        ax.set_xticks(range(len(nodes)))
+        ax.set_xticklabels(nodes)
+        ax.grid(True, which="major", linestyle=":", linewidth="0.6", color="grey")
+        ax.set_axisbelow(True)
+
+    for metric in df["metric"].unique():
+        metric_df = df[df["metric"] == metric].copy()
+        if metric_df.empty:
+            continue
+
+        metric_df["overhead_pct"] = (
+            metric_df["overhead"] / metric_df["mean_without_ebpf"]
+        ) * 100
+        multiple_df = metric_df[metric_df["ebpf_type"] == "Multiple"]
+        sample_df = metric_df[metric_df["ebpf_type"] == "Sample"]
+
+        if multiple_df.empty and sample_df.empty:
+            continue
+
+        fig, axes = plt.subplots(1, 2, figsize=(20, 8), sharey=True, facecolor="w")
+        plt.style.use("seaborn-v0_8-whitegrid")
+
+        plot_single_setup(axes[0], multiple_df, "Multiple Programs")
+        plot_single_setup(axes[1], sample_df, "Sampled Single Program")
+
+        title_metric = metric.replace("_", " ").title()
+        fig.suptitle(f"eBPF Performance Overhead for {title_metric}", fontsize=18)
+
+        ylabel = "Performance Change (%) [95% CI]"
+        axes[0].set_ylabel(ylabel, fontsize=12)
+
+        # IMPORTANT: GPU is only in axis 1, we need this one.
+        handles, labels = axes[1].get_legend_handles_labels()
+        if not handles:
+            handles, labels = axes[1].get_legend_handles_labels()
+
+        if not any("Baseline" in label for label in labels):
+            handles.append(
+                plt.Line2D(
+                    [0],
+                    [0],
+                    color="red",
+                    linestyle="--",
+                    label="Baseline (No Overhead)",
+                )
+            )
+            labels.append("Baseline (No Overhead)")
+
+        fig.legend(
             handles,
             labels,
-            loc="center left",
-            bbox_to_anchor=(-0.1, 0.5),
-            frameon=False,
+            title="Base Configuration",
+            bbox_to_anchor=(0.86, 0.85),
+            loc="upper left",
         )
-        for ax in axes[0:1]:
-            ax.get_legend().remove()
-            axes[1].axis("off")
-        plt.tight_layout()
-        plt.savefig(os.path.join(img_outdir, f"lammps-{metric}.svg"))
-        plt.savefig(os.path.join(img_outdir, f"lammps-{metric}.png"))
-        plt.clf()
 
-        # Print the total number of data points
-        print(f'Total number of datum: {data_frames["cpu"].shape[0]}')
+        fig.tight_layout(pad=1.0, rect=[0, 0, 0.85, 0.95])
 
-        # Keep a variable with paper figure plots
-        if "duration" in metric:
-            duration_df = data_frames["cpu"]
-        elif "matom" in metric:
-            matom_df = data_frames["cpu"]
-
-    # PAPER FIGURE
-    # Two figures and one legend
-    fig = plt.figure(figsize=(6, 6))
-    axes = []
-    gs = plt.GridSpec(3, 1, height_ratios=[2, 2, 1])
-    axes.append(fig.add_subplot(gs[0, 0]))
-    axes.append(fig.add_subplot(gs[1, 0]))
-    axes.append(fig.add_subplot(gs[2, 0]))
-
-    # Duration
-    sns.set_style("whitegrid")
-    sns.barplot(
-        duration_df,
-        ax=axes[0],
-        x="nodes",
-        y="value",
-        hue="problem_size",
-        err_kws={"color": "darkred"},
-        palette=colors,
-        hue_order=order,
-    )
-    axes[0].set_title("LAMMPS Duration", fontsize=11)
-    axes[0].set_ylabel("Seconds", fontsize=11)
-    axes[0].set_xlabel("", fontsize=11)
-
-    # Matom steps per second
-    sns.barplot(
-        matom_df,
-        ax=axes[1],
-        x="nodes",
-        y="value",
-        hue="problem_size",
-        err_kws={"color": "darkred"},
-        palette=colors,
-        hue_order=order,
-    )
-    axes[1].set_title("LAMMPS M/Atom Steps per Second", fontsize=11)
-    axes[1].set_ylabel("M/Atom Steps Per Second", fontsize=11)
-    axes[1].set_xlabel("Nodes", fontsize=11)
-
-    # These labels are the same for axes 0 and 1
-    handles, labels = axes[0].get_legend_handles_labels()
-
-    # Shorten labels
-    updated = []
-    for label in labels:
-        label = label.replace("Ubuntu", "U")
-        label = label.replace("Rocky", "R")
-        updated.append(label)
-
-    axes[2].legend(
-        handles,
-        labels,
-        ncols=2,
-        fontsize=10,
-        loc="center left",
-        bbox_to_anchor=(-0.1, 0.5),
-        frameon=False,
-    )
-
-    for ax in axes[0:2]:
-        ax.get_legend().remove()
-    # The legend will go here
-    axes[2].axis("off")
-    plt.tight_layout()
-    plt.savefig(os.path.join(img_outdir, "lammps-paper.svg"))
-    plt.savefig(os.path.join(img_outdir, "lammps-paper.png"))
-    plt.clf()
+        plt.savefig(os.path.join(img_outdir, f"lammps-overhead-{metric}.svg"))
+        plt.savefig(os.path.join(img_outdir, f"lammps-overhead-{metric}.png"))
+        plt.close(fig)
 
 
 if __name__ == "__main__":
