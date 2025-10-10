@@ -137,9 +137,12 @@ def parse_data(indir, outdir, files):
         item = ps.read_file(filename)
         jobs = ps.parse_flux_jobs(item)
         for job, metadata in jobs.items():
-            p.add_result(
+            try:
+              p.add_result(
                 "matom_steps_per_second", parse_matom_steps(metadata["log"]), env_name
-            )
+              )
+            except: 
+              continue
             wall_time = [
                 ps.convert_walltime_to_seconds(x.rsplit(" ", 1)[-1])
                 for x in metadata["log"].split("\n")
@@ -252,7 +255,7 @@ def plot_results(df, outdir, non_anon=False):
     )
     axes[0].set_title(f"LAMMPS Duration", fontsize=12)
     axes[0].set_ylabel("Seconds", fontsize=12)
-    axes[0].set_xlabel("", fontsize=12)
+    axes[0].set_xlabel("Nodes", fontsize=12)
     sns.barplot(
         fom_df,
         ax=axes[1],
