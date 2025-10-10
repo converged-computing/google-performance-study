@@ -416,91 +416,10 @@ def plot_results(results, outdir, non_anon=False):
     if not os.path.exists(plots_by_size):
         os.makedirs(plots_by_size)
 
-    fig = plt.figure(figsize=(18, 3))
-    gs = plt.GridSpec(1, 4, width_ratios=[2, 2, 2, 0.8])
-    axes = []
-    axes.append(fig.add_subplot(gs[0, 0]))
-    axes.append(fig.add_subplot(gs[0, 1]))
-    axes.append(fig.add_subplot(gs[0, 2]))
-    axes.append(fig.add_subplot(gs[0, 3]))
-    i = 0
-
-    # Save each completed data frame to file and plot!
-    slugs = ["osu_latency", "osu_allreduce", "osu_bw"]
-    for slug in slugs:
-        sizes = dfs_cpu[slug]
-        for size, subset in sizes.items():
-
-            # We are doing size 256 for the paper
-            if size != 128:
-                continue
-            print(f"Preparing plot for {slug} size {size}")
-
-            # Save entire (unsplit) data frame to file
-            # subset.to_csv(os.path.join(outdir, f"{slug}-{size}-cpu-dataframe.csv"))
-
-            # Separate x and y - latency (y) is a function of size (x)
-            xlabel = "Message size in bytes"
-            x = lookup_cpu[slug][size]["x"]
-            y = lookup_cpu[slug][size]["y"]
-
-            # for sty in plt.style.available:
-            sns.lineplot(
-                data=subset,
-                ax=axes[i],
-                hue="experiment",
-                x=x,
-                y=y,
-                markers=True,
-                palette=cloud_colors,
-                dashes=True,
-                errorbar=("ci", 95),
-            )
-
-            axes[i].set_title(get_osu_title(slug), fontsize=12)
-            axes[i].set_xticklabels(axes[i].get_xmajorticklabels(), fontsize=10)
-            axes[i].set_yticklabels(axes[i].get_yticks(), fontsize=12)
-            y_label = y.replace("_", " ")
-            axes[i].set_xlabel("", fontsize=12)
-            axes[i].set_ylabel(y_label + " (logscale)", fontsize=12)
-            axes[i].set_xscale("log")
-            axes[i].set_yscale("log")
-            i += 1
-
-    font_prop = FontProperties(size=14)
-    fig.text(
-        0.50,
-        0.01,
-        xlabel + " (logscale)",
-        horizontalalignment="center",
-        wrap=True,
-        fontproperties=font_prop,
-    )
-    handles, labels = axes[0].get_legend_handles_labels()
-
-    # Tweak the label to anonymize
-    if not non_anon:
-        labels = ["/".join(x.split("/")[0:3]) for x in labels]
-        labels = [x.replace("/dane/", "/a/") for x in labels]
-
-    axes[3].legend(
-        handles, labels, loc="center left", bbox_to_anchor=(-0.25, 0.5), frameon=False
-    )
-    for ax in axes[0:3]:
-        ax.get_legend().remove()
-    axes[3].axis("off")
-    plt.xscale("log")
-    plt.yscale("log")
-    plt.subplots_adjust(bottom=0.15)
-    plt.tight_layout()
-    plt.savefig(os.path.join(plots_by_size, "osu-latency-bw-reduce-cpu.svg"))
-    plt.savefig(os.path.join(plots_by_size, "osu-latency-bw-reduce-cpu.png"))
-    plt.clf()
-    plt.close()
 
     # Now do all sizes
     fig = plt.figure(figsize=(18, 3))
-    gs = plt.GridSpec(1, 4, width_ratios=[2, 2, 2, 0.8])
+    gs = plt.GridSpec(1, 4, width_ratios=[2, 2, 2, 0.4])
     axes = []
     axes.append(fig.add_subplot(gs[0, 0]))
     axes.append(fig.add_subplot(gs[0, 1]))
@@ -521,6 +440,10 @@ def plot_results(results, outdir, non_anon=False):
         xlabel = "Message size in bytes"
         x = lookup_cpu[slug][size]["x"]
         y = lookup_cpu[slug][size]["y"]
+        
+        print(slug)
+        print(subset.groupby(['nodes', 'size'])[y].mean())
+        print(subset.groupby(['nodes', 'size'])[y].std())
 
         # for sty in plt.style.available:
         sns.lineplot(
@@ -530,6 +453,7 @@ def plot_results(results, outdir, non_anon=False):
             x=x,
             y=y,
             markers=True,
+            palette="muted",
             dashes=True,
             errorbar=("ci", 95),
         )
@@ -569,10 +493,10 @@ def plot_results(results, outdir, non_anon=False):
     plt.xscale("log")
     plt.yscale("log")
     plt.subplots_adjust(bottom=0.15)
-    plt.title("OSU Benchmarks on Google Cloud H3")
+    # plt.title("OSU Benchmarks on Google Cloud H3")
     plt.tight_layout()
     plt.savefig(os.path.join(plots_by_size, "osu-latency-bw-reduce-cpu-all-sizes.svg"))
-    plt.savefig(os.path.join(plots_by_size, "osu-latency-bw-reduce-cpu-all-sizes.png"))
+    # plt.savefig(os.path.join(plots_by_size, "osu-latency-bw-reduce-cpu-all-sizes.png"))
     plt.clf()
     plt.close()
 
